@@ -1,0 +1,239 @@
+\documentclass{article}
+
+% Per-assignment macros
+\def\studionumber{9}
+\def\studiotitle{Arrays}
+
+% Imports
+\usepackage{graphicx} % Required for inserting images
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue, anchorcolor=blue]{hyperref}
+\usepackage{hhline}
+\usepackage{amsmath}
+
+% Titling
+\usepackage{titling}
+\preauthor{\begin{center}}
+\postauthor{\par\end{center}\vspace{-30pt}}
+\setlength{\droptitle}{-50pt}
+
+% Geometry
+
+\usepackage{geometry}
+\geometry{letterpaper, portrait, margin=1in}
+
+\usepackage[skip=5pt]{parskip}
+\newlength\tindent
+\setlength{\tindent}{\parindent}
+\setlength{\parindent}{0pt}
+\renewcommand{\indent}{\hspace*{\tindent}}
+
+% Assignment titling (number, due date, etc)
+\title{
+    Studio \studionumber: \studiotitle
+}
+\author{ENGR 103, Winter 2024}
+\date{}
+
+% Box environments
+\usepackage{tcolorbox}
+\usepackage{fancyvrb}
+\newenvironment{terminalcommand}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Command,colframe=gray!80!blue,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+\newenvironment{terminaloutput}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Output,colframe=gray!80!red,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+
+\newenvironment{hint}
+    {\begin{tcolorbox}[title=Hint,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newenvironment{sourcecode}[1]
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=\texttt{#1},colframe=gray!80!green,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+
+\newenvironment{tip}
+    {\begin{tcolorbox}[title=Tip,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newcounter{examplerun}
+\newenvironment{examplerun}
+    {\begin{tcolorbox}[title=Example Run \refstepcounter{examplerun}\theexamplerun,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleruninputs}{\tcbsubtitle{Inputs}}
+\newcommand{\examplerunoutputs}{\tcbsubtitle{Outputs}}
+
+\newcounter{exampleproblem}
+\newcounter{exampleproblemsolution}
+\newenvironment{exampleproblem}
+    {\setcounter{exampleproblemsolution}{0}\begin{tcolorbox}[title=Example Problem \refstepcounter{exampleproblem}\theexampleproblem,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleproblemstatement}{\tcbsubtitle{Problem statement}}
+\newcommand{\exampleproblemsolution}{\refstepcounter{exampleproblemsolution}\tcbsubtitle{Solution \theexampleproblemsolution}}
+
+\newcommand{\imagewithdefaults}[1]{\includegraphics[width=\maxwidth{0.95\columnwidth}]{#1}}
+
+\makeatletter
+\def\maxwidth#1{\ifdim\Gin@nat@width>#1 #1\else\Gin@nat@width\fi}
+\makeatother
+
+\usepackage{soul}
+
+\begin{document}
+
+\maketitle
+
+Following are a couple of example problems related to arrays. Make sure you understand them, then solve the remaining three problems.
+
+\begin{exampleproblem}
+    \exampleproblemstatement
+    Write a program that prompts the user for 5 integers and then prints the mode (i.e., the number that appears the most times). If there is no mode, then print the first number entered by the user.
+
+    \exampleproblemsolution
+    \begin{verbatim}
+#include <iostream>
+
+int main() {
+    // Request array from user
+    int arr[5];
+    for (int i = 0; i < 5; i++) {
+        std::cout << "Enter integer #" << (i + 1) << ": ";
+        std::cin >> arr[i];
+    }
+
+    // Compute mode
+    int max_count = 0;
+    int running_mode;
+    for (int i = 0; i < 5; i++) {
+        // Count how many times arr[i] appears throughout the array.
+        int count = 0;
+        for (int j = 0; j < 5; j++) {
+            if (arr[j] == arr[i]) {
+                count++;
+            }
+        }
+
+        // If arr[i] has occurred more times than the running mode,
+        // update the max count and running mode
+        if (count > max_count) {
+            max_count = count;
+            running_mode = arr[i];
+        }
+    }
+
+    std::cout << "Mode: " << running_mode << std::endl;
+}
+    \end{verbatim}
+\end{exampleproblem}
+
+\begin{exampleproblem}
+    \exampleproblemstatement
+    Implement a function with the header,
+    \vspace{3pt}
+    \\
+    \texttt{void populate(int arr[], int n)},
+    \vspace{3pt}
+    \\
+    that prompts the user for \texttt{n} integers and stores them in \texttt{arr} in the order provided by the user.
+    \exampleproblemsolution
+    \begin{verbatim}
+void populate(int arr[], int n) {
+    std::cout << "Requesting " << n << " integers..." << std::endl;
+    for (int i = 0; i < n; i++) {
+        std::cout << "Enter integer #" << (i + 1) << ": ";
+        std::cin >> arr[i];
+    }
+}
+    \end{verbatim}
+\end{exampleproblem}
+
+\section{Problem 1}
+
+Implement a function with the header,
+
+\texttt{void reverse(std::string arr[], int length)},
+
+that reverses a given string array \ul{in-place} (i.e., it should modify the given array argument to reverse the order of its elements). \texttt{arr} represents the array of strings to be reversed, and \texttt{length} represents the number of strings in the array.
+
+Then, create a program that asks the user for five words, stores them in an array, reverses them by using your function written above, and prints them back to the terminal in their new reverse order.
+
+\begin{tip}
+    Recall that, post-declaration, array variables reflect their own base addresses. This means that the array parameter shares its memory with the array argument supplied, which makes it possible to modify an array argument's underlying elements by modifying the elements of its corresponding parameter. In this case, modifying the elements of \texttt{arr} within the \texttt{reverse()} function body will \underline{also} modify \texttt{my\_arr} when the \texttt{reverse()} function is called in \texttt{main()}.
+\end{tip}
+
+\begin{examplerun}
+    \begin{verbatim}
+Enter a string: Boy,
+Enter a string: do
+Enter a string: I
+Enter a string: love
+Enter a string: strings!
+
+In reverse: strings! love I do Boy,
+    \end{verbatim}
+\end{examplerun}
+
+\section{Problem 2}
+
+Implement a function with the header,
+
+\texttt{double std\_dev(double arr[], int length)},
+
+that computes and returns the sample standard deviation of an array of numbers. \texttt{arr} represents the array of \texttt{double}s of which to compute the standard deviation, and \texttt{length} represents the number of elements in the array.
+
+Then, create a program that asks the user for ten numbers, stores them in an array, computes their standard deviation using your function written above, and prints the computed standard deviation to the terminal.
+
+\begin{hint}
+    A sample standard deviation can be computed as follows:
+
+    \begin{equation}
+        S = \sqrt{V}.
+    \end{equation}
+
+    Here, $V$ is the sample variance:
+
+    \begin{equation}
+        \begin{aligned}
+            V & = \frac{\sum_{i=1}^{N} (x_i - \Bar{x})^2}{N - 1}\\
+            \\
+            & = \frac{(x_1 - \Bar{x})^2 + (x_2 - \Bar{x})^2 + ... + (x_N - \Bar{x})^2}{N - 1}
+        \end{aligned}
+    \end{equation}
+
+    And here, $x_i$ is the $i\textsuperscript{th}$ number entered by the user, $\Bar{x}$ is the mean of all of the numbers entered by the user, and $N=10$ (the number of numbers entered by the user).
+    \vspace{6pt}
+    \\
+    In English: Compute the mean $\Bar{x}$; compute the squared difference between each number and $\Bar{x}$; compute the sum of those squared differences; divide it by $N - 1 = 9$ to get the variance; compute its square root to get the sample standard deviation.
+\end{hint}
+
+Below is an example run. You can also use \href{https://www.calculator.net/standard-deviation-calculator.html}{this website} to verify that your solution works correctly (make sure to check the ``sample'' radio button if you use this website).
+
+\begin{examplerun}
+    \begin{verbatim}
+Enter number #1: 1.0
+Enter number #2: 2.0
+Enter number #3: 3.0
+Enter number #4: 4.0
+Enter number #5: 5.0
+Enter number #6: 6.0
+Enter number #7: 7.0
+Enter number #8: 8.0
+Enter number #9: 9.0
+Enter number #10: 10.0
+
+Standard deviation: 3.02765
+    \end{verbatim}
+\end{examplerun}
+
+\end{document}

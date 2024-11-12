@@ -1,0 +1,344 @@
+\documentclass{article}
+
+% Per-assignment macros
+\def\lecturetitle{Advanced Loops Tips \& Tricks}
+
+% Imports
+\usepackage{graphicx} % Required for inserting images
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue, anchorcolor=blue]{hyperref}
+\usepackage{hhline}
+
+% Titling
+\usepackage{titling}
+\preauthor{\begin{center}}
+\postauthor{\par\end{center}\vspace{-30pt}}
+\setlength{\droptitle}{-50pt}
+\usepackage{scrextend}
+
+% Geometry
+
+\usepackage{geometry}
+\geometry{letterpaper, portrait, margin=1in}
+
+\usepackage[skip=5pt]{parskip}
+\newlength\tindent
+\setlength{\tindent}{\parindent}
+\setlength{\parindent}{0pt}
+\renewcommand{\indent}{\hspace*{\tindent}}
+
+% Assignment titling (number, due date, etc)
+\title{
+    Lecture Notes: \lecturetitle
+}
+\author{ENGR 103, Winter 2024}
+\date{}
+
+% Box environments
+\usepackage{tcolorbox}
+\usepackage{fancyvrb}
+\newenvironment{terminalcommand}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Command,colframe=gray!80!blue,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+\newenvironment{terminaloutput}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Output,colframe=gray!80!red,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+
+\usepackage{minted}
+\newenvironment{cpp}[1]
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=\texttt{#1},colframe=gray!50!blue,colback=white!97!black]
+    \begin{minted}{c++}}
+    {\end{minted}
+    \end{tcolorbox}}
+
+\newenvironment{tip}
+    {\begin{tcolorbox}[title=Tip,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newenvironment{note}
+    {\begin{tcolorbox}[title=Note,colframe=white!70!red,colback=white]}
+    {\end{tcolorbox}}
+
+\newcounter{examplerun}
+\newenvironment{examplerun}
+    {\begin{tcolorbox}[title=Example Run \refstepcounter{examplerun}\theexamplerun,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleruninputs}{\tcbsubtitle{Inputs}}
+\newcommand{\examplerunoutputs}{\tcbsubtitle{Outputs}}
+
+\newcommand{\imagewithdefaults}[1]{\includegraphics[width=\maxwidth{0.95\columnwidth}]{#1}}
+
+\makeatletter
+\def\maxwidth#1{\ifdim\Gin@nat@width>#1 #1\else\Gin@nat@width\fi}
+\makeatother
+
+\usepackage{soul}
+
+\begin{document}
+
+\maketitle
+
+\section{For loop counter name: \texttt{i}}
+
+Since the purpose of a for loop is to solve count-based problems, nearly every for loop declares or at least initializes a counter variable in its initialization statement. Because this is such a common use case of for loops, it's conventional to simply name the counter variable \texttt{i}. In the previous lecture's examples, we named it \texttt{counter} to clearly indicate that it's a counter variable. But, over the years, \texttt{i} has become such a common counter variable name that every programmer knows exactly what it means. Recall that it's generally a bad idea to give variables single-letter or heavily abbreviated names, but this is a common exception.
+
+The origin of this variable name is rooted in mathematical notation. It's common to use \texttt{i} to index an element of a vector or a row of a matrix in mathematics. For loops are often used to do these sorts of things in programming as well, where the counter variable takes on the indexing responsibility. We'll see this in future lectures when we talk about strings and arrays.
+
+\section{For loop header tricks}
+
+Recall that the initialization statement and post-operation in a for loop header can each be any legal C++ statement. The examples from the previous lecture demonstrated the most common pattern for simple count-based problems---initializing the counter variable to zero, comparing it against the target number of iterations with a less-than operator, and incrementing it by 1 in the post-operation:
+
+\begin{verbatim}
+for (int counter = 0; counter < n; counter++) {
+    ...
+}
+\end{verbatim}
+
+In the above code, \texttt{n} is the number of times the loop should execute.
+
+In some cases, this common pattern might be a bit unintuitive. We'll cover examples For example, suppose you want to print all of the integers from \texttt{7} to \texttt{54}, inclusive. In total, that's 48 numbers that need to be printed, but that's not obvious---you might have to pull out your calculator to figure that out. Now that we know that \texttt{$N$ = 48}, we can formulate the for loop header (everything before the body):
+
+\begin{cpp}{7-to-54 for loop header}
+for (int counter = 0; counter < 48; counter++) {
+    ...
+}
+\end{cpp}
+
+But a someone hard question remains: what should go inside the loop body? The goal is to print the values from \texttt{7} to \texttt{54}. If we did the same thing as before and simply printed the value of \texttt{counter}, it would instead print the values from \texttt{0} to \texttt{47}. Perhaps you see the solution: rather than printing the value of \texttt{counter} at each iteration, we could print the value of the expression, \texttt{(counter + 7)}. This would offset all of the printed values, starting at \texttt{7} and ending at \texttt{54}:
+
+\begin{cpp}{7-to-54 for loop with common pattern}
+for (int counter = 0; counter < 48; counter++) {
+    if (counter > 0) {
+        std::cout << ", ";
+    }
+    std::cout << (counter + 7);
+}
+\end{cpp}
+
+This loop isn't completely intuitive. The goal is to print the values from \texttt{7} to \texttt{54}, and yet the counter variable runs from \texttt{0} to \texttt{47}. This is one of those cases where breaking the common pattern would make a lot of sense. For example, if we changed our initialization statement to \texttt{int counter = 7}, our loop condition to \texttt{counter <= 54}, and the print statement at the end of the loop body to \texttt{std::cout << counter}, the result would be much cleaner:
+
+\begin{cpp}{7-to-54 for loop}
+for (int counter = 7; counter <= 54; counter++) {
+    if (counter > 7) {
+        std::cout << ", ";
+    }
+    std::cout << counter;
+}
+\end{cpp}
+
+The above program is semantically equivalent to the one from before, but the offset-by-7 logic has been removed in favor of directly iterating the counter over the values to be printed.
+
+This example still involves incrementing the counter by 1 at each step. Again, the post-operation can be any legal C++ statement. For example, if we wanted to, we could easily modify our program to make it print the values backward while skipping every other number (i.e., \texttt{54, 52, 50, ..., 8}. In fact, this change would be as simple as adjusting the for loop header along with the if statement for the comma placement:
+
+\begin{cpp}{54-to-7 skipping every other number}
+for (int counter = 54; counter >= 7; counter -= 2) {
+    if (counter < 54) {
+        std::cout << ", ";
+    }
+    std::cout << counter;
+}
+\end{cpp}
+
+Of course, this is just the tip of the iceberg---for loops are highly flexible.
+
+\section{Break and Continue}
+
+There are two special keyword statements that can only be used inside a loop: \texttt{break} statements and \texttt{continue} statements. To use them, simply write \texttt{break;} or \texttt{continue;}, respectively. You can use them directly inside a loop, but that's never useful. Instead, they're intended to be used inside an \texttt{if} statement that's nested inside a loop.
+
+A \texttt{break} statement instantly ends the \ul{entire} loop that contains the \texttt{break} statement, jumping directly \ul{past} the loop body's closing curly brace and continuing on with the program from there. A \texttt{continue} statement instantly ends the \ul{current loop iteration}, jumping directly \ul{before} the loop body's closing curly brace and continuing on with the program from there.
+
+That's to say, \texttt{break} statements are used to terminate an entire loop early whereas \texttt{continue} statements are used to terminate the current loop iteration early and move onto the next iteration. Of course, if the loop condition has become \texttt{false} during the current iteration, then \texttt{continue} will behave very similarly to \texttt{break} since, in such a case, the current loop iteration is also the last loop iteration.
+
+Note, however, that when a \texttt{continue} statement is executed, the loop's post-operation will execute (in the case of a for loop), and the loop's condition will be re-evaluated. In contrast, when a \texttt{break} statement is executed, the post-operation will \textit{not} be executed (in the case of a for loop), nor will the loop condition be evaluated again---the loop will simply terminate immediately. If either the post-operation or condition evaluation have side effects, then \texttt{break} and \texttt{continue} will behave differently even when the loop condition has become \texttt{false} (\texttt{continue} will execute those side effects whereas \texttt{break} will mitigate them).
+
+\texttt{break} and \texttt{continue} statements can be practical at times, but be careful not to overuse them. The reason C++ offers you three different kinds of loops to begin with is so that you can clearly express the repetition logic of the loop up front merely by choosing the most appropriate kind of loop for the situation. \texttt{break} and \texttt{continue} statements alter the repetition logic of the loop, and they can be buried in the middle of the loop body. This can be confusing to someone reading your code. The rule of thumb is to try to handle common repetition logic in the loop header, and save \texttt{break} and \texttt{continue} for rare, special cases.
+
+Here's an example of a for loop that allows the user to supply up to 10 guesses for a magic number (777), but it uses a \texttt{break} statement to terminate early if the user happens to guess it correctly:
+
+\begin{cpp}{\texttt{break} example}
+for (int i = 0; i < 10; i++) {
+    std::cout << "Guess the magic number: ";
+    int guess;
+    std::cin >> guess;
+
+    if (guess == 777) {
+        std::cout << "You got it!" << std::endl;
+
+        // The user guessed correctly. No need to
+        // keep asking them for more guesses. Terminate
+        // the entire loop right now.
+        break;
+    }
+}
+\end{cpp}
+
+Notice that the \texttt{break} statement appears inside an \texttt{if} statement body. Consider: if the \texttt{break} statement appeared directly inside the loop body itself, it would execute unconditionally, and the loop couldn't possibly run more than once. This would defeat the entire purpose of using a loop altogether. Moreover, all of the code within the loop body appearing below the \texttt{break} statement would be dead code. Indeed, this is why \texttt{continue} and \texttt{break} statements should only be executed inside \texttt{if} statements that are nested within loops.
+
+Here's an example of a loop that asks the user for 10 positive integers and computes their sum, and it uses a \texttt{continue} statement for handling errors in user inputs:
+
+\begin{cpp}{\texttt{continue} example}
+int num_positive_values_entered = 0;
+int sum_of_positive_values = 0;
+while (num_positive_values_entered < 10) {
+    std::cout << "Enter a positive integer: ";
+    int value;
+    std::cin >> value;
+
+    if (value <= 0) {
+        std::cout << "I said to enter a POSITIVE integer!" << std::endl;
+
+        // Skip to the next iteration to reprompt
+        // the user immediately, avoiding adding 
+        // value to the sum or incrementing the counter.
+        continue;
+    }
+
+    sum_of_positive_values += value;
+    num_positive_values_entered++;
+}
+\end{cpp}
+
+\section{Nested loops}
+
+As you might've already guessed, loops can be nested inside other loops. In such a case, the inner loop is called a \textbf{nested loop}, and the outer look is called a \textbf{nesting loop}.
+
+Earlier, we discussed that \texttt{i} is a common name for loop counter variables. More generally, it's common for the outermost counting loop to use \texttt{i} as its counter variable name. If another counting loop is nested inside that loop, it's common for the nested loop to use \texttt{j} as its counter variable name. If there's a third layer of nesting, it's common for \texttt{k} to be the innermost loop's counter variable name. However, it's somewhat uncommon to nest this many counting loops inside one other. In fact, some people might even say that it's universally bad practice, and that you should be extracting some of these loops to their own functions, passing outer loops' counter variables around as arguments to parameters with more meaningful names.
+
+If a \texttt{break} or \texttt{continue} statement appears inside a nested loop, it only applies to the innermost loop in which it appears. For example, if a \texttt{break} statement is encountered in a for loop that's nested inside a while loop, only the for loop will terminate. The while loop will continue running. If the while loop's condition remains \texttt{true}, it will run for another iteration, which could restart the for loop that was previously terminated by the \texttt{break} statement.
+
+Besides those details, nested loops behave intuitively. However, acquiring that intuition can take some practice, so let's work through some examples.
+
+How many times do you think the following program will print ``Hello''?
+
+\begin{cpp}{Nested for loop example 1}
+for (int i = 0; i < 10; i++) {
+    for (int j = 0; j < 5; j++) {
+        std::cout << "Hello" << std::endl;
+    }
+}
+\end{cpp}
+
+The answer is: 50 times! The nesting (outer) loop will run exactly 10 iterations. For each and every iteration of the nesting loop, the nested (inner) loop will run \ul{in entirety} (starting from its initialization statement, \texttt{int j = 0}). The nested loop, in turn, runs exactly 5 iterations. For each and every iteration of the nested loop, the program prints ``Hello'' to the terminal.
+
+So, in total, the nested loop runs for 5 iterations whenever it's executed in entirety, and it's executed 10 times in entirety. This is a multiplication problem---$5 \times 10 = 50$, so that's how many times the program prints ``Hello''.
+
+Here's a slightly harder one. How many times will the following program print ``Hello'', and how many times will it print ``Goodbye''?
+
+\begin{cpp}{Nested for loop example 2}
+for (int i = 0; i < 10; i++) {
+    for (int j = 0; j < 5; j++) {
+        std::cout << "Hello" << std::endl;
+    }
+    std::cout << "Goodbye" << std::endl;
+}
+\end{cpp}
+
+The answer is: ``Hello'' will be printed 50 times, but ``Goodbye'' will only be printed 10 times. Moreover, they're printed in the following pattern: 5 ``Hello''s followed by a ``Goodbye'', and then another 5 ``Hello''s followed by another ``Goodbye'', and so on.
+
+If you trace the code, you'll see why this is the case. The nesting loop runs exactly 10 iterations. In each iteration, it runs the nested loop in entirety, and then it prints ``Goodbye'' exactly once. When run in entirety, the nested loop will run exactly 5 iterations, each of which will print ``Hello''. Hence, each iteration of the nesting loop prints 5 ``Hello''s followed by a ``Goodbye''. This pattern repeats 10 times (once for each iteration of the nesting loop), which gives us a total of 50 ``Hello''s and 10 ``Goodbye''s.
+
+Here's an even harder one, still using nested for loops:
+
+\begin{cpp}{Nested for loop example 3}
+for (int i = 1; i <= 9; i++) {
+    for (int j = 0; j < i; j++) {
+        std::cout << "Hello" << std::endl;
+    }
+}
+\end{cpp}
+
+Analyze the loop conditions very carefully. How many times will it print ``Hello''?
+
+Let's walk through this step by step. The outer loop will run a total of 9 times: it will execute when \texttt{i} is \texttt{1}, and then again when \texttt{i} is \texttt{2}, and so on, all the way up to, and including, when \texttt{i} is \texttt{9}.
+
+However, the inner loop is the tricky part. Whenever the inner loop is run in entirety, it will run exactly \texttt{i} iterations! Of course, \texttt{i} changes throughout the execution of the outer loop (it increments after each outer loop iteration).
+
+Consider that the first time the inner loop is run in entirety, it will run exactly one iteration because \texttt{i} will be \texttt{1} at that point. So it will print ``Hello'' once. However, the second time the inner loop is run in entirety, it will run exactly two iterations because \texttt{i} will be \texttt{2} at that point. So it will print ``Hello'' two more times.
+
+If we continue this pattern all the way up to when \texttt{i} is \texttt{9}, you'll see that the loop will execute a total of \texttt{1 + 2 + 3 + ... + 9} times. If you add these up, \ul{you get 45}. Hence, the above nested loop will print ``Hello'' a total of 45 times.
+
+\begin{tip}
+    A sequence of evenly spaced numbers is called an arithmetic sequence.
+    
+    \vspace{6pt}
+    
+    The sum of a sequence of numbers is always equal to the average of those numbers multiplied by the number of numbers (this is built into the definition of what an ``average'' is; doing some algebra will reveal this fact). As it turns out, you can compute the average of an arithmetic sequence as simply the average of the first and last numbers in the sequence. This is because, in an arithmetic sequence, the average of the first and last numbers is equal to the average of the second and second-to-last numbers, which is equal to the average of the third and third-to-last numbers, and so on. As such, all of these symmetric pairs have the same averages, which means that it's also the average of the entire sequence.
+    
+    \vspace{6pt}
+
+    That is, \texttt{1 + 2 + ... + 9} can be computed as the average of \texttt{1} and \texttt{9}, multiplied by the total number of numbers in the sequence (9). That gives us $\frac{1 + 9}{2} \times 9 = 45$.
+\end{tip}
+
+Let's do one more nested for loop example. What does the following program do? Note that \texttt{"$\backslash$t"} is a ``tab'' character, so printing it will print a tab indentation to the terminal. Hint: this is useful for alignment of columns in a table.
+
+\begin{cpp}{Nested for loop example 4}
+for (int i = 1; i <= 10; i++) {
+    for (int j = 1; j <= 10; j++) {
+        std::cout << (i * j) << "\t";
+    }
+    std::cout << std::endl;
+}
+\end{cpp}
+
+Answer: Here's what the terminal output looks like:
+
+\begin{terminaloutput}
+1       2       3       4       5       6       7       8       9       10
+2       4       6       8       10      12      14      16      18      20
+3       6       9       12      15      18      21      24      27      30
+4       8       12      16      20      24      28      32      36      40
+5       10      15      20      25      30      35      40      45      50
+6       12      18      24      30      36      42      48      54      60
+7       14      21      28      35      42      49      56      63      70
+8       16      24      32      40      48      56      64      72      80
+9       18      27      36      45      54      63      72      81      90
+10      20      30      40      50      60      70      80      90      100
+\end{terminaloutput}
+
+Indeed, this simple nested loop prints a $10 \times 10$ multiplication table. Analyze the code carefully and make sure that you understand all of the details. For example, why does \texttt{std::cout << std::endl} appear at the end of the outer loop rather than the end of the inner loop? Recall that \texttt{std::endl} stands for ``end line'', and it tells the terminal text to move down to the next line. Also, what would happen if \texttt{i} and \texttt{j} were initialized to \texttt{0} instead of \texttt{1}, and the loop conditions used \texttt{<} operators instead of \texttt{<=} operators (i.e., what would happen if the for loops used the common counting loop pattern, with no other changes)?
+
+Finally, let's do a crude, academic example that pulls a lot of concepts together, including nested loops, \texttt{break} and \texttt{continue} statements, and scope rules. How many times will the following code print ``Hello''?
+
+\begin{cpp}{Nested loops with \texttt{break} and \texttt{continue}}
+int i = 0; // while loop counter variable
+while (true) {
+    if (i >= 10) {
+        break;
+    }
+
+    for (int i = 0; i < 5; i++) {
+        if (i < 2) {
+            continue;
+        }
+
+        if (i >= 4) {
+            break;
+        }
+
+        std::cout << "Hello" << std::endl;
+    }
+
+    i++;
+}
+\end{cpp}
+
+The answer is: 20 times! This one's very tricky.
+
+The while loop has a perpetually \texttt{true} condition. Ordinarily, this would cause an infinite loop, and the program would run forever. However, there's a conditional \texttt{break} statement in the while loop that will terminate it when \texttt{i >= 10}. Notice that \texttt{i} starts out at \texttt{0} and is incremented by 1 at the end of each while loop iteration. This means that, in total, the full body of our while loop will execute 10 times. It will technically run 11 total iterations, but the 11\textsuperscript{th} iteration will terminate early due to the \texttt{break} statement. This means that the for loop will run in entirety exactly 10 times.
+
+Now, you might be wondering: what about the \texttt{i++} from the for loop post-operation? Won't this also affect the while loop's counter variable? Well, no, it won't. Recall that anytime you see a type specifier before a variable name, it means you're declaring a new variable. With that in mind, how many different variables called \texttt{i} are present in the above code? The answer is two. There are two completely separate variables both called \texttt{i}---the while loop's counter variable, and the for loop's counter variable. This is allowed since the for loop's counter variable is declared in a nested scope relative to the while loop's counter variable. In particular, our for loop's counter variable \ul{shadows} the while loop's counter variable.
+
+Okay, so \textit{now} you might be wondering: does the \texttt{i++} statement at the end of the while loop body actually increment the while loop's counter variable, or does it increment the for loop's counter variable? The answer is that it does, indeed, increment the while loop's counter variable. This is because any variables declared within a for loop's initialization statement are scoped to the for loop itself. Once the for loop terminates in entirety (i.e., its last iteration terminates), any variables declared in its initialization statement fall out of scope. That's to say, by the time the \texttt{i++} statement is executed at the end of the while loop body, the for loop's counter variable has already fallen out of scope.
+
+Okay, so the while loop will, indeed, run for 10 ``full'' iterations, and for each of these iterations, the for loop will run in entirety. One question remains: how many times does the for loop print ``Hello'' when it's run in entirety? The answer is: 2 times. Looking at the for loop header, it seems as if the for loop should execute 5 times. While that's technically true, the first two iterations are effectively skipped due to the \texttt{continue} statement. Similarly, the whole loop terminates early on the 5\textsuperscript{th} iteration due to the \texttt{break} statement. As such, only the 3\textsuperscript{rd} and 4\textsuperscript{th} iterations make it far enough in their control flow to actually print ``Hello''. Hence, the for loop prints ``Hello'' twice when run in entirety.
+
+So the while loop body will run 11 iterations with the 11\textsuperscript{th} terminating early, meaning the for loop will run in entirety 10 times. Each time the for loop is run in entirety, it prints ``Hello'' twice. Hence, this code prints ``Hello'' $10 \times 2 = 20$ times.
+
+\end{document}

@@ -1,0 +1,225 @@
+\documentclass{article}
+
+% Per-assignment macros
+\def\studionumber{4}
+\def\studiotitle{Functions}
+
+% Imports
+\usepackage{graphicx} % Required for inserting images
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue, anchorcolor=blue]{hyperref}
+\usepackage{hhline}
+\usepackage{amsmath}
+
+% Titling
+\usepackage{titling}
+\preauthor{\begin{center}}
+\postauthor{\par\end{center}\vspace{-30pt}}
+\setlength{\droptitle}{-50pt}
+
+% Geometry
+
+\usepackage{geometry}
+\geometry{letterpaper, portrait, margin=1in}
+
+\usepackage[skip=5pt]{parskip}
+\newlength\tindent
+\setlength{\tindent}{\parindent}
+\setlength{\parindent}{0pt}
+\renewcommand{\indent}{\hspace*{\tindent}}
+
+% Assignment titling (number, due date, etc)
+\title{
+    Studio \studionumber: \studiotitle
+}
+\author{ENGR 103, Winter 2024}
+\date{}
+
+% Box environments
+\usepackage{tcolorbox}
+\usepackage{fancyvrb}
+\newenvironment{terminalcommand}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Command,colframe=gray!80!blue,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+\newenvironment{terminaloutput}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Output,colframe=gray!80!red,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+
+\newenvironment{hint}
+    {\begin{tcolorbox}[title=Hint,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newenvironment{tip}
+    {\begin{tcolorbox}[title=Tip,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newcounter{examplerun}
+\newenvironment{examplerun}
+    {\begin{tcolorbox}[title=Example Run \refstepcounter{examplerun}\theexamplerun,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleruninputs}{\tcbsubtitle{Inputs}}
+\newcommand{\examplerunoutputs}{\tcbsubtitle{Outputs}}
+
+\newcounter{exampleproblem}
+\newcounter{exampleproblemsolution}
+\newenvironment{exampleproblem}
+    {\setcounter{exampleproblemsolution}{0}\begin{tcolorbox}[title=Example Problem \refstepcounter{exampleproblem}\theexampleproblem,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleproblemstatement}{\tcbsubtitle{Problem statement}}
+\newcommand{\exampleproblemsolution}{\refstepcounter{exampleproblemsolution}\tcbsubtitle{Solution \theexampleproblemsolution}}
+
+\newcommand{\imagewithdefaults}[1]{\includegraphics[width=\maxwidth{0.95\columnwidth}]{#1}}
+
+\makeatletter
+\def\maxwidth#1{\ifdim\Gin@nat@width>#1 #1\else\Gin@nat@width\fi}
+\makeatother
+
+\usepackage{soul}
+
+\begin{document}
+
+\maketitle
+
+\section{Basic Function Practice}
+
+Recall that functions are blocks of reusable code that communicate with other functions via one or more inputs (parameters) and zero or one outputs (return values).
+
+Following are a couple example problems involving basic function problems in C++. Make sure you understand them, and then complete the remaining problems.
+
+\begin{exampleproblem}
+    \exampleproblemstatement
+    The following function computes the cumulative CDF of a uniform distribution with endpoints $a$ and $b$ evaluated at a point $x$:\\
+
+    \begin{verbatim}
+/*
+ * Function: cdf_uniform
+ * Description: Computes the CDF of a uniform distribution evaluated at
+ *      a given point
+ * Parameters:
+ *      x (double): The point at which to evaluate the CDF
+ *      a (double): The lower bound of the uniform distribution's support
+ *      b (double): The upper bound of the uniform distribution's support
+ * Returns (double): The CDF of the distribution with the given support
+ *      evaluated at the given point
+ */
+double cdf_uniform(double x, double a, double b) {
+    return (x - a) / (b - a);
+}
+    \end{verbatim}
+    
+    Write a program that uses the above function to compute and print $P(X \in [1, 2])$ for $X \sim U(0, 5)$.
+
+    That is, your program should use the above function to compute the cumulative CDF of a uniform distribution with endpoints $a=0$ and $b=5$ evaluated at $x=1$. Next, it should use the above function to compute the cumulative CDF of a uniform distribution with endpoints $a=0$ and $b=5$ evaluated at $x=2$. Finally, it should subtract the second computed number from the first computed number and print the result.
+    
+    \exampleproblemsolution
+    \begin{verbatim}
+int main() {
+    double lower_cdf = cdf_uniform(1, 0, 5);
+    double upper_cdf = cdf_uniform(2, 0, 5);
+    std::cout << (upper_cdf - lower_cdf) << std::endl;
+}
+    \end{verbatim}
+    
+\end{exampleproblem}
+
+\begin{exampleproblem}
+    \exampleproblemstatement
+    Implement a function that computes the $y$ value on a line within a cartesian plane given the $x$ value, the slope of the line $m$, and the y-intercept of the line $b$ (i.e., a function that computes $y = mx + b$ given $m$, $x$, and $b$). Write a function block comment for it as well, following the style guidelines for this course (available on Canvas $\rightarrow$ Modules $\rightarrow$ Resources).\\
+
+    Then, write a program that uses this function to compute and print $y$ coordinates given $m=10$, $b=5$, and $x$ values of $0$, $1$, $5$, and $100$.
+    
+    \exampleproblemsolution
+    \begin{verbatim}
+/*
+ * Function: linear_function
+ * Description: Evaluates a linear function at an x coordinate
+ * Parameters:
+ *      x (double): The x coordinate at which to evaluate the linear function
+ *      slope (double): The slope of the linear function to evaluate
+ *      y_intercept (double): The y-intercept of the linear function to
+ *          evaluate
+ * Returns (double): The y coordinate of the given linear function
+ *      evaluated at the given x coordinate
+ */
+double linear_function(double x, double slope, double y_intercept) {
+    return slope * x + y_intercept;
+}
+
+int main() {
+    constexpr double slope = 10;
+    constexpr double y_intercept = 5;
+    std::cout << linear_function(0, slope, y_intercept) << std::endl;
+    std::cout << linear_function(1, slope, y_intercept) << std::endl;
+    std::cout << linear_function(5, slope, y_intercept) << std::endl;
+    std::cout << linear_function(100, slope, y_intercept) << std::endl;
+}
+    \end{verbatim}
+\end{exampleproblem}
+
+\section{Problem 1}
+
+Implement a function that rotates a cartesian point counterclockwise around the origin by a specified number of \ul{degrees} and returns the newly rotated point's \ul{x coordinate}. Similarly, implement a second function that rotates a cartesian point counterclockwise around the origin by a specified number of \ul{degrees} and returns the newly rotated point's \ul{y coordinate}.
+
+The equations for rotating a point ($x_1$, $y_1$) counterclockwise around the origin by $\theta$ \ul{radians} to produce a newly rotated point ($x_2$, $y_2$) are as follows:
+
+\begin{align}
+    x_2 = \cos (\theta) x_1 - \sin (\theta) y_1\\
+    y_2 = \sin (\theta) x_1 + \cos (\theta) y_1\\
+\end{align}
+
+The equation for converting degrees ($d$) to radians ($\theta$) is as follows:
+
+\begin{equation}
+    \theta = \frac{d \pi}{180}.
+\end{equation}
+
+That is, the parameters to each of your two functions should be the values of $x_1$, $y_1$, and $d$. The first function should compute and return $x_2$, and the second function should compute and return $y_2$.
+
+\begin{hint}
+    The \texttt{<cmath>} header file provides access to various trigonmetric functions, such as \texttt{sin} and \texttt{cos}, which each accept a single argument in units of radians and return the appropriate trigonometric output.
+\end{hint}
+
+Focus on following the style guidelines for this course (available on Canvas $\rightarrow$ Modules $\rightarrow$ Resources). In particular, practice the SRP and DRY principle. These two required functions will have some computations in common (such as the conversion from degrees to radians), so you should probably try to extract those shared computations to a separate ``helper'' function (indeed, you should end up with more than just the two required functions). Write function block comments for all of your functions.
+
+Lastly, write a program that uses your functions to rotate the point $(x=1, y=2)$ counterclockwise around the origin by $90$ degrees. Print the $x$ and $y$ coordinate of the newly rotated point. If your function works, the rotated point \textit{should} have the coordinates $(x=-2, y=1)$.
+
+\section{Problem 2}
+
+Write a program that prompts the user for a whole number between \texttt{1} and \texttt{10}, stores the user-input value in an \texttt{int}-typed variable, multiplies it by \texttt{1.5} (preserving decimal places---no truncation), and prints the result. The terminal output of your program should be formatted like so:
+
+\begin{verbatim}
+Your number multiplied by 1.5 is: <RESULT HERE>
+\end{verbatim}
+
+Again, your program should carefully follow the style guidelines for this course (available on Canvas $\rightarrow$ Modules $\rightarrow$ Resources). Don't forget to write block comments for each of your functions as well.
+
+\begin{hint}
+    If you find yourself writing a function that both interfaces with the terminal \textit{and} performs mathematical computations, then that function probably has too many responsibilities. Focus on segregating separate jobs into separate functions.
+\end{hint}
+
+\begin{hint}
+    For the last part of the program (printing the final result), recall that you can create a function with no return values by annotating its return type as \texttt{void}.
+\end{hint}
+
+\section{Quadratics}
+
+\subsection{The quadratic formula}
+
+During last week's studio, you wrote a program that prompted the user for values $a$, $b$, and $c$ for a quadratic equation, $ax^2 + bx + c = 0$. Your program then implemented the quadratic formula to solve for the discriminant and roots of the equation. Lastly, you used that program to solve for the time variable in an equation involving an object undergoing uniform motion.
+
+Copy your code from last week's studio into a new file for this week's studio using the \texttt{cp} command (refer to the shell command table in studio 1 or the first lecture notes for an explanation of this command). \textbf{Refactor} your code (i.e., reorganize it) into several smaller, well-designed functions. Again, adhere to the course style guidelines, and make sure to provide function block comments for each of your functions.
+
+\begin{hint}
+    The quadratic formula is really two formulas: if you use a $+$ sign for the $\pm$ part of the formula, you get the larger of the two roots, but if you use a $-$ sign for the $\pm$ part of the formula, you get the smaller of the two roots. However, so far, we've only covered how to return a single value from a function. Although it's possible to pack multiple values into a single, larger object to return it all at once in C++, we haven't learned how to do that yet. For this problem, I recommend writing (at least) two separate functions to implement the quadratic formula---one that returns the larger root, and one that returns the smaller root.
+\end{hint}
+
+Importantly, to refactor a program means to \ul{not} change its behavior in any way, but rather to simply reorganize the code to make it more readable, modular, etc. Your program should still behave the same as before. Verify that your program still works as intended by using it to solve the uniform motion problem from the end of last week's studio (it should produce the same answer as your program from last week's studio).
+
+\end{document}

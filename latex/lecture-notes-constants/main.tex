@@ -1,0 +1,135 @@
+\documentclass{article}
+
+% Per-assignment macros
+\def\lecturetitle{Constants}
+
+% Imports
+\usepackage{graphicx} % Required for inserting images
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue, anchorcolor=blue]{hyperref}
+\usepackage{hhline}
+
+% Titling
+\usepackage{titling}
+\preauthor{\begin{center}}
+\postauthor{\par\end{center}\vspace{-30pt}}
+\setlength{\droptitle}{-50pt}
+
+% Geometry
+
+\usepackage{geometry}
+\geometry{letterpaper, portrait, margin=1in}
+
+\usepackage[skip=5pt]{parskip}
+\newlength\tindent
+\setlength{\tindent}{\parindent}
+\setlength{\parindent}{0pt}
+\renewcommand{\indent}{\hspace*{\tindent}}
+
+% Assignment titling (number, due date, etc)
+\title{
+    Lecture Notes: \lecturetitle
+}
+\author{ENGR 103, Winter 2024}
+\date{}
+
+% Box environments
+\usepackage{tcolorbox}
+\usepackage{fancyvrb}
+\newenvironment{terminalcommand}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Command,colframe=gray!80!blue,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+\newenvironment{terminaloutput}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Output,colframe=gray!80!red,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+
+\usepackage{minted}
+\newenvironment{cpp}[1]
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=\texttt{#1},colframe=gray!50!blue,colback=white!97!black]
+    \begin{minted}{c++}}
+    {\end{minted}
+    \end{tcolorbox}}
+
+\newenvironment{tip}
+    {\begin{tcolorbox}[title=Tip,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newenvironment{note}
+    {\begin{tcolorbox}[title=Note,colframe=white!70!red,colback=white]}
+    {\end{tcolorbox}}
+
+\newcounter{examplerun}
+\newenvironment{examplerun}
+    {\begin{tcolorbox}[title=Example Run \refstepcounter{examplerun}\theexamplerun,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleruninputs}{\tcbsubtitle{Inputs}}
+\newcommand{\examplerunoutputs}{\tcbsubtitle{Outputs}}
+
+\newcommand{\imagewithdefaults}[1]{\includegraphics[width=\maxwidth{0.95\columnwidth}]{#1}}
+
+\makeatletter
+\def\maxwidth#1{\ifdim\Gin@nat@width>#1 #1\else\Gin@nat@width\fi}
+\makeatother
+
+\usepackage{soul}
+
+\begin{document}
+
+\maketitle
+
+\section{Runtime Constants}
+
+There are a few keywords that you can use in to modify a type in C++. These keywords are aptly named \textbf{type modifiers}. Type modifiers can be used anywhere that a type is declared, but we'll focus specifically on variable declarations.
+
+One type modifier is \texttt{const}. The \texttt{const} type modifier is used to mark a variable as a \textbf{runtime constant}. If a variable is marked as a runtime constant, it \ul{must} be initialized upon declaration (i.e., in a single statement). Furthermore, once a runtime constant has been initialized, its value cannot be reassigned.
+
+To use a type modifier, simply write it just before or after the type that you want to modify. For example,
+
+\begin{cpp}{\texttt{const} example}
+const char my_cool_character = 'D';
+\end{cpp}
+
+will declare a variable called \texttt{my\_cool\_character} of type \texttt{const char} (i.e., a runtime constant character) and initialize it to the character \texttt{'D'}.
+
+Failure to initialize a runtime constant upon declaration and / or attempting to assign a new value to a runtime constant after initialization will result in a syntax error, and your program will fail to build.
+
+\section{Compile-time Constants}
+
+Another type modifier is \texttt{constexpr}. The \texttt{constexpr} type modifier is used to mark a variable as a \textbf{compile-time constant}. Compile-time constants follow all of the same rules as runtime constants, but when they're initialized to a value, that value must \textit{also} be a compile-time constant. A compile-time constant is any value that can be ascertained by your compiler during compilation (i.e., just by looking at the code, without even running it). Literals are compile-time constants, as are the values of variables marked as \texttt{constexpr}.
+
+Our \texttt{const} example will also work as a \texttt{constexpr} example since \texttt{'D'} is a literal, and hence a compile-time constant. We just have to switch out \texttt{const} for \texttt{constexpr}:
+
+\begin{cpp}{\texttt{constexpr} example}
+constexpr char my_cool_character = 'D';
+\end{cpp}
+
+However, there are cases where \texttt{const} and \texttt{constexpr} aren't exchangeable. For example, this program is perfectly valid:
+
+\begin{cpp}{\texttt{const}-exclusive example}
+char user_input;
+std::cin >> user_input;
+const char my_cool_character = user_input;
+\end{cpp}
+
+Although \texttt{my\_cool\_character} is a runtime constant, it's perfectly legal to initialize it to the value of a variable that is \ul{not} a runtime constant. However, switching out \texttt{const} for \texttt{constexpr} in the above program would result in a syntax error. Indeed, compile-time constants are subject to the same rules as runtime constants (they must be initialized upon declaration, and they cannot be reassigned after initialization), but they also can only be initialized to compile-time constant values. In this case, \texttt{user\_input} is not a compile-time constant because its type is simply \texttt{char}, rather than \texttt{constexpr char}, so we can't store its value inside \texttt{my\_cool\_character}. Moreover, attempting to make \texttt{user\_input} a compile-time constant by marking its type as \texttt{constexpr char} would \textit{also} result in a syntax error because 1) it wouldn't be initialized upon declaration, \textit{and} 2) \texttt{std::cin >> user\_input} would attempt to assign a new value to \texttt{user\_input} based on the user's input in the terminal, which is not itself a compile-time constant value.
+
+The most common use case of \texttt{constexpr} variables is to use them in place of literals. For example, if your program requires doing a lot of computations with $\pi$ ($\sim 3.14159265$), rather than hardcoding the value of $\pi$ every time your program needs to use it, it makes more sense to simply create a compile-time constant, \texttt{constexpr double pi = 3.14159265}, and use that instead. Particularly, replacing hardcoded values (literals) with \texttt{constexpr} variables improves the \textbf{readability} of your code---as a general rule of thumb, it's easier to read and interpret code that has a lot of aptly named variables than it is to interpret code that has a lot of hardcoded values.
+
+\section{Why Constants?}
+
+You might be wondering, why use constants at all? Runtime constants and compile-time constants are just like regular variables, but they have a lot of extra rules associated with them. Anywhere you might use a \texttt{constexpr} or \texttt{const} variable, you could just as easily replace it with a regular non-constant variable instead, right? This is completely true; you never \textit{have} to use constants for anything. Rather, the reasons to use constants rather than regular variables are a bit abstract, but they're very important nonethless. The general reasons are two-fold: 1) to protect your program from mistakes, and 2) to improve readability of your code.
+
+Constants protect your program from mistakes by replacing logic errors with syntax errors. For example, suppose you have a regular, non-constant variable \texttt{double pi = 3.14159265}. There is no reason for the value of \texttt{pi} to ever change since it represents a fixed, mathematical constant. Hence, if you or a colleague ever \textit{accidentally} write some code that changes the value of \texttt{pi}, that would be an error. Specifically, it'd be a \ul{logic} error. Recall that logic errors are the worst kinds of errors because they're syntactically legal and hence very hard to locate and diagnose. However, if you declare \texttt{pi} as a compile-time constant (or even a runtime constant in this case), then attempts to change the value of \texttt{pi} will result in syntax errors. Syntax errors are very friendly errors---they're diagnosed and reported by our build tools before we even run our program. Hence, replacing logic errors with syntax errors is a very good thing.
+
+Constants can also improve the readability of your code over regular variables. If I'm reading your code and trying to understand it, seeing a variable marked as \texttt{const} or \texttt{constexpr} can bring a lot of confidence to my interpretation of your code. I can be confident that the value of the variable won't change, so I don't have to scour your code for statements that might change it. Later, we'll learn about things called \textbf{side effects}, which are, loosely, changes to the state of your program (such as the values of certain variables) that come from seemingly innocuous places. Constants prevent side effects in the sense that they prevent \textit{effects}---I can be confident that no side effects will change the values of your constants because the values of constants simply cannot change.
+
+There are also some advanced C++ language mechanisms that exclusively require \texttt{constexpr} variables or other compile-time constants, but we won't talk about them in this course.
+
+\end{document}

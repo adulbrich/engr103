@@ -1,0 +1,271 @@
+\documentclass{article}
+
+% Per-assignment macros
+\def\studionumber{1}
+\def\studiotitle{Environment Setup and Familiarization}
+
+% Imports
+\usepackage{graphicx} % Required for inserting images
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue, anchorcolor=blue]{hyperref}
+\usepackage{hhline}
+
+% Titling
+\usepackage{titling}
+\preauthor{\begin{center}}
+\postauthor{\par\end{center}\vspace{-30pt}}
+\setlength{\droptitle}{-50pt}
+
+% Geometry
+
+\usepackage{geometry}
+\geometry{letterpaper, portrait, margin=1in}
+
+\usepackage[skip=5pt]{parskip}
+\newlength\tindent
+\setlength{\tindent}{\parindent}
+\setlength{\parindent}{0pt}
+\renewcommand{\indent}{\hspace*{\tindent}}
+
+% Assignment titling (number, due date, etc)
+\title{
+    Studio \studionumber: \studiotitle
+}
+\author{ENGR 103, Spring 2024}
+\date{}
+
+% Box environments
+\usepackage{tcolorbox}
+\usepackage{fancyvrb}
+\newenvironment{terminalcommand}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Command,colframe=gray!80!blue,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+\newenvironment{terminaloutput}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Output,colframe=gray!80!red,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+
+\newenvironment{tip}
+    {\begin{tcolorbox}[title=Tip,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newcounter{examplerun}
+\newenvironment{examplerun}
+    {\begin{tcolorbox}[title=Example Run \refstepcounter{examplerun}\theexamplerun,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleruninputs}{\tcbsubtitle{Inputs}}
+\newcommand{\examplerunoutputs}{\tcbsubtitle{Outputs}}
+
+\newcommand{\imagewithdefaults}[1]{\includegraphics[width=\maxwidth{0.95\columnwidth}]{#1}}
+
+\makeatletter
+\def\maxwidth#1{\ifdim\Gin@nat@width>#1 #1\else\Gin@nat@width\fi}
+\makeatother
+
+\usepackage{soul}
+
+\begin{document}
+
+\maketitle
+
+In this studio, you will:
+
+\begin{enumerate}
+    \item Create an OSU CoE account if you don't already have one
+    \item Setup and familiarize yourself with your development environment
+    \item Create a simple ``Hello, World!'' application in C++
+    \item Learn how to build and execute that application
+    \item Generate SSH keys to authenticate your computer with your user account on the ENGR servers and bypass Duo
+\end{enumerate}
+
+Remember to show your work to a TA prior to leaving in order to get checked off. If you fail to get checked off, we will assume that you were absent, and you will receive a 0 in the gradebook.
+
+\section{Create an OSU Engineering account}
+
+If you haven't already done so, start by creating an OSU College of Engineering (CoE) account for yourself:
+
+\begin{enumerate}
+    \item Click \href{https://teach.engr.oregonstate.edu/teach.php?type=want_auth}{here} to navigate to TEACH (or just Google ``OSU TEACH'')
+    \item Click ``Create a new account (Enable your Engineering Resources)''
+    \item Follow the instructions on screen to finish setting up your CoE account
+\end{enumerate}
+
+This will give you a home directory on the ENGR servers and allow you to connect to them over \textbf{SSH}.
+
+\section{Connecting to the ENGR servers}
+
+In this class, we'll do all of our work on the \textbf{ENGR servers} for consistency. The ENGR servers are a bunch of big, fancy computers in the server room of Kelley Engineering Center. However, we'll be working on them \textbf{remotely}---that is, we will connect to them from our computer and control them by issuing text-based commands. This process will be facilitated by a \textbf{terminal}---a program that allows you to issue text-based commands to control a computer. Ordinarily, these commands would be used to control \ul{your} computer. However, one command available to you is \textbf{ssh}, which stands for Secure Shell and allows you to connect to another computer and control it remotely (given sufficient permissions). We will be using \texttt{ssh} to connect to and control the ENGR servers.
+
+\begin{enumerate}
+    \item Open your terminal.\\
+    - On Windows: Click on the start menu $\rightarrow$ search for ``powershell'' and launch it.\\
+    - On Mac: Click on the Spotlight search icon (the magnifying glass) $\rightarrow$ search for ``terminal'' and launch it\\
+    - On Linux: Presumably, you're already familiar with terminals if you use Linux. Use whatever terminal you'd like.
+    \item Type the following command into the terminal and press enter:
+
+    \texttt{ssh <Your ONID>@access.engr.oregonstate.edu}
+
+    Replace \texttt{<Your ONID>} with your ONID in the above command (the first part of your OSU email address). For example, my connection string is \texttt{guyera@access.engr.oregonstate.edu}.
+    
+    \item After pressing enter, it'll ask you for a password. Enter your ONID password (i.e., the password you use to login to OSU services like Canvas and Outlook) and press enter. \ul{Your password will be invisible as you type it. This is an intended security feature.}
+    
+    \item It should then ask you to authenticate with Duo. If you have multiple Duo devices registered, you'll have to type the number corresponding to the device you want to use and press enter. Authenticate your login via Duo.
+\end{enumerate}
+
+\section{Project Directory Setup}
+
+Your terminal should now be connected to the ENGR servers. From here on out, any commands that you run will be executed on the ENGR servers.
+
+Review the ``Linux shell commands'' section of the ``Development Environment'' lecture notes. Use the commands discussed in the lecture notes to:
+
+\begin{enumerate}
+\item Create a directory in which to store your ENGR 103 work.
+\item Within that directory, create another directory to store your studio work.
+\item \label{project-directory} Within that directory, create another directory to store your work for studio 1.
+\item Use \texttt{cd} to navigate (set the working directory) to the directory created in step \ref{project-directory}.
+\end{enumerate}
+
+Here's a copy of the Linux shell commands table from the lecture notes for your convenience:
+
+\begin{tabular}{|p{0.3\columnwidth}|p{0.65\columnwidth}|}
+    \hline
+    Command & Description\\
+    \hline
+    \texttt{ssh <connection string>} & Connects to the SSH server specified by the connection string. You already used this command locally (from your computer) to connect to the ENGR servers.\\
+    \hline
+    \texttt{pwd} & Prints the working directory\\
+    \hline
+    \texttt{ls <path>} & Lists the files and directories within directory located at the specified path\\
+    \hline
+    \texttt{ls} & Lists the files and directories within the working directory\\
+    \hline
+    \texttt{mkdir <path>} & Creates a new directory at the specified path\\
+    \hline
+    \texttt{cd <path>} & Navigates to the directory at the specified path, making it the new working directory\\
+    \hline
+    \texttt{cd} & Navigates to your home directory, making it the new working directory (on the ENGR servers, this should be \texttt{/nfs/stak/<ONID>})\\
+    \hline
+    \texttt{clear} & Clears the text on-screen in the terminal\\
+    \hline
+    \texttt{cp <path1> <path2>} & Copies the file located at the specified path1 to the location specified by path2. \texttt{cp -r <path1> <path2>} can be used to copy an entire directory and all of its contents.\\
+    \hline
+    \texttt{mv <path1> <path2>} & Moves the file or directory located at the specified path1 to the location specified by path2. This can also be used to rename files / directories. If the specified path2 already exists and is itself a directory, this will move the file / directory located at the specified path1 \textit{into} the directory located at the specified path2.\\
+    \hline
+    \texttt{rm <path>} & Removes (deletes) the file located at the specified path. To remove an entire non-empty directory, use \texttt{rm -r <path>}. To remove an empty directory, you can also use \texttt{rmdir <path>}.\\
+    \hline
+    \texttt{cat <path1> <path2> ... <pathN>} & Concatenates the contents of the files at all of the specified paths in the order provided and prints the concatenated content to the terminal. Note that this is also used for just printing the contents of a single file.\\
+    \hline
+    \texttt{vim <path>} & Opens the file at the specified path in the vim text editor (see next section)\\
+    \hline
+\end{tabular}
+
+\section{Creating a ``Hello, World!'' Application}
+
+``Hello, World!'' is a famous academic program used to familiarize yourself with a new programming language that simply prints the text, ``Hello, World!'', to the terminal.
+
+In your studio 1 project directory, use vim to open a file called \texttt{main.cpp}, like so:
+
+\begin{terminalcommand}
+vim main.cpp
+\end{terminalcommand}
+
+The .cpp file extension stands for C++.
+
+Review the ``Vim'' section of the ``Development Environment'' lecture notes. Use vim to write the following code to the file:
+
+\begin{verbatim}
+#include <iostream>
+
+int main() {
+    std::cout << "Hello, World!" << std::endl;
+}
+\end{verbatim}
+
+Save the file and quit vim.
+
+\section{Building and Running Your Program}
+
+The only kind of code that your computer can directly interpret is \textbf{machine code}. But machine code is very hard for humans to read and write since it's just a bunch of op codes expressed in binary. This means that your computer can't actually interpret a C++ program directly.
+
+In order to run a program written in a language other than machine code, you need one of two things: a) a \textbf{compiler}, or b) an \textbf{interpreter}. You'll learn more details about these things in lecture. In this course, we will use the \texttt{g++} compiler to compile our code.
+
+To compile C++ code into machine code so that you can run it, execute the following command:
+
+\begin{terminalcommand}
+g++ -o <name of executable> <file1.cpp> <file2.cpp> ... <fileN.cpp>
+\end{terminalcommand}
+
+This will create a new file that can be executed to run your program as if it were a terminal command itself. Replace ``\texttt{<name of executable>}'' with whatever you want the name of this new, executable file to be. Replace the list of .cpp files with whatever .cpp files you want to compile. Throughout ENGR 103, you will probably only ever be compiling one .cpp file at a time (we won't be writing any big programs with multiple source code files). In this case, our only file is \texttt{main.cpp}. For example, you might run the command like so to create an executable file called \texttt{run}: \texttt{g++ -o run main.cpp}.
+
+Compile your C++ file into an executable, and then continue.
+
+If your terminal displays anything whatsoever (be it an error or a warning), then that means you made a mistake when writing your code. Fix the issue, and rebuild your code by running the \texttt{g++} command again. \ul{Note that any time you make any changes to your code, you must rebuild it via \texttt{g++} in order for those changes to be reflected in your executable}; running an outdated executable is an extremely common source of confusion.
+
+If no errors or warnings are reported by \texttt{g++}, then your program was likely built successfully. To verify this, run the \texttt{ls} command. You should now see a file called \texttt{run} (or whatever you chose to name your executable).
+
+To run your executable file, you can treat it like a plain-old terminal / shell command. That is, you can just type the name of the executable file. However, this may not work naively, depending on your shell configuration. In some cases, if you simply type \texttt{run} into the terminal (for example), the shell will attempt to execute a \ul{system-installed} executable file called \texttt{run}. In this case, we want to execute the file called \texttt{run} that's present in our \ul{working directory}. So, if simply typing the name of the executable doesn't work for you (it might say something like ``command not found''), try prefixing the name with ``\texttt{./}''. For example, \texttt{./run}. Recall from the lecture notes that \texttt{./} refers to the working directory, so this explicitly refers to the file that we're trying to execute.
+
+If all goes well, the program should execute, and the text ``Hello, World!'' should be displayed to your terminal.
+
+\section{Bypassing Duo on SSH via SSH Keys}
+
+You've completed the bulk of this studio, but this last step will make your life easier in the future. If you don't have time to complete it during your studio section, it's \ul{strongly} recommended that you complete it on your own.
+
+When you connected to the ENGR servers via SSH, recall that you had to enter your ONID password and then authenticate with Duo. The Duo authentication step can be particularly annoying. Luckily, there's a secure way to bypass this step.
+
+SSH keys are an application of public-key cryptography that use digital signatures for SSH authentication. That's a bunch of jargon, but what it means is that they serve as an alternative way of authenticating your identity with a server (e.g., allowing you to skip entering your ONID password and authenticating with Duo when connecting to the ENGR servers). In this course, you'll create and use two separate pairs of SSH keys for two separate purposes:
+
+\begin{enumerate}
+    \item \label{item:ssh_duo_bypass} A pair of SSH keys that allow you to authenticate your computer with your user account on the ENGR servers, avoiding having to type your ONID password and perform Duo authentication when using the \texttt{ssh} command.
+    \item A pair of SSH keys that allow you to authenticate your user account on the ENGR servers with your GitHub account for submitting assignments through GitHub Classroom.
+\end{enumerate}
+
+Let's focus on case \ref{item:ssh_duo_bypass} above (we'll deal with Git and GitHub during the next studio). The general flow of setting up SSH key authentication is to 1) generate a pair of so-called SSH keys (a private key and a public key, which are generated together) on the device that you want to authenticate, and then 2) register the public key with the service / server that you want to authenticate with. Follow the below steps to setup SSH key authentication between your computer and your user account on the ENGR servers:
+
+\begin{enumerate}
+    \item Open a second terminal window, but don't close the first one that's connected to the ENGR servers from earlier.
+    \item If you've generated SSH keys on your computer in the past, skip to step \ref{ssh-key-transfer}. Otherwise, type the following command into your second terminal and press enter:
+
+\begin{terminalcommand}
+ssh-keygen -t rsa -b 4096
+\end{terminalcommand}
+
+    Follow the on-screen instructions. It should ask you where want to store your SSH keys on your computer. Pay close attention to where they're stored---you'll need them for the next step. Simply press enter to save them to the default locations (recommended). It should also ask you for an SSH key password. Using a password is recommended but not required. However, if you do use an SSH key password, you will either a) need to type it in every time you want to use your SSH keys, or b) add your SSH keys to your SSH agent (you can Google how to do this or stop by office hours). If you wish to protect your keys with a password, then type your desired password and press enter. Otherwise, simply press enter without typing anything. \ul{Again, your password may be invisible as you type it. This is an intended security feature.}
+    \item \label{ssh-key-transfer} In a file explorer (e.g., Windows File Explorer or Mac Finder), navigate to the directory containing your SSH keys. By default, the two generated SSH keys should be named \texttt{id\_rsa} and \texttt{id\_rsa.pub}. Open the one ending in \texttt{.pub} using your text editor of choice (e.g., Notepad). The contents of the file should begin with ``ssh-rsa''. Highlight the contents of the file and copy it to your clipboard.
+    \item Open your \ul{first} terminal where you're still connected to the ENGR servers. Run the following commands to create and configure the permissions on a \texttt{$\sim$/.ssh} folder:
+
+\begin{terminalcommand}
+mkdir -p ~/.ssh
+chmod 700 ~/.ssh
+\end{terminalcommand}
+
+    Note that the first character in those file paths is a tilde ($\sim$).
+    \item Use vim to open your SSH authorized keys file, like so:
+
+\begin{terminalcommand}
+vim ~/.ssh/authorized_keys
+\end{terminalcommand}
+
+    Paste the public key that you copied previously onto its own, separate line in this file, and then save and quit. Note that most Windows and Linux terminals will let you copy via Ctrl+Shift+C and paste via Ctrl+Shift+V. However, you may have to configure your terminal to let you do this first (on Powershell, right click on the menu bar $\rightarrow$ properties $\rightarrow$ check ``enable Ctrl key shortcuts'' and ``Use Ctrl+Shift+C/V as Copy/Paste''). In a Mac terminal, you can usually copy via Command+C and paste via Command+V.
+    \item Update the permissions of your \texttt{$\sim$/.ssh/authorized\_keys} file via the following command:
+
+\begin{terminalcommand}
+chmod 600 ~/.ssh/authorized_keys
+\end{terminalcommand}
+    \item In your \ul{second} terminal window that you used to generate your SSH keys (where you're \ul{not} currently connected to the ENGR servers), try to connect to the ENGR servers using the same command as you did at the beginning of this studio:
+
+\begin{terminalcommand}
+ssh <Your ONID>@access.engr.oregonstate.edu
+\end{terminalcommand}
+
+If all goes well, you should not need to enter your ONID password, nor should you need to authenticate via Duo. However, you may need to enter your SSH key password if you chose to create one (again, you can configure your ssh agent to avoid having to do this more than once per reboot).
+
+Note that if you chose to save your SSH keys in a nondefault location (not recommended), you may have to use the \href{https://linuxcommand.org/lc3_man_pages/ssh1.html}{\texttt{-i} flag of the \texttt{ssh} command} to tell it which SSH private key to use for authentication (or, for a long-term solution, you can \href{https://superuser.com/questions/1276485/configure-ssh-key-path-to-use-for-a-specific-host}{configure \texttt{ssh} to use certain keys for certain hosts}).
+\end{enumerate}
+
+\end{document}

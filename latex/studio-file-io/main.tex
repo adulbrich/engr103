@@ -1,0 +1,264 @@
+\documentclass{article}
+
+% Per-assignment macros
+\def\studionumber{10}
+\def\studiotitle{File I/O}
+
+% Imports
+\usepackage{graphicx} % Required for inserting images
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue, anchorcolor=blue]{hyperref}
+\usepackage{hhline}
+\usepackage{amsmath}
+
+% Titling
+\usepackage{titling}
+\preauthor{\begin{center}}
+\postauthor{\par\end{center}\vspace{-30pt}}
+\setlength{\droptitle}{-50pt}
+
+% Geometry
+
+\usepackage{geometry}
+\geometry{letterpaper, portrait, margin=1in}
+
+\usepackage[skip=5pt]{parskip}
+\newlength\tindent
+\setlength{\tindent}{\parindent}
+\setlength{\parindent}{0pt}
+\renewcommand{\indent}{\hspace*{\tindent}}
+
+% Assignment titling (number, due date, etc)
+\title{
+    Studio \studionumber: \studiotitle
+}
+\author{ENGR 103, Winter 2024}
+\date{}
+
+% Box environments
+\usepackage{tcolorbox}
+\usepackage{fancyvrb}
+\newenvironment{terminalcommand}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Command,colframe=gray!80!blue,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+\newenvironment{terminaloutput}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Output,colframe=gray!80!red,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+
+\newenvironment{hint}
+    {\begin{tcolorbox}[title=Hint,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newenvironment{sourcecode}[1]
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=\texttt{#1},colframe=gray!80!green,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+
+\newenvironment{tip}
+    {\begin{tcolorbox}[title=Tip,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newcounter{examplerun}
+\newenvironment{examplerun}
+    {\begin{tcolorbox}[title=Example Run \refstepcounter{examplerun}\theexamplerun,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleruninputs}{\tcbsubtitle{Inputs}}
+\newcommand{\examplerunoutputs}{\tcbsubtitle{Outputs}}
+
+\newcounter{exampleproblem}
+\newcounter{exampleproblemsolution}
+\newenvironment{exampleproblem}
+    {\setcounter{exampleproblemsolution}{0}\begin{tcolorbox}[title=Example Problem \refstepcounter{exampleproblem}\theexampleproblem,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleproblemstatement}{\tcbsubtitle{Problem statement}}
+\newcommand{\exampleproblemsolution}{\refstepcounter{exampleproblemsolution}\tcbsubtitle{Solution \theexampleproblemsolution}}
+
+\newcommand{\imagewithdefaults}[1]{\includegraphics[width=\maxwidth{0.95\columnwidth}]{#1}}
+
+\makeatletter
+\def\maxwidth#1{\ifdim\Gin@nat@width>#1 #1\else\Gin@nat@width\fi}
+\makeatother
+
+\usepackage{soul}
+
+\begin{document}
+
+\maketitle
+
+\section{End-of-term ENGR+ Survey}
+
+Please complete \href{https://oregonstate.qualtrics.com/jfe/form/SV_8v8s4iCbF3sr0Fw}{the end-of-term ENGR+ survey}.
+
+\section{File I/O in C++}
+
+There hasn't been much new lecture content since the last studio other than references, so this studio is more exploratory. It will help you learn about File I/O in C++.
+
+I/O stands for \textbf{input / output}, and it refers to mechanisms by which a program receives and outputs data from and to external sources. You've actually done lots of I/O in your programs throughout the term; the \texttt{io} in \texttt{<iostream>}, too, stands for input / output, as the \texttt{<iostream>} header file offers standard I/O, or console I/O mechanisms (i.e., \texttt{std::cout} and \texttt{std::cin}).
+
+If console I/O mechanisms are tools that you can use in your program to read and write data from and to the console (terminal), then it shouldn't be surprising to learn that file I/O mechanisms are tools that you can use in your program to read and write data from and to files. Such mechanisms are provided by the standard library \ul{in the \texttt{<fstream>} header file}, which must be included in order to access them.
+
+The \texttt{<fstream>} header file gives you access to two new important data types for file I/O: \texttt{std::ifstream} and \texttt{std::ofstream}. Both of these data types are classes, much like \texttt{std::string}. \texttt{ifstream} stands for ``input file stream'', and it's a data type that represents an object with a handle to an input file (i.e., a \ul{preexisting} file from which your program will read data). Similarly, \texttt{ofstream} stands for ``output file stream'', and it's a data type that represents an object with a handle to an output file (i.e., a file, either preexisting or not, to which your program will write data).
+
+To create \texttt{std::ifstream} and \texttt{std::ofstream} objects (variables), you must call the appropriate \textbf{constructor} via a special syntax. A constructor is a special function dedicated to creating objects of a certain class.
+
+To call a constructor and create an object of a certain class type, use the following syntax:
+
+\begin{verbatim}
+<type> <variable name>(<constructor argument list>);
+\end{verbatim}
+
+This syntax will declare a variable of the specified type and initialize it according to the implementation of the constructor. For example, the following is a valid constructor call that creates a \texttt{std::ofstream} object (read about it in the next section):
+
+\begin{verbatim}
+std::ofstream my_cool_ofstream("my_cool_file.txt", std::ios::app);
+\end{verbatim}
+
+The next sections will break out the details separately for \texttt{std::ofstream} objects and \texttt{std::ifstream} objects.
+
+\subsection{\texttt{std::ofstream} objects}
+
+Different constructors have different parameters and thus require different arguments. Moreover, a single class can have multiple constructors with different parameter lists. The \texttt{std::ofstream} class's constructor that we'll be using accepts two arguments: a \texttt{std::string} argument containing the path to the file to be written, and a special kind of constant denoting the ``open mode'' of the stream object. The path argument can be specified either as a relative path (i.e., relative to the working directory) or an absolute path (i.e., starting with a \texttt{/}, relative to the file system's root). There are various open modes, but for this studio, you'll use one of either \texttt{std::ios::trunc} or \texttt{std::ios::app}. In this context, \texttt{trunc} stands for ``truncate''. When you create a \texttt{std::ofstream} object using \texttt{std::ios::trunc} as the open mode, it will truncate (i.e., erase) the contents of the given file if the file already exists, and when you subsequently use this stream object to write to the file, your program will rewrite the file from scratch. In contrast, \texttt{app} stands for ``append''. When you create a \texttt{std::ofstream} object using \texttt{std::ios::app} as the open mode, it will \ul{not} truncate (erase) the contents of the given file if it already exists; when you subsequently use this stream object to write to the file, your program will simply append the written data to the end of the file. Regardless of the open mode, if the file \textit{doesn't} already exist, it will be created in the process.
+
+Once you have created your \texttt{std::ofstream} object (variable), giving its constructor the target file path to write to and the appropriate open mode, you can then proceed to use the \texttt{std::ofstream} object to actually write data to the target file. Luckily, this part is very easy and requires no new syntax---as it turns out, the interface of a \texttt{std::ofstream} object is effectively identical to the interface of \texttt{std::cout} (the reason is that \texttt{std::cout} is actually itself an object of a very similar class to \texttt{std::ofstream}). That's to say, the only difference between using \texttt{std::cout} and your own custom \texttt{std::ofstream} object is that data sent to \texttt{std::cout} (e.g., via the stream insertion operator) will be written to and displayed in the terminal, whereas data sent to a \texttt{std::ofstream} object will be written to the file whose path was specified at construction.
+
+For example, suppose you want to write the text ``Hello, World!'' to the \ul{terminal}. As you know, the code might look something like this:
+
+\begin{verbatim}
+std::cout << "Hello, World!" << std::endl;
+\end{verbatim}
+
+In contrast, suppose you want to write the text ``Hello, World!'' to a \ul{file}, and suppose you have a \texttt{std::ofstream} object for that file called \texttt{hello\_world\_stream}. The code to write this text to the file, then, might look something like this:
+
+\begin{verbatim}
+hello_world_stream << "Hello, World!" << std::endl;
+\end{verbatim}
+
+Notice: using a \texttt{std::ofstream} object is identical to using \texttt{std::cout}; you just have to replace \texttt{std::cout} with your \texttt{std::ofstream} object.
+
+Following is a complete program that opens a file in the working directory called \texttt{hello.txt} and writes the text ``Hello, World!'' to the file. If the file already exists, its contents are truncated (erased) and rewritten. Otherwise, the file will be created in the process.
+
+\begin{sourcecode}{\texttt{std::ofstream} example}
+#include <fstream>
+
+int main() {
+    // Create an ofstream object that will allow us to write text
+    // into "hello.txt", opening in truncate mode to erase the
+    // contents of the file if it already exists.
+    std::ofstream hello_world_stream("hello.txt", std::ios::trunc);
+
+    // Write the text, "Hello, World!" to the file.
+    hello_world_stream << "Hello, World!" << std::endl;
+}
+\end{sourcecode}
+
+Copy the above program and execute it in your terminal. Then run the \texttt{ls} command. You should now see a file called \texttt{hello.txt} in your working directory. If you open it, it should contain the text, ``Hello, World!''.
+
+\subsection{\texttt{std::ifstream} objects}
+
+The \texttt{std::ifstream} constructor that we'll use accepts a single argument: a string containing the path to the file from which to read data. Again, this can either be a relative path or an absolute path. Since \texttt{std::ifstream} objects are used for reading data from a file into your program, it's important that the file at the specified path already exists, and that it contains content in a format that your program expects. If the specified file doesn't exist, the \texttt{std::ifstream} object will fail to open. There are ways to check if this happens programmatically (e.g., see \href{https://cplusplus.com/reference/fstream/ifstream/is_open/}{here} or \href{https://cplusplus.com/reference/ios/ios/fail/}{here}), but we'll skip over them in the interest of time.
+
+If \texttt{std::ofstream} objects work similarly to \texttt{std::cout}, then you shouldn't be surprised to learn that \texttt{std::ifstream} objects work similarly to \texttt{std::cin}. Indeed, once you've constructed a \texttt{std::ifstream} object, you can use it in the exact same way that you would use \texttt{std::cin}. The only difference is that, instead of reading text entered by the user in the terminal, it will read text from the file whose path was specified during construction. Besides this small difference, the rest is the same. By default, a \texttt{std::ifstream} object, when created, will initially ``point'' to the beginning of the given file. As you read text from it (e.g., via the stream extraction operator or \texttt{std::getline()}), it will move along the file as it goes. That is, you can imagine that every \texttt{std::ifstream} object has a little cursor that traverses the file as it reads the corresponding text.
+
+For example, suppose you have a file called \texttt{data.txt} with the following contents:
+
+\begin{verbatim}
+5
+George Washington
+John Adams
+Thomas Jefferson
+James Madison
+James Monroe
+\end{verbatim}
+
+In this file format, suppose the first number (the number in the first line) reflects the number of full names that will appear below it. Each subsequent line contains a full name written as the first name, followed by a space, followed by the last name.
+
+We could write a program that reads the contents of this file and prints the names back to the terminal in the format of \texttt{"<last name>, <first name>"} like so:
+
+\begin{sourcecode}{\texttt{std::ifstream} example}
+#include <iostream>
+#include <fstream>
+
+int main() {
+    // Create the ifstream object for data.txt
+    std::ifstream my_cool_data_stream("data.txt");
+
+    // Read the number from the beginning of the file, indicating the
+    // number of full names (this is the number of times our loop
+    // will need to execute)
+    int num_names;
+    my_cool_data_stream >> num_names;
+
+    // Proceed to read each full name and print it back in the
+    // target format
+    for (int i = 0; i < num_names; i++) {
+        // Read the next token in the file, which should be
+        // the current person's first name
+        std::string first_name;
+        my_cool_data_stream >> first_name;
+
+        // Read the next token in the file, which should be
+        // the current person's last name
+        std::string last_name;
+        my_cool_data_stream >> last_name;
+
+        // Print the full name back to the terminal in
+        // "last_name, first_name" format
+        std::cout << last_name << ", " << first_name << std::endl;
+    }
+}
+\end{sourcecode}
+
+Create the \texttt{data.txt} file as specified above (e.g., using \texttt{vim}) in your working directory, and then copy the above program and execute it in your terminal. It should produce the following output:
+
+\begin{terminaloutput}
+Washington, George
+Adams, John
+Jefferson, Thomas
+Madison, James
+Monroe, James
+\end{terminaloutput}
+
+Importantly, \texttt{data.txt} must be present in your working directory when you execute your program in order for this to work properly since the program searches for the file by a relative path (i.e., the \texttt{std::ifstream} constructor argument is simply \texttt{"data.txt"}).
+
+\section{Studio Problem}
+
+Suppose you have a text file called \texttt{student-data.txt} written in the following format:
+
+\begin{verbatim}
+<some positive integer N>
+<student 1's first name> <student 1's last name> <student 1's age>
+<student 2's first name> <student 2's last name> <student 2's age>
+<student 3's first name> <student 3's last name> <student 3's age>
+...
+<student N's first name> <student N's last name> <student N's age>
+\end{verbatim}
+
+In English, the file begins with a single integer \texttt{N} reflecting the number of students whose data is provided by the rest of the file. The file then includes \texttt{N} subsequent lines, each providing information about a respective student. In a single student's line, there are three pieces of information, each separated by spaces: the student's first name, then the student's last name, and finally the student's age.
+
+Write a program that does the following:
+
+\begin{enumerate}
+    \item Create a \texttt{std::ifstream} object for \texttt{student-data.txt}. Assume that this file is present in the working directory.
+    \item Read the data from the file via the \texttt{std::ifstream} object to determine the oldest student (i.e., the student whose line in the text file contains the highest age value)
+    \item Create a \texttt{std::ofstream} object for a new file called \texttt{oldest-student.txt} in the working directory. Use \texttt{std::ios::trunc} as the open mode.
+    \item Write the first name, last name, and age of the oldest student to the file, \texttt{oldest-student.txt}, each on their own line (i.e., the first line of this output file should contain the oldest student's first name, the second line should contain their last name, and the third line should contain their age).
+\end{enumerate}
+
+Your program does not have to do any error handling regarding the input file or its contents. That's to say, your program may assume that \texttt{student-data.txt} exists and its contents are specified in the format outlined above.
+
+Prove that your program works by creating a sample \texttt{student-data.txt} file, executing your program, and showing that \texttt{oldest-student.txt} is created and populated with the appropriate contents.
+
+\begin{hint}
+    You can either use the stream extraction operator (\texttt{>>}) or \texttt{std::getline()} to read from a \texttt{std::ifstream} object, just as you can with \texttt{std::cin}. However, recall that you should avoid mixing both of these mechanisms on a single stream in a single program, unless you're very careful about how you handle whitespace. For this particular program, it's strongly recommended that you stick with the stream extraction operator.
+\end{hint}
+
+\end{document}

@@ -1,0 +1,155 @@
+\documentclass{article}
+
+% Per-assignment macros
+\def\lecturetitle{Comments}
+
+% Imports
+\usepackage{graphicx} % Required for inserting images
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue, anchorcolor=blue]{hyperref}
+\usepackage{hhline}
+
+% Titling
+\usepackage{titling}
+\preauthor{\begin{center}}
+\postauthor{\par\end{center}\vspace{-30pt}}
+\setlength{\droptitle}{-50pt}
+
+% Geometry
+
+\usepackage{geometry}
+\geometry{letterpaper, portrait, margin=1in}
+
+\usepackage[skip=5pt]{parskip}
+\newlength\tindent
+\setlength{\tindent}{\parindent}
+\setlength{\parindent}{0pt}
+\renewcommand{\indent}{\hspace*{\tindent}}
+
+% Assignment titling (number, due date, etc)
+\title{
+    Lecture Notes: \lecturetitle
+}
+\author{ENGR 103, Winter 2024}
+\date{}
+
+% Box environments
+\usepackage{tcolorbox}
+\usepackage{fancyvrb}
+\newenvironment{terminalcommand}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Command,colframe=gray!80!blue,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+\newenvironment{terminaloutput}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Output,colframe=gray!80!red,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+
+\usepackage{minted}
+\newenvironment{cpp}[1]
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=\texttt{#1},colframe=gray!50!blue,colback=white!97!black]
+    \begin{minted}{c++}}
+    {\end{minted}
+    \end{tcolorbox}}
+
+\newenvironment{tip}
+    {\begin{tcolorbox}[title=Tip,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newenvironment{note}
+    {\begin{tcolorbox}[title=Note,colframe=white!70!red,colback=white]}
+    {\end{tcolorbox}}
+
+\newcounter{examplerun}
+\newenvironment{examplerun}
+    {\begin{tcolorbox}[title=Example Run \refstepcounter{examplerun}\theexamplerun,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleruninputs}{\tcbsubtitle{Inputs}}
+\newcommand{\examplerunoutputs}{\tcbsubtitle{Outputs}}
+
+\newcommand{\imagewithdefaults}[1]{\includegraphics[width=\maxwidth{0.95\columnwidth}]{#1}}
+
+\makeatletter
+\def\maxwidth#1{\ifdim\Gin@nat@width>#1 #1\else\Gin@nat@width\fi}
+\makeatother
+
+\usepackage{soul}
+
+\begin{document}
+
+\maketitle
+
+As your C++ programs get more complex, it'll become very important that you carefully \textbf{document} your code. \textbf{Documentation} refers to any records that help you or someone else interpret your code.
+
+In theory, you should aim to write \textbf{self-documenting code}---the mythical ideal of code that is so cleanly written and so easy to understand that the code itself effectively serves as its own, perfect documentation. However, writing perfect self-documenting code is often impossible. Moreover, even if your code \textit{is} truly self-documenting (which it probably isn't), it's often impractical to expect other people to read your source code directly. In most cases, you should supplement your code with dedicated documentation.
+
+The simplest form of dedicated documentation is \textbf{code comments}. A code comment is merely some text that you write directly in your source code file, but which doesn't represent any actual instructions for your computer to execute. Rather, it's purely there to help other humans understand the adjacent code.
+
+In C++, you can create code comments in two different ways: single-line comments, and multiline comments.
+
+To create a single-line comment in C++, simply write out two consecutive forward slashes (\texttt{//}). Everything following those forward slashes within the same line of code will be considered a comment; your computer will \ul{not} try to interpret it as an actual statement. For example, you might use single-line comments to document a program like so:
+
+\begin{cpp}{Single-line comment example}
+#include <iostream>
+#include <cmath>
+
+int main() {
+    double pi = 3.14159265;
+
+    // Prompt the user for the radius of the circle
+    double radius;
+    std::cout << "What is the radius of the circle?" << std::endl;
+    std::cin >> radius;
+
+    // Compute and print the area
+    double area = pi * pow(radius, 2);
+    std::cout << "The area is: " << area << std::endl;
+}
+\end{cpp}
+
+Single-line comments are named as such because the two forward slashes only apply to the remainder of their respective line of code. If you want to write several lines of text that all represent one big code comment, using single-line comments might be a bit cumbersome---you'd have to begin each line of the comment with two forward slashes:
+
+\begin{cpp}{Multi-line single-line comment}
+// Lorem ipsum .........
+// ...... This is the second line of my comment
+// This is the third line ......
+// And so on.....
+\end{cpp}
+
+Alternatively, you can create so-called ``multi-line'' comments. To create a multi-line comment in C++, write out a forward slash followed by an asterisk (\texttt{/*}). This ``opens'' the multi-line comment. At the end of the comment, write out an asterisk, followed by a forward slash (\texttt{*/}). This ``closes'' the multi-line comment. Everything between the \texttt{/*} and the \texttt{*/} is considered to be part of the comment. As you'd expect, a single comment of this syntax can span multiple lines of code:
+
+\begin{cpp}{Multi-line comment example}
+/* Lorem ipsum .........
+...... This is the second line of my comment
+This is the third line ......
+And so on..... */
+\end{cpp}
+
+Code comments are \ul{incredibly important}. For this class, you'll be expected to follow a set of style guidelines as you write code for your assignments. Part of those style guidelines requires documenting your code with plenty of comments.
+
+It's easy to trick yourself into thinking that documentation isn't important, especially when you're working on a project by yourself. But the reality is that nearly every meaningful software product that exists has involved more than one developer. If your code isn't well documented, then it will be harder for your colleagues to understand it. Moreover, it'll be harder for \textit{you} to understand it in the future. In most companies that do software development in teams, careful documentation is a requirement---failing to document your code properly will result in your code being flat-out rejected by your fellow code reviewers.
+
+One simple strategy to make sure that you always document your code well is to write the documentation \textit{before} writing the code itself, perhaps as part of your design process. Going back to the single-line comment example, I could start by writing the following skeleton program:
+
+\begin{cpp}{Comment skeleton example}
+#include <iostream>
+#include <cmath>
+
+int main() {
+    // TODO Prompt the user for the radius of the circle
+
+    // TODO Compute and print the area
+    
+}
+\end{cpp}
+
+Here, I've written out a ``to do'' list in the form of code comments, and I've prefixed each comment with ``TODO'' to remind myself that I still need to complete the corresponding action items. As I complete those action items, I can remove the ``TODO'' part of the corresponding comments but leave the comments themselves. This is a very useful strategy, and I suggest you use it for all of the code that you write (including this course's assignments), especially if you expect other people to be reading it at any point in the future.
+
+Lastly, you should try to keep your comments concise. Try not to write several paragraphs of code comments that explain just a few lines of code. If a few lines of code are so intricate that they require several paragraphs of explanation, then the code is probably overcomplicated and needs to be refactored so that it's easier to understand.
+
+\end{document}

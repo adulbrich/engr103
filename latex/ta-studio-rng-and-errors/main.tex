@@ -1,0 +1,136 @@
+\documentclass{article}
+
+% Per-assignment macros
+\def\studionumber{6}
+\def\studiotitle{Pseudorandom Number Generation and Common Errors}
+
+% Imports
+\usepackage{graphicx} % Required for inserting images
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue, anchorcolor=blue]{hyperref}
+\usepackage{hhline}
+\usepackage{amsmath}
+
+% Titling
+\usepackage{titling}
+\preauthor{\begin{center}}
+\postauthor{\par\end{center}\vspace{-30pt}}
+\setlength{\droptitle}{-50pt}
+
+% Geometry
+
+\usepackage{geometry}
+\geometry{letterpaper, portrait, margin=1in}
+
+\usepackage[skip=5pt]{parskip}
+\newlength\tindent
+\setlength{\tindent}{\parindent}
+\setlength{\parindent}{0pt}
+\renewcommand{\indent}{\hspace*{\tindent}}
+
+% Assignment titling (number, due date, etc)
+\title{
+    Studio \studionumber: \studiotitle
+}
+\author{ENGR 103, Winter 2024}
+\date{}
+
+% Box environments
+\usepackage{tcolorbox}
+\usepackage{fancyvrb}
+\newenvironment{terminalcommand}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Command,colframe=gray!80!blue,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+\newenvironment{terminaloutput}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Output,colframe=gray!80!red,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+
+\newenvironment{hint}
+    {\begin{tcolorbox}[title=Hint,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newenvironment{sourcecode}[1]
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=\texttt{#1},colframe=gray!80!green,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+
+\newenvironment{tip}
+    {\begin{tcolorbox}[title=Tip,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newcounter{examplerun}
+\newenvironment{examplerun}
+    {\begin{tcolorbox}[title=Example Run \refstepcounter{examplerun}\theexamplerun,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleruninputs}{\tcbsubtitle{Inputs}}
+\newcommand{\examplerunoutputs}{\tcbsubtitle{Outputs}}
+
+\newcounter{exampleproblem}
+\newcounter{exampleproblemsolution}
+\newenvironment{exampleproblem}
+    {\setcounter{exampleproblemsolution}{0}\begin{tcolorbox}[title=Example Problem \refstepcounter{exampleproblem}\theexampleproblem,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleproblemstatement}{\tcbsubtitle{Problem statement}}
+\newcommand{\exampleproblemsolution}{\refstepcounter{exampleproblemsolution}\tcbsubtitle{Solution \theexampleproblemsolution}}
+
+\newcommand{\imagewithdefaults}[1]{\includegraphics[width=\maxwidth{0.95\columnwidth}]{#1}}
+
+\makeatletter
+\def\maxwidth#1{\ifdim\Gin@nat@width>#1 #1\else\Gin@nat@width\fi}
+\makeatother
+
+\usepackage{soul}
+
+\begin{document}
+
+\maketitle
+
+\section{Pseudo Random Number Generation}
+
+The first part of the studio is on pseudorandom number generation in C++. This wasn't covered in lecture at all, so this studio is going to be their main exposure to this content.
+
+Explain what pseudorandom numbers are. Explain what \texttt{srand}, \texttt{rand}, and \texttt{time(nullptr)} do (alternatively, the last expression can be \texttt{time(NULL) or \texttt{time(0)}}). Explain that \texttt{<cstdlib>} must be included in order to use \texttt{srand} and \texttt{rand}, and that \texttt{<ctime>} must be included in order to use the \texttt{time} function.
+
+The following example program is provided in the studio; you can do a rundown of it for the students:
+
+\begin{sourcecode}{PRNG Example Program}
+#include <iostream>
+
+// Include <cstdlib> for access to rand() and srand()
+#include <cstdlib>
+
+// Include <ctime> for access to time()
+#include <ctime>
+
+int main() {
+    // Seed the PRNG EXACTLY ONCE at the beginning of your
+    // program:
+    srand(time(nullptr));
+
+    // Now we can generate large, positive pseudorandom
+    // integers whenever we want via the rand() function:
+    std::cout << "Value 1: " << rand() << std::endl;
+
+    // Of course, you can store random values in int
+    // variables, and so on...
+    int another_value = rand();
+    std::cout << "Value 2: " << another_value << std::endl;
+}
+\end{sourcecode}
+
+\section{Common errors}
+
+The second part of the studio is on common errors. The first three are syntax errors, and the last is a logic error. It might be a good idea to remind students the difference between a syntax error and a logic error. I also recommend explaining the utmost basics of how to read a syntax error, though it was covered in lecture early on in the term. Importantly, errors should be read starting from the top, since that's where the message explains the origin of the error (the deepest function in which the error directly occurred). Also, if an error message says something like \texttt{main.cpp:5:20}, then that means that the error occurred in the file \texttt{main.cpp}, on line \texttt{5} and (roughly) character \texttt{20}.
+
+Note that students can use the \texttt{:set nu} vim command to enable line numbers in \texttt{vim}.
+
+\end{document}

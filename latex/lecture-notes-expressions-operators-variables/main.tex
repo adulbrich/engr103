@@ -1,0 +1,464 @@
+\documentclass{article}
+
+% Per-assignment macros
+\def\lecturetitle{Expressions, Operators, and Variables}
+
+% Imports
+\usepackage{graphicx} % Required for inserting images
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue, anchorcolor=blue]{hyperref}
+\usepackage{hhline}
+
+% Titling
+\usepackage{titling}
+\preauthor{\begin{center}}
+\postauthor{\par\end{center}\vspace{-30pt}}
+\setlength{\droptitle}{-50pt}
+
+% Geometry
+
+\usepackage{geometry}
+\geometry{letterpaper, portrait, margin=1in}
+
+\usepackage[skip=5pt]{parskip}
+\newlength\tindent
+\setlength{\tindent}{\parindent}
+\setlength{\parindent}{0pt}
+\renewcommand{\indent}{\hspace*{\tindent}}
+
+% Assignment titling (number, due date, etc)
+\title{
+    Lecture Notes: \lecturetitle
+}
+\author{ENGR 103, Winter 2024}
+\date{}
+
+% Box environments
+\usepackage{tcolorbox}
+\usepackage{fancyvrb}
+\newenvironment{terminalcommand}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Command,colframe=gray!80!blue,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+\newenvironment{terminaloutput}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Output,colframe=gray!80!red,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+
+\usepackage{minted}
+\newenvironment{cpp}[1]
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=\texttt{#1},colframe=gray!50!blue,colback=white!97!black]
+    \begin{minted}{c++}}
+    {\end{minted}
+    \end{tcolorbox}}
+
+\newenvironment{tip}
+    {\begin{tcolorbox}[title=Tip,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newenvironment{note}
+    {\begin{tcolorbox}[title=Note,colframe=white!70!red,colback=white]}
+    {\end{tcolorbox}}
+
+\newcounter{examplerun}
+\newenvironment{examplerun}
+    {\begin{tcolorbox}[title=Example Run \refstepcounter{examplerun}\theexamplerun,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleruninputs}{\tcbsubtitle{Inputs}}
+\newcommand{\examplerunoutputs}{\tcbsubtitle{Outputs}}
+
+\newcommand{\imagewithdefaults}[1]{\includegraphics[width=\maxwidth{0.95\columnwidth}]{#1}}
+
+\makeatletter
+\def\maxwidth#1{\ifdim\Gin@nat@width>#1 #1\else\Gin@nat@width\fi}
+\makeatother
+
+\usepackage{soul}
+
+\begin{document}
+
+\maketitle
+
+From the outset, programs can be described as sequences of instructions that operate on data. Therefore, in order to write a program, we need to be able to represent \ul{data}, \ul{operations} that transform data, and \ul{storage} for intermediate data as we operate on it.
+
+\section{Expressions: Data in C++}
+
+In C++ (and, indeed, most programming languages), data is represented through \textbf{expressions}. An expression is just a piece of code with a \textbf{type} and a \textbf{value}. The type of an expression signifies the type of data that it represents. The value of the expression is the data itself.
+
+C++ expressions can represent virtually anything. They can represent small, primitive things like numbers, characters, and true / false values. But they can also represent large, complex things like a student, a car, a file---anything you can imagine. We've actually seen a few expressions already. Recall this line of code from our ``Hello, World!'' application:
+
+\begin{cpp}{Excerpt from \texttt{hello.cpp}}
+std::cout << "Hello, World!" << std::endl;
+\end{cpp}
+
+There are three expressions here. Actually, there are a few more than that, but we'll just talk about the three smallest ones.
+
+First, \texttt{std::cout} is an expression. It is a piece of code with a type and a value. Recall: \texttt{std::cout} is a stream that allows us to \textbf{out}put data to the terminal (\textbf{c}onsole) to be printed. Hence, it has a type and a value: the type of \texttt{std::cout} is a kind of stream (technically, it is an \texttt{std::ostream} object), and the value of \texttt{std::cout} is the specific stream that points to the terminal.
+
+Second, \texttt{"Hello, World!"} is an expression. It is a piece of code with a type and a value. As mentioned briefly in the last lecture, the type of this expression is called a \textbf{string} (i.e., a sequence of characters). The value is the specific string that represents the English sentence, ``Hello, World!''.
+
+Third, \texttt{std::endl} is an expression. It is a piece of code with a type and a value. Its type is complicated, so we won't talk about it rigorously, but it's basically a sequence of characters (similar to a string). Its value is the specific sequence of characters that represents the end of a line of text. Hence, when we send it into \texttt{std::cout}, it instructs the terminal to move the cursor down a line.
+
+\subsection{Memory}
+
+All expressions have types and values. Somehow, your computer needs to represent those values internally. As you might have heard, modern digital computers tend to operate in a \textbf{binary} numeric system. They use this system to store data in numeric representations. Indeed, \ul{all} data in a computer program is stored in a numeric representation.
+
+The binary system is just like the decimal system (i.e., the system that we humans use for math and counting), but the base is different. In the decimal system, each symbol, or ``digit'', can take on one of exactly 10 values: $\{0, 1, 2, 3, 4, 5, 6, 7, 8, 9\}$. Even though you only have 10 possible values for each symbol, you can string together sequences of these symbols to represent any value you could imagine, no matter how large or precise. The binary system is no different, except there are only \ul{two} possible values for each symbol, or ``bit'': $\{0, 1\}$.
+
+If you're questioning how it's possible to represent arbitrarily large values with just two symbols, first consider that a tally mark system is just a \ul{unary} numeric system---it's a numbering system with just one possible value for a symbol, and yet you can represent arbitrarily large numbers with tally marks by just stringing together a number of tally marks matching the values you want to represent. So it shouldn't be surprising that having \ul{two} possible values for each symbol gives you a lot of flexibility.
+
+Indeed, in a very simple binary-to-decimal conversion, 0 (binary) is equivalent to 0 (decimal); 1 (binary) is equivalent to 1 (decimal); 10 (binary) is equivalent to 2 (decimal); 11 (binary) is equivalent to 3 (decimal); and so on.
+
+Alternatively, you can think of numeric systems in terms of ``places''. In the decimal system, there's a 1's place, a 10's place, a 100's place, a 1000's place, and so on. In binary, there's a 1's place, a 2's place, a 4's place, an 8's place, and so on. So suppose you're given the binary string, ``10010'', and asked to convert it to decimal (assuming the simple ``places'' representation that I just described). Then we have a 1 in the 2's place, a 1 in the 16's place, and 0's everywhere else. Hence, this bit string (sequence of bits) represents the decimal value $2 + 16 = 18$.
+
+Most importantly, all data in a computer is represented and stored in sequences of \textbf{bytes}, where a byte is in turn a sequence of a fixed number of bits (a byte is \ul{usually} 8 bits). Indeed, even complicated expressions like streams and strings are stored as sequences of bytes. This requires having some sort of binary \textbf{representation} for every type of data. A simple example is the ASCII table---it's a mapping of characters to numbers. Computers often encode characters using the ASCII table so that they can represent them as numbers in binary form.
+
+Computers can store these bytes in various places. One place is the \textbf{disk} (e.g., a hard drive, solid state drive, USB drive, floppy disk, etc). This is where your files live, for example.
+
+But the disk is relatively slow for a few reasons. First, disk storage needs to be persistent, meaning that turning your computer off and back on should not ``reset'' the bytes in the disk (or else your files would disappear whenever you reboot your computer). Second, disk storage needs to be large so that you have enough space to store all of your files, including high-resolution videos and so on. These are necessary criteria for disk storage, but satisfying these criteria requires using certain storage technologies that aren't particularly fast. Programs need to execute quickly; they need a place that they can rapidly store and retrieve intermediate data in between every operation during execution. Moreover, most of this intermediate data does not need to persist when rebooting your whole computer or terminating the program (and data that \textit{does} need to persist can be copied to disk), and it usually doesn't need to be particularly large. For this reason, data that's constructed and transformed within a program is stored in a different place in your computer called \textbf{random access memory (RAM)}, or just \textbf{memory} for short. Memory has the opposite tradeoffs compared to disks---it's volatile (non-persistent) and usually much smaller, but it's very fast. Hence, it's perfect for storing little pieces of data that are needed intermittently throughout a program's execution.
+
+\subsection{Expression types}
+
+All expressions have types. The type of an expression dictates two things about its underlying data:
+
+\begin{itemize}
+    \item The amount of storage space the data gets allocated in memory (i.e., the number of bytes needed to represent the data). This might dictate how large of a value an expression can represent, or even how precise of a value an expression can represent (e.g., if you have a fixed number of bytes to represent a decimal value, then you have a fixed number of decimal places).
+    \item The interpretation of the bytes stored in memory. Recall that all data is represented as a sequence of bytes. Without some set of rules to interpret a sequence of bytes, they're just that---bytes. An expression's type dictates how its bytes should be interpreted.
+\end{itemize}
+
+\subsection{Primitive data types}
+
+The types of the expressions you've seen so far have been somewhat complex, like entire streams or sequences of characters. In this lecture, we'll be focusing on much simpler types of expressions---ones that are built directly into the C++ language. These simple types are called \textbf{primitive data types}.
+
+There are quite a few primitive data types in C++, but these are most of the ones we'll care about for this course:
+
+\begin{itemize}
+    \item \texttt{int}. Stands for ``integer'', which means ``whole number''.
+    \item \texttt{float}. Stands for ``floating point number'', which means ``non-whole number''. A \texttt{float} expression could represent a whole number, but it could also represent a decimal-valued number (e.g., \texttt{3.14}).
+    \item \texttt{double}. Stands for ``double-precision floating-point number''.
+    \item \texttt{bool}. Stands for ``boolean'', which means ``true or false value''.
+    \item \texttt{char}. Stands for ``character''. Used to represent a single textual character, like 'a', 'A', '!', or even a digit symbol like '1' (which, crucially, is different from the \textit{integer} 1).
+\end{itemize}
+
+There are a couple more primitive types that we'll talk about later on in the course, but we'll table that discussion for now. We also care about strings, but strings aren't \textit{technically} primitive data types in C++.
+
+As a side note, an \textbf{integral type} is any type that represents a whole number, including \texttt{int} but also some others (like \texttt{char}, interestingly). Similarly, a \textbf{floating point type} is any type that represents a number with a decimal point, including \texttt{float} and \texttt{double} but also some others.
+
+Importantly, all of these primitive data types have \ul{fixed sizes} in C++. For example, although an \texttt{int} is used to represent whole numbers, it can't represent \textit{all} whole numbers. The exact number of bytes allocated to an \texttt{int} is not specified by the C++ language standard. But it's usually somewhere around 4 bytes, which usually means that the largest possible value for an \texttt{int} expression is $2^{31} - 1 = 2{,}147{,}483{,}647$, and the smallest possible value is $-2^{31} = -2{,}147{,}483{,}648$. So even though an \texttt{int} expression can't represent all whole numbers, they can usually represent very large whole numbers, which is \textit{good enough} in most cases (if not, there are larger primitives you can use, like \texttt{long int} and \texttt{long long int}, but we'll ignore those for this course).
+
+As mentioned, the type of an expression dictates its size. That means that different types of expressions get different amounts of data allocated to them. The C++ language standard is intentionally vague about sizes of primtive types so that they can vary from system to system, but there are some requirements as well as common patterns. As I mentioned, an \texttt{int} often (but not always, depending on your system) gets 4 bytes. A \texttt{char} \ul{always} gets exactly 1 byte, according to the C++ language standard; it's the only type that the standard is very specific about. A \texttt{float} usually gets \texttt{4} bytes, and a \texttt{double} always gets at least as much as a \texttt{float}, but it's usually 8 bytes (twice as many as a \texttt{float}, which lets it store bigger values \ul{and} more precise values). A \texttt{bool} is almost always 1 byte, but it could technically be anything (again, depending on your system). You don't have to memorize these details; just understand that \texttt{int} expressions are usually big enough to represent integer values into the billionish range, and \texttt{double} values are usually more precise than \texttt{float} values.
+
+Lastly, as mentioned, the type of an expression dictates the interpretation of its bytes. Indeed, the integer value \texttt{65} and the character value \texttt{'A'} might actually both be represented by the same sequence of bytes. But that's okay---your computer could still tell the difference between a \texttt{65} and a \texttt{'A'} because all C++ expressions have types, and the types tell your computer how to interpret the bytes (e.g., it knows to interpret \texttt{std::cout << 65} differently from \texttt{std::cout << 'A'}).
+
+\subsection{Literals}
+
+To construct expressions of primitive data types in C++ (and some other types), we use \textbf{literal expressions}, or just \textbf{literals} for short. A literal is just a ``hard-coded'' expression of a primitive type. Here are some examples:
+
+\begin{itemize}
+    \item \texttt{5} is a literal expression of type \texttt{int}.
+    \item \texttt{5.1} is a literal expression of type \texttt{double}. Notice: C++ treats non-whole decimal literals as type \texttt{double} by default---\textit{not} type \texttt{float}. This is because \texttt{double} values are more precise than \texttt{float} values, and when you're working with non-whole numbers, you \textit{usually} want to be pretty precise.
+    \item \texttt{5.1f} is a literal expression whose type is \texttt{float}. Indeed, suffixing any hard-coded number (even whole numbers) with `f' tells C++ to treat the expression as a \texttt{float}.
+    \item \texttt{'A'} is a literal expression whose type is \texttt{char}. Notice: To represent a \texttt{char}, you must surround the character in single quotes (apostrophes). Importantly, \texttt{'5'} would be a \texttt{char} expression---\textit{not} an \texttt{int} expression.
+    \item \texttt{true} and \texttt{false} are the only valid literal expressions of type \texttt{bool}.
+    \item \texttt{"Hello"} is a string literal expression. Even though strings aren't primitive types in C++, we can still construct them with literals. Importantly, string literals use double quotes whereas \texttt{char} literals use single quotes.
+\end{itemize}
+
+\section{Mathematical operations}
+
+The following is a perfectly valid statement in C++:
+
+\begin{cpp}{Hypothetical C++ statement}
+5;
+\end{cpp}
+
+But... What does it \textit{do}? Exactly---it does \textit{nothing}. Sure, it has an \texttt{int} literal expression that represents the integer value \texttt{5}, but it doesn't \textit{do} anything with that \texttt{5}?
+
+To \texttt{do} things with expressions, we need to \textit{operate} on them. You've learned one kind of operator already---the stream insertion operator (\texttt{<<}). And we used it in our ``Hello, World!'' application to print some expressions' values to the terminal.
+
+As the course progresses, we'll learn various other operations that you can apply to expressions in order to do things with them. But for now, we'll focus on mathematical operations. The following is a table of some basic mathematical operators in C++:
+
+\begin{tabular}{|p{0.05\columnwidth}|p{0.9\columnwidth}|}
+    \hline
+    \texttt{+} & Plus operator: adds the expression on the left with the expression on the right to form a new expression representing the sum \\
+    \hline
+    \texttt{-} & Minus operator: subtracts the expression on the right from the expression on the left to form a new expression representing the difference \\
+    \hline
+    \texttt{*} & Multiplication operator: multiplies the expression on the left with the expression on the right to form a new expression representing the product\\
+    \hline
+    \texttt{/} & Division operator: divides the expression on the left by the expression on the right to form a new expression representing the quotient\\
+    \hline
+    \texttt{\%} & Modulo operator: Divides the expression on the left by the expression on the right to form a new expression representing the \ul{remainder after division}. Both the left and right expressions \ul{must} have integral types (e.g., \texttt{int}).\\
+    \hline
+\end{tabular}
+
+You can also wrap expressions in parentheses to force a certain evaluation order, just like in mathematics. C++ applies regular mathematical order of operations with respect to all of these arithmetic operators (i.e., ``P,E,M/D,A/S'', but without the `E', and modulo falls under the same priority as multiplication and division). That is, expressions wrapped in parentheses are given priority; then multiplication, division, and modulo operations take place in left-to-right order; and, finally, addition and subtraction operations take place in left-to-right order.
+
+How these arithmetic operators interact with other operators, such as the stream insertion operator, is a bit nebulous. Rather than trying to memorize all rules with respect to order of operations (and expecting other people reading your code to have memorized all of these rules), it's often a good idea to just use some extra parentheses, even when technically unnecessary, to make order of operations very clear in your program. Of course, you can assume the reader will know and understand PEMDAS, so you probably don't need to use parentheses to make it clear that multiplication and division happen before addition and subtraction. But let's say you're trying to compute some mathematical expression and then send the resulting value to \texttt{std::cout} via the stream insertion operator to be printed. In this case, it might be a good idea to wrap all of the arithmetic in one large set of parentheses to make it clear that all of the calculations happen first, and \textit{then} only the final result is sent to \texttt{std::cout}.
+
+Putting it all together, this program,
+
+\begin{cpp}{arithmetic\_ex1.cpp}
+#include <iostream>
+
+int main() {
+    std::cout << (5 * 3 + 1.0 / 2.0) << std::endl;
+    std::cout << (6.0 / 3.0 - 8 % 3) << std::endl;
+}
+\end{cpp}
+
+will print
+
+\begin{terminaloutput}
+15.5
+0
+\end{terminaloutput}
+
+In the first expression, applying multiplication and addition simplifies the arithmetic expression to \texttt{(15 + 0.5)}, which resolves to \texttt{15.5}. In the second expression, applying division and modulo simplifies the arithmetic expression to \texttt{(2.0 - 2)}, which resolves to \texttt{0}.
+
+Notice that I used \texttt{double}-typed literals for division and \texttt{int}-typed literals for everything else. There's a good reason for that. Consider the following rewrite of the first line of code in the previous example:
+
+\begin{cpp}{Integer division example}
+std::cout << (5 * 3 + 1 / 2) << std::endl;
+\end{cpp}
+
+Here, I've simply rewritten \texttt{1.0 / 2.0} as \texttt{1 / 2}. You might expect this statement to be equivalent to the previous statement, printing \texttt{15.5}. That would make sense, but you'd be wrong. If you run this statement, it will print:
+
+\begin{terminaloutput}
+15
+\end{terminaloutput}
+
+Why? Well, as I mentioned a few times earlier, all expressions in C++ have both a type and a value. Furthermore, all of these arithmetic operations are themselves expressions formed by applying an arithmetic operator to two \textbf{operands} (the smaller expressions to the left and right of the operator). As a general rule of thumb (with a few small exceptions), in C++, the type of an expression resulting from an arithmetic operation on two operands is the ``more precise'' type of those operands. In this context, all floating point types (e.g., \texttt{float} and \texttt{double}) are considered to be ``more precise'' than all integral types (e.g., \texttt{int}). Within those respective type categories, the type with the larger size is considered to be ``more precise'' (e.g., \texttt{double} is ``more precise'' than \texttt{float)}.
+
+For example, the expression \texttt{5.0 * 2} is of type \texttt{double} because \texttt{5.0} is of type \texttt{double} and \texttt{2} is of type \texttt{int}, and the \texttt{double} type is ``more precise'' than the \texttt{int} type.
+
+That usually makes sense... Unless we're talking about division of two integers, as in our rewrite above. Consider that the expression \texttt{1 / 2} is of type \ul{\texttt{int}} because \texttt{1} and \texttt{2} are each literals of type \texttt{int}. Recall that \texttt{int} expressions can only represent whole numbers, but the true mathematical value of $\frac{1}{2}$ is $0.5$! So we're trying to represent a non-whole number with an expression type that can only represent whole numbers. In this situation, C++ does something called \textbf{truncation}---it takes the true value $0.5$ and ``truncates'' everything after the decimal place. That's to say, it \ul{rounds down}. Hence, although C++ calculates \texttt{1.0 / 2.0} to be \texttt{0.5} (type \texttt{double}), it calculates \texttt{1 / 2} to be 0 (type \texttt{int}). This happens any time you try to represent a non-whole number with an integral-typed expression such an \texttt{int}---it \ul{always rounds down}. Indeed, even \texttt{999 / 1000} is truncated to \texttt{0}.
+
+This truncation behavior when dividing integers is colloquially referred to as \textbf{integer division}. If you don't want C++ to truncate your quotients when dividing whole numbers, you just have to make sure that at least one of the two operands---either the dividend, the divisor, or both---is of a floating point type such as \texttt{float} or \texttt{double}. Hence, why I used \texttt{double}-typed literals for division in my original example.
+
+On another note, keep in mind that modulo only works on operands of integral types. If you try to supply a floating point operand to either side of the modulo operator, that's a syntax error---your program will fail to compile, and \texttt{g++} will produce an error message. For example, this program,
+
+\begin{cpp}{Bad modulo example}
+#include <iostream>
+
+int main() {
+        std::cout << (5 % 2.0) << std::endl;
+}
+\end{cpp}
+
+produces the following error when you try to build it with \texttt{g++}:
+
+\begin{terminaloutput}
+my-cool-program.cpp: In function 'int main()':
+my-cool-program.cpp:4:25: error: invalid operands of types 'int' and 'double' to
+binary 'operator%'
+    4 |         std::cout << (5 % 2.0) << std::endl;
+      |                       ~ ^ ~~~
+      |                       |   |
+      |                       int double
+\end{terminaloutput}
+
+If you want to compute remainder after division for floating point values (which isn't very common, but it happens), you have to do some mathematical trickery.
+
+Lastly, you might know that it's perfectly legal in conventional mathematical notation to represent the product of two terms by simply placing them next to each other. For example, $4x$ means ``4 multiplied by $x$'', and $2(1 + 3)$ means ``2 multiplied by the sum of 1 and 3''. In fact, this is how we \textit{usually} represent products in mathematics. However, this notation is \ul{not} legal in C++. In C++, if you want to multiply two expressions, you \ul{must} put a multiplication operator (\texttt{*}) between them. For example, the mathematical expression $4x$ could be written in C++ as $4 * x$ (variables are discussed later in this lecture), and the mathematical expression $2(1 + 3)$ could be written in C++ as $2 * (1 + 3)$.
+
+\subsection{Other mathematical functions}
+
+Outside of built-in arithmetic operators, the C++ standard library provides you with a lot of built-in \textbf{functions} that perform more complex mathematical operations. Again, we'll talk more about functions later, but for now just understand that you can use these functions once you've imported them to do all sorts of complex mathematics in your program.
+
+For now, we'll just talk about three of them: \texttt{pow}, \texttt{sqrt}, and \texttt{abs}. All three of them are provided by the \texttt{cmath} header file. Interestingly, they are \ul{not} part of the standard namespace---they're actually not part of \textit{any} namespace---so you don't have to prefix them with \texttt{std::} to use them.
+
+To use, or \textbf{call}, a function, you simply write out the name of the function followed by parentheses. Inside those parentheses, you put the inputs to the function. In this case, the inputs to our functions are the expressions on which they should operate. The function call itself is an expression---it will compute some value that you can then use just as you'd use any other expression.
+
+The \texttt{pow} function stands for ``power''; it takes two inputs, $a$ and $b$, and computes $a^b$. The \texttt{sqrt} function stands for ``square root''; it takes one input and computes its square root. The \texttt{abs} function stands for ``absolute value''; it takes one input and computes its absolute value.
+
+For example, this program,
+
+\begin{cpp}{Math function examples}
+#include <iostream>
+#include <cmath>
+
+int main() {
+    std::cout << pow(2, 5) << std::endl;
+    std::cout << abs(-12) << std::endl;
+    std::cout << sqrt(64) << std::endl;
+}
+\end{cpp}
+
+will print
+
+\begin{terminaloutput}
+32
+12
+8
+\end{terminaloutput}
+
+Importantly, you must include the \texttt{cmath} header file in order to have access to these functions. If you forget to include \texttt{cmath}, you'll end up with a syntax error, and \texttt{g++} will print something like this:
+
+\begin{terminaloutput}
+math-ex.cpp: In function 'int main()':
+math-ex.cpp:4:22: error: 'pow' was not declared in this scope
+    4 |         std::cout << pow(2, 5) << std::endl;
+\end{terminaloutput}
+
+The \texttt{cmath} header file provides all sorts of mathematical functions beyond \texttt{pow}, \texttt{sqrt}, and \texttt{abs}. You'll learn about a few more of them in studio, and I'll mention some as they become relevant, but I encourage you to peruse \href{https://en.cppreference.com/w/cpp/header/cmath}{the documentation} to familiarize yourself with some of what it has to offer (and to get better at reading documentation).
+
+\section{Variables}
+
+Okay, so we've learned how to represent data in our programs, and we've learned of a few ways to operate on that data to compute new data. But, as our operations get more and more complex, it will get harder and harder---eventually impossible---to perform all of our operations in one gigantic expression or statement. Moreover, the only kind of data that we've represented so far is constant, hard-coded data (literals and operations thereof). What if we want to perform computations on values that vary at runtime, such as an integer supplied by the user via the terminal? To facilitate things like this, we need a way of \ul{storing} and \ul{naming} values so that we can refer to them again in later statements.
+
+In C++, a \textbf{variable} is a specified name that refers to a fixed location in memory storing a value of a fixed, specified type. Indeed, variables, much like expressions, have both types and values. But, more than that, because variables have names (or rather, they \textit{are} names), you can refer to them by their names whenever you want. This allows you to both write (change) their values and read (observe) their values at any point.
+
+When you want to create a variable in your C++ program, the first thing you have to do is \textbf{declare} it. A standalone C++ variable declaration looks like
+
+\begin{verbatim}
+<type> <identifier>;
+\end{verbatim}
+
+where \texttt{<type>} is the type of data that you want the variable to store, and \texttt{<identifier>} is the name that you want to give the variable. For example, we could declare a variable called \texttt{num\_students} of type \texttt{int} like so:
+
+\begin{cpp}{\texttt{int} declaration example}
+int num_students;
+\end{cpp}
+
+All identifiers in C++, including those of variables, are subject to the following rules:
+
+\begin{itemize}
+    \item An identifier may only contain letters (a-z, A-Z), digits (0-9), and underscores (\_).
+    \item An identifier cannot be empty (it must have at least one character).
+    \item An identifier cannot start with a digit (0-9).
+\end{itemize}
+
+Violating any of these rules results in a syntax error.
+
+Once you've declared a variable, you can then proceed to use it. To use a variable, simply refer to it by name.  Of course, the first thing you'd probably want to do to a variable is store a value in its box of memory. This is called \textbf{assignment} (or ``writing'', as I previously called it), and it's done via the \textbf{assignment operator}. The assignment operator is a single ``equal'' symbol (\texttt{=}), and it's usually used in a standalone statement. You put the name of a variable to the left of it and an expression to the right of it. The value of the expression will be computed and stored inside the variable's box of memory. For example, the following statement will store the value \texttt{10} inside the variable \texttt{num\_students}:
+
+\begin{cpp}{Assignment example}
+num_students = 10;
+\end{cpp}
+
+The first time you assign a value to a variable, it is called \textbf{initializing} the variable. Also, you don't have to put a literal to the right of the assignment operator---you can put any expression there, so long as the type of the expression can be converted, or \textbf{coerced}, to the type of the variable on the left of the operator. We'll talk more about type coercion later, but for now just understand that most primitive types are coercible to and from each other, and that coercing a floating point expression to an integral type will result in truncation. Furthermore, understand that the actual assignment happens \textit{last}---even if the expression on the right of the assignment operator is some massive, complicated expression, it will be evaluated in entirety, and \textit{then} the final computed value will be assigned to the variable on the left. Basically, in terms of order of operations, the assignment operator has very low priority.
+
+Now that we've assigned a value to \texttt{num\_students}, we could proceed to read it (observe it / ``use'' it) in other statements. You use variables by referring to them by name, and their names are substituted for their stored values at runtime. For example, we could print \texttt{num\_students} to the terminal like so:
+
+\begin{cpp}{Printing a variable}
+std::cout << num_students << std::endl;
+\end{cpp}
+
+This will result in the following output:
+
+\begin{terminaloutput}
+10
+\end{terminaloutput}
+
+As an exploratory question, what happens if we try to read (``use'') a variable \ul{before} we've assigned a value to it? For example, consider the following program:
+
+\begin{cpp}{Uninitialized value}
+#include <iostream>
+
+int main() {
+    int my_cool_integer;
+    std::cout << my_cool_integer << std::endl;
+}
+\end{cpp}
+
+What will this program print? Well, in this case, the answer is actually that the program will exhibit \textbf{undefined behavior}. The common joke is that this program could do \textit{literally anything}---even cause demons to fly out of your nose (``nasal demons'')---and that would be perfectly compliant with the C++ language standard. \ul{Undefined behavior is a terrible, terrible thing.} As a C++ developer, it should be your \#1 mission to avoid undefined behavior at all costs. Critically, \texttt{g++} usually can't catch undefined behavior in your program---all undefined behavior is considered to be a sort of runtime error. There are some tools that can detect and diagnose various kinds of undefined behavior if they occur at runtime, such as \texttt{valgrind}, but we won't learn how to use those tools until later in the term (if we even have time).
+
+To avoid the above undefined behavior, it's a good idea to always initialize your variables immediately after declaring them. In fact, for this exact reason, C++ supports combining variable declaration and initialization in a single statement, like so:
+
+\begin{verbatim}
+<type> <identifier> = <expression>;
+\end{verbatim}
+
+For example:
+
+\begin{cpp}{Combined declaration and initialization}
+int my_cool_integer = 0;
+\end{cpp}
+
+Even if you plan to change the value of your variable later on, it's still a good idea to initialize it to some ``default'' value upon declaration (0, in the above example) just to avoid undefined behavior.
+
+Importantly, you can assign new values to your variables whenever you want. For example, this program,
+
+\begin{cpp}{Reassignment example}
+#include <iostream>
+
+int main() {
+    int num_students = 10;
+    num_students = 20;
+    std::cout << num_students << std::endl;
+    
+    num_students = num_students + 1;
+    std::cout << num_students << std::endl;
+}
+\end{cpp}
+
+will print the following output:
+
+\begin{terminaloutput}
+20
+21
+\end{terminaloutput}
+
+Even though we initialized \texttt{num\_students} to 10, we immediately reassigned it the value \texttt{20}. That's perfectly legal, albeit a bit unnecessary.
+
+Pay close attention to the line, \texttt{num\_students = num\_students + 1}. Indeed, it's perfectly fine for variables to appear in the expression on the right side of the assignment operator. However, consider that this statement would make absolutely no sense if we interpreted the assignment operator as mathematical equality---nothing can possibly be equal to itself plus one. And yet, this statement is perfectly sensible in procedural programming. This emphasizes that \ul{assignment is not equality}. An assignment operator does not indicate that the thing on the left is equal to the thing on the right. Instead, it represents a change of state---it computes the value of the expression on the right, and then \textit{stores} it in the variable on the left.
+
+As mentioned earlier, variables should only be declared once. Notice that our above program starts with \texttt{int num\_students = 10}, but in every line after that, we simply refer to the variable as \texttt{num\_students}---we don't prefix the variable with its type ever again. This is very important---if you prefix a variable name with a type, it means that you're \ul{declaring a new variable}. If you simply reference a variable by name without prefixing it with a type, it means that you're \ul{referring to an existing variable}. Hence, if we prefixed \texttt{num\_students} with \texttt{int} every time we used it, it'd be like trying to declare a bunch of separate variables all with the same name (that would be a syntax error in this case, but it's legal in some contexts).
+
+\section{Reading values from the user}
+
+I mentioned that variables could be used to store data entered by the user via the terminal. Let's learn how to do that.
+
+When you want to send data out of your program to the console (terminal), you use \texttt{std::cout} (console output). If you want to receive data into your program from the console, you use \texttt{std::cin} (console input). Both are streams provided by the \texttt{<iostream>} header file.
+
+When you want to send data from your program into a stream, you use the stream insertion operator (\texttt{<<}). When you want to receive data into your program from a stream, you use the \textbf{stream extraction operator} (\texttt{>>}).
+
+With this in mind, it shouldn't be too surprising that if you want to take a value entered into the terminal by a user and store it in a variable, the syntax looks like this:
+
+\begin{verbatim}
+std::cin >> <variable identifier>
+\end{verbatim}
+
+Replace \texttt{<variable identifier>} with the name of the variable that you want to store a value in. When your program reaches this statement, it will pause until the user types in a value and presses enter. It will then store that value in the variable whose name appears to the right of the stream extraction operator.
+
+For example, the following program will ask the user for two numbers, $a$ and $b$, and then print $a^b$:
+
+\begin{cpp}{User input example}
+#include <iostream>
+#include <cmath>
+
+int main() {
+    std::cout << "Please enter a whole number for a: ";
+    int a;
+    std::cin >> a;
+
+    std::cout << "Please enter a whole number for b: ";
+    int b;
+    std::cin >> b;
+
+    std::cout << "a^b is: " << pow(a, b) << std::endl;
+}
+\end{cpp}
+
+The above program uses integers as an example, but you can read most primitive types of data from the user via \texttt{std::cin} (be careful with booleans, though---they're a bit weird).
+
+If the user enters a value whose type doesn't match the variable's type, then weird things will happen---don't expect your program to perform a simple type coercion. For example, if the user enters a number with a decimal point for the value of \texttt{a} or \texttt{b} in the above program, the result will \ul{not} be as simple as truncation. We'll talk about these kinds of user errors and how to handle them later in the term, if time permits. For now, just assume that the user will be nice to you and provide a reasonable value.
+
+\section{Conclusion}
+
+You now have all of the information you need to write a program that can:
+\begin{enumerate}
+    \item Ask the user for inputs via \texttt{std::cout}
+    \item Receive those inputs and store them in variables via \texttt{std::cin}
+    \item \label{step:computations} Perform basic mathematical computations on those inputs to produce one or more outputs
+    \item Print those outputs back to the terminal via \texttt{std::cout}
+\end{enumerate}
+
+These things comprise the general structure of every program that you'll write in this course. As the term progresses, we'll expand upon point \ref{step:computations} above by learning various kinds of computations that you can perform in C++.
+
+\end{document}

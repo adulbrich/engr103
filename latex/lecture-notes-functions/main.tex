@@ -1,0 +1,444 @@
+\documentclass{article}
+
+% Per-assignment macros
+\def\lecturetitle{Functions}
+
+% Imports
+\usepackage{graphicx} % Required for inserting images
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue, anchorcolor=blue]{hyperref}
+\usepackage{hhline}
+
+% Titling
+\usepackage{titling}
+\preauthor{\begin{center}}
+\postauthor{\par\end{center}\vspace{-30pt}}
+\setlength{\droptitle}{-50pt}
+
+% Geometry
+
+\usepackage{geometry}
+\geometry{letterpaper, portrait, margin=1in}
+
+\usepackage[skip=5pt]{parskip}
+\newlength\tindent
+\setlength{\tindent}{\parindent}
+\setlength{\parindent}{0pt}
+\renewcommand{\indent}{\hspace*{\tindent}}
+
+% Assignment titling (number, due date, etc)
+\title{
+    Lecture Notes: \lecturetitle
+}
+\author{ENGR 103, Winter 2024}
+\date{}
+
+% Box environments
+\usepackage{tcolorbox}
+\usepackage{fancyvrb}
+\newenvironment{terminalcommand}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Command,colframe=gray!80!blue,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+\newenvironment{terminaloutput}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Output,colframe=gray!80!red,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+
+\usepackage{minted}
+\newenvironment{cpp}[1]
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=\texttt{#1},colframe=gray!50!blue,colback=white!97!black]
+    \begin{minted}{c++}}
+    {\end{minted}
+    \end{tcolorbox}}
+
+\newenvironment{tip}
+    {\begin{tcolorbox}[title=Tip,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newenvironment{note}
+    {\begin{tcolorbox}[title=Note,colframe=white!70!red,colback=white]}
+    {\end{tcolorbox}}
+
+\newcounter{examplerun}
+\newenvironment{examplerun}
+    {\begin{tcolorbox}[title=Example Run \refstepcounter{examplerun}\theexamplerun,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleruninputs}{\tcbsubtitle{Inputs}}
+\newcommand{\examplerunoutputs}{\tcbsubtitle{Outputs}}
+
+\newcommand{\imagewithdefaults}[1]{\includegraphics[width=\maxwidth{0.95\columnwidth}]{#1}}
+
+\makeatletter
+\def\maxwidth#1{\ifdim\Gin@nat@width>#1 #1\else\Gin@nat@width\fi}
+\makeatother
+
+\usepackage{soul}
+
+\begin{document}
+
+\maketitle
+
+\section{Creating Functions}
+
+In C++, a \textbf{function} is a block of code that can be reused, which avoids having to reinvent the wheel when you need to repeat certain computations in your code. You've actually created a function before---the \texttt{main} function. You've also used some other functions, such as \texttt{pow}, \texttt{sqrt}, and \texttt{abs}. In this lecture, you'll formally learn how to create your own functions and use them to organize and modularize your code.
+
+A function definition consists of a few parts:
+
+\begin{enumerate}
+    \item A function header, which in turn consists of at least:
+    \begin{enumerate}
+        \item A function name
+        \item A parameter list
+        \item A return type
+    \end{enumerate}
+    \item A function body
+\end{enumerate}
+
+The syntax for a function definition looks like this:
+
+\begin{verbatim}
+<return type> <name>(<parameter list>) {
+    <function body>
+}
+\end{verbatim}
+
+Importantly, the function must be declared (which, for now, just means ``defined'') \ul{before} it can be used. That is, the function definition must appear above any references to the function.
+
+We'll break down the function definition syntax one piece at a time. As a case study, we'll analyze this simple C++ function definition:
+
+\begin{cpp}{Function definition case study}
+double sum(double first_value, double second_value) {
+    return first_value + second_value;
+}
+\end{cpp}
+
+\subsection{Function Headers}
+
+The function header is the first thing that you need to figure out when creating your own function. It consists of the function's name, parameter list, and return type. Syntactically, it's the first part of the function definition, including everything up to the opening curly brace (\texttt{\{}). In our case study, the function header is this whole part:
+
+\begin{cpp}{Function header case study}
+double sum(double first_value, double second_value)
+\end{cpp}
+
+A well-designed function header will tell you \ul{what} a function does and \ul{how to use it}.
+
+\subsubsection{Function names}
+
+In order for functions to be useful, we need to be able to use them after we've created them, which means we need some way of referring to them. Like variables, functions are referenced by their identifiers (names). Function identifiers follow all of the same rules as variable identifiers in C++: they may consist only of letters, numbers, and underscores, and they cannot start with a number.
+
+You should place careful thought into naming your functions. The name of a function should be very descriptive---it should signify exactly what the function does. For example, it's very clear that the \texttt{sqrt} function computes the square root of its input, and that the \texttt{abs} function computes the absolute value of its input. You don't even have to look at the documentation to figure that much out.
+
+Note that the \texttt{sqrt} and \texttt{abs} function names are abbreviated. This is okay when it's a common, conventional abbreviation. That said, be careful not to over-abbreviate your function names, or else you risk them not making sense to other people (or yourself in the future). When in doubt, it's preferred to have long, unabbreviated identifiers that take a few extra keystrokes to type out than it is to have heavily abbreviated identifiers that don't make sense to most people. After all, the entire point of an identifier is to convey meaning.
+
+In our case study, the name of our function is \texttt{sum}. Indeed, the purpose of this function is to compute the sum of two values, so it's aptly named.
+
+\subsubsection{Function parameters}
+
+Functions are just reusable blocks of code, but in order for them to be useful, we often need some way of passing data to them and receiving data from them. For now, let's focus on how to pass data to a function.
+
+There are various ways of passing data to a function. However, the most conventional (and generally \textit{best}) way is via \textbf{parameters}.
+
+In mathematics, a parameter is simply a placeholder for the input to a function or process. For example, in the linear mathematical function, $f(x) = 3x + 7$, the name of the function is $f$, and $x$ is the parameter. $x$ itself doesn't have a single, fixed value. Instead, its value depends on the context in which the function is used. For example, in the context of $f(5)$, $x$ takes on the value $5$, but in the context of $f(10)$, $x$ takes on the value $10$. Indeed, $x$ is merely a \ul{placeholder} for a value that will be supplied when the function is actually used.
+
+Function parameters in C++ are no different. They represent placeholders that will be filled in with actual values when the function is used later on. If the function is used many times, the parameters may take on different values for each usage. The way C++ represents parameters is via variables. When defining a function, the parameters must be declared (but \ul{not} initialized since they're only placeholders at this point). Syntactically, parameters are declared just like any other variable, but without any semicolons---you just have to list the type of the parameter followed by the name of the parameter. In a function definition, the parameter declarations appear within the parentheses following the function's name. If there are multiple parameters, their declarations are separated by commas. This comma-separated list of parameter declarations is referred to as the function's \textbf{parameter list}.
+
+In our case study, the parameter list is this part:
+
+\begin{cpp}{Parameter list case study}
+double first_value, double second_value
+\end{cpp}
+
+That is, our \texttt{sum} function has two parameters. The first parameter is called \texttt{first\_value}, and its type is \texttt{double}. The second parameter is called \texttt{second\_value}, and its type is also \texttt{double}.
+
+Note that these aren't particularly meaningful parameter names, but that's just due to the simple mathematical purpose of our case study function (i.e., adding two values). In more realistic cases, parameters tend to represent data with some sort of context surrounding them, and the names of your parameters should try to convey that context. For example, if you're writing a function that computes the speed of a vehicle given the distance that it's travelled and the amount of time that it took to travel that distance, you'd probably have two parameters (one for distance and one for time), and you'd probably want to name those parameters according to what they represent. For example, your parameter list might look like \texttt{double feet, int milliseconds}. Notice that the parameter names in this example also convey units---that's much more meaningful than vague parameter names like \texttt{distance} or \texttt{time}.
+
+Like regular variables, parameters can be of \textit{any} type, and a single function may have many parameters of many different types. The types of parameters you should use depends on the purpose of the function. In our case study, the purpose of the function is to add two numbers that potentially have decimal points in them. Hence, we represent those numbers with placeholders (parameters) of type \texttt{double}.
+
+\subsubsection{Function return types}
+
+Just as we need a way to send data to a function when we use it, we also need a way to receive data from a function when it's done executing. We do this through \textbf{return values}. While parameters represent inputs to a function, return values represent outputs from a function. However, while a function can have multiple parameters, it can only have one return value (at least in C++). The reason is discussed at the end of this lecture.
+
+In the syntax of the function header, the first thing that you write is the function's \textbf{return type}. This is simply the type of data that the function outputs. Importantly, ``output'' does \ul{not} mean ``console output'' in this case. A function's return value and return type, like its parameters, have nothing to do with the terminal. Rather, they're communication channels for functions to communicate data \ul{with each other}. Ultimately, we'll want to use our \texttt{sum} function from within some other function, such as \texttt{main} (\texttt{main} is just an example here; a function can be called from any other function). In that context, the return value is the value that will be \textbf{returned} from the \texttt{sum} function back to the \texttt{main} function once the \texttt{sum} function has finished executing. We'll talk about this more shortly.
+
+In our case study, the return type of the \texttt{sum} function, denoted by the part that appears immediately before the function's name, is \texttt{double}. This makes sense. The point of the function is to add the values of its two parameters, each of which are of type \texttt{double}. The result, or output, should then also be of type \texttt{double}.
+
+\subsection{Function Bodies}
+
+Following a function's header is the \textbf{function body}. It consists of the curly braces and everything in between. Whereas a function header tells you what a function does and how to use it, the function body encodes how the function does what it does. In other terms, the function header represents a function's \textbf{interface} or \textbf{contract} (i.e., the external part of the function that you interact with: inputs, outputs, and its name), and the function body comprises the function's \textbf{implementation} (i.e., the internal operations that the function actually performs to fulfill its contract / intended purpose). Simply put: the code between the curly braces is the actual code that the function will execute when you use it.
+
+Within a function's body, you may refer to the function's parameters by name. Of course, you may also declare and use other variables within the function's body as well, just like the variables that we've declared inside the \texttt{main} function in the past. Note: variables that are declared within a function body are referred to as \textbf{local variables}.
+
+Importantly, the function body is responsible for performing operations on its parameters to produce a return value. Once your function has completed its operations and the final result has been produced, you can send that result back to the location from which the function is being used (i.e., you can signify that the final result represents the function's output) by \textbf{returning} it. To return a value from a function, use the following syntax:
+
+\begin{verbatim}
+return <expression>;
+\end{verbatim}
+
+In the above syntax, the expression is evaluated, and its value is output from the function back to whatever other function was using it.
+
+In our case study, the purpose of the \texttt{sum} function is to add its two parameters (\texttt{first\_value} and \texttt{second\_value}) and output the result. Hence, it returns the sum of the parameters:
+
+\begin{cpp}{Return statement case study}
+    return first_value + second_value;
+\end{cpp}
+
+A function will terminate the moment a return statement is executed within it. That's to say, if you have more lines of code immediately below a return statement, that code is said to be \textbf{dead code}. It cannot possibly execute because the return statement will terminate the function before it ever reaches the code below it. See the following function for an example:
+
+\begin{cpp}{Dead code after return statement}
+double sum(double first_value, double second_value) {
+    return first_value + second_value;
+
+    // The below code will NEVER execute. The above return
+    // statement ENDS the function, so our program can never
+    // possibly reach this line of code.
+    std::cout << "Hello!" << std::endl;
+}
+\end{cpp}
+
+Later in the course, we'll see cases where it makes sense for a function to have multiple return statements. That's perfectly legal and doesn't necessarily result in any dead code, depending on the context. In either case, even if a function has multiple return statements in it, the function ends the moment \ul{any} of those return statements are executed.
+
+\section{Function calls}
+
+At this point, you know how to define your own functions... But how do you \textit{use} a function once it's been defined?
+
+First of all, let's remind ourselves of the criterion: a function, like a variable, can only be used if the function has been declared (defined) \ul{before} trying to use it (i.e., a function definition must appear \ul{above} any uses of that function within your source code file). Indeed, this is why we tend to put our \texttt{\#include} directives at the \ul{top} of our source code files---they provide us access to definitions of certain functions that we want to use within our code, such as \texttt{pow} and \texttt{sqrt}.
+
+Once a function has been defined, it can then be \textbf{called} from within any other function that follows it. To call a function simply means to use it.
+
+To call a function, the syntax looks like this:
+
+\begin{verbatim}
+<name>(<argument 1>, <argument 2>, ..., <argument N>);
+\end{verbatim}
+
+In the above syntax, replace \texttt{<name>} with the name of the function that you want to call.
+
+The comma-separated values between the parentheses in a function call represent the \textbf{argument list}. An \textbf{argument} is an expression whose value you want to substitute for the corresponding parameter (placeholder) in the function definition. That is, it's an input that we want to supply to the function in a particular usage. Arguments are mapped to parameters left-to-right. For example, consider the following function call:
+
+\begin{cpp}{Simple sum call example}
+    sum(2, 3);
+\end{cpp}
+
+In the above function call, we're using the \texttt{sum} function, which has two parameters. In order, those parameters are declared as \texttt{first\_value}, followed by \texttt{second\_value} (see its definition at the beginning of this lecture). In the above function call, we supply two corresponding arguments. In order, those arguments are the expressions \texttt{2}, followed by \texttt{3}. In this particular function call, the body of the \texttt{sum} function will be executed with \texttt{first\_value} taking on the value of \texttt{2}, and \texttt{second\_value} taking on the value of \texttt{3}.
+
+In contrast, if we called the sum function like this,
+
+\begin{cpp}{Another simple sum call example}
+    sum(3, 2);
+\end{cpp}
+
+then the \texttt{sum} function body will be executed with \texttt{first\_value} taking on the value of \texttt{3}, and \texttt{second\_value} taking on the value of \texttt{2}.
+
+As you might guess, an argument follows similar rules to values that appear on the right sides of assignment operators---they can be any expression whose type can be converted to the corresponding parameter's type.
+
+Also, the number of arguments that you supply must match the number of parameters that the function has. For example, consider the following function call:
+
+\begin{cpp}{Mismatching arguments in function call}
+    sum(2);
+\end{cpp}
+
+The above function call produces the following syntax error during compilation:
+
+\begin{terminaloutput}
+main.cpp: In function ‘int main()’:
+main.cpp:6:12: error: too few arguments to function ‘double sum(double, double)’
+    6 |         sum(2);
+      |         ~~~^~~
+main.cpp:1:8: note: declared here
+    1 | double sum(double first_value, double second_value) {
+      |        ^~~
+\end{terminaloutput}
+
+Reading the error carefully, you'll see that the issue is that our function call doesn't supply the correct number of arguments. The \texttt{sum} function is declared to have two parameters, but we've only supplied one argument.
+
+One major question remains: we know how to call a function, but how to we access the output of that function call? For example, although it is perfectly legal to call our \texttt{sum} function via \texttt{sum(2, 3)}, which produces the \texttt{double}-typed return value \texttt{5.0}, how do we \ul{access} and \ul{use} that return value?
+
+The answer is simple: a function call itself is an expression! As you know, expressions have types and values. A function call's type is the return type of the function being called, and a function call's value is the return value itself.
+
+Indeed, the following statement would print \texttt{3.14}:
+
+\begin{cpp}{Function calls as expressions}
+    std::cout << sum(3, 0.14) << std::endl;
+\end{cpp}
+
+Moreover, because function calls are expressions, you can use them anywhere that you could use any other expression whose type matches the function's return type. For example, you could store the return value of a function call in a variable (this is an extremely common pattern):
+
+\begin{cpp}{Storing return values}
+int main() {
+    // Call the sum function with first_value = 2
+    // and second_value = 3, and store the return
+    // value (5) in a new local variable called `result`
+    double result = sum(2, 3); 
+
+    // Now print that result (or do whatever you want with it)
+    std::cout << result << std::endl; // Prints 5
+}
+\end{cpp}
+
+Or you could use the return value of a function call as an argument to \textit{another} function call:
+
+\begin{cpp}{Using return values as arguments}
+int main() {
+    // Compute 3 + 0.1 + 0.04 as:
+    // (3 + 0.1) + 0.04
+    // = sum(sum(3 + 0.1), 0.04)
+    std::cout << sum(sum(3, 0.1), 0.04) << std::endl; // Prints 3.14
+}
+\end{cpp}
+
+The list goes on.
+
+\subsection{Control flow of function calls}
+
+As you might have noticed, function calls modify the control flow of our program. Recall that, in general, our program starts executing at the top line of the \texttt{main()} function, and then it proceeds to execute lines of code in top-down order. However, when your program encounters a function call, the calling function (i.e., the function that does the calling) will temporarily ``pause''. Your program will then ``jump'' to the first line of code in the called function (i.e., the function that is being called). Once the called function terminates, your program will then jump back to the calling function, replacing the function call expression with the return value, and the calling function will ``resume''.
+
+For this reason, we say that functions terminate in ``last in, first out'' (LIFO) order. That is, the first function to be called must be the last function to terminate because it will pause anytime it calls another function. This proves that the \texttt{main()} function always serves as both the entry point \textit{and} the exit point of a program (unless something weird happens in the middle of execution that causes the program to terminate early, like a fatal runtime error).
+
+\subsection{Arguments are not parameters!}
+
+It's pretty common to write function calls that use local variables as arguments. This is perfectly fine, but it's important to understand what's really going on. For example, consider the following program:
+
+\begin{cpp}{Variables as arguments}
+double sum(double first_value, double second_value) {
+	return first_value + second_value;
+}
+
+int main() {
+    // Setup argument variables
+    double x = 2;
+    double y = 3;
+
+    // Add x and y to get z
+    double z = sum(x, y); // LINE A
+
+    // Print z
+    std::cout << z << std::endl;
+}
+\end{cpp}
+
+It is very, very important to understand that, in the function call at \texttt{LINE A} in the above program, \texttt{x} is not the same thing as \texttt{first\_value}. Rather, \texttt{first\_value} is a parameter, and \texttt{x} is an argument whose \textit{value} is substituted for the corresponding parameter.
+
+Of course, parameters are variables, and in the above program, our arguments are variables as well. The point here is that, even when using variables as arguments, \ul{arguments and parameters are separate variables}. Recall that variables are just names for fixed locations in memory that store data of fixed, specified types. Because the arguments and parameters in the above example are separate variables, \ul{they have separate memory and separate values}. In fact, the only connection between arguments and parameters is that \ul{the value of an argument is copied into the memory of the corresponding parameter when the function call begins}. After that initial copying operation is performed, arguments no longer have anything to do with parameters.
+
+For example, consider the following program:
+
+\begin{cpp}{Parameters are different from arguments}
+int weird_sum(int a, int b) {
+    double result = a + b; // Compute sum
+    a = 0; // Store 0 in parameter a
+    b = 0; // Store 0 in parameter b
+    return result; // Return previously computed sum
+}
+
+int main() {
+    int x = 2;
+    int y = 3;
+    std::cout << weird_sum(x, y) << std::endl; // Prints 5
+    std::cout << x << std::endl; // Prints 2! NOT 0!
+}
+\end{cpp}
+
+In the above program, the \texttt{weird\_sum} function resets its parameters to 0 after adding them. However, importantly, when the \texttt{weird\_sum} function stores 0 inside the parameter \texttt{a}, that does \ul{not} change the value of the corresponding argument, \texttt{x}. Indeed, \texttt{a} and \texttt{x} are completely separate variables with separate memory---changing \texttt{a} does not change \texttt{x}. Similarly, changing \texttt{b} does not change \texttt{y}.
+
+To make matters even more confusing, argument variables and parameters can have the same names. Even still, they are completely separate variables with separate memory. This will make more sense when we talk about scope. But, for example, the following program is exactly equivalent to the previous program:
+
+\begin{cpp}{Parameters are different from arguments}
+int weird_sum(int a, int b) {
+    double result = a + b; // Compute sum
+    a = 0; // Store 0 in parameter a
+    b = 0; // Store 0 in parameter b
+    return result; // Return previously computed sum
+}
+
+int main() {
+    int a = 2;
+    int b = 3;
+    std::cout << weird_sum(a, b) << std::endl; // Prints 5
+    std::cout << a << std::endl; // Prints 2! NOT 0!
+}
+\end{cpp}
+
+In this program, there are two separate variables both named \texttt{a}, and there are two separate variables both named \texttt{b}. But still, changing one does not change another. In the context of the \texttt{main} function's body, \texttt{a} refers to the local variable \texttt{a} initialized to \texttt{2} (the argument). In the context of the \texttt{weird\_sum} function's body, \texttt{a} refers to the parameter \texttt{a}.
+
+\section{Void functions}
+
+It's possible to create a function that returns nothing. A common reason to do this is if the purpose of the function is simply to produce \textbf{side effects}. A side effect is any effect (or ``output'') of a function that is observable other than through its return value. Simple examples of side effects include writing data to the terminal (via \texttt{std::cout}), writing data to a file, sending a request to a server over the internet, modifying reference parameters (which we'll talk about later), etc.
+
+Of course, every function's header must specify the function's return type. If a function does not return anything, then you must specify the function's return type to be \texttt{void}. Note that \texttt{void} is not a regular data type. Rather, it's used in special contexts like this to imply the \textit{absence} of any data type.
+
+Here's a simple example of a void function that prints an input number formatted as USD and returns nothing:
+
+\begin{cpp}{\texttt{void} function example}
+#include <cmath>
+
+void print_money(double dollars) {
+    // Round to nearest penny. Note that round()
+    // is provided by <cmath> and simply rounds
+    // its input to the nearest whole number (though
+    // still technically returns it as a double,
+    // which we then coerce to an int).
+    int pennies = round(dollars * 100);
+
+    // Divide by 100.0 to convert back to dollars
+    double rounded_dollars = pennies / 100.0;
+
+    // Format and print:
+    std::cout << "\$" << rounded_dollars << std::endl;
+}
+\end{cpp}
+
+\section{Good function design}
+
+Implementing functions that fulfill their contract (i.e., do what they're supposed to do) is one thing. \textit{Designing} good function contracts is another skill entirely. Following are a couple principles that you should follow when designing functions from here on out (they also appear in the style guidelines for this course, found on Canvas).
+
+\subsection{The Single Responsibility Principle (SRP)}
+
+The \textbf{Single Responsibility Principle} (SRP) was originally posited as a tenant of object-oriented programming, but it's really just a modularity principle that applies to just about any kind of programming (procedural, functional, logical, etc). It loosely states that a component of code should have exactly one responsibility.
+
+There's no consensus on what exactly constitutes a ``responsibility'', but there are some basic proxy rules that will help you keep in line with the SRP:
+
+\begin{itemize}
+    \item Lots of side effects, especially those that send data out of a function in some way (e.g., by writing to the terminal via \texttt{std::cout}, or writing to a file), are considered separate responsibilities from computations that produce a return value. That's to say, you should often avoid writing functions that produce outputs through multiple communication channels. This is not a hard and fast rule---it's very common to write a function that prompts the user for some input (via \texttt{std::cout}), receives that input (via \texttt{std::cin}), and then returns that input via a return value. Such a function interfaces with the terminal \textit{and} returns a value, but it still only has one responsibility.
+    \item Similarly, computations are generally considered a separate responsibility from interfacing with the terminal or other I/O. If you find yourself writing a function that prompts for and receives a value from the user, and then directly performs computations on that value, you should probably extract the computations to their own function.
+    \item \textbf{Daisy-chaining} is a common antipattern that violates the SRP. Daisy-chaining is when you separate your functions by simply having one function perform one operation and then call the next function, which in turn performs the next operation and calls the next function, and so on. The result is a very deep function call graph where the separation of responsibilities is procedural rather than semantic (i.e., there's no real ``meaning'' to the separation of the functions).
+    
+    For example, you might have a bunch of functions where function A calls function B, which then calls function C, which then calls function D, and so on. To be clear, there's nothing wrong with having functions that call other functions that call other functions, and so on. Problems only occur when this is the predominant pattern of function calls in your program. To avoid daisy-chaining, prefer to design many stand-alone, modular, ``low level'' functions that each do \textit{exactly} one thing and don't rely on calling any other functions to accomplish that thing unless absolutely necessary. Then, you can start writing ``high level'' functions, each of which calls \textit{several} low level functions to accomplish more abstract tasks. This pattern results in a very wide function call graph instead of a deep one, and it tends to result in better separation of responsibilities. Note that this strategy is just a proxy rule of thumb; the ultimate goal is to design your functions in a way that makes them highly modular (i.e., small and reusable in various contexts).
+\end{itemize}
+
+In general, if you can think of a reasonable way to break your function into two smaller functions that each serve some reasonable purpose in isolation, then you should probably do that, or else risk violating the SRP.
+
+\subsection{The ``Don't Repeat Yourself'' (DRY) Principle}
+
+Another principle of programming is the \textbf{``Don't Repeat Yourself''} (DRY) principle. It states that, if you find yourself implementing the same complex series of operations more than once in your program, you should probably just extract that series of operations to its own function. From there, you can simply call the function whenever you need to perform those operations.
+
+There are a few advantages to practicing the DRY principle rather than simply copying and pasting code over and over again. Most importantly, it makes your code more maintainable by reducing coupling; if you ever want to change the inner details about how the series of operations works, you only have to change the one function that implements it. In contrast, if you've copied and pasted the operations all over the place, modifying all of those copy-pasted operations will be cumbersome (and you'll almost surely miss one or two, which will likely result in a logic error).
+
+In addition, the DRY principle reduces clutter in your codebase and makes it easier to understand. The reader only needs to read and understand the extracted function once, rather than having to recognize the series of operations each time that they're copied and pasted.
+
+\section{Style guidelines}
+
+Review the style guidelines for this course. They're available on Canvas. Importantly, each function that you write, except for the \texttt{main} function, should be documented with a function block comment. Here's what a block comment for our \texttt{sum} function might look like:
+
+\begin{cpp}{\texttt{sum} function block comment}
+/*
+ * Function: sum
+ * Description: Computes the sum of its inputs
+ * Parameters:
+ *      first_value: The first operand of the sum operation
+ *      second_value: The second operand of the sum operation
+ * Returns: The sum of first_value and second_value
+ */
+double sum(double first_value, double second_value) {
+    return first_value + second_value;
+}
+\end{cpp}
+
+Note that your function block comments may need to contain some other information if relevant, such as side effects and preconditions. See the style guidelines for more information.
+
+\end{document}

@@ -1,0 +1,348 @@
+\documentclass{article}
+
+% Per-assignment macros
+\def\lecturetitle{Hello, World!}
+
+% Imports
+\usepackage{graphicx} % Required for inserting images
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue, anchorcolor=blue]{hyperref}
+\usepackage{hhline}
+
+% Titling
+\usepackage{titling}
+\preauthor{\begin{center}}
+\postauthor{\par\end{center}\vspace{-30pt}}
+\setlength{\droptitle}{-50pt}
+
+% Geometry
+
+\usepackage{geometry}
+\geometry{letterpaper, portrait, margin=1in}
+
+\usepackage[skip=5pt]{parskip}
+\newlength\tindent
+\setlength{\tindent}{\parindent}
+\setlength{\parindent}{0pt}
+\renewcommand{\indent}{\hspace*{\tindent}}
+
+% Assignment titling (number, due date, etc)
+\title{
+    Lecture Notes: \lecturetitle
+}
+\author{ENGR 103, Winter 2024}
+\date{}
+
+% Box environments
+\usepackage{tcolorbox}
+\usepackage{fancyvrb}
+\newenvironment{terminalcommand}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Command,colframe=gray!80!blue,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+\newenvironment{terminaloutput}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Output,colframe=gray!80!red,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+
+\usepackage{minted}
+\newenvironment{cpp}[1]
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=\texttt{#1},colframe=gray!50!blue,colback=white!97!black]
+    \begin{minted}{c++}}
+    {\end{minted}
+    \end{tcolorbox}}
+
+\newenvironment{tip}
+    {\begin{tcolorbox}[title=Tip,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newenvironment{note}
+    {\begin{tcolorbox}[title=Note,colframe=white!70!red,colback=white]}
+    {\end{tcolorbox}}
+
+\newcounter{examplerun}
+\newenvironment{examplerun}
+    {\begin{tcolorbox}[title=Example Run \refstepcounter{examplerun}\theexamplerun,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleruninputs}{\tcbsubtitle{Inputs}}
+\newcommand{\examplerunoutputs}{\tcbsubtitle{Outputs}}
+
+\newcommand{\imagewithdefaults}[1]{\includegraphics[width=\maxwidth{0.95\columnwidth}]{#1}}
+
+\makeatletter
+\def\maxwidth#1{\ifdim\Gin@nat@width>#1 #1\else\Gin@nat@width\fi}
+\makeatother
+
+\usepackage{soul}
+
+\begin{document}
+
+\maketitle
+
+\section{Languages}
+
+Formally:
+
+\begin{enumerate}
+    \item A \textbf{sentence} is a sequence of \textbf{symbols} with some semantic interpretation (i.e., meaning)
+    \item A \textbf{syntax} is a set of rules that dictates how symbols can be mixed and matched to form sentences
+    \item \textbf{Semantics} describe how a sentence should be interpreted (i.e., the meaning of a sentence)
+    \item A \textbf{grammar} is the union of syntax and semantics. That is, it's a set of rules that describes how sentences can be formed \ul{and} what they mean.
+    \item A \textbf{language} is a set of valid sentences, usually derived from a grammar.
+\end{enumerate}
+
+These definitions hold for spoken languages, but they also hold for \textbf{programming languages}. A programming language is a language that we use to express instructions for a computer to interpret and execute (i.e., a language that we use to ``code'').
+
+In this course, we will be using the \textbf{C++ programming language}. Due to its flexibility of use, it is a very popular language in software engineering (and it's used religiously in certain subfields, like game development and computer graphics).
+
+When we write a set of instructions in a programming language for a computer to interpret and execute, we refer to this set of instructions as a \textbf{software application}, or, equivalently, a \textbf{program}. Almost everything that happens on your computer happens within a program. Examples of programs that you've probably interacted with include an internet browser (e.g., Google Chrome, Firefox, etc), notepad, a file explorer, Microsoft Word, and even an entire operating system (e.g., Windows, Mac, Linux, etc). We'll be writing much smaller programs in this course that will be run entirely within a terminal; they will simply process textual inputs and produce textual outputs.
+
+\section{Translators}
+
+Computers can generally only directly understand \ul{one} very specific programming language, which we colloquially refer to as the computer's \textbf{machine language}. Unfortunately, although it's very easy for a computer to interpret its machine language, it's very difficult for a human to interpret machine languages---they're basically just a bunch of binary operation codes that signify very \textbf{low-level} (primitive) operations, such as ``load the number from this place in memory into this register'', and ``add the values in these two registers, storing the sum in that register''. It would be \ul{very difficult} to write meaningful software using such a primitive language. To make matters worse, different processors (computers) have different machine languages, so your program wouldn't even be \textbf{portable} (e.g., it might only run on one very specific style of CPU).
+
+Once upon a time, people had no choice but to write programs in machine languages. Luckily, at some point, some very smart people realized that it's possible to write a program in a machine language that, when executed by a supporting computer, can translate programs written in other languages to the computer's machine language. Such programs are called \textbf{translators}. Translators allow us to write a program in some programming language that our computer doesn't understand, translate it to a program expressed in machine language (which our computer \textit{does} understand), and then execute it.
+
+Think of it like this: Although you might not understand German, if I gave you a German-to-English dictionary and an extremely thorough explanation (in English) of the entire German grammar, then you could theoretically interpret German sentences (it'd require a lot of computational steps, but computers are very fast at that). It's the same idea---although your computer only naturally understands its machine language, we can write a translator in its machine language that describes a sequence of instructions which, when executed on a program written in \textit{another} language, translates that program to the computer's machine language. All of a sudden, your computer can effectively understand any programming language, given an appropriate translator.
+
+With the advent of translators, people started creating \ul{lots} of new, \textbf{higher-level} (less ``primitive'') programming languages along with corresponding translators that would convert them to machine languages. At some point, Bjarne Stroustrup conceived of the C++ programming language---the language we'll be using in this course. There's lots of rich history here, but we won't go into it in any more detail.
+
+There are two main kinds of translators:
+\begin{enumerate}
+    \item \textbf{Interpreters}, which read instructions written in some programming language and translate them into machine language instructions on-the-fly (i.e., a program that runs other programs written in some programming language).
+    \item \textbf{Compilers}, which read entire programs written in some programming language and translate them into full-fledged machine language programs ahead of time (i.e., a program that converts other programs written in some programming language to the computer's machine language for later execution).
+\end{enumerate}
+
+There's a tradeoff here. Compilers frontload a lot of the computational effort of translation, which tends to produce faster programs in the long run than an interpreter could. However, interpreted programs tend to be more portable and easier to install---so long as your computer has an interpreter installed for some programming language (e.g., Python or Java), then your computer can run any program written in that language without any additional configuration. In contrast, compiled programs must be pre-compiled for each target platform (since different CPUs have different machine languages). For this reason, there are also \textbf{hybrid} translators that first \textbf{compile} the programming language code into some common intermediate representation that's more compact and ``closer'' to machine languages, and then \textbf{interpret} that intermediate representation on-the-fly.
+
+Most programming languages tend to lean toward one translation style or another, but any kind of translator can be built for any programming language. For example, most C++ translators are compilers (though there do exist interpreters and hybrid translators for C++); most Python and Java translators are hybrid translators; and so on. In this course, we will be using the \textbf{g++ compiler} to compile our C++ code into machine language.
+
+\section{Errors}
+
+Of course, it's very easy to make mistakes when writing code. Indeed, code is delicate; some programming languages' grammars are more forgiving than others, but in general, even the tiniest typo or missing semicolon can break your entire program.
+
+Luckily, lots of errors can be caught by your compiler or some other static analysis tool (i.e., a tool that analyzes your code prior to actually running your program). These errors are called \textbf{syntax errors} because they reflect mistakes in the application of the programming language's syntax. When your compiler encounters a syntax error, it doesn't know how to interpret the code, so it gives up and prints a description of the error to the terminal. You'll see an example later in this lecture. Syntax errors are the easiest to fix because your compiler can point you directly to the mistake before you even try to run your program (and, in fact, your program will fail to build, which means it's generally impossible to even try to run a program with syntax errors without an interpreter-style translator).
+
+There are also \textbf{runtime errors}, which cannot be caught during compilation because whether they occur depends on how the program is run. Some kinds of runtime errors will cause the program to crash (terminate) unless the error is ``caught''; we won't talk about how to ``catch'' runtime errors in this class, so we'll instead focus our efforts on avoiding them in the first place. For example, a program might ask the user for two numbers $A$ and $B$ and then proceed to print the quotient $\frac{A}{B}$. If the user happens to enter $0$ for $B$, then a runtime error might occur due to a division by zero (but it depends on the programming language; some languages will just produce some bogus quotient rather than throwing an error that will crash your program). You might design your program to avoid such an error by checking whether $B$ is zero prior to the division computation and, if so, scolding the user and asking for a different number. Because they can't be discovered by your compiler, runtime errors are much harder to diagnose and mitigate than syntax errors.
+
+The worst kind of error is a \textbf{logic error}, which reflects a mistake in your logic. It may be much more subtle than a division by zero; not only will your compiler not catch it, but it may not even cause your program to crash. Instead, your program might continue to execute in subtly undesired ways. For example, suppose you're writing a program to calculate the position of an object undergoing constant acceleration. A relevant kinematics equation for this is $x = x_0 + v_0 t + \frac{1}{2} a t^2$, where $x$ denotes the final position of the object (the details of the equation don't matter; this isn't a physics class). But suppose you forgot to square $t$ in the last term in your program. Your program will still compile, and it'll still run---it won't crash due to something obvious like a division by zero. But it won't behave the way you want it to. It will produce the wrong results. These are the hardest kinds of errors to catch because there are no simple diagnostic tools that will catch them for you. In the worst case, you may have to scrutinize a large portion of your code to diagnose the problem.
+
+We will talk about some common errors in C++ programs as they become relevant.
+
+\section{C++ build pipeline}
+
+In order to write a program in C++, you usually start by creating a file whose name ends in \texttt{.cpp}, such as \texttt{mycoolprogram.cpp}.
+
+\begin{note}
+    The \texttt{.XXX} part of a file name is referred to as a \textbf{file extension}. File extensions don't technically \textit{do} anything---they're just the part of the file's name that suggests what kind of file it is. However, you should still use the \texttt{.cpp} extension for all C++ files you write (unless you separate your code into header files, but we won't talk about that in this course).    
+\end{note}
+
+You'd then write some C++ code in that file, also referred to as \textbf{source code} (e.g., using \texttt{vim} to open and edit the file). For example, suppose you write the following C++ source code in a file called \texttt{hello.cpp}:
+
+\begin{cpp}{hello.cpp}
+#include <iostream>
+
+int main() {
+    std::cout << "Hello, World!" << std::endl;
+}
+\end{cpp}
+
+We'll talk about what this code means later, but just understand that it's a valid C++ program.
+
+Suppose you want your computer to execute this program. As mentioned, computers can't understand C++ directly---they can only understand programs expressed in their machine language. As such, the next step would be to translate your C++ source code into an \textbf{executable file} expressed in your computer's machine language. We will be using \texttt{g++} to do this. Although I said \texttt{g++} is a compiler, that was an oversimplification---there are several steps involved in translating a C++ program into a machine language executable, and compilation is just one of those steps. The full build pipeline usually involves at least these steps:
+
+\begin{enumerate}
+\item Preprocessing: Lines of code starting in \texttt{\#}, known as \textbf{preprocessing directives}, are interpreted. These lines are not technically C++, but rather a different language, which we'll refer to as the \textbf{C++ preprocessing language}. They describe operations that modify the source code in-place just prior to compilation.
+\item Compilation: Each C++ source code file is translated to machine language (also called \textbf{object code}, in this context). Note that each C++ file is compiled \ul{independently} and has its own object code.
+\item Linking: The object code from all of the C++ files, along with the object code from any included libraries (such as \texttt{<iostream>}, which we'll talk about later), is ``linked'' together into a single, final executable file.
+\end{enumerate}
+
+Conveniently, you can do all of these steps in a single \texttt{g++} terminal command, like so:
+
+\begin{terminalcommand}
+g++ -o <name of executable> <source file 1> <source file 2> ... <source file N>
+\end{terminalcommand}
+
+Note that you must have \texttt{g++} installed to use this command; it's already installed on the ENGR servers. In this context, \texttt{<name of executable>} specifies the name that you want your executable file to have, and \texttt{<source file XXX>} specifies one of the C++ source code files whose object code you want to include in your executable. Indeed, a single C++ program can be broken down into many source code files. It also \textit{usually} doesn't matter the exact order that you supply arguments to \texttt{g++}, but it's crucial that the executable file's name immediately follows the \texttt{-o} flag.
+
+All that said, in this course, each of our programs will only have a single C++ source code (\texttt{.cpp}) file. Continuing with our example, we could build \texttt{hello.cpp} into an executable like so:
+
+\begin{terminalcommand}
+g++ -o hello_world hello.cpp
+\end{terminalcommand}
+
+This will translate \texttt{hello.cpp} into an executable file called \texttt{hello\_world}, going through all of the steps of the build pipeline (preprocess, compile, link, etc.). Notice that there is no file extension for our executable. This is typical; on a *nix environment (e.g., Mac or Linux, such as on the ENGR servers), executables should not have extensions. On Windows, you should use \texttt{.exe} as your executable file's extension (though, in this course, you'll probably do all of your work on the ENGR servers).
+
+If you run the \texttt{ls} command, you should now see the executable file called \texttt{hello\_world} in your working directory. That's our program, and we can run it. To run an executable file in the terminal on a Linux environment, simply type the file's path and press enter. If the executable file is present in the working directory, you may have to prefix the file's name with $./$ to make this explicit (recall that \texttt{.} refers to the working directory if used as a relative path). Otherwise, your shell may attempt to execute a system-installed command instead. For example, we could run our \texttt{hello\_world} executable like so:
+
+\begin{terminalcommand}
+./hello_world
+\end{terminalcommand}
+
+If we run this program, it will simply print ``Hello, World!'' to the terminal. We'll talk about why in the next section.
+
+Suppose we then make some changes to our source code. For example, suppose we update it to look like this:
+
+\begin{cpp}{hello.cpp}
+#include <iostream>
+
+int main() {
+    std::cout << "I love coding!!!" << std::endl;
+}
+\end{cpp}
+
+This is still a valid program, but it will now print ``I love coding!!!'' to the terminal when we run it.
+
+Importantly, changes made to your source code \ul{do not} automatically propagate to your executable file. That's to say, even though \texttt{hello.cpp} has been updated, the executable (\texttt{hello\_world}) has \ul{not} been updated. It still contains the \ul{old} version of our program, expressed in machine language. So if we tried to run it again immediately, it would still print ``Hello, World!'', as opposed to ``I love coding!!!''. To update it, we must run \texttt{g++} again (just as before) to rebuild our program. \ul{In general, you should always remember to build a fresh version of your executable using \texttt{g++} whenever you make any changes to your source code.} Otherwise, you will be running an outdated version of your program that doesn't reflect your current source code; this is a \textit{very common} source of confusion.
+
+Indeed, this is why ``source code'' was given its name---it is the source from which your executable is derived, but it is not the executable itself.
+
+\section{Dissecting our ``Hello, World!'' program}
+
+Finally, we can start talking about the C++ grammar (syntax and semantics).
+
+In our ``Hello, World!'' program above (the original one---\ul{not} the one where we replaced the text with ``I love coding!!!''), there are a few things going on. Let's dissect the code one piece at a time.
+
+The first line of code is:
+
+\begin{verbatim}
+#include <iostream>
+\end{verbatim}
+
+This is a preprocessor directive. That means that this line of code is interpreted and executed by \texttt{g++} when \ul{building} our program, and all it does is modify the source code in some way just prior to compilation. Particularly, the \texttt{\#include} directive is used to copy the contents of \textit{another} C++ source code file (called a \textbf{header file}) and paste it in place of the directive itself. In this case, we're including a file called \texttt{iostream} (the angle brackets surrounding it mean that it's a system-installed file; you can find it on the ENGR servers if you know where to look).
+
+This is very useful---it allows our program code to \ul{depend} on some other, pre-written code. It avoids having to reinvent the wheel when someone else has already written the code that we need. In this course, we will only be including system-installed files that are part of the so called \textbf{C++ standard library}. A \textbf{library} is a set of pre-written source code files that you can include and use in your programs, and the C++ standard library is so named because it's described in the C++ language standard and is built into C++ development packages, which means that it's available to you whenever you're writing a C++ program. \texttt{iostream} is just one source code file made available to you by the C++ standard library; we'll talk about many others as the term progresses.
+
+The \texttt{iostream} header file gives us access to tools that will let us interact with the terminal from within our program, such as \texttt{std::cout}, \texttt{std::endl}, and many more. It might be helpful to remember that the IO in \texttt{iostream} stands for ``input, output'', and a \textbf{stream} is a communication channel through which we can send and receive data. Putting that together, \texttt{iostream} provides us streams through which we can receive inputs to our program and send outputs from our program; this includes transferring data between our program and the terminal.
+
+The next line of code is:
+
+\begin{verbatim}
+int main() {
+\end{verbatim}
+
+This is called a \textbf{function header}, and it is the beginning of a \textbf{function definition}. We will talk more about functions later, but a function is basically just a block of reusable code. In this case, we're defining a function called \texttt{main}. The opening curly brace denotes the beginning of the function body, and the closing curly brace at the end of the program denotes the end of the function body (i.e., everything between those two curly braces is the actual code of the function).
+
+In most cases, the \textbf{identifier}, or name, of a function doesn't matter. But in a C++ program, the function with the identifier \texttt{main} is very special---it is the entrypoint to our program. When you build and execute a C++ program, the program will start at the entrypoint and execute lines of code in a very specific order referred to as the program's \textbf{control flow}. In general, the control flow is top-down (like reading a book), but we'll learn various ways to modify the control flow of a program later. In this case, when we actually run our program, the first (and only) line of code that will be executed is this:
+
+\begin{verbatim}
+    std::cout << "Hello, World!" << std::endl;
+\end{verbatim}
+
+That's because it's the first (and only) line of code in our entrypoint (\texttt{main}). Let's break this line down.
+
+First, \texttt{std::cout} is one of the tools provided to us by the \texttt{iostream} library, as is \texttt{std::endl}. If we hadn't included the \texttt{iostream} library on the first line of our program, then we wouldn't have had access to these tools, and our program would have failed to build due to a syntax error---running \texttt{g++} would have printed an error such as this:
+
+\begin{terminaloutput}
+main.cpp: In function ‘int main()’:
+main.cpp:2:14: error: ‘cout’ is not a member of ‘std’
+    2 |         std::cout << "Hello, World!" << std::endl;
+\end{terminaloutput}
+
+Reading syntax errors reported by \texttt{g++} is its own skill, but all reported syntax errors will have a few things in common. First, they tell you the name of the source code file in which the error occurred (in this case, \texttt{main.cpp}). Next, they tell you the line number in the file on which the error occurred, followed by a colon, followed by the exact character on that line in which the error was detected (in this case, \texttt{g++} noticed the syntax error by character 14 of line 2 in our code). Finally, they tell you some description of the error, which is sometimes hard to parse. In this case, it's telling us that \texttt{cout} is not a part of the \texttt{std} namespace (we'll talk about namespaces in a moment). That's because it's provided by the \texttt{<iostream>} library, and we forgot to include it. Unfortunately, \texttt{g++} usually only tells us very surface-level information---it doesn't tell us that we forgot to include \texttt{<iostream>}, only that \texttt{std::cout} doesn't exist in this context.
+
+Anyways, let's get back to dissecting our program. Note that \texttt{std} stands for ``standard'', and the two colons (\texttt{::}) is called the \textbf{scope resolution operator}. In total, \texttt{std::cout} means ``I'm trying to access the tool called \texttt{cout} that exists within the namespace called \texttt{std}''. A \textbf{namespace} is merely a prefix used to organize related code, like how a folder is used to organize files. Nearly everything provided to you by the C++ standard library goes in the \texttt{std} namespace, so you'll need to get used to prefixing things with \texttt{std::} if they're included from the standard library.
+
+\texttt{cout} stands for ``console output'', where ``console'' is basically an oldy-worldy term for ``terminal''. Indeed, \texttt{std::cout} is a code representation of a stream connected to the terminal---when we send data into it, the data gets printed to the terminal.
+
+Following \texttt{std::cout} in our code is two leftward arrows, \texttt{<<}. This is called the \textbf{stream insertion operator}, and it's used to insert data into a stream. You put a stream to the left of the operator and some data to the right, and it will send the data into the stream---the mnemonic is that the data flows in the direction of the arrows. In this case, the stream on the left is \texttt{std::cout}, and the data on the right is the text, \texttt{"Hello, World!"}. Indeed, to represent text in a C++ program, you have to put the text inside quotation marks. This creates something known as a \textbf{string}, which we'll cover in greater detail later on in the term. If you omit the quotation marks, \texttt{g++} will interpret \texttt{Hello, World!} as \ul{code} rather than \ul{textual data} (and it's not legal C++ code, so it will produce a syntax error).
+
+Following the text, there's another stream insertion operator. This is called \textbf{operator chaining}. The simple rule for stream operator chaining is this: whenever you see a pattern of the form \texttt{a << b << c << d}, it is exactly equivalent to the following lines of code:
+
+\begin{verbatim}
+a << b;
+a << c;
+a << d;
+\end{verbatim}
+
+That's to say, \texttt{std::cout << "Hello, World!" << std::endl;} is equivalent to the following two lines of code:
+
+\begin{verbatim}
+std::cout << "Hello, World!";
+std::cout << std::endl;
+\end{verbatim}
+
+Looking at that equivalent representation, there's just a couple more pieces to talk about.
+
+First are the semicolons (\texttt{;}). A semicolon is used to reflect the end of a \textbf{statement} in C++. You can think of it like a period in English---it marks the end of a ``sentence'', or instruction. Furthermore, C++ is \textbf{not whitespace sensitive}. That's to say, even if you have two statements on their own lines of code, \texttt{g++} will not recognize them as separate statements unless you have a semicolon between them (which, conventionally, you'd put at the end of each statement). If you leave out a semicolon, your code will likely fail to compile, and \texttt{g++} will report some sort of syntax error. The exact text of the error is unpredictable because \texttt{g++} doesn't necessarily know the exact problem---it just knows that you've basically written a run-on sentence, and it needs to be broken up \textit{somehow}.
+
+And lastly, there's \texttt{std::endl}. This is provided by the \texttt{iostream} library, and it simply represents a new line (like pressing the enter key). Indeed, \texttt{endl} stands for ``end line'' (and, importantly, that \texttt{l} is a lowercase ``L''---not the number ``1''---despite that the two characters look identical on some monospaced fonts). 
+
+To sum it all up, \texttt{std::cout << "Hello, World!" << std::endl;} will send the text ``Hello, World!'' to the terminal, followed by a new line. So when we run our program, the terminal output will look like this:
+
+\begin{terminaloutput}
+Hello, World!
+\end{terminaloutput}
+
+Suppose we duplicate the print statement, so our source code now looks like this:
+
+\begin{cpp}{hello.cpp}
+#include <iostream>
+
+int main() {
+    std::cout << "Hello, World!" << std::endl;
+    std::cout << "Hello, World!" << std::endl;
+}
+\end{cpp}
+
+As mentioned earlier, control flow is typically top-down with respect to lines of code. That means that when we rebuild and run our program, it will start by executing the first line in the \texttt{main} function, and then it will execute the second line. Of course, these two lines of code are the same, so it'll now produce the following output:
+
+\begin{terminaloutput}
+Hello, World!
+Hello, World!
+\end{terminaloutput}
+
+Suppose we omit printing \texttt{std::endl} in each statement, like so:
+
+\begin{cpp}{hello.cpp}
+#include <iostream>
+
+int main() {
+    std::cout << "Hello, World!";
+    std::cout << "Hello, World!";
+}
+\end{cpp}
+
+Or, equivalently:
+
+\begin{cpp}{hello.cpp}
+#include <iostream>
+
+int main() {
+    std::cout << "Hello, World!" << "Hello, World!";
+}
+\end{cpp}
+
+Then the output of our program will look like this instead:
+
+\begin{terminaloutput}
+Hello, World!Hello, World!
+\end{terminaloutput}
+
+Notice: There is no longer a line break in the middle of the output. This illustrates the effect of printing \texttt{std::endl}; as mentioned, it's like telling your terminal to press enter and move down a line. If you don't tell it to do that, then it won't, and everything will just be strung together in one line of output.
+
+\section{Summary}
+
+\begin{itemize}
+    \item A language is a set of sentences, usually derived from a grammar, which is in turn composed of a syntax (set of rules to construct valid sentences) and semantics (set of rules that explains how to interpret a sentence). A programming language is a language that we use to write a program for a computer to execute. In this class, we use the C++ programming language.
+    \item Computers can only understand their respective machine languages. Programs written in other programming languages have to first be converted to the computer's machine language via a translator. Translation done on-the-fly is called interpreting, and translation done ahead of time is called compilation. The most common way to translate C++ code is to compile it. We use the \texttt{g++} build tool in this class, which has a compiler built into it.
+    \item C++ code is built into an executable file in at least three steps, including 1) preprocessing, 2) compilation, and 3) linking. \texttt{g++} can do all of these things for us.
+    \item Syntax errors reflect mistakes in the application of a language's syntax. They are caught by the translator (which necessarily happens before running the program if using a compiler or hybrid translator). Runtime errors are errors that may or may not occur depending on how the program is run, such as a potential division by zero. Some runtime errors will cause the program to crash unless ``caught'' (we won't learn how to ``catch'' runtime errors in this class, so we'll instead focus our efforts on preventing them from happening in the first place). Logic errors are errors in the program's logic; they are perfectly valid programs and do not crash when run, but they don't produce the \textit{intended} outputs. Syntax errors are easy to find and fix. Logic errors can be incredibly difficult to find and fix. Crashing runtime errors are somewhere in the middle.
+    \item The \texttt{\#include} preprocessing directive is used to copy and paste the contents of another C++ source code file, called a header file, in place of the directive itself.
+    \item The C++ standard library provides us a bunch of header files that we can include, such as \texttt{iostream}. The \texttt{iostream} header file gives us access to streams through which we can receive inputs to our program and send outputs from our program, often to and from the terminal.
+    \item Virtually everything included from the standard library goes in the \texttt{std} namespace, so accessing stuff included from the standard library requires prefixing them with \texttt{std::}
+    \item The \texttt{main} function is the entrypoint to a C++ program---when you run a C++ program, it starts at the first line of code in the \texttt{main} function, and then control flow continues generally in top-down order (unless other special control flow mechanisms are applied, which will be covered later).
+    \item \texttt{std::cout} is provided by \texttt{iostream} and stands for ``console output''. It's a stream that we can send data to. When we do, that data gets printed to the terminal.
+    \item \texttt{<<} is the stream insertion operator. You put a stream to the left of it and data to the right, and the data will be sent into the stream.
+    \item To represent textual data in C++, you must surround the text in quotation marks.
+    \item \texttt{std::endl} represents an ``end line'' character sequence. For example, \texttt{std::cout << std::endl} is like telling the terminal to simulate pressing enter, moving the cursor in the terminal down a line.
+    \item Stream operators can be chained. As such, \texttt{std::cout << "Hello, World!" << std::endl} is how you create a simple ``Hello, World!'' application in C++, which prints ``Hello, World!'' to the terminal and then shifts the cursor down a line.
+    \item In general, C++ statements must end in semicolons
+\end{itemize}
+
+\end{document}

@@ -1,0 +1,336 @@
+\documentclass{article}
+
+% Per-assignment macros
+\def\studionumber{6}
+\def\studiotitle{Pseudorandom Number Generation and Common Errors}
+
+% Imports
+\usepackage{graphicx} % Required for inserting images
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue, anchorcolor=blue]{hyperref}
+\usepackage{hhline}
+\usepackage{amsmath}
+
+% Titling
+\usepackage{titling}
+\preauthor{\begin{center}}
+\postauthor{\par\end{center}\vspace{-30pt}}
+\setlength{\droptitle}{-50pt}
+
+% Geometry
+
+\usepackage{geometry}
+\geometry{letterpaper, portrait, margin=1in}
+
+\usepackage[skip=5pt]{parskip}
+\newlength\tindent
+\setlength{\tindent}{\parindent}
+\setlength{\parindent}{0pt}
+\renewcommand{\indent}{\hspace*{\tindent}}
+
+% Assignment titling (number, due date, etc)
+\title{
+    Studio \studionumber: \studiotitle
+}
+\author{ENGR 103, Winter 2024}
+\date{}
+
+% Box environments
+\usepackage{tcolorbox}
+\usepackage{fancyvrb}
+\newenvironment{terminalcommand}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Command,colframe=gray!80!blue,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+\newenvironment{terminaloutput}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Output,colframe=gray!80!red,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+
+\newenvironment{hint}
+    {\begin{tcolorbox}[title=Hint,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newenvironment{sourcecode}[1]
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=\texttt{#1},colframe=gray!80!green,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+
+\newenvironment{tip}
+    {\begin{tcolorbox}[title=Tip,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newcounter{examplerun}
+\newenvironment{examplerun}
+    {\begin{tcolorbox}[title=Example Run \refstepcounter{examplerun}\theexamplerun,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleruninputs}{\tcbsubtitle{Inputs}}
+\newcommand{\examplerunoutputs}{\tcbsubtitle{Outputs}}
+
+\newcounter{exampleproblem}
+\newcounter{exampleproblemsolution}
+\newenvironment{exampleproblem}
+    {\setcounter{exampleproblemsolution}{0}\begin{tcolorbox}[title=Example Problem \refstepcounter{exampleproblem}\theexampleproblem,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleproblemstatement}{\tcbsubtitle{Problem statement}}
+\newcommand{\exampleproblemsolution}{\refstepcounter{exampleproblemsolution}\tcbsubtitle{Solution \theexampleproblemsolution}}
+
+\newcommand{\imagewithdefaults}[1]{\includegraphics[width=\maxwidth{0.95\columnwidth}]{#1}}
+
+\makeatletter
+\def\maxwidth#1{\ifdim\Gin@nat@width>#1 #1\else\Gin@nat@width\fi}
+\makeatother
+
+\usepackage{soul}
+
+\begin{document}
+
+\maketitle
+
+This studio covers two short topics:
+
+\begin{enumerate}
+    \item Pseudorandom number generation in C++
+    \item Common errors and how to fix them
+\end{enumerate}
+
+\section{Pseudo Random Number Generation}
+
+\subsection{Notes on PRNG}
+
+Note that pseudorandom number generation was not covered in lecture, though it may appear in future assignments, future studios, and / or the final exam. For this reason, you'll begin this studio by spending a few minutes reading about the topic below:
+
+Digital computers of the modern era are designed to be \textbf{deterministic}, which means that they're supposed to behave predictably. However, it's often useful to represent randomness in a software application. Perhaps the goal is to implement an interesting mechanic in a video game, or a statistical model, or an orchestration system that randomly distributes requests across many servers, etc.
+
+Because digital computers are deterministic (they behave predictably), they aren't capable of generating true randomness by themselves. As such, a common technique is to instead have a computer generate \textbf{pseudorandomness}. A \textbf{pseudorandom number generator} (PRNG) is a software tool that generates numbers that \textit{appear} to be random, but which are technically derived from a completely deterministic underlying process. Although these numbers are innately predictable, the mathematical process through which they might be predicted is complex enough that a human being would have a hard time reverse engineering it (in fact, a cryptographically secure PRNG might draw entropy from user interactions such as mouse movements, which makes it hard even for other computers to reverse engineer the number generation).
+
+C++ offers you a PRNG built directly into the standard library. To get access to it, you first have to \texttt{\#include <cstdlib>} at the top of your source code file. You will then have access to two new global functions: \texttt{srand}, and \texttt{rand}. Since these are provided by C header files, they are \ul{not} part of the \texttt{std} namespace, so they should \ul{not} be prefixed with \texttt{std::}
+
+The way most PRNGs work is by starting with a single number, known as the \textbf{random seed}, and transforming it through a complex series of mathematical operations to generate the next number in the \textbf{pseudorandom sequence}. That number will then be transformed via the same process to generate the next number, and so on. A good PRNG will seemingly not show any patterns. For instance, small changes in the first number of the pseudorandom sequence should result in significant and seemingly arbitrary changes to the second number in the sequence. By default, C++ uses a random seed of \texttt{0}, which is configured into the PRNG at the start of your program.
+
+The issue is that if your program uses the same random seed every time you execute it, then your program will always produce the same sequence of pseudorandom numbers since it will always have the same starting point. Hence, you need a way to tell your program to use a different random seed every time you run your program.
+
+A common trick is to simply derive the random seed from the current time. Indeed, for our random seed, we'll use the number of seconds that have passed since January $1^{st}$, 1970 at midnight. This anchor point is referred to as the \href{https://en.wikipedia.org/wiki/Unix_time}{Unix epoch}.
+
+In order to retrieve the number of seconds that have passed since the Unix epoch, you need to include another header file: \texttt{\#include <ctime>}. Then, you can retrieve the number of seconds since the Unix epoch via any of the following expressions: \texttt{time(nullptr)}, or \texttt{time(NULL)}, or simply \texttt{time(0)}.
+
+Now, to specify the seed of your PRNG, you can use the \texttt{srand} function provided by \texttt{<cstdlib>}, which stands for ``seed random''. It accepts one argument, which is the integer seed of the PRNG. Since the seed is the first number in your PRNG sequence, you should usually only call \texttt{srand} once in your entire application. As a rule of thumb, just call it at the beginning of the \texttt{main} function.
+
+Putting this together, you might put the following at the beginning of your \texttt{main} function:
+
+\begin{verbatim}
+srand(time(nullptr));
+\end{verbatim}
+
+Once you have seeded your random number generator as above, you can then generate a pseudorandom number by simply calling the \texttt{rand()} function whenever you want. This function returns an \texttt{int}, which is simply the next value in the PRNG sequence. Note that the \texttt{rand()} function will generate a random positive integer between \texttt{0} and the very large constant, \texttt{RAND\_MAX}. If you want to do something more refined, like generate a random integer between 1 and 6 to represent a die roll, or a random floating point value between 0 and 1 to simulate an event with some percent chance of occurring, then you have to do some mathematical trickery on the outputs produced by \texttt{rand()}. The problems in this studio will guide you in doing these things.
+
+Here is a simple example program that generates two random, large, positive integers:
+
+\begin{sourcecode}{PRNG Example Program}
+#include <iostream>
+
+// Include <cstdlib> for access to rand() and srand()
+#include <cstdlib>
+
+// Include <ctime> for access to time()
+#include <ctime>
+
+int main() {
+    // Seed the PRNG EXACTLY ONCE at the beginning of your
+    // program:
+    srand(time(nullptr));
+
+    // Now we can generate large, positive pseudorandom
+    // integers whenever we want via the rand() function:
+    std::cout << "Value 1: " << rand() << std::endl;
+
+    // Of course, you can store random values in int
+    // variables, and so on...
+    int another_value = rand();
+    std::cout << "Value 2: " << another_value << std::endl;
+}
+\end{sourcecode}
+
+\subsection{PRNG Guiding Questions}
+
+Answer the following guiding questions. You can write down your answers wherever you'd like (pen-and-paper, in a text file, etc).
+
+For each question, assume that the PRNG has been seeded via \texttt{srand(time(nullptr))} at the beginning of the \texttt{main} function.
+
+\begin{enumerate}
+    \item What is the value of \texttt{0 \% 4}?
+    \item What is the value of \texttt{1 \% 4}?
+    \item What is the value of \texttt{2 \% 4}?
+    \item What is the value of \texttt{3 \% 4}?
+    \item What is the value of \texttt{4 \% 4}?
+    \item What is the value of \texttt{5 \% 4}?
+    \item Analyze the pattern to the answers in the previous questions. It's guaranteed that \texttt{x \% 4} lies within some very specific interval, regardless of the exact integer value of \texttt{x}. What is that interval?
+    \item It's guaranteed that \texttt{x \% 10} lies within some very specific interval, regardless of the exact integer value of \texttt{x}. What is that interval?
+    \item Consider that \texttt{rand()} will generate a pseudorandom, large, non-negative integer. Construct an expression that somehow combines this information with your answers to the previous questions to generate a pseudorandom integer between \texttt{0} and \texttt{5}, inclusive (\textbf{inclusive} means that both 0 and 5 are considered valid values that might be generated)
+    \item Suppose you've generated a pseudorandom integer between \texttt{0} and \texttt{10}, inclusive. How could you transform that integer to produce a new pseudorandom integer between 5 and 15, inclusive?
+    \item Using your answers to the previous questions, construct an expression that evaluates to a pseudorandom integer between \texttt{5} and \texttt{15}, inclusive.
+    \item Construct an expression that evaluates to a pseudorandom integer between \texttt{a} and \texttt{b}, inclusive, where \texttt{a} and \texttt{b} are each \texttt{int}-typed variables.
+    \item Knowing that \texttt{rand()} specifically generates a pseudorandom number between 0 and the large constant, \texttt{RAND\_MAX} (which is available to you once you've included the \texttt{<cstdlib>} header file), construct an expression that generates a pseudorandom \texttt{double}-typed value between \texttt{0} and \texttt{1}, inclusive (hint: you may want to use \texttt{static\_cast} to avoid truncation in your expression)
+    \item Let's assume that C++'s PRNG generates uniform random numbers (i.e., every value between \texttt{0} and \texttt{1} is equally likely to be generated by your expression in your answer to the previous question). Knowing this, construct a boolean expression that evaluates to \texttt{true} \texttt{54.3\%} of the time, and \texttt{false} the remaining \texttt{45.7\%} of the time.
+\end{enumerate}
+
+\subsection{PRNG Program}
+
+Write a short program that simulates two dice rolls (i.e., generates two pseudorandom integers each between \texttt{1} and \texttt{6}, inclusive). Print the two generated pseudorandom numbers. If they're equal, additionally print, ``You rolled doubles!''
+
+\section{Common errors}
+
+The remainder of this studio is dedicated to helping you recognize and debug common errors in a C++ program.
+
+\subsection{Syntax errors}
+
+\subsubsection{Error 1}
+
+Suppose your compiler outputs the following error messsage when trying to compile a program:
+
+\begin{terminaloutput}
+main.cpp: In function 'double triple_number()':
+main.cpp:4:16: error: 'favorite_number' was not declared in this scope
+    4 |         return favorite_number * 3;
+      |                ^~~~~~~~~~~~~~~
+main.cpp: In function 'int main()':
+main.cpp:12:47: error: too many arguments to function 'double triple_number()'
+   12 |         double triple_favorite = triple_number(favorite_number);
+      |                                  ~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
+main.cpp:3:8: note: declared here
+    3 | double triple_number() {
+      |        ^~~~~~~~~~~~~~
+\end{terminaloutput}
+
+Read this error carefully. Focus especially on the beginning of the error message. What does the error mean? On what line does the error directly occur? In what function does the error directly occur? You should be able to figure out the answers to these questions without looking at the associated code, but for context, suppose the code looks like this:
+
+\begin{sourcecode}{Error 1}
+1.  #include <iostream>
+2.  
+3.  double triple_number() {
+4.          return favorite_number * 3;
+5.  }
+6.  
+7.  int main() {
+8.          std::cout << "Enter your favorite number, and I'll triple it for you: ";
+9.          double favorite_number;
+10.         std::cin >> favorite_number;
+11. 
+12.         double triple_favorite = triple_number(favorite_number);
+13.         std::cout << "Your number, tripled, is: " << triple_favorite << std::endl;
+14. }
+\end{sourcecode}
+
+Looking at the code and the error message, what changes might you make to the code to resolve the error?
+
+\subsection{Error 2}
+
+Suppose your compiler outputs the following error messsage when trying to compile a program:
+
+\begin{terminaloutput}
+main.cpp: In function 'char prompt_for_character()':
+main.cpp:7:1: warning: no return statement in function returning non-void [-Wreturn-type]
+    7 | }
+      | ^
+main.cpp: In function 'int main()':
+main.cpp:11:65: error: 'initial' was not declared in this scope
+   11 |         std::cout << "You said that your first initial is: " << initial;
+      |                                 
+\end{terminaloutput}
+
+Read this error carefully. Focus especially on the beginning of the error message. What does the error mean? On what line number does the error directly occur? In what function does the error directly occur? You should be able to figure out the answers to these questions without looking at the associated code, but for context, suppose the code looks like this:
+
+\begin{sourcecode}{Error 2}
+1.  #include <iostream>
+2.  
+3.  char prompt_for_character() {
+4.          std::cout << "What is your first initial? Enter a single character: ";
+5.          char initial;
+6.          std::cin >> initial;
+7.  }
+8.  
+9.  int main() {
+10.         prompt_for_character();
+11.         std::cout << "You said that your first initial is: " << initial;
+12. }
+\end{sourcecode}
+
+Looking at the code and the error message, what changes might you make to the code to resolve the error?
+
+\subsection{Error 3}
+
+Suppose you want to convert the mathematical statement $f(x) = 2x + 5$ to a C++ function. You've implemented the function for it, but your compiler outputs the following error message when trying to compile your code:
+
+\begin{terminaloutput}
+main.cpp: In function 'double f(double)':
+main.cpp:4:16: error: unable to find numeric literal operator 'operator""x'
+    4 |         return 2x + 5;
+      |                ^~
+\end{terminaloutput}
+
+Read this error carefully. What does the error mean? On what line number does the error directly occur? In what function does the error directly occur? You should be able to figure out the answers to these questions without looking at the associated code, but for context, suppose the code looks like this:
+
+\begin{sourcecode}{Error 3}
+...
+3. double f(double x) {
+4.     return 2x + 5;
+5. }
+\end{sourcecode}
+
+Looking at the code and the error message, what changes might you make to the code to resolve the error?
+
+\subsection{Error 4}
+
+You've written a program that recommends a board game to the user based on their age. However, you've noticed that there's some sort of logic error---it always recommends ``Candyland'' to them, regardless of their age. Here's the code:
+
+\begin{sourcecode}{Error 4}
+#include <iostream>
+
+/*
+ * Function: prompt_for_age
+ * Description: Prompts for user's age
+ * Returns (int): User's age as given through the terminal
+ */
+int prompt_for_age() {
+        std::cout << "Enter your age: ";
+        int age;
+        std::cin >> age;
+        return age;
+}
+
+/*
+ * Function: print_board_game_recommendation
+ * Description: Prints a board game recommendation based
+ *              on the user's age
+ * Parameters:
+ *              age (int): User's age
+ */
+void print_board_game_recommendation(int age) {
+        if (2 <= age <= 7) {
+                std::cout << "Candyland" << std::endl;
+        } else if (8 <= age <= 12) {
+                std::cout << "Monopoly" << std::endl;
+        } else if (age >= 13) {
+                std::cout << "Munchkin" << std::endl;
+        }
+}
+
+int main() {
+        // Get user's age
+        int age = prompt_for_age();
+
+        // Print board game recommendation
+        print_board_game_recommendation(age);
+}
+\end{sourcecode}
+
+What's causing the logic error, and how would you fix it?
+
+\end{document}

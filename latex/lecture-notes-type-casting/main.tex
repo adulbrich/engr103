@@ -1,0 +1,187 @@
+\documentclass{article}
+
+% Per-assignment macros
+\def\lecturetitle{Type Casting}
+
+% Imports
+\usepackage{graphicx} % Required for inserting images
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue, anchorcolor=blue]{hyperref}
+\usepackage{hhline}
+
+% Titling
+\usepackage{titling}
+\preauthor{\begin{center}}
+\postauthor{\par\end{center}\vspace{-30pt}}
+\setlength{\droptitle}{-50pt}
+
+% Geometry
+
+\usepackage{geometry}
+\geometry{letterpaper, portrait, margin=1in}
+
+\usepackage[skip=5pt]{parskip}
+\newlength\tindent
+\setlength{\tindent}{\parindent}
+\setlength{\parindent}{0pt}
+\renewcommand{\indent}{\hspace*{\tindent}}
+
+% Assignment titling (number, due date, etc)
+\title{
+    Lecture Notes: \lecturetitle
+}
+\author{ENGR 103, Winter 2024}
+\date{}
+
+% Box environments
+\usepackage{tcolorbox}
+\usepackage{fancyvrb}
+\newenvironment{terminalcommand}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Command,colframe=gray!80!blue,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+\newenvironment{terminaloutput}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Output,colframe=gray!80!red,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+
+\usepackage{minted}
+\newenvironment{cpp}[1]
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=\texttt{#1},colframe=gray!50!blue,colback=white!97!black]
+    \begin{minted}{c++}}
+    {\end{minted}
+    \end{tcolorbox}}
+
+\newenvironment{tip}
+    {\begin{tcolorbox}[title=Tip,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newenvironment{note}
+    {\begin{tcolorbox}[title=Note,colframe=white!70!red,colback=white]}
+    {\end{tcolorbox}}
+
+\newcounter{examplerun}
+\newenvironment{examplerun}
+    {\begin{tcolorbox}[title=Example Run \refstepcounter{examplerun}\theexamplerun,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleruninputs}{\tcbsubtitle{Inputs}}
+\newcommand{\examplerunoutputs}{\tcbsubtitle{Outputs}}
+
+\newcommand{\imagewithdefaults}[1]{\includegraphics[width=\maxwidth{0.95\columnwidth}]{#1}}
+
+\makeatletter
+\def\maxwidth#1{\ifdim\Gin@nat@width>#1 #1\else\Gin@nat@width\fi}
+\makeatother
+
+\usepackage{soul}
+
+\begin{document}
+
+\maketitle
+
+\section{Type Casting}
+
+Type casting refers to when an expression of one type is converted to an expression of another type. There are two broad categories of type casting in C++:
+
+\begin{itemize}
+    \item \textbf{Implicit type casting}, also called \textbf{type coersion}
+    \item \textbf{Explicit type casting}
+\end{itemize}
+
+We'll talk about \textit{how} to do these things in a moment. But first, let's make sure we understand the rules.
+
+You can only perform type casting to convert an expression of type $A$ to an expression of type $B$ if $A$ is convertible to $B$. So far, most of the primitive data types that we've talked about are convertible to and from each other.
+
+Different type castings follow different rules depending on the type you're converting to and the type you're converting from. In some cases, the conversion rules are obvious. For example, casting the \texttt{int} literal expression \texttt{5} to a \texttt{double} expression results in the value \texttt{5.0}. However, in other cases, the conversion rules are not so obvious. For now, the only non-obvious type casting rule you need to remember is that if you convert a floating point type (such as \texttt{float} or \texttt{double}) to an integral type (such as \texttt{int}), then the value is \textbf{truncated}. For example, casting the \texttt{double} literal expression \texttt{5.999} to an \texttt{int} expression results in the value \texttt{5}. This is similar to the behavior we observed when dividing two integers, though that wasn't technically a case of type casting since there were never actually any floating point values to begin with. But the principle is the same.
+
+We'll talk about other non-obvious type conversion rules as they become relevant, such as when we talk about booleans and characters in greater detail later in the term.
+
+Lastly, understand that type casting doesn't change the type of the original expression. Rather, it constructs a \textit{new} expression with its own type and value. The new expression's value is somehow derived from the original expression's value based on the applicable type conversion rules, such as the rules described above. This will be especially important when we talk about explicit type casting on variables.
+
+Now that we understand the rules, let's learn how to type cast.
+
+\section{Type Coercion}
+
+Type coercion is the first kind of type casting. It occurs when an expression of one type is used where an expression of another type is expected. For example, consider the following code:
+
+\begin{cpp}{Type coercion example}
+double x = 3;
+\end{cpp}
+
+The variable on the left side of the assignment operator, \texttt{x}, is of type \texttt{double}. As such, the C++ syntax expects the expression on the right side of the assignment operator to be a \texttt{double} as well. And yet, it isn't---it's $3$, which is an \texttt{int} literal.
+
+In this case, this is perfectly valid syntax. The result is type coercion---the \texttt{int}-typed expression \texttt{3} will be converted to a \texttt{double}-typed expression. As explained in the previous section, this is one of those cases where the conversion rules are ``obvious''---\texttt{3} is converted to \texttt{3.0}, which is then stored inside \texttt{x}.
+
+Assignment is not the only context where type coercion occurs. Almost anywhere that you use an expression of the ``wrong'' type will attempt to perform type coercion to convert it to the ``right'' type. If the ``wrong'' type is convertible to the ``right'' type, then C++ will usually succeed in the type coercion. Otherwise, the result is a syntax error.
+
+Beyond assignment, another example is with function calls. We haven't talked about functions formally yet, but consider the \texttt{sqrt} function, which computes the square root of the provided value. It expects the value to be of type \texttt{double}, but you \textit{can} supply it an expression of type \texttt{int} (such as \texttt{sqrt(4)}, or \texttt{sqrt(my\_variable)}, where \texttt{my\_variable} is a variable of type \texttt{int}). In such a case, your \texttt{int}-typed expression will simply be coerced to a \texttt{double}, and then the \texttt{sqrt} function will execute on that \texttt{double} value. In fact, you can supply the \texttt{sqrt} function with an expression of just about any numeric type.
+
+Of course, you can also perform type coercion on variables. For example, consider the following code:
+
+\begin{cpp}{Type coercion on variables}
+double pi = 3.14159265;
+int x = pi;
+std::cout << x << std::endl;
+std::cout << pi << std::endl;
+\end{cpp}
+
+The above program will print \texttt{3}, followed by \texttt{3.14159265}. When assigning the value of \texttt{pi} to \texttt{x}, the expression on the right side of the assignment operator (\texttt{pi}) is coerced to an \texttt{int} expression. As mentioned in the previous section, coercing floating point types to integral types results in truncation, so \texttt{pi} is truncated to \texttt{3} so that it can be stored in \texttt{x}. Hence, when the program prints \texttt{x}, it prints \texttt{3}. However, as explained earlier, type casting does not change expressions or variables---it constructs \textit{new} expressions with their own types and values. That's to say, even though the expression \texttt{pi} is coerced to an \texttt{int} and truncated, that doesn't change anything about the \textit{variable} \texttt{pi} itself. Indeed, the \textit{variable} \texttt{pi} is still of type \texttt{double}, and its value is still \texttt{3.14159265}. Hence, when the above program prints \texttt{pi} at the end, it still prints \texttt{3.14159265}.
+ 
+Type coercion can be very useful. It lets you seamlessly exchange various related types in various contexts, and the necessary conversions will be performed automatically. However, there are some niche cases (that we probably won't talk about) where the types are convertible, but C++ still won't allow implicit type casting (type coercion). Moreover, there are cases where you want to leverage type conversion rules via type casting, but implicit type casting would be cumbersome. In those cases, you just have to use \textbf{explicit type casting} instead.
+
+\section{Explicit Type Casting}
+
+Explicit type casting occurs when you invoke special syntax in your code to explicitly convey that you want to cast a certain expression to a certain type. There are a few different explicit type casting mechanisms in C++, but we'll just talk about the most common one: \textbf{static casting}.
+
+To perform static casting, use the following syntax:
+
+\begin{verbatim}
+static_cast<SOME NEW TYPE>(SOME EXPRESSION)
+\end{verbatim}
+
+Note that the angle brackets in the above syntax are actually part of the syntax---they aren't just notation for a placeholder. In the above syntax, \texttt{SOME EXPRESSION} is the expression that you want to convert to a new type, and \texttt{SOME NEW TYPE} is the type that you want to convert it to.
+
+For example, suppose you have a variable of type \texttt{double}, and you want to print its truncated \texttt{int} representation. Using type coercion (implicit type casting), you'd need to construct a new, intermediate variable of type \texttt{int}, coerce the original variable into the type of the new variable to initialize it, and then print the new variable, like so:
+
+\begin{cpp}{Cumbersome type coercion}
+double pi = 3.14159265;
+
+// We want to print the truncated int representation of pi.
+// First, create a new int variable, and coerce pi into an
+// int to store it in that new variable.
+int pi_truncated = pi;
+
+// Now we can print pi_truncated:
+std::cout << pi_truncated << std::endl;
+\end{cpp}
+
+That works fine, but it's a bit cumbersome. It requires creating an entire extra variable just to perform the type casting. A less cumbersome solution would be to use explicit type casting to directly construct an in-place \texttt{int} representation of \texttt{pi} and print it, all in one statement:
+
+\begin{cpp}{Explicit type casting example}
+double pi = 3.14159265;
+std::cout << static_cast<int>(pi) << std::endl;
+\end{cpp}
+
+This does the same thing as before, but we didn't need an extra intermediate variable just to perform the type casting.
+
+When performing explicit type casting, understand that the entire expression in the parentheses is evaluated (i.e., its value is computed), and \textit{then} the type casting itself is performed. For example, consider the following code:
+
+\begin{cpp}{Explicit type casting ordering}
+std::cout << (static_cast<int>(2.5) / 0.5) << std::endl;
+std::cout << (static_cast<int>(2.5 / 0.5)) << std::endl;
+\end{cpp}
+
+The difference between the two above statements is subtle but important.
+
+The first statement will cast \texttt{2.5} to an \texttt{int}, resulting in the \texttt{int} value \texttt{2}, and then divide it by \texttt{0.5}, resulting in the \texttt{double} value \texttt{4.0}. Hence, it will print \texttt{4} (extraneous detail: by default, \texttt{std::cout} tends to chop off trailing 0s when printing \texttt{double} values, so it will print \texttt{4} in this case instead of \texttt{4.0}).
+
+However, based on the locations of the parentheses, the second statement will compute \texttt{2.5 / 0.5} in entirety, which results in the \texttt{double} value \texttt{5.0}, and \textit{then} cast it to an \texttt{int}, which results in the \texttt{int} value \texttt{5}. Hence, it will print \texttt{5}.
+
+Lastly, as I mentioned earlier, there are also some niche cases where C++ forbids type coercion and \textit{requires} explicit type casting, but we don't have time to cover those niche cases in this lecture.
+
+\end{document}

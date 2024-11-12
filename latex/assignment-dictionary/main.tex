@@ -1,0 +1,234 @@
+\documentclass{article}
+
+% Per-assignment macros
+\def\assignmentnumber{4}
+\def\assignmenttitle{Dictionary}
+
+% Imports
+\usepackage{graphicx} % Required for inserting images
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue, anchorcolor=blue]{hyperref}
+\usepackage{hhline}
+\usepackage{amsmath}
+
+% Titling
+\usepackage{titling}
+\preauthor{\begin{center}}
+\postauthor{\par\end{center}\vspace{-30pt}}
+\setlength{\droptitle}{-50pt}
+
+% Geometry
+
+\usepackage{geometry}
+\geometry{letterpaper, portrait, margin=1in}
+
+\usepackage[skip=5pt]{parskip}
+\newlength\tindent
+\setlength{\tindent}{\parindent}
+\setlength{\parindent}{0pt}
+\renewcommand{\indent}{\hspace*{\tindent}}
+
+% Assignment titling (number, due date, etc)
+\title{
+    Assignment \assignmentnumber: \assignmenttitle
+}
+\author{ENGR 103, Winter 2024}
+\date{}
+
+% Box environments
+\usepackage{tcolorbox}
+\usepackage{fancyvrb}
+\newenvironment{terminalcommand}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Command,colframe=gray!80!blue,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+\newenvironment{terminaloutput}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Output,colframe=gray!80!red,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+
+\newenvironment{hint}
+    {\begin{tcolorbox}[title=Hint,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newenvironment{sourcecode}[1]
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=\texttt{#1},colframe=gray!80!green,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+
+\newenvironment{tip}
+    {\begin{tcolorbox}[title=Tip,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newcounter{examplerun}
+\newenvironment{examplerun}
+    {\begin{tcolorbox}[title=Example Run \refstepcounter{examplerun}\theexamplerun,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleruninputs}{\tcbsubtitle{Inputs}}
+\newcommand{\examplerunoutputs}{\tcbsubtitle{Outputs}}
+
+\newcounter{exampleproblem}
+\newcounter{exampleproblemsolution}
+\newenvironment{exampleproblem}
+    {\setcounter{exampleproblemsolution}{0}\begin{tcolorbox}[title=Example Problem \refstepcounter{exampleproblem}\theexampleproblem,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleproblemstatement}{\tcbsubtitle{Problem statement}}
+\newcommand{\exampleproblemsolution}{\refstepcounter{exampleproblemsolution}\tcbsubtitle{Solution \theexampleproblemsolution}}
+
+\newcommand{\imagewithdefaults}[1]{\includegraphics[width=\maxwidth{0.95\columnwidth}]{#1}}
+
+\newcommand{\refeq}[1]{\hyperref[eq:#1]{(\ref{eq:#1})}}
+
+\makeatletter
+\def\maxwidth#1{\ifdim\Gin@nat@width>#1 #1\else\Gin@nat@width\fi}
+\makeatother
+
+\usepackage{soul}
+
+\begin{document}
+
+\maketitle
+
+\section{Context}
+
+For this assignment, you're going to build a simple terminal interface for a dictionary API. You'll be using the \href{https://dictionaryapi.dev/}{dictionaryapi.dev} API to do this.
+
+Don't worry---you don't need to know anything about APIs or how to use them. When you accept this assignment on GitHub Classroom, your repository will automatically come with some starter code. This starter code includes libraries and functions that will communicate with the API for you. All you need to do is call those functions appropriately. There are commented-out examples in the provided skeleton \texttt{main()} function for how to do this. The starter code contains a file called \texttt{README.md} with more tips on implementation (the contents of \texttt{README.md} should be displayed on your repository's main page).
+
+\section{Strings}
+
+This assignment requires you to work with strings (i.e., sequences of characters, like words and sentences) in a few basic ways. We'll be covering strings in lecture, but maybe not until after your design for this assignment is due. To account for this, please read the following explanation of string data types and their basic uses.
+
+This assignment requires you to work with strings in the following basic ways:
+
+\begin{itemize}
+    \item Prompting the user for a one-word string
+    \item Storing strings in variables
+    \item Passing strings as arguments in function calls
+    \item Receiving strings as return values from function calls
+    \item Comparing strings to one another
+    \item Checking if a string is empty
+\end{itemize}
+
+You know how to do many of these things with various primitive variable types. As it turns out, doing them with strings is almost exactly the same.
+
+First of all, recall that strings are not a primitive data type in C++. This means that they're not built-in to the language. Instead, they're a complex type (called a \texttt{class}) that's provided by the standard library.
+
+To use strings, you first must write \texttt{\#include <string>} at the top of your program. Alternatively, you can include a different header file that in-turn includes the \texttt{<string>} library, such as \texttt{<iostream>}.
+
+Once you've done that, you can then refer to the string data type via \texttt{std::string}, just like you can refer to the integer data type via \texttt{int}, the double-precision floating point data type via \texttt{double}, the boolean data type via \texttt{bool}, and so on. Note that the string data type is part of the standard namespace, so it must be prefixed with \texttt{std::}
+
+You can store string literal expressions inside \texttt{std::string} variables. For example, the following code would declare a string variable called \texttt{my\_string} and initialize it to the sentence, ``Hello, World!'':
+
+\begin{verbatim}
+std::string my_string = "Hello, World!";
+\end{verbatim}
+
+Unsurprisingly, you can print the value of a string variable to the terminal via \texttt{std::cout} just like any other data type. For example, the following code would print the value of the string from the above example (i.e., it would print ``Hello, World!''):
+
+\begin{verbatim}
+std::cout << my_string << std::endl;
+\end{verbatim}
+
+You can return values of type \texttt{std::string} from a function just like any other data type---you just have to mark the function's return type as \texttt{std::string}. Of course, you can also pass \texttt{std::string} values as arguments and receive them as parameters just like any other data type.
+
+You can read strings from the user via \texttt{std::cin} similar to other variables. However, there's a catch. The way that we've been using \texttt{std::cin} (i.e., via the \texttt{>>} operator) only supports reading one word at a time. If the user types in many words with spaces between them before pressing enter, the \texttt{>>} operator will only read the first word supplied by the user and store it in the string variable on the right, leaving the remaining words in the input buffer to be read when the \texttt{>>} operator is used again subsequently. Luckily, reading a single word at a time is all you need to do for this assignment, so that's sufficient. For example, the following code asks the user for two words and stores them in two separate string variables:
+
+\begin{sourcecode}{String prompting example}
+#include <string> // For access to the std::string type
+#include <iostream>
+
+/*
+ * Function: prompt_for_word
+ * Description: Prompts the user for a word via the terminal
+ * Returns (std::string): Word entered by user
+ */
+std::string prompt_for_word() {
+    std::cout << "Enter a word: ";
+    std::string word;
+    std::cin >> word;
+    return word;
+}
+
+int main() {
+    std::string first_word = prompt_for_word();
+    std::string second_word = prompt_for_word();
+}
+\end{sourcecode}
+
+You can check if two strings are equal via the \texttt{==} operator. For an example, see the following program:
+
+\begin{sourcecode}{String comparison example}
+int main() {
+    std::cout << "Guess the magic word: ";
+    std::string guess;
+    std::cin >> guess;
+    if (guess == "alakazam") {
+        std::cout << "You got it!" << std::endl;
+    } else {
+        std::cout << "Good guess, but no." << std::endl;
+    }
+}
+\end{sourcecode}
+
+You can check if a string variable \texttt{my\_string} is empty in one of two ways:
+
+\begin{enumerate}
+    \item \texttt{if (my\_string == "") \{...\}}
+    \item \texttt{if (my\_string.empty()) \{...\}}
+\end{enumerate}
+
+The last useful detail to know about strings for this assignment is that string literals (i.e., text surrounded by quotation marks) aren't technically of the \texttt{std::string} type. Instead, they're of a more primitive string type called a ``C string'' (formally, they're character pointers that point to the first character in null-terminated sequence of characters---but the details don't matter for our purposes).
+
+C strings can be coerced (implicitly type-casted) to the \texttt{std::string} type, as you've already seen in the above examples (e.g., \texttt{std::string my\_string = "Hello, World!";}). However, you shouldn't do much else with C strings. For example, if you want to compare two C strings for equality in an \texttt{if} statement's condition, you should convert at least one of them to a \texttt{std::string} value first (e.g., via \texttt{static\_cast} or by storing it in a \texttt{std::string} variable). Otherwise, weird things can happen due to the complex nature of C strings. That almost certainly won't be relevant for this assignment anyways, but it's a good detail to know in case you run into bugs involving your string literals.
+
+It is, as implied, safe to compare \texttt{std::string} variables with C strings for equality. You've already seen this in previous examples as well (e.g., \texttt{if (guess == "alakazam")})
+
+That's all you need to know about strings for this assignment. We'll cover them in greater detail in lecture.
+
+\section{Assignment}
+
+Complete the program (\texttt{main.cpp}) in the provided starter code to make it do the following:
+
+\begin{enumerate}
+    \item \label{step:prompt_option} Prompt the user for which of the following four options they want to do:
+    \begin{enumerate}
+        \item Lookup the definition of a given word
+        \item Lookup a URL to an audio sample of a given work being spoken
+        \item Lookup the formal pronunciation of a given word
+        \item Exit the program
+    \end{enumerate}
+    \item If the user chooses an invalid option, the program should scold the user via a terminal message and repeat from step \ref{step:prompt_option}. Otherwise, proceed to the next step.
+    \item If the user chooses to exit the program, the entire program should terminate immediately. Otherwise, proceed to the next step.
+    \item If the user chooses to do one of the other three options, prompt the user for the word that they want to lookup.
+    \item Use the appropriate \texttt{query\_XXX} function provided in the starter code to retrieve the user's desired information about the word.
+    \item If the retrieved information is an empty string, then that means that either the word doesn't exist in the dictionary API's database, or the database simply doesn't contain the requested information about the word. In such a case, notify the user in a \ul{clean, readable} message that the information could not be found, and then repeat from step \ref{step:prompt_option}. Otherwise, proceed to the next step.
+    \item If the requested information is found (i.e., the returned string isn't empty), print the information to the terminal in a \ul{clean, readable} message, and then repeat from step \ref{step:prompt_option}.
+\end{enumerate}
+
+The exact details of your program's interface is up to you. For example, you might ask the user to enter a number to select a numbered option (e.g., ``Type 1 to lookup a definition. Type 2 to lookup an audio URL...''). Alternatively, you might ask the user to enter a word to select an option (e.g., ``Type 'definition' to lookup a definition. Type 'audio' to lookup an audio URL...''.
+
+One way or another, though, there is a strict requirement on error handling: The \ul{only} assumption you may make about the user's inputs is that they won't contain any whitespace (i.e., their input can be read via \texttt{std::cin >> some\_string\_variable}). For example, if you choose to make your interface numbered and ask the user to enter the number corresponding to their option of choice, you may \ul{not} assume that the user will enter a number at all. Your program must be able to cope with the fact that the user could enter \ul{anything that doesn't have any whitespace}. This means that, when you read the user's inputs via \texttt{std::cin}, you should \ul{always} store their input in some kind of variable that can cope with virtually any sequence of characters the user might enter (i.e., you should store all user inputs as \texttt{std::string} variables for this assignment).
+
+\section{Up to 20\% Extra Credit}
+
+You can optionally earn 20 points (i.e., 20\%) extra credit in this assignment as follows:
+
+Following the patterns of the \texttt{query\_XXX} and \texttt{extract\_XXX} functions, create a new set of functions that can be used to retrieve an example sentence for a given word. This will require studying these provided functions to understand how they work, as well as studying the \href{https://dictionaryapi.dev/}{dictionaryapi.dev} API to understand the format of its responses (indeed, its responses do include example sentences in a nested property called ``example'', which you'll have to figure out how to extract). To understand these things, you might want to additionally study \href{https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Objects/JSON}{the JSON data format} and perhaps the \href{https://github.com/dropbox/json11}{json11 library}. However, you can probably succeed without looking at the documentation for the \texttt{json11} library and instead simply studying, copying, and modifying the implementation of one of the existing \texttt{extract\_XXX} functions.
+
+\begin{hint}
+    The \texttt{query\_definition()} and \texttt{extract\_definition()} functions are almost exactly what you need to retrieve the example sentence from the response. It just needs one tiny modification. To complete this extra credit, it isn't necessary to fully understand every part of these functions. So long as you can narrow down this single small necessary change, you can complete the extra credit.
+\end{hint}
+
+Once you've created these functions, add a fifth option to your program's terminal interface, allowing the user to request an example sentence instead of a definition, audio URL, or pronunciation. It should work in the same way as these other options (i.e., it should do the same error handling, and so on).
+
+As always, as you work on this extra credit, please feel free to stop by office hours, ask questions on Piazza, and share any helpful resources that you find with your fellow classmates.
+
+\end{document}

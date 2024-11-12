@@ -1,0 +1,199 @@
+\documentclass{article}
+
+% Per-assignment macros
+\def\studionumber{3}
+\def\studiotitle{Expressions, Operators, and Variables}
+
+% Imports
+\usepackage{graphicx} % Required for inserting images
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue, anchorcolor=blue]{hyperref}
+\usepackage{hhline}
+\usepackage{amsmath}
+
+% Titling
+\usepackage{titling}
+\preauthor{\begin{center}}
+\postauthor{\par\end{center}\vspace{-30pt}}
+\setlength{\droptitle}{-50pt}
+
+% Geometry
+
+\usepackage{geometry}
+\geometry{letterpaper, portrait, margin=1in}
+
+\usepackage[skip=5pt]{parskip}
+\newlength\tindent
+\setlength{\tindent}{\parindent}
+\setlength{\parindent}{0pt}
+\renewcommand{\indent}{\hspace*{\tindent}}
+
+% Assignment titling (number, due date, etc)
+\title{
+    TA Document for Studio \studionumber: \studiotitle
+}
+\author{ENGR 103, Winter 2024}
+\date{}
+
+% Box environments
+\usepackage{tcolorbox}
+\usepackage{fancyvrb}
+\newenvironment{terminalcommand}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Command,colframe=gray!80!blue,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+\newenvironment{terminaloutput}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Output,colframe=gray!80!red,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+
+\newenvironment{hint}
+    {\begin{tcolorbox}[title=Hint,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newenvironment{tip}
+    {\begin{tcolorbox}[title=Tip,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newcounter{examplerun}
+\newenvironment{examplerun}
+    {\begin{tcolorbox}[title=Example Run \refstepcounter{examplerun}\theexamplerun,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleruninputs}{\tcbsubtitle{Inputs}}
+\newcommand{\examplerunoutputs}{\tcbsubtitle{Outputs}}
+
+\newcounter{exampleproblem}
+\newcounter{exampleproblemsolution}
+\newenvironment{exampleproblem}
+    {\setcounter{exampleproblemsolution}{0}\begin{tcolorbox}[title=Example Problem \refstepcounter{exampleproblem}\theexampleproblem,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleproblemstatement}{\tcbsubtitle{Problem statement}}
+\newcommand{\exampleproblemsolution}{\refstepcounter{exampleproblemsolution}\tcbsubtitle{Solution \theexampleproblemsolution}}
+
+\newcommand{\imagewithdefaults}[1]{\includegraphics[width=\maxwidth{0.95\columnwidth}]{#1}}
+
+\makeatletter
+\def\maxwidth#1{\ifdim\Gin@nat@width>#1 #1\else\Gin@nat@width\fi}
+\makeatother
+
+\usepackage{soul}
+
+\begin{document}
+
+\maketitle
+
+\section{Expressions and Operators}
+
+Work through the example problems below. Introduce the \texttt{log} function from the \texttt{<cmath>} header file. It computes \ul{natural log}, and we didn't cover it in lecture.
+
+\begin{exampleproblem}
+    \exampleproblemstatement
+    Convert the following mathematical expression to a C++ expression:
+
+    $x^2 + 3x - 7$
+    
+    \exampleproblemsolution
+    \texttt{pow(x, 2) + 3*x - 7}
+
+    \exampleproblemsolution
+    \texttt{x * x + 3 * x - 7}
+\end{exampleproblem}
+
+\begin{exampleproblem}
+    \exampleproblemstatement
+    Convert the following mathematical expression to a C++ expression:
+
+    $\frac{\ln (x + 5)}{x^y + z}$
+    
+    \exampleproblemsolution
+    \texttt{log(x + 5) / (pow(x, y) + z)}
+\end{exampleproblem}
+
+\section{Variables}
+
+Remind students about variables. Type declarations:
+
+\begin{verbatim}
+<type> <name>;
+\end{verbatim}
+
+And initialization / assignment:
+
+\begin{verbatim}
+<name> = <expression>;
+\end{verbatim}
+
+And compound declaration + initialization:
+
+\begin{verbatim}
+<type> <name> = <expression>;
+\end{verbatim}
+
+Remind students that a type specifier is only used when declaring a new variable. When referencing an existing variable, you simply refer to it by its name.
+
+Remind students that the expression on the right can be \textit{any} C++ expression whose type makes sense for the variable on the left, and that expressions can include existing variables by referencing them by name. No need to be rigorous about type matching; we'll discuss type casting and type coercion in lecture soon.
+
+Go over example problems, introducing the \texttt{floor()} function (not covered in lecture). Note that we haven't covered type coercion yet, so the ``advanced'' solution to the second example problem won't make sense to them yet.
+
+\setcounter{exampleproblem}{0}
+\begin{exampleproblem}
+    \exampleproblemstatement
+    Convert the following series of mathematical equations to a series of C++ variable initializations:
+    \begin{equation*}
+        \begin{aligned}
+            x & = 5\\
+            y & = x^3 + 7\\
+            z & = \ln y
+        \end{aligned}
+    \end{equation*}
+
+    \exampleproblemsolution
+    \begin{verbatim}
+int x = 5;
+int y = pow(x, 3) + 7;
+double z = log(y);
+    \end{verbatim}
+\end{exampleproblem}
+
+\begin{exampleproblem}
+    \exampleproblemstatement
+    Convert the following series of mathematical equations to a series of C++ variable initializations:
+    \begin{equation*}
+        \begin{aligned}
+            a & = 5.3\\
+            b & = \lfloor a \rfloor\\
+            c & = \sqrt[a]{b}
+        \end{aligned}
+    \end{equation*}
+
+    \exampleproblemsolution
+    \begin{verbatim}
+double a = 5.3;
+int b = floor(a);
+double c = pow(b, 1 / a);
+    \end{verbatim}
+
+    \exampleproblemsolution
+    \begin{verbatim}
+double a = 5.3;
+int b = a; // Implicit truncation by coercion
+double c = pow(b, 1 / a);
+    \end{verbatim}
+\end{exampleproblem}
+
+\section{\texttt{std::cin}}
+
+Show students how to use \texttt{std::cin} to read user inputs and store them in variables.
+
+Show students the style guidelines in Canvas $\rightarrow$ modules $\rightarrow$ resources.
+
+\section{Quadratic formula}
+
+The correct answer to the second part should be (I think) 13.78 seconds.
+
+\end{document}

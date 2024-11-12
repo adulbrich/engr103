@@ -1,0 +1,318 @@
+\documentclass{article}
+
+% Per-assignment macros
+\def\studionumber{3}
+\def\studiotitle{Expressions, Operators, and Variables}
+
+% Imports
+\usepackage{graphicx} % Required for inserting images
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue, anchorcolor=blue]{hyperref}
+\usepackage{hhline}
+\usepackage{amsmath}
+
+% Titling
+\usepackage{titling}
+\preauthor{\begin{center}}
+\postauthor{\par\end{center}\vspace{-30pt}}
+\setlength{\droptitle}{-50pt}
+
+% Geometry
+
+\usepackage{geometry}
+\geometry{letterpaper, portrait, margin=1in}
+
+\usepackage[skip=5pt]{parskip}
+\newlength\tindent
+\setlength{\tindent}{\parindent}
+\setlength{\parindent}{0pt}
+\renewcommand{\indent}{\hspace*{\tindent}}
+
+% Assignment titling (number, due date, etc)
+\title{
+    Studio \studionumber: \studiotitle
+}
+\author{ENGR 103, Winter 2024}
+\date{}
+
+% Box environments
+\usepackage{tcolorbox}
+\usepackage{fancyvrb}
+\newenvironment{terminalcommand}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Command,colframe=gray!80!blue,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+\newenvironment{terminaloutput}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Output,colframe=gray!80!red,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+
+\newenvironment{hint}
+    {\begin{tcolorbox}[title=Hint,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newenvironment{tip}
+    {\begin{tcolorbox}[title=Tip,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newcounter{examplerun}
+\newenvironment{examplerun}
+    {\begin{tcolorbox}[title=Example Run \refstepcounter{examplerun}\theexamplerun,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleruninputs}{\tcbsubtitle{Inputs}}
+\newcommand{\examplerunoutputs}{\tcbsubtitle{Outputs}}
+
+\newcounter{exampleproblem}
+\newcounter{exampleproblemsolution}
+\newenvironment{exampleproblem}
+    {\setcounter{exampleproblemsolution}{0}\begin{tcolorbox}[title=Example Problem \refstepcounter{exampleproblem}\theexampleproblem,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleproblemstatement}{\tcbsubtitle{Problem statement}}
+\newcommand{\exampleproblemsolution}{\refstepcounter{exampleproblemsolution}\tcbsubtitle{Solution \theexampleproblemsolution}}
+
+\newcommand{\imagewithdefaults}[1]{\includegraphics[width=\maxwidth{0.95\columnwidth}]{#1}}
+
+\makeatletter
+\def\maxwidth#1{\ifdim\Gin@nat@width>#1 #1\else\Gin@nat@width\fi}
+\makeatother
+
+\usepackage{soul}
+
+\begin{document}
+
+\maketitle
+
+\section{Expressions and Operators}
+
+Following are a couple of example problems involving conversion of mathematical expressions to C++ expressions. There may be more valid solutions than the ones provided. Make sure you understand them, and then solve the remaining three problems. For each problem, you may assume that the \texttt{cmath} library has already been included, and that the relevant variables have already been declared as type \texttt{double} and initialized.
+
+You may write your solutions on paper or any sort of text document.
+
+\begin{exampleproblem}
+    \exampleproblemstatement
+    Convert the following mathematical expression to a C++ expression:
+
+    $x^2 + 3x - 7$
+    
+    \exampleproblemsolution
+    \texttt{pow(x, 2) + 3*x - 7}
+
+    \exampleproblemsolution
+    \texttt{x * x + 3 * x - 7}
+\end{exampleproblem}
+
+\begin{exampleproblem}
+    \exampleproblemstatement
+    Convert the following mathematical expression to a C++ expression:
+
+    $\frac{\ln (x + 5)}{x^y + z}$
+    
+    \exampleproblemsolution
+    \texttt{log(x + 5) / (pow(x, y) + z)}
+\end{exampleproblem}
+
+\subsection{Problem 1}
+
+Convert the following mathematical expression to a C++ expression:
+
+$x^4 + 3y^3 - \frac{1}{2} x^2 + z - 13$
+
+\begin{hint}
+    If you compute $\frac{1}{2}$ directly, be careful to avoid truncation.
+\end{hint}
+
+\subsection{Problem 2}
+
+Convert the following mathematical expression to a C++ expression:
+
+$\sqrt{x} + \sqrt[3]{y}$
+
+\begin{hint}
+    $\sqrt[3]{y}$ can also be expressed as $y^\frac{1}{3}$. Similarly, $\sqrt{x}$ can also be expressed as $x^\frac{1}{2}$.
+\end{hint}
+
+\subsection{Problem 3}
+\label{floor}
+
+Convert the following mathematical expression to a C++ expression:
+
+$\lfloor \ln (x^2) \rfloor$
+
+\begin{hint}
+    $\lfloor \cdot \rfloor$ is called the ``floor'' operator, and it means ``round \textbf{down} to an integer''. Similarly, $\lceil \cdot \rceil$ is called the ``ceiling'' operator, and it means ``round \textbf{up} to an integer''. If the operand is already an integer, then the output will be equal to the operand.\\
+
+    The \texttt{cmath} library provides a function called \texttt{floor} that does the same thing as the mathematical floor operator. For instance, \texttt{floor(x / 2)} will divide x by 2 and then round the result down to an integer. Similarly, \texttt{cmath} provides a function called \texttt{ceil} that does the same thing as the mathematical ceiling operator.\\
+
+    Lastly, the \texttt{cmath} library provides a function called \texttt{log} that computes the natural log of its input. For example, the C++ expression \texttt{log(5)} is equivalent to the mathematical expression $\ln(5)$.
+\end{hint}
+
+\clearpage
+
+\section{Variables}
+
+Recall that a \textbf{variable} represents a fixed location in memory that stores data of a fixed, specified type.
+
+Following are a couple of example problems involving converting mathematical equations to corresponding series of C++ variable initializations. There may be more valid solutions than the ones provided. Make sure you understand them, and then solve the remaining three problems. For each problem, you may assume that the \texttt{cmath} library has already been included. Use the \texttt{int} type when the initial value of the variable is guaranteed to be an integer. Use the \texttt{double} type otherwise.
+
+You may write your solutions on paper or any sort of text document.
+
+\setcounter{exampleproblem}{0}
+\begin{exampleproblem}
+    \exampleproblemstatement
+    Convert the following series of mathematical equations to a series of C++ variable initializations:
+    \begin{equation*}
+        \begin{aligned}
+            x & = 5\\
+            y & = x^3 + 7\\
+            z & = \ln y
+        \end{aligned}
+    \end{equation*}
+
+    \exampleproblemsolution
+    \begin{verbatim}
+        int x = 5;
+        int y = pow(x, 3) + 7;
+        double z = log(y);
+    \end{verbatim}
+\end{exampleproblem}
+
+\begin{exampleproblem}
+    \exampleproblemstatement
+    Convert the following series of mathematical equations to a series of C++ variable initializations:
+    \begin{equation*}
+        \begin{aligned}
+            a & = 5.3\\
+            b & = \lfloor a \rfloor\\
+            c & = \sqrt[a]{b}
+        \end{aligned}
+    \end{equation*}
+
+    Refer to the hint in section \ref{floor} about the floor operator.
+
+    \exampleproblemsolution
+    \begin{verbatim}
+        double a = 5.3;
+        int b = floor(a);
+        double c = pow(b, 1 / a);
+    \end{verbatim}
+
+    \exampleproblemsolution
+    \begin{verbatim}
+        double a = 5.3;
+        int b = a; // Implicit truncation by coercion
+        double c = pow(b, 1 / a);
+    \end{verbatim}
+\end{exampleproblem}
+
+\subsection{Problem 1}
+
+Convert the following series of mathematical equations to a series of C++ variable initializations:
+\begin{equation*}
+    \begin{aligned}
+        a & = 5.3\\
+        b & = \lceil a \rceil\\
+        c & = \frac{b}{1371}
+    \end{aligned}
+\end{equation*}
+
+Refer to the hint in section \ref{floor} about the ceiling operator.
+
+\subsection{Problem 2}
+
+Convert the following series of mathematical equations to a series of C++ variable initializations:
+\begin{equation*}
+    \begin{aligned}
+        x & = 7\\
+        y & = x^{12} + 5\\
+        z & = xy
+    \end{aligned}
+\end{equation*}
+
+\begin{hint}
+    Raising one integer to the power of another integer still results in an integer. Similarly, the product of two integers is still an integer.
+\end{hint}
+
+\subsection{Problem 3}
+
+Convert the following series of mathematical equations to a series of C++ variable initializations:
+\begin{equation*}
+    \begin{aligned}
+        a & = 5.3\\
+        b & = 12\\
+        c & = \sqrt{b}\\
+        d & = \log_a (b) + c\\
+    \end{aligned}
+\end{equation*}
+
+\begin{hint}
+    Use the change of base formula: $\log_a(b) = \frac{\ln (b)}{\ln (a)}$.\\
+
+    Technically, you can use any base here. This hint uses $e$ as the base (natural log), which simplifies the code.
+\end{hint}
+
+\clearpage
+
+\section{Quadratics}
+
+\subsection{Implementing the quadratic formula}
+
+A quadratic equation is an equation that can be expressed in the form:
+
+\begin{equation}
+    ax^2 + bx + c = 0,
+\end{equation}
+
+where $a$, $b$, and $c$ are known constants, and $x$ is a variable.
+
+Quadratic equations are very common in real-world mathematical applications. For example, the position of an object undergoing constant acceleration is a quadratic function of time. For another example, the surface areas of various 2D and 3D shapes can be expressed as quadratic functions of side lengths.
+
+If you want to solve a quadratic equation for $x$, a foolproof way is to use the quadratic formula (assuming a real-valued solution exists):
+
+\begin{equation}
+    x = \frac{-b \pm \sqrt{d}}{2a},
+\end{equation}
+
+where $d$ is the discriminant:
+
+\begin{equation}
+    d = b^2 - 4ac
+\end{equation}
+
+Notice that the $\pm$ symbol in the quadratic formula indicates that there are two possible values of $x$ that satisfy any given quadratic equation (unless $d=0$). If you replace $\pm$ with a $+$ sign, then that gives you one possibility for $x$. If you replace $\pm$ with a $-$ sign, then that gives you the other possibility.
+
+Create a program that does the following:
+
+\begin{enumerate}
+    \item Prompt the user for $a$, $b$, and $c$ via \texttt{std::cout} and receive their respective values via \texttt{std::cin} (review the lecture notes on variables for a reminder on how to use \texttt{std::cin}).
+    \item Compute the discriminant, $d = b^2 - 4ac$, and print its value via \texttt{std::cout}.
+    \item Compute the two possible values of $x$ by completing the quadratic formula. Print them both via \texttt{std::cout}.
+\end{enumerate}
+
+\subsection{Using your program to solve a problem}
+
+Lastly, you're going to put your program to the test.
+
+Suppose that, when you put the pedal to the metal, your car accelerates at a rate of $10$ meters per second squared. Assume your car's acceleration is constant, and there's no maximum speed (it will keep going faster and faster so long as your foot is on the pedal).
+
+Suppose that you get in your car, leave your garage down a straight road, stomp on the gas pedal and start a stopwatch. By the time you start the stopwatch, your car is already moving at $2.2$ meters per second, and you're already $20$ meters from your garage. The distance $d_t$ between your garage and your car after $t$ seconds can be computed as follows:
+
+$d_t = d_0 + v_0t + \frac{1}{2}at^2$,
+
+where $d_0$ is the distance between your car and the garage at the moment you start the stopwatch, $v_0$ is the speed of your car at the moment you start the stopwatch, $t$ is the number of seconds that have passed since you started the stopwatch, and $a$ is the acceleration of your car.
+
+We can substitute in the known values of $d_0$, $v_0$, and $a$ to rewrite the equation like so:
+
+$d_t = 20 + 2.2t + 5t^2$.
+
+\ul{Question: How many seconds will it take your car to reach a distance of $1$ kilometer ($1{,}000$ meters) from your garage?} Use your program, plugging in the appropriate values of $a$, $b$, and $c$, to get the answer. Of course, your program will print out two possible answers, but one of them will be negative; we only care about the \ul{positive} one because a negative number of seconds would imply something that occurred in the past (prior to starting the stopwatch), and we know that's not right.
+
+\begin{hint}
+    If you substitute $d_t = 1000$ and rearrange the equation, it looks like this: $5t^2 + 2.2t - 980 = 0$. Looking at this equation, what are the appropriate values of $a$, $b$, and $c$ with respect to the quadratic formula? Don't get hung up on the fact that our variable is called $t$ instead of $x$---names are just names.
+\end{hint}
+
+\end{document}

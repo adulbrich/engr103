@@ -1,0 +1,305 @@
+\documentclass{article}
+
+% Per-assignment macros
+\def\lecturetitle{References}
+
+% Imports
+\usepackage{graphicx} % Required for inserting images
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue, anchorcolor=blue]{hyperref}
+\usepackage{hhline}
+
+% Titling
+\usepackage{titling}
+\preauthor{\begin{center}}
+\postauthor{\par\end{center}\vspace{-30pt}}
+\setlength{\droptitle}{-50pt}
+\usepackage{scrextend}
+
+% Geometry
+
+\usepackage{geometry}
+\geometry{letterpaper, portrait, margin=1in}
+
+\usepackage[skip=5pt]{parskip}
+\newlength\tindent
+\setlength{\tindent}{\parindent}
+\setlength{\parindent}{0pt}
+\renewcommand{\indent}{\hspace*{\tindent}}
+
+\usepackage{makecell}
+
+% Assignment titling (number, due date, etc)
+\title{
+    Lecture Notes: \lecturetitle
+}
+\author{ENGR 103, Winter 2024}
+\date{}
+
+% Box environments
+\usepackage{tcolorbox}
+\usepackage{fancyvrb}
+\newenvironment{terminalcommand}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Command,colframe=gray!80!blue,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+\newenvironment{terminaloutput}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Output,colframe=gray!80!red,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+
+\usepackage{minted}
+\newenvironment{cpp}[1]
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=\texttt{#1},colframe=gray!50!blue,colback=white!97!black]
+    \begin{minted}{c++}}
+    {\end{minted}
+    \end{tcolorbox}}
+
+\newenvironment{tip}
+    {\begin{tcolorbox}[title=Tip,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newenvironment{note}
+    {\begin{tcolorbox}[title=Note,colframe=white!70!red,colback=white]}
+    {\end{tcolorbox}}
+
+\newcounter{examplerun}
+\newenvironment{examplerun}
+    {\begin{tcolorbox}[title=Example Run \refstepcounter{examplerun}\theexamplerun,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleruninputs}{\tcbsubtitle{Inputs}}
+\newcommand{\examplerunoutputs}{\tcbsubtitle{Outputs}}
+
+\newcommand{\imagewithdefaults}[1]{\includegraphics[width=\maxwidth{0.95\columnwidth}]{#1}}
+
+\makeatletter
+\def\maxwidth#1{\ifdim\Gin@nat@width>#1 #1\else\Gin@nat@width\fi}
+\makeatother
+
+\usepackage{soul}
+\usepackage{silence}
+
+\begin{document}
+
+\maketitle
+
+\section{References}
+
+Recall that the relationship between arguments in a function call and corresponding parameters in a function header can be described as a \textbf{copy}. Indeed, when a function is called, all of its parameters are effectively declared and allocated as their own, independent variables on the fly, and the values of the supplied arguments are copied into the allocated memory for the corresponding parameters. After this copy operation is complete, the arguments and parameters no longer have anything to do with each other---they are completely independent variables with their own allocated memory.
+
+To make sure you understand this well, refer to the below example:
+
+\begin{cpp}{Parameters are copied from arguments}
+void change_value_and_print(int x) {
+    std::cout << x << std::endl;
+    x = 1;
+    std::cout << x << std::endl;
+}
+
+int main() {
+    int x = 0;
+    std::cout << x << std::endl; // Prints 0
+    change_value_and_print(x); // Prints 0, followed by 1
+    std::cout << x << std::endl; // Prints 0
+}
+\end{cpp}
+
+Indeed, even when the argument and parameter are variables with identical names, they're still independent variables with their own memory. After all, names are just names.
+
+This phenomenon isn't strictly a property of parameters and arguments. More generally, it's a property of \ul{variables}. Every variable is inherently independent with its own memory. Parameters are variables, and, in our example above, the argument is a local variable. For example, the following program exhibits a similar behavior:
+
+\begin{cpp}{Local variables as copies of each other}
+int main() {
+    int x = 0;
+    std::cout << x << std::endl; // Prints 0
+
+    // Create y, and store a COPY of x's current value in it
+    int y = x;
+    std::cout << y << std::endl; // Prints 0
+
+    // Increment y
+    y++;
+    std::cout << y << std::endl; // Prints 1
+
+    // x still has not changed; y was merely constructed as a COPY of x
+    std::cout << x << std::endl; // Prints 0
+}
+\end{cpp}
+
+However, suppose you \textit{want} a function to be able to modify its arguments via modifications to the corresponding parameters. Or, more broadly, suppose you want two variables to somehow be ``linked'', or ``synchronized'', so that modifications to one are also observed in the other.
+
+Technically, this isn't possible. However, you can achieve the same goal via \textbf{indirection}, which can be accomplished via either \textbf{pointers} or \textbf{references}. Pointers are slightly more flexible than references, but they're also slightly more dangerous (i.e., easier to use incorrectly). You'll learn about pointers if you take CS 162 and / or CS 271. In this course, we'll just focus on references.
+
+The idea of indirection is simple at its core but somewhat unintuitive: rather than creating a variable that stores a copy of another variable's value, you instead create a variable that stores a copy of another variable's \ul{memory address}. As you know, a variable is a name that refers to a \ul{fixed location} in memory with a fixed size and fixed type, and all memory locations (i.e., locations of bytes in your computer) can be described via memory addresses (i.e., large non-negative whole numbers). Suppose variable \texttt{b} stores the memory address of some other variable \texttt{a}. You can then tell your computer, ``go to the location at the memory address stored in \texttt{b} and access its bytes''. In doing so, your program will be accessing the bytes of variable \texttt{a}, even though the actual instructions operate directly on variable \texttt{b}. ``Access'', in this context, could mean either read (retrieve) or write (modify).
+
+You've actually seen indirection in play already in the context of arrays. Recall that if a function modifies the underlying elements within a given array parameter, it will in turn modify the underlying elements within the corresponding array argument. This is because, when an array is passed as an argument into a function, the array itself is not copied, but rather the array argument's name decays to a base address (which, as it turns out, is basically a pointer). This base address is then copied into the array parameter. Hence, both the parameter and argument refer to the same location in memory---the base address of the single, underlying sequence of values. The subscript operator performs the actual indirection---it tells the computer to ``go to this base address, shift over by a number of spaces indicated by the given index, and access the data at that location''.
+
+As it turns out, though, you can do indirection without arrays. For example, suppose we want to modify the \texttt{change\_value\_and\_print()} function from the example at the top of this document so that it's capable of modifying the variable \texttt{x} declared in \texttt{main()} (i.e., the argument) via the variable \texttt{x} declared as a parameter. This is very possible. All we have to do is modify the type of the parameter so that rather than storing the \ul{value} of its argument, it stores the \ul{location} of its argument. As it stands, it isn't capable of doing that since it's declared as type \texttt{int}, and a variable of type \texttt{int} can only store \texttt{int} \textit{values}---they can't store memory addresses \textit{of} \texttt{int} values.
+
+However, the necessary modification is quite simple. We just have to change the type of the parameter \texttt{x} so that it \textit{is} capable of storing the address of an \texttt{int} value. There are two ways of doing this---we can either change the type of the parameter \texttt{x} so that it's a \textbf{pointer} to an \texttt{int}, or we can change it so that it's a \textbf{reference} to an \texttt{int}. Pointers and references are both merely types of variables capable of storing addresses to facilitate indirection, and anywhere that you can use a reference, you can also use a pointer. However, as I said, we'll focus on references since they're easier to use correctly.
+
+Let me demonstrate how simple the change is. To declare a variable called \texttt{<name>} with type \texttt{<type>}, the syntax is, of course:
+
+\begin{verbatim}
+<type> <name>
+\end{verbatim}
+
+In contrast, to declare a variable called \texttt{<name>} whose type is a ``reference to a value of type \texttt{<type>}'', the syntax is:
+
+\begin{verbatim}
+<type>& <name>
+\end{verbatim}
+
+Indeed, the presence of the ampersand, \texttt{\&}, between the rest of the type specifier and the variable's name indicates that the variable doesn't store a value, but rather the memory address \textit{of} some preexisting value. Moreover, it's also common for the ampersand to appear next to the name rather than the type specifier (e.g., \texttt{<type> \&<name>}). The exact placement of the ampersand doesn't matter in this regard.
+
+There are a couple of small restrictions to references, though:
+
+\begin{enumerate}
+    \item References must be initialized upon declaration. That is, the moment that you declare a reference, you must simultaneously specify the variable whose address it stores. If a reference is declared as a parameter in a function, this property is given---it'll simply store the address of its corresponding argument the moment the function is called. But references can also be used as regular local variables; in such a case, you must use the assignment operator upon declaration to specify the variable whose address it stores. One way or another, it's basically impossible for a reference to be ``undefined''.
+    \item In some sense, references themselves are constant. Once a reference has been configured to store some variable's address, it can't be changed later on to store a different variable's address. However, that doesn't mean that you can't modify the value of the variable whose address it stores via the reference (i.e., you can still do indirection to facilitate writes / modifications to the underlying data that it ``points'' to).
+    \item A reference can only store the memory address of a \ul{variable} (or, more rigorously, an ``lvalue''). For example, a reference can't store the address of a literal. But this is hardly a restriction since it wouldn't make any sense to store the address of a literal to begin with.
+\end{enumerate}
+
+In our example, this all means that we can modify our \texttt{change\_value\_and\_print()} function to accomplish our goals like so:
+
+\begin{cpp}{Reference parameter}
+void change_value_and_print(int& x) {
+    ...
+\end{cpp}
+
+Believe it or not, this is actually the only change we have to make to the entire program in order to effectively ``link'' the parameter \texttt{x} with the argument \texttt{x}. This is one of the beauties of references. Their restrictions, as listed above, enable an extremely simple syntax---in order to change a regular variable into a reference, you simply need to change that variable's declared type to a reference type. There's no need to change how you use that variable at all. In this case, this means that we don't need to change the function body of \texttt{change\_value\_and\_print()}, nor do we need to change how we call it. We \textit{only} need to change the declared type of the parameter to a reference type. If we were to use a pointer instead of a reference, this wouldn't be the case---we would additionally need to change the syntax of how the parameter is used as well as the syntax of how the argument is supplied.
+
+However, this has a very important implication: once a reference is declared and initialized to store the address of some other variable, the syntax for using that reference is exactly the same as the syntax for using the variable that it references. This can be a bit confusing at times. For example, see the complete program with new in-line comments:
+
+\begin{cpp}{Complete reference parameter example}
+void change_value_and_print(int& x) {
+    std::cout << x << std::endl;
+
+    // Despite that this line of code looks like,
+    // "store 1 in x", that's NOT what it does! Instead,
+    // it performs indirection---it "stores 1 in the variable
+    // whose address is stored within x". Indeed, this line of
+    // code will store the value 1 inside whatever int variable
+    // is passed to this function as x's corresponding argument
+    // (in this case, the x from main()).
+    x = 1;
+    std::cout << x << std::endl;
+}
+
+int main() {
+    int x = 0;
+    std::cout << x << std::endl; // Prints 0
+
+    // Call change_value_and_print, setting up the
+    // parameter x to store the memory address of our
+    // local variable here, also called x (again, the
+    // names of these variables are irrelevant; it doesn't
+    // matter whether they're the same or not)
+    change_value_and_print(x); // Prints 0, followed by 1
+    std::cout << x << std::endl; // PRINTS 1!
+}
+\end{cpp}
+
+Pay close attention to the comments in the \texttt{change\_value\_and\_print()} function body. Using an assignment operator on a reference post-declaration does \ul{not} change the reference itself. As explained, this is one of the restrictions of references---you can't change them once declared and initialized. Rather, using an assignment operator on a reference post-declaration changes the value of the underlying variable whose address is stored in the reference. In fact, this applies to all potential writes (modifications) \ul{and} reads against references---any attempt to modify a reference will instead modify the value of the variable whose address is stored in the reference, and any attempt to read the value of a reference (e.g., print it, or use it on the right side of an assignment operator) will instead read the value of the variable whose address is stored in the reference. In some sense, you can think of references like \ul{aliases} to other, preexisting variables---once configured, any attempts to access a reference in any way will actually access the value of the variable that it references.
+
+As mentioned, you can also use references outside of the context of function parameters and arguments. Indeed, whenever you want, you can create a local reference variable that stores the address of some other existing local variable (though there's rarely a legitimate reason to do this). For example, we can modify our second program from the beginning of this document so that \texttt{x} and \texttt{y} are ``linked'' by making \texttt{y} a reference to \texttt{x} rather than a copy of \texttt{x}:
+
+\begin{cpp}{Local references}
+int main() {
+    int x = 0;
+    std::cout << x << std::endl; // Prints 0
+
+    // Create y and store x's address in it
+    int& y = x;
+
+    // Print the value of the variable whose address
+    // is stored in y (i.e., print the value of x via
+    // indirection)
+    std::cout << y << std::endl; // Prints 0
+
+    // Increment the value of the variable whose
+    // address is stored in y (i.e., increment
+    // the value of x via indirection)
+    y++;
+
+    // Print the value of the variable whose address
+    // is stored in y (i.e., print the value of x via
+    // indirection)
+    std::cout << y << std::endl; // Prints 1
+
+    // Print the value of x
+    std::cout << x << std::endl; // PRINTS 1!
+}
+\end{cpp}
+
+Again, notice that the only actual change to this entire program is the placement of the ampersand (\texttt{\&}) in the declaration of \texttt{y}. We didn't need to change the syntax of how \texttt{y} is initialized, nor the syntax of how \texttt{y} is used throughout the program.
+
+Of course, using a reference in this context is a bit silly---you could just use \texttt{x} directly, so there's no reason to create \texttt{y} as a reference to it. Indeed, references are almost always used as function parameters. There are occasional situations in which using a local reference variable can lead to elegant implementations of otherwise complex problems, but they're so rare that we won't discuss them.
+
+References can also be copied into other references. For example, if \texttt{y} is a reference to \texttt{x}, and \texttt{z} is a reference constructed as a copy of \texttt{y}, then \texttt{z} is also a reference to \texttt{x}:
+
+\begin{verbatim}
+std::string x;
+std::string& y = x;
+std::string& z = y;
+
+z = "Hello";
+std::cout << x << std::endl; // Prints "Hello"
+\end{verbatim}
+
+Lastly, as mentioned, a reference cannot store the memory address of a literal (or other temporary / hard-coded value). For example, the following produces a syntax error:
+
+\begin{verbatim}
+int &x = 100;
+\end{verbatim}
+
+(Okay... Technically, you can bind an lvalue \texttt{const} reference to an rvalue, but that's beyond the scope of this class, or any class at OSU for that matter).
+
+\section{Returning references?}
+
+You might be wondering, ``can I return a reference from a function?''. Technically, the answer is ``yes.'' However, unless you're very careful, it can lead to an extremely dangerous kind of bug called a dangling reference (or ``use after free''), which is highly similar in consequence to a buffer overflow.
+
+For example, consider the following program:
+
+\begin{cpp}{Dangling reference}
+int& foo() {
+    int x = 0;
+
+    // Return a reference containing the memory
+    // address of x (since the return type of the
+    // function is int&)
+    return x;
+}
+
+int main() {
+    // Call foo(), which returns a reference containing
+    // the memory address of an int, and then copy that
+    // reference into y
+    int& y = foo();
+
+    // Modify the value of the variable whose address
+    // is stored in y (i.e., modify the value of x,
+    // the local variable from foo()) and print it
+    y = 1;
+    std::cout << y << std::endl;
+}
+\end{cpp}
+
+In the above program, the \texttt{foo()} function constructs an \texttt{int} variable, \texttt{x}, and ultimately returns a reference storing its memory address. The \texttt{main()} function then copies that memory address into a new reference, \texttt{y}. That's to say, \texttt{y} stores the memory address of \texttt{x}.
+
+However, this is \ul{hugely problematic}. Recall from the scope lecture that a variable's memory is free to be deleted from the moment that it falls out of scope. By the time the \texttt{foo()} function ends and \texttt{y} is being setup to store the memory address of \texttt{x}, \texttt{x} has already fallen out of scope. The result is that \ul{\texttt{y} stores the memory address of a potentially deleted variable}. In this context, \texttt{y} is referred to as a \textbf{dangling reference}. The above program compiles and runs, but the result is undefined behavior.
+
+Moreover, once a variable's memory is deleted, it's free to be recycled by your program for other uses (e.g., to store other variables or return addresses (!)). Indeed, this means that the modification \texttt{y = 1} could potentially be modifying some completely unrelated data that happens to be using \texttt{x}'s recycled memory. And, in fact, although dangling references officially exhibit undefined behavior, this sort of corrupt memory access is what typically happens in practice. If this sounds familiar, it's because it effectively introduces the same issue as a buffer overflow. Indeed, it can lead to ACE and RCE exploits.
+
+Unfortunately, avoiding all dangling references (and dangling pointers) broadly is much more difficult than avoiding all buffer overflows. In this context, it happens because a function returns a reference to a local variable. But this is only the simplest case of a dangling reference. While it's easy to avoid this particular issue by sticking to certain coding philosophies, there are other ways by which a reference (or pointer) may ``escape the call stack'' and result in the same issue, and they're much harder to track.
+
+So now you've learned of two memory errors that can result in disastrous consequences (e.g., an RCE exploit). Some other programming languages have memory safety mechanisms in place that make both buffer overflows and dangling references (and pointers) impossible, but such mechanisms always come at a cost---usually either runtime performance (in the case of Python, Java, C\#, and others), or syntactic complexity and seemingly paranoid constraints imposed on the developer by the compiler (in the case of Rust). C and C++ exist almost entirely to be highly performant while maintaining relatively simple syntax and few constraints on the developer, so these issues aren't likely to disappear in C and C++ anytime soon.
+
+(However, the US government has recently criticized C++ for these memory safety concerns, and the C++ committee has responded by planning to introduce opt-in memory safety mechanisms in future versions of C++).
+
+\end{document}

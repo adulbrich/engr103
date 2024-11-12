@@ -1,0 +1,271 @@
+\documentclass{article}
+
+% Per-assignment macros
+\def\studionumber{8}
+\def\studiotitle{Strings}
+
+% Imports
+\usepackage{graphicx} % Required for inserting images
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue, anchorcolor=blue]{hyperref}
+\usepackage{hhline}
+\usepackage{amsmath}
+
+% Titling
+\usepackage{titling}
+\preauthor{\begin{center}}
+\postauthor{\par\end{center}\vspace{-30pt}}
+\setlength{\droptitle}{-50pt}
+
+% Geometry
+
+\usepackage{geometry}
+\geometry{letterpaper, portrait, margin=1in}
+
+\usepackage[skip=5pt]{parskip}
+\newlength\tindent
+\setlength{\tindent}{\parindent}
+\setlength{\parindent}{0pt}
+\renewcommand{\indent}{\hspace*{\tindent}}
+
+% Assignment titling (number, due date, etc)
+\title{
+    Studio \studionumber: \studiotitle
+}
+\author{ENGR 103, Winter 2024}
+\date{}
+
+% Box environments
+\usepackage{tcolorbox}
+\usepackage{fancyvrb}
+\newenvironment{terminalcommand}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Command,colframe=gray!80!blue,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+\newenvironment{terminaloutput}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Output,colframe=gray!80!red,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+
+\newenvironment{hint}
+    {\begin{tcolorbox}[title=Hint,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newenvironment{sourcecode}[1]
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=\texttt{#1},colframe=gray!80!green,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+
+\newenvironment{tip}
+    {\begin{tcolorbox}[title=Tip,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newcounter{examplerun}
+\newenvironment{examplerun}
+    {\begin{tcolorbox}[title=Example Run \refstepcounter{examplerun}\theexamplerun,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleruninputs}{\tcbsubtitle{Inputs}}
+\newcommand{\examplerunoutputs}{\tcbsubtitle{Outputs}}
+
+\newcounter{exampleproblem}
+\newcounter{exampleproblemsolution}
+\newenvironment{exampleproblem}
+    {\setcounter{exampleproblemsolution}{0}\begin{tcolorbox}[title=Example Problem \refstepcounter{exampleproblem}\theexampleproblem,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleproblemstatement}{\tcbsubtitle{Problem statement}}
+\newcommand{\exampleproblemsolution}{\refstepcounter{exampleproblemsolution}\tcbsubtitle{Solution \theexampleproblemsolution}}
+
+\newcommand{\imagewithdefaults}[1]{\includegraphics[width=\maxwidth{0.95\columnwidth}]{#1}}
+
+\makeatletter
+\def\maxwidth#1{\ifdim\Gin@nat@width>#1 #1\else\Gin@nat@width\fi}
+\makeatother
+
+\usepackage{soul}
+
+\begin{document}
+
+\maketitle
+
+\section{Example string problems}
+
+Following are a couple examples of string problems. They'll help you understand strings before you create a text adventure in the next section.
+
+\begin{exampleproblem}
+    \exampleproblemstatement
+    Write a function,
+    \vspace{3pt}
+    \\
+    \texttt{std::string get\_first\_name(std::string full\_name)}
+    \vspace{3pt}
+    \\
+    that accepts a string \texttt{full\_name} representing a person's full name in the format ``last, first middle'', and returns the person's first name. For example, \texttt{get\_first\_name("Guyer, Alexander Dale")} should return \texttt{"Alexander"}.
+    
+    \exampleproblemsolution
+    \begin{verbatim}
+std::string get_first_name(std::string full_name) {
+    int space_position = full_name.find(" ");
+    std::string first_and_middle = full_name.substr(space_position + 1);
+    space_position = first_and_middle.find(" ");
+    std::string first_name = first_and_middle.substr(0, space_position);
+    return first_name;
+}
+    \end{verbatim}
+
+    \exampleproblemsolution
+    \begin{verbatim}
+std::string get_first_name(std::string full_name) {
+    int space_position = full_name.find(" ");
+    full_name.erase(0, space_position + 1);
+    space_position = full_name.find(" ");
+    full_name.erase(space_position);
+    return full_name;
+}
+    \end{verbatim}
+\end{exampleproblem}
+
+\begin{exampleproblem}
+    \exampleproblemstatement
+    Write a function
+    \vspace{3pt}
+    \\
+    \texttt{int count\_substr(std::string str, std::string substr) \{...\}}
+    \vspace{3pt}
+    \\
+    that returns the number of times the string \texttt{substr} appears within the string \texttt{str}. Occurrences of \texttt{substr} within \texttt{str} are allowed to overlap (e.g., \texttt{count("ooo", "oo")} should return 2. The middle o is involved in both appearances: ``\underline{oo}o'' and ``o\underline{oo}'').
+
+    \exampleproblemsolution
+    \begin{verbatim}
+int count_substr(std::string str, std::string substr) {
+    int count = 0; // The number of occurrences found
+    int cur_position = 0; // The position from which to search
+    
+    while (cur_position != std::string::npos) {
+        int position = str.find(substr, cur_position);
+        
+        if (position == std::string::npos) {
+            // Failed to find any more occurrences. Set cur_position =
+            // position (= std::string::npos) to end the loop.
+            cur_position = position;
+        } else {
+            // Found an occurrence.
+            count++;
+            // Set cur_position = position + 1 so that the next
+            // iteration starts searching for the next occurrence.
+            cur_position = position + 1;
+        }
+    }
+    
+    return count;   
+}
+    \end{verbatim}
+
+    \exampleproblemsolution
+    \begin{verbatim}
+int count_substr(std::string str, std::string substr) {
+    int count = 0; // The number of occurrences found
+    int cur_position = 0; // The position from which to search
+    
+    // Advanced technique: using the assignment operation's
+    // evaluation as part of the loop condition
+    while ((cur_position = str.find(substr, cur_position)) != std::string::npos) {
+        // Found an occurrence. Increment count
+        count++;
+        // Also increment cur_position so that the next loop
+        // iteration starts searching for the next occurrence
+        cur_position++;
+    }
+    
+    return count;
+}
+    \end{verbatim}
+\end{exampleproblem}
+
+\section{Text-based game}
+
+Write a text-based game to be played in the terminal. The content of your game is completely up to you (but it must be appropriate). The only requirements are:
+
+\begin{enumerate}
+    \item Your game must prompt the user for actions via \texttt{std::cout}.
+    \item Each action must be read as a \texttt{string} via \texttt{getline(std::cin, some\_string\_variable)}.
+    \item Each action must be checked for validity (e.g., if your program asks the user to enter ``north'' to go north or ``south'' to go south, then your program must verify that the user entered one of those two things).
+    \item When a user enters an invalid action, your program should tell the user that their input was invalid, and it should prompt them again. You'll need some loops for this.
+    \item The game's ``storyline'' must somehow depend on the user's chosen actions. You'll need some if statements for this.
+    \item Your game must involve \underline{at least three} different prompts, each with their own set of valid actions (i.e., at least three different ``situations'' where the user has a choice to make). \underline{Note}: It's okay if certain actions cause the game to end before the user has made three choices---the user does not need to encounter all three prompts in a single playthrough.
+\end{enumerate}
+
+Here are some example runs of my text-based game:
+
+\begin{terminaloutput}
+./a.out
+You wake up and find yourself in a desert. You feel weak and nauseous. There appears
+to be an oasis in the distance. What do you do?
+
+Type "walk toward oasis" to walk toward the oasis, or "walk into desert" to walk away
+from the oasis, deeper into the desert:
+
+drink water
+
+That's not a valid action!
+
+Type "walk toward oasis" to walk toward the oasis, or "walk into desert" to walk away
+from the oasis, deeper into the desert:
+
+walk toward oasis
+
+You begin stumbling toward the oasis... After hours of walking, the oasis appears
+just as far away as when you started. You're dehydrated, but you've stumbled across a
+desert cactus. What do you do?
+
+Type "walk toward oasis" to continue walking toward the oasis. Type
+"drink cactus water" to drink water from the cactus.
+
+drink cactus water
+
+You drink the cactus water. It tastes acrid. Even worse, cactus water is apparently
+not meant for human consumption. You feel weak... Your legs give out, and you pass
+out in the hot desert sand.
+
+Game over.
+
+\end{terminaloutput}
+
+\begin{terminaloutput}
+./a.out
+You wake up and find yourself in a desert. You feel weak and nauseous. There appears
+to be an oasis in the distance. What do you do?
+
+Type "walk toward oasis" to walk toward the oasis, or "walk into desert" to walk away
+from the oasis, deeper into the desert:
+
+walk into desert
+
+You feel uneasy about the oasis, suspecting it to be a hallucination. You turn around
+and walk deeper into the desert. After hours of walking, you come across a well-kept
+road running from north to south, but you see the peak of a building emerging on the
+eastern horizon. You feel dehydrated, and you're probably too exhausted to reach
+it... What do you do?
+
+Type "go east" to fight the odds and walk through the sand toward the building. Type
+"go north" to walk north along the road. Type "go south" to walk south along the
+road. Type "lay down" to lay down in the middle of the road.
+
+lay down
+
+You recognize that you're nearing your limits. You choose to lay down in the road to
+conserve energy, hoping that help will arrive soon...
+
+Your decision pays off. A caravan of merchants arrives from the north, apparently
+on their way to sell their wares in a distant town to the south. They offer you water
+and escort you to safety.
+
+\end{terminaloutput}
+
+\end{document}

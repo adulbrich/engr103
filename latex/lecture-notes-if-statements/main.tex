@@ -1,0 +1,470 @@
+\documentclass{article}
+
+% Per-assignment macros
+\def\lecturetitle{If Statements}
+
+% Imports
+\usepackage{graphicx} % Required for inserting images
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue, anchorcolor=blue]{hyperref}
+\usepackage{hhline}
+
+% Titling
+\usepackage{titling}
+\preauthor{\begin{center}}
+\postauthor{\par\end{center}\vspace{-30pt}}
+\setlength{\droptitle}{-50pt}
+\usepackage{scrextend}
+
+% Geometry
+
+\usepackage{geometry}
+\geometry{letterpaper, portrait, margin=1in}
+
+\usepackage[skip=5pt]{parskip}
+\newlength\tindent
+\setlength{\tindent}{\parindent}
+\setlength{\parindent}{0pt}
+\renewcommand{\indent}{\hspace*{\tindent}}
+
+% Assignment titling (number, due date, etc)
+\title{
+    Lecture Notes: \lecturetitle
+}
+\author{ENGR 103, Winter 2024}
+\date{}
+
+% Box environments
+\usepackage{tcolorbox}
+\usepackage{fancyvrb}
+\newenvironment{terminalcommand}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Command,colframe=gray!80!blue,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+\newenvironment{terminaloutput}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Output,colframe=gray!80!red,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+
+\usepackage{minted}
+\newenvironment{cpp}[1]
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=\texttt{#1},colframe=gray!50!blue,colback=white!97!black]
+    \begin{minted}{c++}}
+    {\end{minted}
+    \end{tcolorbox}}
+
+\newenvironment{tip}
+    {\begin{tcolorbox}[title=Tip,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newenvironment{note}
+    {\begin{tcolorbox}[title=Note,colframe=white!70!red,colback=white]}
+    {\end{tcolorbox}}
+
+\newcounter{examplerun}
+\newenvironment{examplerun}
+    {\begin{tcolorbox}[title=Example Run \refstepcounter{examplerun}\theexamplerun,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleruninputs}{\tcbsubtitle{Inputs}}
+\newcommand{\examplerunoutputs}{\tcbsubtitle{Outputs}}
+
+\newcommand{\imagewithdefaults}[1]{\includegraphics[width=\maxwidth{0.95\columnwidth}]{#1}}
+
+\makeatletter
+\def\maxwidth#1{\ifdim\Gin@nat@width>#1 #1\else\Gin@nat@width\fi}
+\makeatother
+
+\usepackage{soul}
+
+\begin{document}
+
+\maketitle
+
+\section{Conditional Logic}
+
+So far, our programs have all been purely sequential. They represent a sequence of operations to be performed in a prescribed order according to top-down control flow, altered only by function calls.
+
+However, there are certain kinds of logic that can't be expressed by purely sequential programs. For example, consider a program that does the following: if the user inputs ``1'', then the program prints ``good'', but if the user inputs ``0'', then the program prints ``bad''. This program encodes \textbf{conditional logic}. That is, it requires performing certain operations only under certain conditions that are evaluated at runtime.
+
+Conditional logic cannot be represented in a purely sequential program. So, in order to create the program described above, we need to learn how to represent conditional logic in C++.
+
+\section{Booleans}
+
+\subsection{Basics of Booleans}
+
+If the goal is to write a program that performs some sequence of operations when some condition is satisfied, we first need some way of representing the satisfaction of a condition in our code.
+
+In most programming languages, including C++, the satisfaction of a condition is represented with an expression of type \texttt{bool}, or an expression of a type that can be converted to a \texttt{bool}. Recall that \texttt{bool} is one of the primitive types that we talked about briefly during the lecture on expressions, operators, and variables. \texttt{bool} stands for \textbf{boolean}, which simply means ``a true or false value''.
+
+Indeed, there are exactly two valid \texttt{bool}-typed literal expressions in C++: \texttt{true} and \texttt{false}. For example, we could create variables of type \texttt{bool} and store values in them like so:
+
+\begin{cpp}{Boolean Literals}
+bool i_like_spaghetti = true;
+bool i_like_broccoli = false;
+\end{cpp}
+
+Note that booleans can be converted to and from any numeric type. The conversion rules are not so obvious:
+\begin{enumerate}
+    \item When converting a \texttt{bool}-typed expression to some other numeric type (e.g., \texttt{int}, \texttt{float}, \texttt{double}, etc.), \texttt{true} values get converted to \texttt{1} and \texttt{false} values get converted to \texttt{0}.
+    \item When converting a numeric-typed expression to a \texttt{bool}, \texttt{0} gets converted to \texttt{false}, and \ul{all other values} get converted to \texttt{true}. Even small values and negative values get converted to \texttt{true}. For example, even if you take the \texttt{double}-typed value \texttt{-0.0000001} and convert it to a \texttt{bool}, the result will be \texttt{true}.
+\end{enumerate}
+
+Interestingly, if you print a \texttt{bool}-typed expression via \texttt{std::cout}, it will automatically be converted to an \texttt{int} value just before printing. As a result, attempting to print a \texttt{bool}-typed expression with value \texttt{true} will actually print \texttt{1}, and attempting to print a \texttt{bool}-typed expression with value \texttt{false} will actually print \texttt{0}. See the following examples:
+
+\begin{cpp}{Printing booleans}
+bool i_like_spaghetti = true;
+bool i_like_broccoli = false;
+
+std::cout << i_like_spaghetti << std::endl; // Prints 1
+std::cout << i_like_brocolli << std::endl; // Prints 0
+
+std::cout << true << std::endl; // Prints 1
+std::cout << false << std::endl; // Prints 0
+
+// This one's trickier. -0.000001 is casted to a boolean, which
+// has value `true`. This is then printed as `1` in the terminal.
+std::cout << static_cast<bool>(-0.000001) << std::endl;// Prints 1
+\end{cpp}
+
+\subsection{Relational Operators}
+
+Often times, you want to compare the values of two expressions to produce a boolean result. For example, you might want to a boolean to be true if and only if two expressions have equal values. To compare values to produce booleans in C++, you can use \textbf{relational operators}.
+
+Relational operators are slightly different from arithmetic operators (e.g., \texttt{+}, \texttt{-}, \texttt{*}, etc.). Whereas arithmetic operators operate on numeric operands to produce numeric outputs, relational operators operate on any two appropriately comparable operands to produce boolean outputs. For example, \texttt{==} is the \textbf{equality} relational operator; it operates on two operands, producing \texttt{true} if their values are equal and \texttt{false} otherwise.
+
+Following is a table of common relational operators in C++:
+
+\begin{tabular}{|p{0.1\columnwidth}|p{0.1\columnwidth}|p{0.1\columnwidth}|p{0.6\columnwidth}|}
+    \hline
+    Operator & Operator Name & Example Syntax & Behavior \\
+    \hline
+    \texttt{==} & Equal to & \texttt{x == y} & Evaluates to \texttt{true} if the value of \texttt{x} is equal to the value of \texttt{y}. Evaluates to \texttt{false} otherwise. \\
+    \hline
+    \texttt{!=} & Not equal to & \texttt{x != y} & Evaluates to \texttt{true} if the value of \texttt{x} is \ul{not} equal to the value of \texttt{y}. Evaluates to \texttt{false} otherwise.\\
+    \hline
+    \texttt{>} & Greater than & \texttt{x > y} & Evaluates to \texttt{true} if the value of \texttt{x} is greater than the value of \texttt{y}. Evaluates to \texttt{false} otherwise.\\
+    \hline
+    \texttt{>=} & Greater than or equal to & \texttt{x >= y} & Evaluates to \texttt{true} if the value of \texttt{x} is greater than or equal to the value of \texttt{y}. Evaluates to \texttt{false} otherwise.\\
+    \hline
+    \texttt{<} & Less than & \texttt{x < y} & Evaluates to \texttt{true} if the value of \texttt{x} is less than the value of \texttt{y}. Evaluates to \texttt{false} otherwise.\\
+    \hline
+    \texttt{<=} & Less than or equal to & \texttt{x <= y} & Evaluates to \texttt{true} if the value of \texttt{x} is less than or equal to the value of \texttt{y}. Evaluates to \texttt{false} otherwise.\\
+    \hline
+\end{tabular}
+
+Note that \texttt{x} and \texttt{y} in the syntax examples in the above table can be any expressions that are appropriately comparable to one another. For example, it would make sense to check if two numeric values are equal, so \texttt{x == y} is valid for any numeric values \texttt{x} and \texttt{y}, even if \texttt{x} and \texttt{y} are of different types (e.g., \texttt{int} vs \texttt{float}).
+
+The \texttt{>}, \texttt{>=}, \texttt{<}, and \texttt{<=} operators are mostly intended for comparing numeric values, but the \texttt{==} and \texttt{!=} operators can be applied to any two expressions \texttt{x} and \texttt{y} that are comparable for equality and inequality, respectively. Most commonly, you'd use the \texttt{==} and \texttt{!=} operators to compare the values of two expressions of the same type. Importantly, that type does not need to be numeric---it could be \textit{any} type whose values can be compared for equality or inequality. For example, if \texttt{x} and \texttt{y} are both boolean expressions, then \texttt{x == y} is a perfectly valid expression, evaluating to \texttt{true} if \texttt{x} and \texttt{y} store the same truthness values (i.e., they're either both \texttt{true} or both \texttt{false}), and evaluating to \texttt{false} otherwise.
+
+Unsurprisingly, though, you can also use \texttt{==} and \texttt{!=} to compare two expressions of different types so long as they can somehow be converted to each other for comparison (e.g., you could use these operators to compare an \texttt{int} for equality with a \texttt{float}).
+
+To make sure you understand these relational operators, see the following example program:
+
+\begin{cpp}{Relational operator examples}
+std::cout << (1 == 2) << std::endl; // prints `0` for `false`
+std::cout << (1 == 1) << std::endl; // prints `1` for `true`
+std::cout << (1 != 1) << std::endl; // prints `0` for `false`
+std::cout << (1 != 100) << std::endl; // prints `1` for `true`
+std::cout << (5 > 7) << std::endl; // prints `0` for `false`
+std::cout << (5 <= 7) << std::endl; // prints `1` for `true`
+\end{cpp}
+
+\subsection{Logical Operators}
+
+Just as there are arithmetic operators for operating on numeric values to produce numeric values, and relational operators for comparing values to produce booleans, there are also \textbf{logical operators} that are strictly for operating on boolean values to produce boolean values. The purpose of logical operators is to combine multiple boolean expressions into a single, larger boolean expression that represents more complex logic, like a conjunction, disjunction or negation. Following is a table of logical operators in C++:
+
+\begin{tabular}{|p{0.1\columnwidth}|p{0.1\columnwidth}|p{0.1\columnwidth}|p{0.6\columnwidth}|}
+    \hline
+    Operator & Operator name & Example Syntax & Behavior \\
+    \hline
+    \texttt{\&\&} & Logical and (with short circuiting) & \texttt{x \&\& y} & Evaluates to \texttt{true} if both \texttt{x} and \texttt{y} are \texttt{true}. Performs short circuiting (explained later).\\
+    \hline
+    \texttt{||} & Logical or (with short circuiting) & \texttt{x || y} & Evaluates to \texttt{true} if either \texttt{x} or \texttt{y} is \texttt{true} (or if both are \texttt{true}). Performs short circuiting (explained later).\\
+    \hline
+    \texttt{\&} & Logical and (without short circuiting) & \texttt{x \& y} & Evaluates to \texttt{true} if both \texttt{x} and \texttt{y} are \texttt{true}. Does \ul{not} perform short circuiting (explained later).\\
+    \hline
+    \texttt{|} & Logical or (without short circuiting) & \texttt{x | y} & Evaluates to \texttt{true} if either \texttt{x} or \texttt{y} is \texttt{true} (or if both are \texttt{true}). Does \ul{not} perform short circuiting (explained later).\\
+    \hline
+    \texttt{!} & Negation / Complement & \texttt{!x} & Evaluates to \texttt{true} if \texttt{x} is \texttt{false}, and evaluates to \texttt{false} if \texttt{x} is \texttt{true}.\\
+    \hline
+\end{tabular}
+
+Importantly, for the \texttt{\&\&}, \texttt{\&}, \texttt{||}, and \texttt{|} operators, the two operands can be any expressions whose values can be converted to booleans. These operators will evaluate the two operands independently to produce two booleans, and \ul{then} perform the logical operation on them. For example, if you want a boolean expression that determines whether some variable \texttt{x} is equal to either \texttt{1} or \texttt{2}, that expression would look like \texttt{x == 1 || x == 2}. A common mistake would be to write this expression as \texttt{x == 1 || 2}, which is \ul{not} the same thing. This latter expression would evaluate \texttt{x == 1} to produce a boolean, and then it would evaluate \texttt{2} to produce a boolean. Recall boolean conversion rules: all non-zero numeric values are treated as \texttt{true} when converted to booleans. Hence, this latter expression is equivalent to \texttt{x == 1 || true}, which in turn is a tautology (i.e., this expression is always \texttt{true}, even if \texttt{x} is neither \texttt{1} nor \texttt{2}).
+
+Similarly, if you want to check if some variable \texttt{x} is between two values \texttt{a} and \texttt{b}, the boolean expression might look something like \texttt{x >= a \&\& x <= b}. A common mistake would be to write this expression as \texttt{a <= x <= b}, which makes sense in common mathematical notation, and is even legal C++ syntax, but does not do what you think it does (it evaluates \texttt{a <= x} as a boolean, converts it to an integer (either \texttt{0} or \texttt{1}), and then checks whether that integer is less than or equal to \texttt{b}).
+
+To make sure you understand logical operators, review the following example program:
+
+\begin{cpp}{Logical operator examples}
+int x = 0;
+std::cout << (x == 1 || 2) << std::endl; // Prints `1` for `true`
+std::cout << (x == 1 || x == 2) << std::endl; // Prints `0` for `false`
+std::cout << (x == 0 && x == 1) << std::endl; // Prints `0` for `false`
+std::cout << (x == 0 && true) << std::endl; // Prints `1` for `true`
+std::cout << (x == 10000 || true) << std::endl; // Prints `1` for `true`
+std::cout << !(x == 10000 || true) << std::endl; // Prints `0` for `false`
+std::cout << !(!(x == 10000 || true)) << std::endl; // Prints `1` for `true`
+std::cout << (((x < 100) && (x > -100)) || (x == -1)) << std::endl; // Prints `1` for
+                                                                    // `true`
+\end{cpp}
+
+\section{If Statements}
+
+\subsection{The general form of conditional logic}
+
+In the most general form, most programming languages, including C++, represent conditional logic like so:
+
+\begin{addmargin}{2em}
+    \textbf{If} some condition is satisfied,\\
+    \textbf{then} perform some sequence of operations A.\\
+    \textbf{Else, if} some other condition is satisfied,\\
+    \textbf{then} perform some other sequence of operations B.\\
+    ...\\
+    \textbf{Else},\\
+    \textbf{then} perform some other sequence of operations C.
+\end{addmargin}
+
+This chain of ``if this, then that... else if this, then that... else'' logic creates a mutually exclusive set of operations, of which \ul{exactly one} will execute. There can be as many ``else ifs'' in the middle as you'd like (or even none of them, as we'll see later).
+
+To express the above form of conditional logical in C++, use the following syntax:
+
+\begin{verbatim}
+if (<condition 1>) {
+    <sequence of operations 1>
+} else if (<condition 2>) {
+    <sequence of operations 2>
+} else if (<condition 3>) {
+    <sequence of operations 3>
+} ...
+...
+... else {
+    <sequence of operations N>
+}
+\end{verbatim}
+
+In the above syntax, replace each \texttt{<sequence of operations XXX>} with some code that you'd like to be executed when the appropriate conditions are satisfied, and replace each \texttt{<condition XXX>} with \ul{an expression whose value can be converted to a boolean} (usually, it will directly be an expression of type \texttt{bool}).
+
+Importantly, \ul{exactly one} of the sequences of operations will be executed. If the first condition is \texttt{true}, then the first sequence of operations will be executed. Otherwise (if the first condition is \texttt{false}), the program will proceed to evaluate the second condition. In such a case, if the second condition is \texttt{true}, then the second sequence of operations will be executed. Otherwise (if the second condition is also \texttt{false}), the program will proceed to evaluate the third condition, and so on. If all of the conditions are \texttt{false}, then the program will eventually reach the generic ``else'' statement at the very bottom of the chain. If the program reaches this point, then the sequence of operations inside the generic ``else'' statement's sequence of operations will be executed (i.e., the $N^{th}$ sequence of operations in the above example code).
+
+Also, notice that each if / else if / else operation sequence is enclosed in curly braces. Indeed, this means that each of these operation sequences gets its own scope.
+
+As a basic example of if statements, consider the following program:
+
+\begin{cpp}{If statement example}
+#include <iostream>
+
+/*
+ * Function: prompt_for_integer
+ * Description: Prompts the user for an integer
+ * Returns (int): Integer entered by user
+ */
+int prompt_for_integer() {
+    std::cout << "Enter an integer: ";
+    int user_input;
+    std::cin >> user_input;
+    return user_input;
+}
+
+int main() {
+    // Prompt user for whole number
+    int number = prompt_for_integer();
+
+    // Check value of number
+    if (number < 10) {
+        std::cout << "You entered a number less than 10" << std::endl;
+    } else if (number > 10) {
+        std::cout << "You entered a number greater than 10" << std::endl;
+    } else {
+        std::cout << "You entered 10!" << std::endl;
+    }
+}
+\end{cpp}
+
+The above program will ask the user for a number. If the user enters a number less than 10, it will say ``You entered a number less than 10''. If they enter a number greater than 10, it will say ``You entered a number greater than 10''. If they enter exactly 10, it will say ``You entered 10!''.
+
+\subsection{Dropping ``else if'' and ``else'' statements}
+
+In some cases, you may find yourself implementing conditional logic that only executes operations in one or two scenarios. In the absence of those scenarios, you want your program to do nothing (or rather, you want it to simply move on to the next operation that doesn't depend on any conditions). In such a case, you can leave out \texttt{else if} and / or \texttt{else} statements entirely.
+
+For example, suppose we want to modify the previous example so that, if the user enters a value greater than 10, it simply does nothing. We could do this by rewriting the \texttt{main} function of the program like so:
+
+\begin{cpp}{Example without an \texttt{else} statement}
+...
+int main() {
+    // Prompt user for whole number
+    int number = prompt_for_integer();
+
+    // Check value of number
+    if (number < 10) {
+        std::cout << "You entered a number less than 10" << std::endl;
+    } else if (number == 10) {
+        std::cout << "You entered 10!" << std::endl;
+    }
+}
+\end{cpp}
+
+When executing the above program, if the user enters a number less than 10, then the program prints ``You entered a number less than 10'', and if the user enters exactly 10, then the program prints ``You entered 10!''. However, there is no generic \texttt{else} statement at the end of the conditional logic sequence. As such, if neither of these two conditions are satisfied, then the program prints nothing.
+
+As a general rule, a chain of conditional logic ending in an \texttt{else} statement creates mutually exclusive sequences of operations, of which \ul{exactly one} will execute. In contrast, a chain of conditional logic ending in an \texttt{else if} statement (i.e., with no generic \texttt{else} statement at the end) creates mutually exclusive sequences of operations, of which \ul{at most} one will execute.
+
+Of course, your program can have more code following an entire conditional logic sequence (e.g., after the closing curly brace of the final \texttt{else if} statement in the above code). In such a case, once your program is done executing the appropriate conditional code depending on which conditions are satisfied (if any), it will then proceed to execute the following unconditional code.
+
+That's to say, any code that lies outside of all if statements is unconditional, so it will always execute. For example, we could further modify our above \texttt{main} function so that it prints ``Goodbye!'' at the very end of the program, regardless of what number the user enters:
+
+\begin{cpp}{Unconditional logic example}
+...
+int main() {
+    // Prompt user for whole number
+    int number = prompt_for_integer();
+
+    // Check value of number
+    if (number < 10) {
+        std::cout << "You entered a number less than 10" << std::endl;
+    } else if (number == 10) {
+        std::cout << "You entered 10!" << std::endl;
+    }
+
+    // This code will always execute since it lies outside
+    // of any if / else if / else statements.
+    std::cout << "Goodbye!" << std::endl;
+}
+\end{cpp}
+
+When executing the above program, if the user enters a number less than 10, it will print ``You entered a number less than 10'' followed by ``Goodbye!''. If the user enters exactly 10, it will print ``You entered 10!'' followed by ``Goodbye!''. If the user enters a number greater than 10, it will simply print ``Goodbye!''.
+
+As you may have guessed, you can also leave out \texttt{else if} statements if they're unnecessary. For example, we could further modify our above \texttt{main} function like so:
+
+\begin{cpp}{Example with no\texttt{else if} or \texttt{else} statements}
+...
+int main() {
+    // Prompt user for whole number
+    int number = prompt_for_integer();
+
+    // Check value of number
+    if (number == 10) {
+        std::cout << "You entered 10!" << std::endl;
+    }
+
+    // This code will always execute since it lies outside
+    // of any if / else if / else statements.
+    std::cout << "Goodbye!" << std::endl;
+}
+\end{cpp}
+
+When executing the above program, if the user enters exactly 10, it will print ``You entered 10!'' followed by ``Goodbye!''. In all other cases, it will simply print ``Goodbye!''.
+
+And, of course, you can have an \texttt{if} statement immediately followed by an \texttt{else} statement with no \texttt{else if} statements in the middle. This would create a pair of mutually exclusive operations of which exactly one will execute.
+
+\subsection{If statement style}
+
+As a direct result of the DRY principle, you should avoid repeating boundary conditions when writing out if statements by exploiting the mutual exclusion of \texttt{else if} and \texttt{else} semantics.
+
+For example, consider the following program:
+
+\begin{cpp}{Example of repeated boundary conditions and missing mutual exclusion}
+#include <iostream>
+
+/*
+ * Function: prompt_for_grade
+ * Description: Prompts the user for a grade percentage as an integer
+ * Returns (int): Grade percentage entered by the user
+ */
+int prompt_for_grade() {
+    std::cout << "Enter your grade percentage: ";
+    int grade_percentage;
+    std::cin >> grade_percentage;
+    return grade_percentage;
+}
+
+/*
+ * Function: print_pass_or_fail
+ * Description: Prints whether the user passed or failed based on the grade percentage
+ * Parameters:
+ *      grade (int): Grade percentage
+ */
+void print_pass_or_fail(int grade) {
+    if (grade < 60) {
+        std::cout << "You failed!" << std::endl;
+    }
+
+    if (grade >= 60) {
+        std::cout << "You passed!" << std::endl;
+    }
+}
+
+int main() {
+    // Prompt user for grade
+    int grade = prompt_for_grade();
+
+    // Print pass/fail
+    print_pass_or_fail(grade);
+}
+\end{cpp}
+
+The above program asks the user for a grade percentage as an integer. It prints ``You failed!'' if the user's entered grade is less than \texttt{60}, and it prints ``You passed!'' if the user's entered grade is greater than 60.
+
+The program works just fine. However, there are a couple of stylistic concerns with the \texttt{print\_pass\_or\_fail} function definition. Firstly, despite that the two conditions are mutually exclusive by definition (i.e., a student's grade can't simultaneously be less than 60 and greater than or equal to 60), the program formulates the conditional logic as a sequence of two independent if statements, as if to (incorrectly) imply that there's some possibility that both will execute. Instead, it would make more sense to ``connect'' the two if statements together by replacing the second \texttt{if} statement with an \texttt{else if} statement. This would more closely align the syntax of the code with the semantics that it aims to represent, improving readability:
+
+\begin{cpp}{Improving clarity with mutual exclusion}
+...
+/*
+ * Function: print_pass_or_fail
+ * Description: Prints whether the user passed or failed based on the grade percentage
+ * Parameters:
+ *      grade (int): Grade percentage
+ */
+void print_pass_or_fail(int grade) {
+    if (grade < 60) {
+        std::cout << "You failed!" << std::endl;
+    } else if (grade >= 60) {
+        std::cout << "You passed!" << std::endl;
+    }
+}
+...
+\end{cpp}
+
+The above rewrite is equivalent to the original program, but the use of an \texttt{else if} statement rather than a second independent \texttt{if} statement makes it syntactically clear that it's impossible for both conditional blocks of code to execute.
+
+Now that we've represented the mutual exclusion syntactically, it's apparent that there's a second stylistic concern: because the grade percentage must be either less than 60 or greater than or equal to 60, there's no real reason to check both conditions explicitly. If the grade is not less than 60, then it \ul{must} be greater than or equal to 60. Hence, we can further replace the \texttt{else if} statement with a generic \texttt{else} statement, like so:
+
+\begin{cpp}{Removing repeated boundary conditions}
+...
+/*
+ * Function: print_pass_or_fail
+ * Description: Prints whether the user passed or failed based on the grade percentage
+ * Parameters:
+ *      grade (int): Grade percentage
+ */
+void print_pass_or_fail(int grade) {
+    if (grade < 60) {
+        std::cout << "You failed!" << std::endl;
+    } else {
+        std::cout << "You passed!" << std::endl;
+    }
+}
+...
+\end{cpp}
+
+The above program is still equivalent to the previous two versions, but the meaning is even clearer---the syntax uses an \texttt{else} statement, which makes explicit the fact that exactly one of these two conditional blocks of code will execute.
+
+More generally, the problem with the original program was that it effectively checked against the same boundary twice. First, it checked if the grade was less than 60. Then, it checked if the grade was greater than or equal to 60. If you ever find yourself writing a sequence of \texttt{if} and / or \texttt{else if} conditions that explicitly check against the same boundary, it's often possible to can exploit mutual exclusivity to avoid such repetition in the conditional logic. This tends to result in cleaner code with syntax that more closely aligns with its semantics.
+
+% TODO in next lecture:
+% TODO More examples on logical operations. Especially tricky ones, like if (x == 2 || 0) is not the same as (x == 2 || x == 0).
+% TODO Short circuiting, including in standalone expressions as statements
+% TODO nested if statements / sequential if statements
+% TODO implied curly braces (and scope)
+% TODO common mistakes:
+%       else if / else without if
+%       assignment instead of equality
+%       take care with scope
+%       floating point equality
+
+% TODO In lecture after that: RNG
+
+\end{document}

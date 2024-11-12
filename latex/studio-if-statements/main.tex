@@ -1,0 +1,227 @@
+\documentclass{article}
+
+% Per-assignment macros
+\def\studionumber{5}
+\def\studiotitle{If Statements}
+
+% Imports
+\usepackage{graphicx} % Required for inserting images
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue, anchorcolor=blue]{hyperref}
+\usepackage{hhline}
+\usepackage{amsmath}
+
+% Titling
+\usepackage{titling}
+\preauthor{\begin{center}}
+\postauthor{\par\end{center}\vspace{-30pt}}
+\setlength{\droptitle}{-50pt}
+
+% Geometry
+
+\usepackage{geometry}
+\geometry{letterpaper, portrait, margin=1in}
+
+\usepackage[skip=5pt]{parskip}
+\newlength\tindent
+\setlength{\tindent}{\parindent}
+\setlength{\parindent}{0pt}
+\renewcommand{\indent}{\hspace*{\tindent}}
+
+% Assignment titling (number, due date, etc)
+\title{
+    Studio \studionumber: \studiotitle
+}
+\author{ENGR 103, Winter 2024}
+\date{}
+
+% Box environments
+\usepackage{tcolorbox}
+\usepackage{fancyvrb}
+\newenvironment{terminalcommand}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Command,colframe=gray!80!blue,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+\newenvironment{terminaloutput}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Output,colframe=gray!80!red,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+
+\newenvironment{hint}
+    {\begin{tcolorbox}[title=Hint,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newenvironment{tip}
+    {\begin{tcolorbox}[title=Tip,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newcounter{examplerun}
+\newenvironment{examplerun}
+    {\begin{tcolorbox}[title=Example Run \refstepcounter{examplerun}\theexamplerun,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleruninputs}{\tcbsubtitle{Inputs}}
+\newcommand{\examplerunoutputs}{\tcbsubtitle{Outputs}}
+
+\newcounter{exampleproblem}
+\newcounter{exampleproblemsolution}
+\newenvironment{exampleproblem}
+    {\setcounter{exampleproblemsolution}{0}\begin{tcolorbox}[title=Example Problem \refstepcounter{exampleproblem}\theexampleproblem,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleproblemstatement}{\tcbsubtitle{Problem statement}}
+\newcommand{\exampleproblemsolution}{\refstepcounter{exampleproblemsolution}\tcbsubtitle{Solution \theexampleproblemsolution}}
+
+\newcommand{\imagewithdefaults}[1]{\includegraphics[width=\maxwidth{0.95\columnwidth}]{#1}}
+
+\makeatletter
+\def\maxwidth#1{\ifdim\Gin@nat@width>#1 #1\else\Gin@nat@width\fi}
+\makeatother
+
+\usepackage{soul}
+
+\begin{document}
+
+\maketitle
+
+\section{Style Requirements Going Forward}
+
+\ul{Important:} From here on out, all code that you write in this course should subscribe to the course's C++ style guidelines as closely as possible. This includes, but is not limited to, modularizing your code into functions to satisfy the SRP and DRY principle and annotating these functions with function block comments.
+
+\section{If Statements}
+
+Following is an example problem related to conditional branching (if statements). Make sure you understand it, and then write programs to solve the remaining problems.
+
+\vspace{12pt}
+
+(Example problem and solution on next page)
+
+\begin{exampleproblem}
+    \exampleproblemstatement
+    Write a program that prompts the user for an integer grade. Then, it should print a string according to the following table:\\
+
+    \begin{tabular}{|l|l|}
+        \hline
+        Grade range & String output \\
+        \hline
+        $(-\infty, 0)$ & Bad input \\
+        $[0, 60)$ & You got an F \\
+        $[60, 70)$ & You got a D \\
+        $[70, 80)$ & You got a C \\
+        $[80, 90)$ & You got a B \\
+        $[90, 100]$ & You got an A \\
+        $(100, \infty)$ & You got above 100\%! \\
+        \hline
+    \end{tabular}
+
+    You may assume that the user will enter an appropriate value of an appropriate type (i.e., they will enter an integer).
+
+    \exampleproblemsolution
+    \begin{verbatim}
+// File description: Program that prints letter grade based on integer percentage
+// Author: Alexander Guyer
+
+#include <iostream>
+
+/*
+ * Function: prompt_for_grade
+ * Description: Prompts the user for an integer grade percentage
+ * Returns (int): Grade entered by user
+ */
+int prompt_for_grade() {
+    std::cout << "Enter an integer grade: ";
+    int grade;
+    std::cin >> grade;
+    return grade;
+}
+
+/*
+ * Function: print_grade_string
+ * Description: Given a grade, formats and prints the target
+ *      output according to the provided table 
+ * Parameters:
+ *      grade (int): Integer grade percentage
+ */
+void print_grade_string(int grade) {
+    if (grade < 0) {
+        std::cout << "Bad input" << std::endl;
+    } else if (grade < 60) {
+        std::cout << "You got an F" << std::endl;
+    } else if (grade < 70) {
+        std::cout << "You got a D" << std::endl;
+    } else if (grade < 80) {
+        std::cout << "You got a C" << std::endl;
+    } else if (grade < 90) {
+        std::cout << "You got a B" << std::endl;
+    } else if (grade <= 100) { // notice the <= operator instead of <
+        std::cout << "You got an A" << std::endl;
+    } else {
+        std::cout << "You got above 100%!" << std::endl;
+    }
+}
+
+int main() {
+    // Get grade from user
+    int grade = prompt_for_grade();
+
+    // Print result
+    print_grade_string(grade);
+}
+    \end{verbatim}
+\end{exampleproblem}
+
+\subsection{Problem 1}
+\label{problem:guess}
+
+Decide on an integer (whole number) that will serve as the ``magic number''. It can be any integer you want.
+
+Then, write a program that prompts the user for a guess as to what the ``magic number'' might be. If the user correctly guesses the magic number, print ``Good guess!'' Otherwise, print ``Sorry, but no :(''
+
+For this program, you may assume the user will enter an appropriate value of an appropriate type (i.e., they will enter an integer).
+
+\subsection{Problem 2}
+
+Write a program that prompts the user for a tax filing code in \{0, 1\}. In this case, 0 means ``Single filer'', and 1 means ``Married, filing jointly''. Next, it should prompt the user for an annual salary. Finally, it should print out the user's tax percentage based on their tax bracket from the following table:
+
+\begin{tabular}{|l|llll|}
+    \hline
+    & 10\% & 12\% & 22\% & 24\% \\
+    \hline
+    Single filer & [\$0, \$9875) & [\$9875, \$40{,}125) & [\$40{,}125, \$85{,}525) & [\$85{,}525, $\infty$) \\
+    Married, filing jointly & [\$0, \$19{,}750) & [\$19{,}750, \$80{,}250) & [\$80{,}250, \$171{,}050) & [\$171{,}050, $\infty$) \\
+    \hline
+\end{tabular}
+
+For this program, you may assume that the user will enter appropriate values of appropriate types.
+
+\subsection{Problem 3}
+
+Write a program that prompts the user for an integer job title code in \{0, 1, 2, 3\}. In this case, 0 means ``Mechanical engineer''; 1 means ``Software engineer''; 2 means ``Electrical engineer''; and 3 means ``Architectural engineer''. Your prompt should be understandable to someone who doesn't know which job title codes correspond to which job titles (i.e., your prompt should explain the relationships between the codes and the jobs).
+
+You may assume that the user will enter an integer for the job title code, but you may \ul{not} assume that it will necessarily be an appropriate value; if the user enters an invalid job title code value, then the program should print a clear error message and end.
+
+If the user enters a valid job title code, then the program should proceed to prompt the user for a state code in \{0, 1\}. In this case, 0 means ``Oregon'' and 1 means ``California''. Your prompt should be understandable to someone who doesn't know which state codes correspond to which states (i.e., your prompt should explain the relationships between the codes and the states).
+
+Again, you may assume that the user will enter an integer for the state code, but you may \ul{not} assume that it will necessarily be an appropriate value. If the user enters an invalid state code value, then the program should print an appropriate error message and end.
+
+If the user enters a valid state code, then the program should print out the user's expected salary based on the table below:
+
+\begin{tabular}{|l|ll|}
+        \hline
+        & Oregon & California \\
+        \hline
+        Mechanical Engineer & \$88,830 & \$104,203 \\
+        Software Engineer & \$112,197 & \$140,244 \\
+        Electrical Engineer & \$97,355 & \$110,740 \\
+        Architectural Engineer & \$102,094 & \$123,729 \\
+        \hline
+    \end{tabular}
+
+For example, if the user enters 0 for the job title (mechanical engineer) and 1 for the state (California), then your program should print out ``\$104{,}203''
+
+\clearpage
+
+\end{document}

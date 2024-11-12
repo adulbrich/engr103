@@ -1,0 +1,208 @@
+\documentclass{article}
+
+% Per-assignment macros
+\def\assignmentnumber{3}
+\def\assignmenttitle{Investment Advisor}
+
+% Imports
+\usepackage{graphicx} % Required for inserting images
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue, anchorcolor=blue]{hyperref}
+\usepackage{hhline}
+\usepackage{amsmath}
+
+% Titling
+\usepackage{titling}
+\preauthor{\begin{center}}
+\postauthor{\par\end{center}\vspace{-30pt}}
+\setlength{\droptitle}{-50pt}
+
+% Geometry
+
+\usepackage{geometry}
+\geometry{letterpaper, portrait, margin=1in}
+
+\usepackage[skip=5pt]{parskip}
+\newlength\tindent
+\setlength{\tindent}{\parindent}
+\setlength{\parindent}{0pt}
+\renewcommand{\indent}{\hspace*{\tindent}}
+
+% Assignment titling (number, due date, etc)
+\title{
+    Assignment \assignmentnumber: \assignmenttitle
+}
+\author{ENGR 103, Winter 2024}
+\date{}
+
+% Box environments
+\usepackage{tcolorbox}
+\usepackage{fancyvrb}
+\newenvironment{terminalcommand}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Command,colframe=gray!80!blue,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+\newenvironment{terminaloutput}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Output,colframe=gray!80!red,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+
+\newenvironment{hint}
+    {\begin{tcolorbox}[title=Hint,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newenvironment{tip}
+    {\begin{tcolorbox}[title=Tip,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newcounter{examplerun}
+\newenvironment{examplerun}
+    {\begin{tcolorbox}[title=Example Run \refstepcounter{examplerun}\theexamplerun,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleruninputs}{\tcbsubtitle{Inputs}}
+\newcommand{\examplerunoutputs}{\tcbsubtitle{Outputs}}
+
+\newcounter{exampleproblem}
+\newcounter{exampleproblemsolution}
+\newenvironment{exampleproblem}
+    {\setcounter{exampleproblemsolution}{0}\begin{tcolorbox}[title=Example Problem \refstepcounter{exampleproblem}\theexampleproblem,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleproblemstatement}{\tcbsubtitle{Problem statement}}
+\newcommand{\exampleproblemsolution}{\refstepcounter{exampleproblemsolution}\tcbsubtitle{Solution \theexampleproblemsolution}}
+
+\newcommand{\imagewithdefaults}[1]{\includegraphics[width=\maxwidth{0.95\columnwidth}]{#1}}
+
+\newcommand{\refeq}[1]{\hyperref[eq:#1]{(\ref{eq:#1})}}
+
+\makeatletter
+\def\maxwidth#1{\ifdim\Gin@nat@width>#1 #1\else\Gin@nat@width\fi}
+\makeatother
+
+\usepackage{soul}
+
+\begin{document}
+
+\maketitle
+
+You've just landed an engineering job, and your monthly paycheck is enough to pay the bills while leaving a bit of money leftover. To prepare for your future, you decide that it's time to figure out the best ways to invest your money.
+
+The trouble is, there are many ways to invest. The best investment strategy often depends on interest rates, your total assets, and other rules of each investment option, all of which could change frequently. To make your life easier, you're going to write a program that will help you decide on the best ways to invest your money.
+
+\section{Context}
+
+For the scope of this assignment, there are three investment options: US Treasury I bonds, high-yield savings accounts (HYSAs), and index funds.
+
+The annual percentage yield (APY) of an investment option dictates how much it will multiply your investment over the course of a year. That is, an investment option with a higher APY will generally make more money. However, some investment options have maximum balances that you're allowed to invest within a calendar year.
+
+In this assignment, you'll write a program that determines the best way to allocate the user's money into these three investment options and the total amount of profit that they will earn.
+
+\subsection{Computing profit from APY}
+
+Suppose you invest $m$ dollars into some investment option. Suppose the investment option has an APY of $\alpha\%$.
+
+To compute the total amount of profit, $p$, that you will earn after one year through this investment option, use the following equation:
+
+\begin{equation}
+\label{eq:profit}
+p = m \frac{\alpha}{100}
+\end{equation}
+
+\subsection{Maximum balances}
+
+Some investment options have maximum balances. In such cases, you're not allowed to invest more money into the investment option than the maximum balance. As such, if the maximum balance of an investment option is $b_{max}$ dollars, then your program should not advise the user to invest more than $b_{max}$ dollars into the investment option.
+
+Following are the details on maximum balances for each of the three investment options:
+
+\begin{itemize}
+    \item Although HYSAs don't tend to have true maximum balances, storing lots of money in a bank can be risky. If the bank fails, you can lose all of your money. For this reason, most HYSAs are FDIC-insured up to some maximum amount; if the bank fails, then the government will repay you your lost balance up to this amount. Your program should treat this amount as a maximum balance for the HYSA (i.e., HYSAs may have a $b_{max}$ value). The user will supply this value (see the next section).
+    \item I bonds have a fixed maximum balance of $\$10{,}000$ (i.e., $b_{max}$ is $10{,}000$).
+    \item Index funds have no maximum balance (i.e., $b_{max}$ is essentially infinity).
+\end{itemize}
+
+\section{Assignment}
+
+Write a program that does the following:
+
+\begin{enumerate}
+    \item Prompt the user for the total amount of money that they want to invest. If the user enters a negative value, print an error to the terminal and terminate the program immediately.
+    \item Prompt the user for the APY (in percent) and FDIC insurance maximum (maximum balance in dollars) of their target HYSA account. If the user enters a negative value for either of these variables, notify the user that negative values aren't allowed and override their entry with a default value as follows: for APY, the default value is $4\%$, and for the FDIC insurance maximum, the default value is $\$250{,}000$.
+    \item Prompt the user for the current APY (in percent) of US treasury I bonds. If the user enters a negative value, notify the user that negative values aren't allowed and override their entry with a default value of $6\%$.
+    \item Prompt the user for the APY of their target index fund. If the user enters a negative value, notify the user that negative values aren't allowed and override their entry with a default value of $10\%$.
+    \item Determine how much money the user should invest into each of the three options so as to maximize their profit over the next year. Print out these three amounts (in dollars) to the terminal in a clean, readable message. The order in which you print these three values does not matter. This is easiest to do in three phases; see the implementation hints and requirements below for more information.
+    \item Calculate the total amount of profit that the user will earn in the next year according to this investment strategy (in dollars) and print it to the terminal in a clean, readable message. Hint: As your program determines where the user should allocate portions of their money, it should keep track of a running sum of total profits (e.g., passed from function to function as an argument and updated along the way). At the end of the program, it can simply print the final value of that running sum.
+\end{enumerate}
+
+\subsection{Implementation Hints}
+
+In general, the program should advise the user to put as much money as possible into the investment option with the highest APY. Keep in mind that the user cannot invest more money into an option than said option's maximum balance (if it has one---index funds have no maximum), nor can they invest more money than they have. So, when computing earnings, make sure that $m$ in equation \refeq{profit} does not exceed the option's maximum balance nor the user's total remaining investment money (i.e., it should be set to the smaller of these two upper bounds).
+
+After advising the user to invest as much money as possible into the option with the highest APY, they may still have more money leftover (i.e., in the case that their total remaining investment money exceeded the maximum balance). In such a case, the program should then determine the next best option and advise the user to invest as much money into it as possible.
+
+Finally, after advising the user to invest as much money as possible into the two best options, the user may \textit{still} have more money leftover. Note that this can only happen if the index fund has the lowest APY since it has no maximum balance. In such a case, the program should advise the user to invest the remainder of their money into the last remaining investment option (the index fund).
+
+If the optimal investment strategy involves investing $\$0$ into one or more options, your program can either explicitly tell the user to invest $\$0$ into these options, or it can simply print nothing about investing money into these options. Either way is fine.
+
+\subsection{Additional Implementation Requirements}
+
+Your code should rigorously adhere to \ul{all} of the course's C++ style guidelines. That includes breaking it up into several modularized functions each with a single responsibility.
+
+The program should never advise the user to invest a negative amount of money into an option.
+
+The sum of the amounts that the program advises the user to invest into the investment options should equal the user's total investment money entered at the beginning of the program.
+
+Any APY entered by the user may be zero. Your program should not do anything special in such a case; it should treat these investment options just like it would if they had a positive APY. That is, it's sometimes permissible for your program to advise the user to invest money into an option with an APY of 0, depending on the context.
+
+Similarly, the FDIC-insured maximum of the HYSA entered by the user can be 0, as can the total investment money entered by the user at the beginning of the program. Again, your program does not need to handle these cases in any special way.
+
+A detailed rubric will be published to Canvas at least one week before the programming assignment due date.
+
+\section{Example runs}
+
+\begin{examplerun}
+\begin{terminaloutput}
+Enter the total amount of money that you have to invest (in dollars, as a whole
+number):
+300000
+
+Enter the APY of your target HYSA (as a percent):
+4.5
+
+Enter the FDIC insurance maximum of your target HYSA (in dollars, as a whole
+number):
+-100000
+
+Error: The insurance maximum cannot be negative. Falling back to the default
+value of $250,000.
+
+Enter the current APY of US Treasury I bonds (as a percent):
+5.5
+
+Enter the APY of your target index fund (as a percent):
+4.4
+
+You should invest $10000 into I bonds.
+You should invest $250000 into your target HYSA.
+You should invest $40000 into your target index fund.
+
+In total, these investments will earn you $13560 over the next year.
+\end{terminaloutput}
+\end{examplerun}
+
+Explanation:
+
+I bonds have the highest APY in the above example run, so the user should invest as much money into them as possible. However, I bonds have a fixed maximum investment balance of $\$10,000$, so that's the most that they can invest. The user has a total of $\$300{,}000$ to invest, so after investing $\$10{,}000$ in I bonds, they will have $\$290{,}000$ left to invest.
+
+Of the remaining two options (the HYSA and index fund), the HYSA has the highest APY, so the user should invest as much money into it as possible. However, the FDIC insurance maximum is $\$250{,}000$, so that's the most that they can invest. The user has $\$290{,}000$ remaining to invest at this point, so after investing $\$250{,}000$ in the HYSA, they will have $\$40{,}000$ left to invest.
+
+At this point, the user has $\$40{,}000$ remaining, and index funds (the last remaining option) have no maximum balance. So the user should invest all of their remaining $\$40{,}000$ into the index fund.
+
+The total profit earned throughout the year from this investment portfolio is $5.5\% * \$10{,}000$ from the I bonds, $4.5\% * \$250{,}000$ from the HYSA, and $4.4\% * \$40{,}000$ from the index fund, for a total of $\$13{,}560$.
+
+Of course, you can imagine other scenarios in which the program advises the user to invest $\$0$ into one or more investment options, such as if the best one or two investment options have sufficiently large maximum balances for the user to invest all of their money in them, or if the user has no money to invest at all.
+
+\end{document}

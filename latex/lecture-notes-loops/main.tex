@@ -1,0 +1,412 @@
+\documentclass{article}
+
+% Per-assignment macros
+\def\lecturetitle{Loops}
+
+% Imports
+\usepackage{graphicx} % Required for inserting images
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue, anchorcolor=blue]{hyperref}
+\usepackage{hhline}
+
+% Titling
+\usepackage{titling}
+\preauthor{\begin{center}}
+\postauthor{\par\end{center}\vspace{-30pt}}
+\setlength{\droptitle}{-50pt}
+\usepackage{scrextend}
+
+% Geometry
+
+\usepackage{geometry}
+\geometry{letterpaper, portrait, margin=1in}
+
+\usepackage[skip=5pt]{parskip}
+\newlength\tindent
+\setlength{\tindent}{\parindent}
+\setlength{\parindent}{0pt}
+\renewcommand{\indent}{\hspace*{\tindent}}
+
+% Assignment titling (number, due date, etc)
+\title{
+    Lecture Notes: \lecturetitle
+}
+\author{ENGR 103, Winter 2024}
+\date{}
+
+% Box environments
+\usepackage{tcolorbox}
+\usepackage{fancyvrb}
+\newenvironment{terminalcommand}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Command,colframe=gray!80!blue,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+\newenvironment{terminaloutput}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Output,colframe=gray!80!red,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+
+\usepackage{minted}
+\newenvironment{cpp}[1]
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=\texttt{#1},colframe=gray!50!blue,colback=white!97!black]
+    \begin{minted}{c++}}
+    {\end{minted}
+    \end{tcolorbox}}
+
+\newenvironment{tip}
+    {\begin{tcolorbox}[title=Tip,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newenvironment{note}
+    {\begin{tcolorbox}[title=Note,colframe=white!70!red,colback=white]}
+    {\end{tcolorbox}}
+
+\newcounter{examplerun}
+\newenvironment{examplerun}
+    {\begin{tcolorbox}[title=Example Run \refstepcounter{examplerun}\theexamplerun,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleruninputs}{\tcbsubtitle{Inputs}}
+\newcommand{\examplerunoutputs}{\tcbsubtitle{Outputs}}
+
+\newcommand{\imagewithdefaults}[1]{\includegraphics[width=\maxwidth{0.95\columnwidth}]{#1}}
+
+\makeatletter
+\def\maxwidth#1{\ifdim\Gin@nat@width>#1 #1\else\Gin@nat@width\fi}
+\makeatother
+
+\usepackage{soul}
+
+\begin{document}
+
+\maketitle
+
+\section{Repetition Logic}
+
+You've learned how to express sequential logic in C++ (i.e., a sequence of operations, written as a series of lines of code, which execute top-down). You've also learned how to express conditional logic in C++ (i.e., \texttt{if} / \texttt{else if} / \texttt{else} statements). There's one more important kind of logic to talk about in this course: repetition logic.
+
+\textbf{Repetition logic} expresses that an operation or set of operations should be performed repeatedly so long as some condition is satisfied. For example, suppose you want to write a program that prints ``Hello'' ten times, or a program that asks the user for 100 numbers and prints the sum of all of them, or a terminal-based chess game that continues running until there is a win or a draw. All of these things require executing a set of operations over and over again until some criterion is met or violated.
+
+In C++, we can accomplish repetition logic via a \textbf{loop}, which is simply a block of code that executes over and over again so long as a specified boolean expression evaluates to \texttt{true}. There are three kinds of loops in C++: while loops, do-while loops, and for loops. Any one of these kinds of loops can theoretically be used to solve any repetition logic problem, but different kinds of loops are often better suited for different kinds of problems.
+
+\section{While loops}
+
+The simplest kind of loop is a \textbf{while loop}. A while loop is exactly like an if statement, but with one key difference: after the body of a while loop finishes executing, the control flow jumps back to the while loop's condition. If the condition is still \texttt{true}, then the body will execute again, and so on. Whenever checking the while loop's condition, if the condition evaluates to \texttt{false}, the body of the while loop will be skipped, and the control flow will continue beyond the while loop's body.
+
+Moreover, the syntax for a while loop is exactly like the syntax for an \texttt{if} statement, but instead of writing \texttt{if}, you write \texttt{while}. However, you cannot attach \texttt{else if} or \texttt{else} statements to a while loop.
+
+That is, the syntax for a while loop looks like this:
+
+\begin{verbatim}
+while (<condition>) {
+    <loop body>
+}
+\end{verbatim}
+
+Replace \texttt{<condition>} with an appropriate boolean expression that decides whether the loop should continue executing, and replace \texttt{<loop body>} with one or more statements to be executed repeatedly.
+
+When your program's control flow encounters a while loop, it will evaluate the while loop's condition. If the condition evaluates to \texttt{false}, it will skip the while loop's body and move on, just like with an \texttt{if} statement. If the condition evaluates to \texttt{true}, it will execute the while loop's body. After executing the body \ul{in entirety}, it will proceed to check the while loop's condition again. If it's still \texttt{true}, it will run the body again, and so on.
+
+This means that the condition of a while loop should usually contain variables whose values might change throughout the body of the loop. Otherwise, if the condition evaluates to \texttt{true} once, it will evaluate to \texttt{true} over and over again since the condition's truthness value has no opportunity to change. If a loop's condition has no opportunity to ever become \texttt{false} once evaluated to \texttt{true} at least once, it is said to be an \textbf{infinite loop}---it will run over and over again forever. Infinite loops are almost always a bug since basically every program should end \textit{eventually}.
+
+\begin{tip}
+    If your program is ``stuck'' in an infinite loop, you can usually terminate the program from the terminal by holding \texttt{Ctrl} and pressing \texttt{C}.
+\end{tip}
+
+Suppose you want to write a program that keeps asking the user for numbers until they say to stop. As a simple interface, suppose that after each entry, the program asks the user, \texttt{Would you like to enter another number? Type 'y' for yes or 'n' for no}. As the user enters numbers, the program keeps track of a running sum and prints it to the terminal at the very end.
+
+We could write this program using a while loop, perhaps like this:
+
+\begin{cpp}{Running sum example}
+#include <iostream>
+
+/*
+ * Function: prompt_for_number
+ * Description: Prompts user for another number
+ * Returns (int): Number provided by user
+ */
+double prompt_for_number() {
+    std::cout << "Enter a number: ";
+    double user_number;
+    std::cin >> user_number;
+    return user_number;
+}
+
+/*
+ * Function: prompt_for_go_again
+ * Description: Prompts user for whether they want to
+        enter another number
+ * Returns (bool): true if the user wants to enter another
+        number, and false otherwise
+ */
+char prompt_for_go_again() {
+    std::cout << "Would you like to enter another"
+            " number? Type 'y' for yes or 'n' for no: ";
+    char go_again_response;
+    std::cin >> go_again_response;
+    return go_again_response;
+}
+
+int main() {
+    char go_again_response = 'y';
+    double running_sum = 0.0;
+    while(go_again_response == 'y') {
+        double number = prompt_for_number();
+        running_sum += number;
+        
+        go_again_response = prompt_for_go_again(); // Line A
+    }
+
+    std::cout << "The sum of the numbers you entered is: " <<
+        running_sum << std::endl;
+}
+\end{cpp}
+
+Our loop's condition is \texttt{go\_again\_response == 'y'}, which means that the loop will keep running so long as the user keeps supplying \texttt{'y'}, indicating that they want to enter another number. A while loop's condition can be any boolean expression, just like that of an \texttt{if} statement.
+
+Also notice that the character variable, \texttt{go\_again\_response}, is updated within the loop body at ``Line A'' to match the user's next response. This is critical. If this line of code were to be left out, there would never be an opportunity for the loop condition to become \texttt{false}, which would make the loop an infinite loop. In such a case, everything after the loop would be dead code. Indeed, our program would never have an opportunity to print the running sum if the loop body never stops executing.
+
+Lastly, notice that \texttt{go\_again\_response} is initialized to \texttt{'y'}. This is because we want to guarantee that the loop executes at least once, which means we need to guarantee that the loop condition is true the first time it's evaluated. Given that that happens \ul{before} the user has supplied any values whatsoever, we ``trick'' the loop into running at least once by initializing the condition variable appropriately. In the next section, you'll learn about another kind of loop that avoids this sort of artificial initialization.
+
+\section{Do-while loops}
+
+You'll often find yourself needing a while loop that always runs at least once. This was the case in the previous example---the user must always enter at least one number, so it's imperative that the loop executes at least once. There are two main strategies to accomplish this effect:
+
+\begin{enumerate}
+    \item Setup the condition in some way that guarantees that its first evaluation is \texttt{true}. This was the chosen solution in the previous example---\texttt{go\_again\_response} was initialized to \texttt{'y'} just prior to the loop.
+    \item Replicate the entire body of the loop just prior to the loop itself, which effectively runs the loop body before checking the loop condition for the first time.
+\end{enumerate}
+
+Neither of these options are ideal. The first option often requires extra variables or some artificial initializations to ``trick'' the loop into running at least once when it otherwise might not, as we've already seen. The second option clearly violates the DRY principle of programming; extracting the loop body to its own function might alleviate this concern, but it would still result in an unnecessary replicated function call.
+
+Luckily, C++ offers us another kind of loop called a \textbf{do-while loop}. A do-while loop is identical to a while loop, but its body will always execute at least once. More rigorously, the difference between a while loop and a do-while loop can be described as follows:
+
+\begin{enumerate}
+    \item When a while loop is encountered, its condition is evaluated. If its condition evaluates to \texttt{true}, its body is executed. When its body finishes executing, its condition is evaluated again, and so on until its condition evaluates to \texttt{false}.
+    \item When a do-while loop is encountered, its body is executed. After its body is executed, its condition is evaluated. If its condition evaluates to \texttt{true}, its body is executed again, and so on until its condition evaluates to \texttt{false}.
+\end{enumerate}
+
+That is, a while loop starts with a condition evaluation whereas a do-while loop starts with a body execution.
+
+This difference is also suggested by the syntax of the two kinds of loops. In a while loop's syntax, the condition appears before the loop body. In a do-while loop's syntax, the body appears before the condition. Indeed, a do-while loop's syntax looks like this:
+
+\begin{verbatim}
+do {
+    <loop body>
+} while (<condition>);
+\end{verbatim}
+
+Notice that there's a semicolon after the closing parenthesis of the do-while loop's condition. This semicolon is required.
+
+Since the previous example problem involved a loop that needed to execute at least once, it's a perfect example of a problem that could be solved cleanly with a do-while loop. After refactoring our while loop into a do-while loop, our solution might look like this:
+
+\begin{cpp}{Running sum example (do-while)}
+#include <iostream>
+
+/*
+ * Function: prompt_for_number
+ * Description: Prompts user for another number
+ * Returns (int): Number provided by user
+ */
+double prompt_for_number() {
+    std::cout << "Enter a number: ";
+    double user_number;
+    std::cin >> user_number;
+    return user_number;
+}
+
+/*
+ * Function: prompt_for_go_again
+ * Description: Prompts user for whether they want to
+        enter another number
+ * Returns (bool): true if the user wants to enter another
+        number, and false otherwise
+ */
+char prompt_for_go_again() {
+    std::cout << "Would you like to enter another"
+            " number? Type 'y' for yes or 'n' for no: ";
+    char go_again_response;
+    std::cin >> go_again_response;
+    return go_again_response;
+}
+
+int main() {
+    char go_again_response;
+    double running_sum = 0.0;
+    do {
+        double number = prompt_for_number();
+        running_sum += number;
+        
+        go_again_response = prompt_for_go_again();
+    } while(go_again_response == 'y');
+
+    std::cout << "The sum of the numbers you entered is: " <<
+        running_sum << std::endl;
+}
+\end{cpp}
+
+Notice that we were able to omit the artificial initialization of \texttt{go\_again\_response = 'y'} prior to the loop since its assignment in the loop body will necessarily happen prior to the first evaluation of the loop condition. Also, notice that \texttt{go\_again\_response} is declared outside the loop. This is still necessary because a do-while loop's condition is considered to be outside of the scope of the loop body---if we had declared \texttt{go\_again\_response} inside the loop body, then it wouldn't be accessible from the condition.
+
+This code is a bit cleaner than before, but if we want, we can shorten it even more by exploiting the fact that assignment operations are expressions, moving the \texttt{go\_again\_response = prompt\_for\_go\_again()} assignment operation into the loop condition itself:
+
+\begin{cpp}{Assignment in do-while condition}
+...
+char go_again_response;
+double running_sum = 0.0;
+do {
+    double number = prompt_for_number();
+    running_sum += number;
+} while((go_again_response = prompt_for_go_again()) == 'y');
+
+std::cout << "The sum of the numbers you entered is: " <<
+    running_sum << std::endl;
+\end{cpp}
+
+This is a common trick with do-while loops that wouldn't have been possible with a while loop (a while loop's condition is evaluated before the loop body is executed, so if we had tried this trick with our while loop solution, it would have messed up the prompt order).
+
+As you may have already figured out by this point, we can actually take our refactoring one step further. In this particular case, we don't actually need the \texttt{go\_again\_response} variable for any purposes other than the loop condition. Unsurprisingly, we can remove it entirely, replacing the assignment operation in the loop condition with just its right side---the function call:
+
+\begin{cpp}{Eliminating condition variables in do-while loop}
+...
+double running_sum = 0.0;
+do {
+    double number = prompt_for_number();
+    running_sum += number;
+} while(prompt_for_go_again() == 'y');
+
+std::cout << "The sum of the numbers you entered is: " <<
+    running_sum << std::endl;
+\end{cpp}
+
+Of course, this wouldn't work if the \texttt{go\_again\_response} variable needed to be used for other purposes either during or after the loop.
+
+Clearly, do-while loops can lend themselves to cleaner code in cases where you want a loop that's guaranteed to run at least once. However, if you want a loop that might not run at all depending on the initial value of the loop condition, that would be cumbersome to accomplish with a do-while loop, so a while loop would make more sense in such a case.
+
+\section{For loops}
+
+While loops and do-while loops are great for repetition logic of the form, ``while this condition is satisfied, continually repeat these operations''. However, there's another very simple case of repetition logic for which while loops and do-while loops aren't particularly well suited: \textbf{count-based repetition}. Count-based repetition is repetition logic of the form, ``repeat these operations $N$ times'', where $N$ is some value that is trivially known or can be computed prior to the start of the loop.
+
+A very common solution pattern to repetition logic problems is to create a \textbf{counter variable}, which is a variable, usually of type \texttt{int}, that increments once within each loop body iteration. The loop condition is then built around this counter variable so that, once it has been incremented a certain number of times, the loop will terminate.
+
+For example, suppose you want to write a program that prints ``Hello, World!'' to the terminal exactly 100 times. This is a count-based repetition problem. Using a while loop, the solution might look something like this:
+
+\begin{cpp}{Count-based while loop example}
+#include <iostream>
+
+int main() {
+    int counter = 0;
+    while (counter < 100) {
+        std::cout << "Hello, World!" << std::endl;
+        counter++;
+    }
+}
+\end{cpp}
+
+Since \texttt{counter} is initialized to \texttt{0}, and \texttt{0 < 100} evaluates to \texttt{true}, the loop body will execute, printing ``Hello, World!'' once and incrementing \texttt{counter} to \texttt{1}. The loop condition is then evaluated again; \texttt{1 < 100} evaluates to \texttt{true}, so the loop body will execute again, printing ``Hello, World!'' for the second time and incrementing \texttt{counter} to \texttt{2}.
+
+When you see count-based loops, it's important to pay close attention to 1) the initial value of the counter variable, 2) the amount by which the counter variable is incremented during each loop iteration (which is usually 1), and 3) the exact relational expression used in the loop condition. All three of these things combined dictate the number of times the loop body will execute. In the above example, the loop body will execute when \texttt{counter} has values \texttt{0, 1, 2, ...,} and \texttt{99}. When \texttt{counter} is incremented to \texttt{100}, the loop condition becomes \texttt{false}, and the loop terminates. Indeed, the total number of values within \texttt{0, 1, 2, ..., 99} is 100, so our loop body will execute 100 times, as intended.
+
+The count-based loop logic constructed above is the most common pattern---the counter variable is initialized to \texttt{0}; the loop condition is of the form \texttt{counter < $N$}, \texttt{counter} is the counter variable and $N$ is the number of times the loop body should execute; and the counter variable is incremented by 1 somewhere within the loop body. We'll talk about other count-based loop patterns shortly.
+
+The while loop shown above works just fine. However, there are two subtle issues with using while loops for count-based repetition logic. Both have to do with the fact that the counter variable's increment operation can occur anywhere within the loop body:
+
+\begin{enumerate}
+    \item In a large loop body, a developer can easily lose track of the counter variable's increment operation and end up writing a duplicate increment operation or none at all. The result is a loop that doesn't execute enough times or an infinite loop, respectively.
+    \item If the counter variable's increment operation is buried within the loop body, it can be non-trivial to determine the number of times the count-based loop will execute.
+\end{enumerate}
+
+Count-based loops are incredibly common, so these problems have influenced the design of virtually all high-level imperative programming languages. A simple solution, from a language design perspective, would be to provide a special kind of loop that's specifically made for count-based repetition problems. This kind of loop could require a special syntax that forces all of the counter variable's logic to be put up front, at the beginning of the loop, where it's unlikely to be accidentally lost, forgotten, or duplicated, regardless of the complexity of the loop body. Indeed, such a loop exists, and it's called a \textbf{for loop}. This is the third and final kind of loop in C++ that we'll be learning about.
+
+A for loop works almost exactly like a while loop, but it has special syntax designed for count-based repetition problems. The syntax looks like this:
+
+\begin{verbatim}
+for (<initialization statement>; <condition>; <post-operation>) {
+    <loop body>
+}
+\end{verbatim}
+
+This syntax can be a bit confusing at first, so study it carefully. Here's a breakdown:
+
+\begin{enumerate}
+    \item The \texttt{<initialization statement>} can be replaced with any legal C++ statement, but its purpose is usually to initialize the counter variable. In fact, this statement can even be used to \ul{declare} the counter variable. The initialization statement of a for loop will execute \ul{exactly once}, and it's the very first thing that happens when the program's control flow encounters the for loop.
+    
+    If we were to rewrite our previous count-based while loop as a for loop, the initialization statement would be \texttt{int counter = 0}.
+    
+    \item The \texttt{<condition>} is simply the loop condition, just like that of a while loop. It can be any expression whose value can be coerced to a boolean. If the condition evaluates to \texttt{true}, then the loop body will execute. Otherwise, the loop will terminate. A for loop is more like a while loop than a do-while loop in that the condition is evaluated prior to executing the loop body for the first time. That is, if the combination of the initialization statement and condition of a for loop sets up a scenario wherein the condition immediately evaluates to \texttt{false}, the for loop will not execute at all.
+
+    If we were to rewrite our previous count-based while loop as a for loop, the condition would be \texttt{counter < 0}.
+
+    \item The \texttt{<post-operation>} can be any legal C++ statement, and it will execute immediately after each execution of the loop body and before the subsequent re-evaluation of the loop condition. The most common post-operation statement is the increment operation of the counter variable. Importantly, if you use a for loop with the counter variable's increment operation as the post-operation, make sure not to additionally increment the counter variable within the loop body.
+
+    If we were to rewrite our previous count-based while loop as a for loop, the post-operation would be \texttt{counter++}.
+\end{enumerate}
+
+Putting this all together, we could rewrite our count-based while loop as a for loop like so:
+
+\begin{cpp}{For loop example}
+#include <iostream>
+
+int main() {
+    for (int counter = 0; counter < 100; counter++) {
+        std::cout << "Hello, World!" << std::endl;
+    }
+}
+\end{cpp}
+
+As it stands, this rewrite is \textit{almost} identical to our while loop solution, but there's one subtle difference: any variables declared within the initialization statement of a for loop are considered to be scoped to the loop itself. That's to say, in the case of our for loop, \texttt{counter} will fall out of scope immediately after the loop executes for the last time (i.e., it will fall out of scope the moment that \texttt{counter < 100} evaluates to \texttt{false}). In contrast, in our while loop solution, the counter variable is scoped to the main function, so it would remain accessible after the loop has terminated. Of course, you can simulate that behavior with a for loop by simply declaring the counter variable just prior to the for loop and using \texttt{counter = 0} as the for loop's initialization statement instead of \texttt{int counter = 0}. For example, the following will fail to compile due to the fact that \texttt{counter} has fallen out of scope by the print statement at the end of the program:
+
+\begin{cpp}{For loop counter variable scope issue}
+#include <iostream>
+
+int main() {
+    for (int counter = 0; counter < 100; counter++) {
+        std::cout << "Hello, World!" << std::endl;
+    }
+    std::cout << "The loop terminated when the counter reached: "
+        << counter << std::endl;
+}
+\end{cpp}
+
+However, the following will compile just fine:
+
+\begin{cpp}{For loop counter variable scope resolution}
+#include <iostream>
+
+int main() {
+    int counter;
+    for (counter = 0; counter < 100; counter++) {
+        std::cout << "Hello, World!" << std::endl;
+    }
+    std::cout << "The loop terminated when the counter reached: "
+        << counter << std::endl;
+}
+\end{cpp}
+
+When executed, the above program will print ``Hello, World!'' 100 times, followed by the sentence, ``The loop terminated when the counter reached: 100''.
+
+Of course, if you have no reason to access the counter variable after the loop has finished executing for the last time, it makes perfect sense to declare the counter variable within the for loop's initialization statement.
+
+It's very common to use the counter variable within the loop body to somehow affect the behavior of its operations (i.e., to allow the loop body to do something slightly different for each iteration). For example, suppose you want to write a program that prints all of the integers from \texttt{0} to \texttt{99}, inclusive. This requires executing 100 very similar, but slightly different, operations: the first iteration should print 0, the second iteration should print 1, and so on. A simple way of accomplishing this would be to modify our previous for loop's body to simply print the value of the counter variable rather than ``Hello, World!'':
+
+\begin{cpp}{For loop example}
+#include <iostream>
+
+int main() {
+    for (int counter = 0; counter < 100; counter++) {
+        if (counter > 0) {
+            std::cout << ", ";
+        }
+        std::cout << counter;
+    }
+}
+\end{cpp}
+
+The above program prints the numbers \texttt{0} to \texttt{99}, but moreover, it prints them all in one line separated by commas. The \texttt{if} statement within the for loop body ensures that commas are only printed before the second integer and on (i.e., no comma precedes the \texttt{1}). That is, the above loop uses the counter variable to modify the exact operations of the loop body in two ways: 1) as a condition in the \texttt{if} statement to correctly place the commas, and 2) in the print statement at the end of the loop body to print the value of the counter itself.
+
+Keep in mind that the initialization statement and post-operation can each be any legal C++ statement. The above examples merely demonstrate the most common pattern for simple count-based problems---initializing the counter variable to zero, comparing it against the target number of iterations with a less-than operator, and incrementing it by 1 in the post-operation. In some cases, this common pattern might be a bit unintuitive; we'll discuss some examples in the next lecture.
+
+\end{document}

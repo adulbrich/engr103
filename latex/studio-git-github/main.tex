@@ -1,0 +1,141 @@
+\documentclass{article}
+
+% Per-assignment macros
+\def\studionumber{2}
+\def\studiotitle{Git and GitHub}
+
+% Imports
+\usepackage{graphicx} % Required for inserting images
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue, anchorcolor=blue]{hyperref}
+\usepackage{hhline}
+
+% Titling
+\usepackage{titling}
+\preauthor{\begin{center}}
+\postauthor{\par\end{center}\vspace{-30pt}}
+\setlength{\droptitle}{-50pt}
+
+% Geometry
+
+\usepackage{geometry}
+\geometry{letterpaper, portrait, margin=1in}
+
+\usepackage[skip=5pt]{parskip}
+\newlength\tindent
+\setlength{\tindent}{\parindent}
+\setlength{\parindent}{0pt}
+\renewcommand{\indent}{\hspace*{\tindent}}
+
+% Assignment titling (number, due date, etc)
+\title{
+    Studio \studionumber: \studiotitle
+}
+\author{ENGR 103}
+\date{}
+
+% Box environments
+\usepackage{tcolorbox}
+\usepackage{fancyvrb}
+\newenvironment{terminalcommand}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Command,colframe=gray!80!blue,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+\newenvironment{terminaloutput}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Output,colframe=gray!80!red,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+
+\newenvironment{tip}
+    {\begin{tcolorbox}[title=Tip,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newcounter{examplerun}
+\newenvironment{examplerun}
+    {\begin{tcolorbox}[title=Example Run \refstepcounter{examplerun}\theexamplerun,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleruninputs}{\tcbsubtitle{Inputs}}
+\newcommand{\examplerunoutputs}{\tcbsubtitle{Outputs}}
+
+\newcommand{\imagewithdefaults}[1]{\includegraphics[width=\maxwidth{0.95\columnwidth}]{#1}}
+
+\makeatletter
+\def\maxwidth#1{\ifdim\Gin@nat@width>#1 #1\else\Gin@nat@width\fi}
+\makeatother
+
+\usepackage{soul}
+
+\begin{document}
+
+\maketitle
+
+All assignment work in this class will be submitted to GitHub Classroom using Git. In this studio, you will practice using Git and GitHub and familiarize yourself with the assignment work and submission process.
+
+\section{Create a GitHub account and login}
+
+GitHub is an online Git repository hosting platform. That is, you can use GitHub to store your Git repositories, share them with other people, and more. In fact, GitHub is such a large and common repository hosting platform that some people confuse Git and GitHub as if they're the same thing (they aren't).
+
+Navigate to \href{https://github.com/}{github.com}. If you already have a GitHub account, login. If you don't already have a GitHub account, or if you'd like to use a new GitHub account with your OSU email address for your school-related work, create one now and login.
+
+\section{Accept the ``Studio 2'' assignment on GitHub Classroom}
+
+GitHub Classroom is a GitHub-based tool that lets educational institutions create virtual GitHub Classrooms with assignments linked to template repositories containing starter code. A student can then accept one of these assignments, which will copy the starter code into their own, personal GitHub-hosted repository.
+
+Navigate to Canvas $\rightarrow$ modules $\rightarrow$ week 2 $\rightarrow$ studio 2. On the studio 2 Canvas assignment page, there's a link to a studio 2 GitHub Classroom assignment. Accept the assignment. This will generate your own personal GitHub repository called ``\texttt{studio-2-XXX}'', where \texttt{XXX} is your GitHub username. You'll see that the repository is mostly empty, containing only a \texttt{README.md} file (a special file that provides the text to be displayed on the repository's main page).
+
+\section{Generate and configure SSH keys}
+
+The next goal is to clone (copy) your newly generated studio 2 GitHub repository to a local mirror on the ENGR filespace so that you can edit its contents. However, in order to do this, you must first configure your ENGR user account to be able to authenticate itself with your GitHub account. You can do this either with personal access tokens (PATs) or SSH keys. SSH keys are more universally useful than PATs, so we'll use SSH keys.
+
+Recall that in the end of the previous studio, you generated a pair of SSH keys and configured them to authenticate your laptop with your ENGR user account to bypass password and Duo authentication. Now, in this studio, you will generate a second, \ul{separate} pair of SSH keys to authenticate your ENGR user account with your GitHub account. Follow the steps below.
+
+\begin{enumerate}
+    \item Open a terminal and connect to the ENGR servers over SSH.
+    \item If you've generated SSH keys \ul{on the ENGR servers} in the past, skip to step \ref{ssh-key-transfer}. Otherwise, type the following command into your terminal and press enter:
+
+\begin{terminalcommand}
+ssh-keygen -t rsa -b 4096
+\end{terminalcommand}
+
+    Follow the on-screen instructions. It should ask you where want to store your SSH keys. Pay close attention to where they're stored---you'll need them for the next step. Simply press enter to save them to the default locations (recommended). It should also ask you for an SSH key password. Using a password is recommended but not required. However, if you do use an SSH key password, you will either a) need to type it in every time you want to use your SSH keys, or b) add your SSH keys to your SSH agent (you can Google how to do this or stop by office hours). If you wish to protect your keys with a password, then type your desired password and press enter. Otherwise, simply press enter without typing anything. \ul{Your password may be invisible as you type it. This is an intended security feature.}
+    \item \label{ssh-key-transfer} Navigate to the directory containing your SSH keys. Unless you changed it, the location should be \texttt{$\sim$/.ssh/}. By default, the two generated SSH keys should be named \texttt{id\_rsa} and \texttt{id\_rsa.pub}. Print the contents of the one ending in \texttt{.pub} using the \texttt{cat} command (e.g., \texttt{cat id\_rsa.pub}). The printed contents of the file should begin with ``ssh-rsa''. Highlight the contents of the file and copy it to your clipboard. Note that most Windows and Linux terminals will let you copy via Ctrl+Shift+C and paste via Ctrl+Shift+V. However, you may have to configure your terminal to let you do this first (on Powershell, right click on the menu bar $\rightarrow$ properties $\rightarrow$ check ``enable Ctrl key shortcuts'' and ``Use Ctrl+Shift+C/V as Copy/Paste''). In a Mac terminal, you can usually copy via Command+C and paste via Command+V.
+    \item Open your browser where you're logged into GitHub. Click on your profile icon at the topright $\rightarrow$ settings $\rightarrow$ SSH and GPG keys $\rightarrow$ New SSH key $\rightarrow$ give it a title $\rightarrow$ key type should be ``Authentication Key'' $\rightarrow$ paste your previously copied public SSH key into the ``key'' box $\rightarrow$ Add SSH key.
+\end{enumerate}
+
+\section{Clone your GitHub repository to a local mirror on the ENGR servers}
+
+Review the ``Git'' section of the ``Development Environment'' lecture notes, and then complete the following steps:
+
+\begin{enumerate}
+    \item In your browser, navigate back to your studio 2 GitHub repository (the one that you generated by accepting the studio 2 assignment earlier). You can find this repository on GitHub at any time by clicking on your profile icon $\rightarrow$ your organizations $\rightarrow$ click on the organization associated with this course $\rightarrow$ click on the ``repositories'' tab.
+    \item On the main page of your GitHub repository, find and click on the green ``\texttt{<> Code}'' button. Click on the ``SSH'' tab, and copy the repo's SSH URL by clicking on the clipboard icon.
+    \item In your terminal, navigate to the directory containing your studio work that you created last week (not the directory containing your studio 1 work, but rather its parent directory).
+    \item Execute the following command:
+
+    \begin{verbatim}
+git clone <PASTE YOUR REPO'S SSH URL HERE>
+    \end{verbatim}
+    \item Execute \texttt{ls}. You should now see a new directory called ``\texttt{studio-2-XXX}'', where \texttt{XXX} is your GitHub username. Enter that directory via \texttt{cd}.
+    \item Execute \texttt{ls}. You should now see the contents of your essentially empty repo, which should just contain \texttt{README.md} (a special file that provides the text that's displayed on your repo's main page on GitHub).
+\end{enumerate}
+
+\section{Copy your studio 1 work into your repository}
+
+At this point, you have a repository on GitHub Classroom and a local mirror of it on the ENGR servers. If this were a programming assignment, the next step would be to complete the assignment by editing the provided starter code with \texttt{vim}, and then stage, commit, and push your work back to your GitHub repository. To simulate this process, let's copy your work from studio 1 into your local studio 2 repo mirror, and then stage, commit, and push it to GitHub:
+
+\begin{enumerate}
+    \item Using either the \texttt{cp} command or \href{https://linuxize.com/post/how-to-copy-cut-paste-in-vim/}{vim's copy/paste functionality}, copy the \texttt{main.cpp} file that you created in last week's studio (the one containing a ``Hello, World!'' application) into the new directory containing your local mirror of your studio 2 repository (refer to the lecture notes for an explanation of how to use the \texttt{cp} command).
+    \item Stage \texttt{main.cpp} (refer to the lecture notes on \texttt{git add})
+    \item Create a commit (refer to the lecture notes on \texttt{git commit})
+    \item Push your new commit from your local repo mirror back to your GitHub repo mirror (refer to the lecture notes on \texttt{git push})
+\end{enumerate}
+
+If all goes well, you should see a message saying that your changes were pushed successfully. Open your GitHub repository page in your browser and refresh the page. You should now be able to see \texttt{main.cpp} there. Click on it and verify that it contains the ``Hello, World!'' application that you created in studio 1. If so, show your repository to one of your studio TAs, and you're done with the studio.
+
+This is all the same process that you'll use to complete your programming assignments: accept the assignment on GitHub Classroom, generating your own personal GitHub repository containing the starter code; clone the repository into your ENGR file space; complete the assignment by modifying the starter code (e.g., with \texttt{vim}); and stage, commit, and push your work back to GitHub. Tip: It's strongly recommended that you frequently create new commits of your work and push them to GitHub as you go. This will make it easy for you to ``rewind'' your work (recover an old version of it) in case you accidentally make a breaking change. The general rule of thumb is that each commit should be dedicated to a single small change to your code so that its entire commit message doesn't need to be longer than a single sentence.
+
+\end{document}

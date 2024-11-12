@@ -1,0 +1,353 @@
+\documentclass{article}
+
+% Per-assignment macros
+\def\lecturetitle{Characters and Strings}
+
+% Imports
+\usepackage{graphicx} % Required for inserting images
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue, anchorcolor=blue]{hyperref}
+\usepackage{hhline}
+
+% Titling
+\usepackage{titling}
+\preauthor{\begin{center}}
+\postauthor{\par\end{center}\vspace{-30pt}}
+\setlength{\droptitle}{-50pt}
+\usepackage{scrextend}
+
+% Geometry
+
+\usepackage{geometry}
+\geometry{letterpaper, portrait, margin=1in}
+
+\usepackage[skip=5pt]{parskip}
+\newlength\tindent
+\setlength{\tindent}{\parindent}
+\setlength{\parindent}{0pt}
+\renewcommand{\indent}{\hspace*{\tindent}}
+
+% Assignment titling (number, due date, etc)
+\title{
+    Lecture Notes: \lecturetitle
+}
+\author{ENGR 103, Winter 2024}
+\date{}
+
+% Box environments
+\usepackage{tcolorbox}
+\usepackage{fancyvrb}
+\newenvironment{terminalcommand}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Command,colframe=gray!80!blue,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+\newenvironment{terminaloutput}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Output,colframe=gray!80!red,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+
+\usepackage{minted}
+\newenvironment{cpp}[1]
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=\texttt{#1},colframe=gray!50!blue,colback=white!97!black]
+    \begin{minted}{c++}}
+    {\end{minted}
+    \end{tcolorbox}}
+
+\newenvironment{tip}
+    {\begin{tcolorbox}[title=Tip,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newenvironment{note}
+    {\begin{tcolorbox}[title=Note,colframe=white!70!red,colback=white]}
+    {\end{tcolorbox}}
+
+\newcounter{examplerun}
+\newenvironment{examplerun}
+    {\begin{tcolorbox}[title=Example Run \refstepcounter{examplerun}\theexamplerun,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleruninputs}{\tcbsubtitle{Inputs}}
+\newcommand{\examplerunoutputs}{\tcbsubtitle{Outputs}}
+
+\newcommand{\imagewithdefaults}[1]{\includegraphics[width=\maxwidth{0.95\columnwidth}]{#1}}
+
+\makeatletter
+\def\maxwidth#1{\ifdim\Gin@nat@width>#1 #1\else\Gin@nat@width\fi}
+\makeatother
+
+\usepackage{soul}
+
+\begin{document}
+
+\maketitle
+
+\section{Characters}
+
+We've talked about the \texttt{char} datatype a few times before. Let's talk about it in more detail.
+
+As you know, the \texttt{char} data type is used to store a single character. A \texttt{char} literal is expressed as one character surrounded in single quotes (apostrophes). For example, you might store the character \texttt{'A'} in a \texttt{char}-typed variable like so: \texttt{char my\_letter = 'A';}
+
+Note that uppercase letters and lowercase letters are considered to be different characters entirely. For example, the boolean expression \texttt{('a' == 'A')} evaluates to \texttt{false}, but the boolean expression \texttt{('a' == 'a')} evaluates to \texttt{true}.
+
+Recall that an \textbf{integral type} is a data type whose values can be converted to and from whole numbers without loss of precision. The \texttt{int} type is the most obvious integral type (the values literally \textit{are} whole numbers), but there are others. The \texttt{long} type is also an integral type (we never talked about this data type---it's just like the \texttt{int} type, but it can often store bigger numbers). Even the \texttt{bool} type is considered to be an integral type because \texttt{false} can be converted to and from \texttt{0}, and \texttt{true} can be converted to and from \texttt{1}.
+
+Integral types are contrasted with \textbf{floating point types}, such as \texttt{float} and \texttt{double}. If you naively convert a floating point value to an integral type (e.g., cast to an \texttt{int}) and then back to a floating point type, the value will be truncated. Hence, \texttt{float} and \texttt{double} are \textit{not} considered to be integral types.
+
+You might be surprised to learn that the \texttt{char} datatype is also considered to be an integral type. As you know, a binary digital computer (i.e., any conventional modern computer) represents all data as numbers expressed in binary form. The type of a variable dictates how the bits and bytes should be interpreted. As it turns out, characters themselves are stored in your computer specifically as non-negative whole numbers; your program converts character (and string) literals to numbers (bytes), and only when they're displayed in your terminal are they converted back to their character symbol representations (this second conversion is indeed your terminal's responsibility).
+
+Indeed, there's a direct mapping between these whole numbers and the characters that they represent, which is why \texttt{char} is considered to be an integral type. In fact, there are many such mappings. The two primary mappings that matter today are ASCII and Unicode. ASCII is a 128-character mapping that mostly only supports characters that you'd find on a US English keyboard (the English alphabet, symbols, digits, and so on). Unicode is superset of ASCII; it's a much more extensive mapping with multilingual support.
+
+However, one way or another, \textbf{a \texttt{char}-typed value is always exactly one byte in C++}, which usually means 8 bits. An 8-bit value can only take on one of 256 possible values. And yet, there are nearly 150{,}000 characters in the Unicode mapping. For this reason, a \texttt{char}-typed value in C++ can only represent the characters from the ASCII mapping (which, as mentioned, has 128 characters, including all that you'd find on a US English keyboard). That's sufficient for this course, but if you hypothetically wanted to write a C++ program with multilingual support, you'd have to store your characters as multi-byte strings (you'd want to study UTF-8, UTF-16, USC-2, wide characters, portable Unicode support in C++, and more).
+
+This is probably sounding pretty abstract. To bring things back into focus, here's an image of the ``ASCII table'', which provides the ASCII (and Unicode) mappings between US English characters and non-negative whole numbers:
+
+\imagewithdefaults{res/ASCII-Table-wide.svg.png}
+
+Specifically, pay attention to the ``Decimal'' and ``Char'' columns of the above table. These columns provide the mappings. For example, the ASCII numeric representation of capital \texttt{'A'} is the number \texttt{65}.
+
+Indeed, you can cast (and even coerce) \texttt{char}-typed expressions to \texttt{int}-typed expressions and vice-versa, and the conversion will directly follow the mapping outlined in the ASCII table. For example, the following code prints ``Hello'' to the terminal:
+
+\begin{cpp}{ASCII mappings}
+std::cout << static_cast<char>(72);
+std::cout << static_cast<char>(101);
+std::cout << static_cast<char>(108);
+std::cout << static_cast<char>(108);
+std::cout << static_cast<char>(111);
+\end{cpp}
+
+You don't need to memorize the ASCII table. In fact, the whole point is that C++ internally converts character literals to ASCII numeric representations via this table---you should \textit{never} need to look at the table to do the conversions yourself. For example, the above program could obviously be rewritten like so, without ever needing to look at the ASCII table:
+
+\begin{cpp}{ASCII mappings}
+std::cout << 'H';
+std::cout << 'e';
+std::cout << 'l';
+std::cout << 'l';
+std::cout << 'o';
+\end{cpp}
+
+This is exactly identical to the previous program. As a general rule of thumb, if you ever find yourself manually expressing ASCII encodings, don't---just use the correspoding character literal instead.
+
+Although you don't need to memorize the ASCII table, there are a couple of properties about the ASCII table that might be helpful to remember:
+
+\begin{enumerate}
+    \item The uppercase letters' ASCII numeric values are all contiguous (i.e., consecutive).
+    \item The lowercase letters' ASCII numeric values are all contiguous.
+    \item The digits' ASCII numeric values are all contiguous, starting at the digit \texttt{'0'} (with an ASCII value of \texttt{48}) and ending at the digit \texttt{'9'} (with an ASCII value of \texttt{57}).
+    \item The uppercase letters' ASCII numeric values are smaller than the lowercase letters' ASCII numeric values.
+    \item There are a few symbols on the ASCII table that appear between capital \texttt{'Z'} and lowercase \texttt{'a'} (i.e., the letters aren't contiguous across casing)
+    \item The ASCII value of a digit character is \ul{not} equal to the digit itself. For example, the ASCII value of the digit character \texttt{'0'} is \ul{not} \texttt{0}, but rather \texttt{48}. 
+\end{enumerate}
+
+We could use these properties to do all sorts of things. For example, suppose we want to prompt the user for a character and then check whether it's a lowercase English letter. We could use the contiguity properties of letters in the ASCII table to do this. Since the \texttt{char} type is an integral type, you can compare \texttt{char}-typed expressions using an inequality operator (\texttt{<}, \texttt{>}, etc). Doing so would convert the characters to their ASCII numeric values and perform the comparison on those values. Similarly, you can compare \texttt{char}-typed expressions to \texttt{int}-typed expressions however you'd like; the \texttt{char} value will simply be coerced to an \texttt{int} via the ASCII table before the comparison is performed. Knowing this, here's a solution to this example problem:
+
+\begin{cpp}{Contiguity of ASCII table}
+#include <iostream>
+
+char prompt_for_character() {
+    std::cout << "Enter a character: ";
+    char user_input;
+    std::cin >> user_input;
+    return user_input;
+}
+
+int main() {
+    char my_cool_character = prompt_for_character();
+
+    // Check if my_cool_character is a lowercase letter
+    if (my_cool_character >= 'a' && my_cool_character <= 'z') {
+        std::cout << "That's a lowercase letter!" << std::endl;
+    }
+}
+\end{cpp}
+
+Notice that the \texttt{if} statement condition checks whether the user-supplied character lies somewhere between \texttt{'a'} and \texttt{'z'}. This \textit{really} checks whether the ASCII numeric value of the user-supplied character lies somewhere between the ASCII numeric values of \texttt{'a'} and \texttt{'z'}, which works for our purposes due to the contiguity of ASCII values for lowercase letters. As you can imagine, we could do something similar for uppercase letters and digits.
+
+Let's do one more slightly harder example: suppose you want to write a function that receives a \texttt{char} parameter and returns its uppercase variant. If the parameter is a lowercase letter, it should convert it to an uppercase letter and return it. Otherwise, it should be left alone (i.e., the function should simply return the parameter un-modified). We could again exploit the contiguity of the ASCII table to do this:
+
+\begin{cpp}{Uppercase conversion}
+char to_uppercase(char my_cool_character) {
+    // If my_cool_character is NOT a lowercase letter, leave it
+    // be and just return it as-is
+    if (my_cool_character < 'a' || my_cool_character > 'z') {
+        return my_cool_character;
+    }
+
+    // If we made it this far, then my_cool_character must be
+    // a lowercase letter. Convert it to an uppercase. To do this,
+    // we just need to "shift" the character by a certain number of
+    // spaces in the ASCII table. The exact number of spaces that we
+    // need to shift it is simply the difference between the ASCII values
+    // of 'A' and 'a' (by definition, this would shift an 'a' into an 'A',
+    // and by contiguity, it would also shift a 'b' into a 'B', and so on):
+    constexpr int shift_distance = 'A' - 'a';
+
+    // Now perform the shift (this return expression produces an
+    // int, but it's coerced to a char to match the function's
+    // return type)
+    return my_cool_character + shift_distance;
+}
+\end{cpp}
+
+Unsurprisingly, there are actually functions built into the standard library for converting characters between cases, checking if a character is a lowercase letter, and so on. So in reality, you actually don't need to understand the ASCII table to do these things, either. But it's still good context to have.
+
+\section{Strings}
+
+As you know, a string is a sequence of characters, and a string literal is just any text surrounded in quotation marks. You've used string literals countless times by now---even a ``Hello, World!'' application uses a string literal to enclose the printed text: \texttt{std::cout << "Hello, World!" << std::endl;}
+
+However, strings are actually much more complicated than they appear. In this lecture, you'll learn the basics of strings. In the next lecture, you'll learn how to use them in more advanced ways.
+
+String values can be stored in variables, just like all other data. To do this, your variable must be of the appropriate string data type. However, strings are not a primitive data type in C++. They're a more complicated data type known as a ``class'', and you actually have to include a header file just to access the string data type itself. The name of the string data type in C++ is \texttt{std::string}, and to access it, you first have to write \texttt{\#include <string>} at the top of your program.
+
+Importantly, the \texttt{std::string} class is provided by the C++ standard library, meaning it's part of the \texttt{std} namespace, so you mustn't forget the \texttt{std::} prefix. This might seem weird---you've used the \texttt{std::} namespace prefix before (e.g., for \texttt{std::cout} and \texttt{std::endl}), but you've never used it to prefix a \textit{data type}. That's because, up until now, we've only used primitive, built-in data types---we've never used imported, complex data types from the standard library.
+
+Suppose you want to create a string variable called \texttt{my\_cool\_string} that stores the text ``Hello''. You might do this like so:
+
+\clearpage
+
+\begin{verbatim}
+#include <string>
+
+...
+
+std::string my_cool_string = "Hello";
+\end{verbatim}
+
+Alternatively to including the \texttt{<string>} header file, you can include any other file that in-turn includes the \texttt{<string>} header file. For example, the \texttt{<iostream>} header file implicitly includes the \texttt{<string>} header file under the hood, so if you're already including the \texttt{<iostream>} header file for other purposes, then you don't have to additionally include the \texttt{<string>} header file if you don't want to (but it's often a good idea anyways just to be explicit).
+
+Strings can be compared against one another for equality using the \texttt{==} operator, like so:
+
+\begin{verbatim}
+if (some_string == some_other_string) {
+    std::cout << "The two strings are equal!" << std::endl;
+}
+\end{verbatim}
+
+Keep in mind that the condition in the above \texttt{if} statement will evaluate to \texttt{true} if and only if \ul{every single character} of the two strings match exactly. Much like character comparisons, string comparisons are case sensitive. For example, if \texttt{some\_string} holds the value \texttt{"hello"} and \texttt{some\_other\_string} holds the value \texttt{"Hello"}, then the \texttt{if} statement's condition will evaluate to \texttt{false}. Moreover, the condition will evaluate to \texttt{false} if the two strings have different lengths, even if their characters otherwise match (i.e., one string is a prefix / substring of the other). For example, if \texttt{some\_string} holds the value \texttt{"goodbye"} and \texttt{some\_other\_string} holds the value \texttt{"goodby"}, then the \texttt{if} statement's condition will evaluate to \texttt{false}. Only if the two strings are exactly identical in both length and content will the condition evaluate to \texttt{true}.
+
+Recall that although a \texttt{char}-typed variable (or other expression) must store exactly one character, a \texttt{std::string}-typed variable can store any sequence of \textbf{zero or more} characters. The key point here is that a \texttt{std::string} variable can, indeed, contain zero characters. A string with no characters is referred to as an \textbf{empty string}. To check if a string is empty, you could simply compare it directly to an empty string literal, like so:
+
+\begin{verbatim}
+if (my_cool_string == "") {
+    std::cout << "The string variable is empty!" << std::endl;
+}
+\end{verbatim}
+
+There's another way to check a string for emptiness that we'll cover next lecture, but the above method works just fine.
+
+Of course, you can also print the value of a \texttt{std::string}-typed variable to the terminal via \texttt{std::cout}, just like any other variable (you've already done this with string literals). For example, the following is a ``Hello, World!'' program, but it stores the text in a variable:
+
+\begin{cpp}{``Hello, World!'' with string variables}
+#include <iostream>
+#include <string>
+
+int main() {
+    std::string text = "Hello, World!";
+    std::cout << text << std::endl;
+}
+\end{cpp}
+
+\section{Reading Strings Via \texttt{>>}}
+
+As you might have guessed, it's possible to read a string from the user via \texttt{std::cin}. However, there are some details that you need to be aware of.
+
+As the user supplies inputs into the terminal during the execution of your program, everything the user types goes into a place that I'll refer to as the \textbf{input buffer}. This is just a place in memory that records the entire sequence of characters that the user has supplied via the terminal. Whenever your program reads data via \texttt{std::cin}, it's actually reading that data from the input buffer. As it reads this data, it deletes it from the input buffer (i.e., it ``moves'' the data from the input buffer into the variables in your program).
+
+The stream extraction operator (\texttt{>>}) interacts with the input buffer in a very specific way when the user supplies some text to the terminal that contains whitespace (spaces, new lines, tabs, and so on). Firstly, it will \ul{skip leading whitespace} (i.e., if the user types a bunch of whitespace before the actual data itself, the whitespace at the beginning of their input will be skipped). After it has skipped leading whitespace, it will then extract characters one by one until it encounters a ``non-viable'' character for whatever type of data your program is trying to read, \textit{or} a whitespace character. What exactly constitutes a ``non-viable character'' depends on the data type. Once the stream extraction operator encounters a non-viable character, it stops, leaving the remaining characters in the input buffer.
+
+For example, suppose your program prompts the user for an integer, like so:
+
+\begin{verbatim}
+std::cout << "Enter an integer: ";
+int number;
+std::cin >> number;
+\end{verbatim}
+
+Suppose the user executes the above code and supplies the value \texttt{3.5}. Because the program is trying to read data from \texttt{std::cin} and specifically store it in an \texttt{int}-typed variable, the stream extraction operator will only read characters until it encounters one that doesn't ``make sense'' for an \texttt{int}-typed variable (i.e., a ``non-viable'' character for an \texttt{int}). Because an \texttt{int}-typed variable can only store whole numbers, it doesn't ``make sense'' for there to be a decimal point in the value of an \texttt{int}-typed variable---that's to say, a period is considered to be a ``non-viable'' character when reading into an \texttt{int}-typed variable. Hence, the stream extraction operator will read the \texttt{3} from the input (i.e., the first character in \texttt{3.5}), and then it will encounter the period (\texttt{.}) and stop.
+
+The result is that \texttt{number} will store the value \texttt{3}. Moreover, the remaining characters, \texttt{.5}, \ul{will remain in the input buffer}. If the program subsequently tries to read more data from \texttt{std::cin} later on, the program will start by immediately reading these leftover characters, even if the user hasn't supplied a separate, second value via the terminal (e.g., even if the user only pressed the enter key once).
+
+Continuing our example, suppose we extend the above program like so:
+
+\begin{verbatim}
+std::cout << "Enter an integer: ";
+int number;
+std::cin >> number;
+
+double leftover_data;
+std::cin >> leftover_data;
+
+std::cout << "Number is: " << number << std::endl;
+std::cout << "Leftover data is: " << leftover_data << std::endl;
+\end{verbatim}
+
+If the user executes the above code and supplies \texttt{3.5} when prompted for an integer, the \texttt{3} will be stored in the variable \texttt{number}, and the remaining characters, \texttt{.5}, will be read in by the subsequent use of the stream extraction operator and stored inside \texttt{leftover\_data}. As such, the value of \texttt{number} will be \texttt{3}, and the value of \texttt{leftover\_data} will be \texttt{0.5}.
+
+Anyways, the reason this matters is that, when reading into a \texttt{std::string}-typed variable via the stream extraction operator, there are no ``non-viable'' characters. A string is, by definition, a sequence of characters; they can store any characters that you want them to store. However, recall the specific rule of the stream extraction operator---it will stop extracting characters when it encounters a non-viable character \textit{or} any whitespace character. Indeed, even though a \texttt{std::string}-typed variable can store whitespace characters (such as spaces, tabs, newlines, and so on), the stream extraction operator will not extract and store these characters in the given \texttt{std::string}-typed variable.
+
+\ul{That's to say, when used to read strings from the terminal, the stream extraction operator only reads one ``word'' at a time.}
+
+Consider the following program:
+
+\begin{cpp}{Prompt for string via \texttt{>>}}
+#include <iostream>
+#include <string>
+
+int main() {
+    std::cout << "Enter a sequence of characters: ";
+    std::string sequence_of_characters;
+    std::cin >> sequence_of_characters;
+    std::cout << "You entered the following: "
+        << sequence_of_characters << std::endl;
+}
+\end{cpp}
+
+Suppose the user runs the above program and supplies \href{https://en.wikipedia.org/wiki/The_quick_brown_fox_jumps_over_the_lazy_dog}{the famous English pangram}, ``the quick brown fox jumps over the lazy dog''. When the stream extraction operator encounters the first space in the user's input, it will stop, leaving the remaining characters in the input buffer. The result is that the value of \texttt{sequence\_of\_characters} will simply be \texttt{"the"}:
+
+\begin{terminaloutput}
+Enter a sequence of characters: the quick brown fox jumps over the lazy dog
+You entered the following: the
+\end{terminaloutput}
+
+As you might've guessed, if the program were to subsequently try to read another string by using \texttt{std::cin} and the stream extraction operator a second time, it would pick up where it left off, reading the word ``quick'' before stopping at the next space.
+
+\section{Reading Strings Via \texttt{std::getline()}}
+
+Suppose you want to read an entire sentence from the user via the terminal. That's to say, you \textit{don't} want \texttt{std::cin} to stop reading characters the moment it hits whitespace. Rather, you want to read every character supplied by the user up to the moment that they pressed the enter key---you want to read an entire ``line'' of text from the input buffer.
+
+Of course, the stream extraction operator (\texttt{>>}) doesn't support this for the reasons explained in the previous section. However, there's another way to read data (specifically string data) from \texttt{std::cin} that's designed for this exact goal in mind: \texttt{std::getline()}.
+
+\texttt{std::getline()} is a function provided by the \texttt{<iostream>} header file. It accepts two arguments: the stream that you want to read a line of text from, and the string variable that you want to store the line of text in. Simply calling this function as an isolated statement and supplying \texttt{std::cin} as the stream argument and a string variable for the second argument is sufficient to read a line of text from the terminal, storing it in the supplied string variable.
+
+For example, we could rewrite our previous program like so:
+
+\begin{cpp}{Prompt for string via \texttt{std::getline()}}
+#include <iostream>
+#include <string>
+
+int main() {
+    std::cout << "Enter a sequence of characters: ";
+    std::string sequence_of_characters;
+    std::getline(std::cin, sequence_of_characters);
+    std::cout << "You entered the following: "
+        << sequence_of_characters << std::endl;
+}
+\end{cpp}
+
+Now that we've replaced the stream extraction operator with a call to \texttt{std::getline()}, our program will, indeed, read an entire line of text from the user:
+
+\begin{terminaloutput}
+Enter a sequence of characters: the quick brown fox jumps over the lazy dog
+You entered the following: the quick brown fox jumps over the lazy dog
+\end{terminaloutput}
+
+You might have noticed that, \textit{somehow}, the \texttt{std::getline(std::cin, sequence\_of\_characters)} function call is able to \ul{modify} the value of its second argument, \texttt{sequence\_of\_characters}. This seems to contradict everything you know about arguments and parameters---parameters are supposed to be \ul{copies} of arguments, so a function shouldn't be able to modify an argument in any way (only a parameter). What gives? Well, the answer to this question is a bit complicated: the second parameter to \texttt{std::getline()} is a special kind of parameter known as a \textbf{reference parameter}, which prevents the parameter from being copied from the argument and instead makes the parameter a direct reference to the argument. This is how the \texttt{std::getline()} function call is able to modify the value of \texttt{sequence\_of\_characters}. Don't worry about the details for now; we'll discuss reference parameters again near the end of the term (if anything, note that reference parameters are often confusing and a bad idea, but this is just how the \texttt{std::getline()} function works, for better or worse).
+
+There's one more very important thing to note: in general, you should try to avoid using both the stream extraction operator (\texttt{>>}) and \texttt{std::getline()} on the same stream in the same program unless you're very careful and aware about how these two mechanisms interact with the input buffer. For example, when writing a program, you should prefer to either always use \texttt{std::cin >> ...} or always use \texttt{std::getline(std::cin, ...)}. Of course, if your program needs to be able to read multi-word strings, then you'll need to always use the \texttt{std::getline()} approach. If your program only needs to be able to read single-word strings, then either approach will work.
+
+However, if you \textit{do} choose to use both of these mechanisms in the same program, you'll need to understand how the two mechanisms interact with whitespace. As mentioned, the stream extraction operator skips leading whitespace and leaves trailing whitespace (and / or ``non-viable'' characters) in the buffer. In contrast, \texttt{std::getline()} does \textit{not} ignore leading whitespace (it will extract the leading whitespace and include it in the string variable argument's resulting value), and it skips the newline character at the end of the line of text in the input buffer. Note that newline characters are considered a form of whitespace---this means that the two mechanisms will interact with the newline character at the end of the line of text in the input buffer in different ways. If you try to use both of these mechanisms on one stream in one program, this can cause you some troubles (e.g., if you use the stream extraction operator followed by \texttt{std::getline()}, there will be some extra whitespace at the beginning of the \texttt{std::getline()} input, which can be especially problematic if that whitespace includes a newline character). There are ways around those troubles, but in the interest of time, we won't discuss them, and you won't be assessed on your ability to handle them.
+
+\end{document}

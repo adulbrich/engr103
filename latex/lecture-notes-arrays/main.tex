@@ -1,0 +1,298 @@
+\documentclass{article}
+
+% Per-assignment macros
+\def\lecturetitle{Arrays}
+
+% Imports
+\usepackage{graphicx} % Required for inserting images
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue, anchorcolor=blue]{hyperref}
+\usepackage{hhline}
+
+% Titling
+\usepackage{titling}
+\preauthor{\begin{center}}
+\postauthor{\par\end{center}\vspace{-30pt}}
+\setlength{\droptitle}{-50pt}
+\usepackage{scrextend}
+
+% Geometry
+
+\usepackage{geometry}
+\geometry{letterpaper, portrait, margin=1in}
+
+\usepackage[skip=5pt]{parskip}
+\newlength\tindent
+\setlength{\tindent}{\parindent}
+\setlength{\parindent}{0pt}
+\renewcommand{\indent}{\hspace*{\tindent}}
+
+\usepackage{makecell}
+
+% Assignment titling (number, due date, etc)
+\title{
+    Lecture Notes: \lecturetitle
+}
+\author{ENGR 103, Winter 2024}
+\date{}
+
+% Box environments
+\usepackage{tcolorbox}
+\usepackage{fancyvrb}
+\newenvironment{terminalcommand}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Command,colframe=gray!80!blue,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+\newenvironment{terminaloutput}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Output,colframe=gray!80!red,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+
+% \newenvironment{cpp}[1]
+%     {\VerbatimEnvironment
+%     \begin{tcolorbox}[title=\texttt{#1},colframe=gray!80!green,colback=black!80!blue]
+%     \begin{Verbatim}[formatcom=\color{white}]}
+%     {\end{Verbatim}
+%     \end{tcolorbox}}
+
+\usepackage{minted}
+\newenvironment{cpp}[1]
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=\texttt{#1},colframe=gray!50!blue,colback=white!97!black]
+    \begin{minted}{c++}}
+    {\end{minted}
+    \end{tcolorbox}}
+
+\newenvironment{tip}
+    {\begin{tcolorbox}[title=Tip,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newenvironment{note}
+    {\begin{tcolorbox}[title=Note,colframe=white!70!red,colback=white]}
+    {\end{tcolorbox}}
+
+\newcounter{examplerun}
+\newenvironment{examplerun}
+    {\begin{tcolorbox}[title=Example Run \refstepcounter{examplerun}\theexamplerun,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleruninputs}{\tcbsubtitle{Inputs}}
+\newcommand{\examplerunoutputs}{\tcbsubtitle{Outputs}}
+
+\newcommand{\imagewithdefaults}[1]{\includegraphics[width=\maxwidth{0.95\columnwidth}]{#1}}
+
+\makeatletter
+\def\maxwidth#1{\ifdim\Gin@nat@width>#1 #1\else\Gin@nat@width\fi}
+\makeatother
+
+\usepackage{soul}
+\usepackage{silence}
+
+\begin{document}
+
+\maketitle
+
+\section{Context}
+
+As you recently learned, a string is a sequence, or ordered list, of zero or more characters. They're useful for representing words, sentences, paragraphs, and so on.
+
+Suppose you want to represent an ordered list of some other data type (i.e., other than characters). Maybe you want store a list of ten integers, each reflecting the age of one of ten people. Or maybe you want to store a list of five strings, each reflecting the name of one of the user's top five favorite restaurants in Corvallis, OR.
+
+There are a few ways to construct lists in C++. The idiomatic way is to use a container class template from the standard template library (STL; this is a subset of the C++ standard library). Such class templates include \texttt{std::vector}, \texttt{std::list}, \texttt{std::array}, \texttt{std::map}, and many more---each is geared toward a specific kind of problem.
+
+However, many of these class templates from the STL are themselves built on a lower-level, primitive kind of list data type known as an \textbf{array}. Since arrays are so primitive, you'll learn more at a fundamental level by studying arrays than by studying the STL. Moreover, CS 162 discusses arrays near the beginning of the course and the STL near the end of the course. Although you may or may not need to take CS 162 in the future, discussing arrays will better prepare you in case you do.
+
+For these reasons, we're going to ignore the STL and instead focus on arrays. However, I want to stress that we're focusing on arrays strictly for the academic purposes listed above. In a realistic C++ application, \ul{you'd almost always prefer to rely on the STL}, except in niche situations (e.g., situations warranting a custom, high-performance container type, or situations where your containers need to cross DLL boundaries). In fact, plain C++ arrays are actually highly dangerous from a security standpoint due to the threat of buffer overflows (discussed later), so if you ever find yourself writing a C++ application in the real world, please acquaint yourself with good practices beforehand (e.g., study the STL). You won't be tested on the STL in this course, but if you'd like to study it, a good starting point is \href{https://www.geeksforgeeks.org/vector-in-cpp-stl/}{vectors}.
+
+Lastly, there are two kinds of arrays in C++: those that are \textbf{statically allocated} (i.e., with \textbf{automatic storage duration}), and those that are \textbf{dynamically allocated} (i.e., with \textbf{dynamic storage duration}). We're only going to cover the former---statically allocated arrays. Dynamically allocated arrays are covered in CS 162.
+
+\section{Declaring statically allocated arrays}
+
+There is no generic ``array data type'' in C++. Rather, C++ arrays are strictly \textbf{homogeneous}, meaning that all of the \textbf{elements} (i.e., values) in any single array must be of the \ul{same data type}, and that data type must be specified at the time the array itself is declared.
+
+Indeed, arrays must be declared because they're variables, and all variables must be declared. And just like any other variable, they represent a fixed location in memory of a \ul{fixed size} and a \ul{fixed type}, all of which is specified at declaration.
+
+Pay close attention to that last sentence---arrays, like other variables, have a fixed size. This may seem surprising given that arrays represent lists. But indeed, arrays' sizes can't change after they've been declared; they can't grow nor shrink. This is unlike \texttt{std::string} variables which can be reassigned to larger or smaller string values as you see fit. As you might've guessed, this means that a statically allocated array's type \ul{and} size are both specified in its declaration syntax. This detail is only true of statically allocated arrays. Dynamically allocated arrays can change size post-declaration.
+
+This means that, when you declare a statically allocated array, you need to make sure to give it a ``big enough'' size to store all of the data that it'll ever need to store, even if doesn't initially need to store that much data. If you make it too big, that's not a huge problem---you can just leave certain elements (values) uninitialized in the array and ignore them until they become relevant. Of course, outside of an academic context, you'd probably prefer to use dynamically allocated arrays or (better yet) STL containers if your list needs to be resizeable.
+
+Without further ado, here's the syntax for declaring a statically allocated array variable in C++:
+
+\begin{verbatim}
+<element data type> <array variable name>[<array size>];
+\end{verbatim}
+
+Replace \texttt{<element data type>} with the data type that you want the elements in the array to be, \texttt{<array variable name>} with the name that you want your array variable to have, and \texttt{<array size>} with the number of elements that you want to be in your array.
+
+For example, the following would declare an array called \texttt{pages} consisting of 200 strings (presumably each representing a page in a book):
+
+\begin{verbatim}
+std::string pages[200];
+\end{verbatim}
+
+There's one more extremely important detail about this declaration syntax: \ul{the size of a statically allocated array must be a compile-time constant}. This is derived from the formal definition of ``statically allocated''. In this context, ``static'' means ``determinable at compile-time'', and to ``allocate'' means to decide on the total amount of memory that will be dedicated to the array variable. Since an array's total memory depends on its size, in order for its allocation to be determined at compile-time, its size must be known at compile-time---it must be a compile-time constant.
+
+To better understand this criterion, analyze the following code:
+
+\begin{cpp}{Statically allocated array declarations}
+// Declare a statically allocated array of 200 strings. This
+// is fine because 200 is a compile-time constant.
+std::string pages[200];
+
+// Declare a statically allocated array of x doubles, where
+// x is a constexpr variable (a compile-time constant). This
+// is fine because x is a compile-time constant.
+constexpr int x = 5;
+double numbers[x];
+
+// Declare a statically allocated array of n booleans, where
+// n is a runtime variable. This is NOT OKAY because n is
+// NOT a compile-time constant (this is a syntax error)
+int n = 12;
+bool my_booleans[n];
+\end{cpp}
+
+Now, \textit{technically}, if you build the above code with \texttt{g++} (including the \texttt{bool my\_booleans[n]} declaration), it will actually compile with no syntax errors, and it'll run just fine. But that's only because, by default, \texttt{g++} has an extension enabled that supports so-called variable-length arrays (VLAs). VLAs are similar to statically allocated arrays, but their size doesn't have to be a compile-time constant. Even still, once a VLA is declared, its size can't change---both statically allocated arrays and VLAs have fixed sizes.
+
+It doesn't really matter, though, because VLAs aren't formally part of the C++ programming language. They're only supported by certain extensions available for certain C++ compilers. This makes them brittle and non-portable; if you use them in your program, don't expect your program to work properly on every computer. For this reason, you should generally avoid VLAs in C++ (however, they \textit{are} formally supported in C, ever since C99).
+
+You can disable this VLA-support extension of \texttt{g++} by supplying the \texttt{-Werror=vla} flag when compiling your program (e.g., \texttt{g++ -Werror=vla my\_file.cpp}). Doing so on the above code produces the following syntax error, as expected:
+
+\begin{terminaloutput}
+[alex@alex-desktop ~] g++ -Werror=vla main.cpp 
+
+main.cpp: In function ‘int main()’:
+main.cpp:18:14: error: variable length array ‘my_booleans’ is used [-Werror=vla]
+   18 |         bool my_booleans[n];
+      |              ^~~~~~~~~~~
+cc1plus: some warnings being treated as errors
+\end{terminaloutput}
+
+As you can see, statically allocated arrays are highly restricted. Their sizes must be compile-time constants, and they can't be resized post-declaration. These restrictions, however, have tradeoffs---they make it possible for compilers to implement statically allocated arrays in a very efficient manner. However, if these restrictions get in your way, you have to use dynamically allocated arrays or the STL instead. Again, these things are discussed in CS 162, but not ENGR 103.
+
+\section{Arrays in memory}
+
+We haven't spent much time in this course talking about memory, but understanding memory is very important when talking about arrays.
+
+Every byte of data in your computer has a numeric location known as a \textbf{memory address}. Indeed, the definition of a ``byte'' is not technically 8 bits, but rather the smallest addressable unit of memory (which, on \textit{most} modern computers, is 8 bits). Memory addresses are just non-negative whole numbers, but they're often expressed in hexadecimal format (e.g., 15 in hexadecimal format is 0x000F).
+
+Of course, most data requires more than one byte of storage. For example, on the ENGR servers, an \texttt{int}-typed expression or variable requires 4 bytes of storage. In some sense, then, an \texttt{int}-typed expression or variable has 4 different memory addresses. However, bytes in your computer are ordered. In fact, a memory address is basically just an index that points to a single byte in the massive sequence of all of your computer's bytes of memory, just like an index of a character in a string. So even though an \texttt{int} has 4 bytes of memory, there is indeed a ``first'' byte of memory in every \texttt{int}, as well as a ``second'' byte, a ``third'' byte, and a ``fourth byte''. When we talk about a ``variable's memory address'', we're usually referring to the address of the variable's \ul{first} byte of memory.
+
+Now let's talk about the memory structure of an array. An array's memory is \textbf{contiguous} in C++. This means that, when you allocate an array, each of the array's elements are laid out sequentially in your computer's memory.
+
+For example, suppose you allocate an array of 100 integers, and suppose that each integer requires 4 bytes of memory. Your entire array, then, consists of a single continuous block of 400 bytes of memory. The memory address of the first byte in this continuous block is referred to as the array's \textbf{base address}. Suppose that the very beginning of the array (the first integer in the array) appears in your computer's virtual memory at the memory address 0x0004 (byte 4; i.e., this is the base address of the array). Then the second integer in the array will appear at memory address 0x0008 (byte 8), the third at 0x000C (byte 12), the fourth at 0x0010 (byte 16), and so on. Each integer occupies 4 bytes, and the integers are packed tightly together in-order.
+
+This memory structure makes arrays highly memory efficient---they don't waste any space. Moreover, it gives arrays a so-called \textbf{direct access} property (also called \textbf{random access}). If a container supports direct access, that means that your computer can access any element within the container in constant time. That's to say, your computer can access the millionth element of an array just as fast as it can access the 10\textsuperscript{th} element, and so on. Your computer does this via pointer arithmetic. For example, suppose your computer knows that the base address of an \texttt{int} array is 0x000F (byte 15). Suppose you tell your computer to access the 17th integer in the array. Since each \texttt{int} consists of 4 bytes, your computer can easily determine the exact memory address of the 17\textsuperscript{th} integer---it just has to shift over 16 full integers from the base address, or $16 * 4 = 64$ bytes. So your computer will add 64 to the array's base address, 0x000F (byte 15), yielding 0x004F (byte 79). This is the exact memory address of the 17\textsuperscript{th} integer in the array. Once your computer has this memory address, it can access the integer itself in constant time (``instantaneously'') because modern memory hardware also supports direct / random access (hence why it's called RAM---``random access memory'').
+
+Of course, \textit{you} don't have to think about all of these details when writing code that deals with arrays. As you'll soon see, you just have to think about indices. Ultimately, it's your computer's and compiler's responsibility to translate indices to memory addresses via pointer arithmetic. But either way, understanding \textit{how} your computer does these things can provide helpful context.
+
+\section{Accessing array elements}
+
+Once you've declared an array variable, you can reference it by its name just like any other variable. However, the way you work with an array is slightly different from the way you work with other variables.
+
+Once an array has been declared, its name, from that point on, actually serves as a handle to the array's base address. For example, suppose we try to declare and print a statically allocated array, like so:
+
+\begin{cpp}{Printing array's base address}
+#include <iostream>
+
+int main() {
+    // Declare an array of 10 doubles:
+    double my_list_of_numbers[10];
+
+    // Print the array:
+    std::cout << my_list_of_numbers << std::endl;
+}
+\end{cpp}
+
+If you build and execute the above program, the output will look something like this:
+
+\begin{terminaloutput}
+0x7fff2ae74d60
+\end{terminaloutput}
+
+Maybe this looks familiar---it's a hexadecimal value. Indeed, the value in this terminal output is the base address of the declared array, \texttt{my\_list\_of\_numbers}.
+
+So you might be wondering, ``how do I print the actual values \textit{in} the array?''. For the most part, C++ doesn't support any aggregate array operations out of the box. That's to say, there's no simple operator or function that prints an entire array of values, or adds two entire arrays of numbers together, or multiplies two entire arrays of numbers together, or concatenates two entire arrays, etc. Rather, in general, \ul{whenever you want to work with arrays in C++, you should work on the individual elements contained within the array. If you want to do something to every element in an array, you should use a loop.}
+
+Of course, this requires knowing how to access an element within an array. As it turns out, just like characters in a string, array elements have indices, and arrays are indexed by zero (the first element's index is \texttt{0}, the second element's index is \texttt{1}, and so on). Recall that to access a character within a string at a given index, you use the \texttt{.at()} string member function, supplying the index as the argument. Arrays aren't objects, though, so you can't use the dot operator on them, and they don't have a \texttt{.at()} function (nor a \texttt{.size()} function, as we'll discuss next lecture). Instead, if you want to access an element within an array at a given index, you use the \textbf{subscript operator}. This operator is just square brackets (\texttt{[]}), and in between those brackets, you specify the index of the element that you want to access:
+
+\begin{verbatim}
+<name of array>[<index>]
+\end{verbatim}
+
+This operation produces a reference to the element within the given array at the given index. This means that you can use this syntax to both read (use) and write (change) array element values.
+
+For example, you might declare an array of five doubles and initialize them all to zero like so:
+
+\begin{verbatim}
+double my_list_of_numbers[5];
+my_list_of_numbers[0] = 0;
+my_list_of_numbers[1] = 0;
+my_list_of_numbers[2] = 0;
+my_list_of_numbers[3] = 0;
+my_list_of_numbers[4] = 0;
+\end{verbatim}
+
+\begin{tip}
+    Don't forget that primitive values must be initialized before you can use them. Else, your program will exhibit undefined behavior. This applies to primitive array elements as well.
+\end{tip}
+
+Similarly, you could then print the third number of the array like so:
+
+\begin{verbatim}
+std::cout << my_list_of_numbers[2] << std::endl;
+\end{verbatim}
+
+This will print 0 since all of the elements in the array were initialized to zero.
+
+Of course, having to write a separate line of code to initialize and print each array element can get cumbersome, especially when you have a large array. For this reason, it's extremely common to index an array using a counter variable in a \texttt{for} loop. For example, the following program creates an array of 100 \texttt{int}s storing the values from 1 to 100 and then prints them all to the terminal:
+
+\begin{cpp}{Array loop strategies}
+#include <iostream>
+
+int main() {
+    int values[100];
+
+    // Initialize the values to 1-100
+    for (int i = 0; i < 100; i++) {
+        // Arrays are indexed by 0. If we set values[i] = i,
+        // we'll end up with an array of values 0-99. But we
+        // want an array of values 1-100. So we instead set
+        // values[i] = i + 1:
+        values[i] = i + 1;
+    }
+
+    // Print the array values
+    for (int i = 0; i < 100; i++) {
+        std::cout << values[i] << std::endl;
+    }
+}
+\end{cpp}
+
+It's important to distinguish array element access syntax from array declaration syntax. They do look similar, after all. When declaring an array, you write out the type of the array elements, the name of the array, and the size of the array in square brackets. When accessing an element within a preexisting array, you write out the name of the array, and the index of the target element in square brackets.
+
+For example, the following syntax declares an array of 20 strings called \texttt{my\_array}:
+
+\begin{verbatim}
+std::string my_array[20];
+\end{verbatim}
+
+In contrast, the following syntax accesses the 21\textsuperscript{st} string in a preexisting array called \texttt{my\_array} (and does nothing with it, making this a useless stand-alone line of code):
+
+\begin{verbatim}
+my_array[20];
+\end{verbatim}
+
+So, as always, the presence of a type specifier signifies that you're declaring a new variable, and the absence of a type specifier signifies that you're working with a preexisting variable. But in this case, it runs deeper than that---the meaning of the square brackets is different depending on whether you're declaring a new array vs accessing a preexisting one. When declaring an array, the square brackets are used to specify size. When accessing a preexisting array, the square brackets denote the subscript operator, and they're used to specify an index.
+
+In the next lecture, we'll discuss more details about arrays, including buffer overflows and passing arrays to and from functions.
+
+% TODO In next lecture:
+%       Reading into arrays
+%       Buffer overflows
+%       Passing arrays to functions
+
+\end{document}

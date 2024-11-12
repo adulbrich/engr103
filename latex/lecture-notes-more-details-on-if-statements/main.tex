@@ -1,0 +1,420 @@
+\documentclass{article}
+
+% Per-assignment macros
+\def\lecturetitle{More Details on If Statements}
+
+% Imports
+\usepackage{graphicx} % Required for inserting images
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue, anchorcolor=blue]{hyperref}
+\usepackage{hhline}
+
+% Titling
+\usepackage{titling}
+\preauthor{\begin{center}}
+\postauthor{\par\end{center}\vspace{-30pt}}
+\setlength{\droptitle}{-50pt}
+\usepackage{scrextend}
+
+% Geometry
+
+\usepackage{geometry}
+\geometry{letterpaper, portrait, margin=1in}
+
+\usepackage[skip=5pt]{parskip}
+\newlength\tindent
+\setlength{\tindent}{\parindent}
+\setlength{\parindent}{0pt}
+\renewcommand{\indent}{\hspace*{\tindent}}
+
+% Assignment titling (number, due date, etc)
+\title{
+    Lecture Notes: \lecturetitle
+}
+\author{ENGR 103, Winter 2024}
+\date{}
+
+% Box environments
+\usepackage{tcolorbox}
+\usepackage{fancyvrb}
+\newenvironment{terminalcommand}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Command,colframe=gray!80!blue,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+\newenvironment{terminaloutput}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Output,colframe=gray!80!red,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+
+\usepackage{minted}
+\newenvironment{cpp}[1]
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=\texttt{#1},colframe=gray!50!blue,colback=white!97!black]
+    \begin{minted}{c++}}
+    {\end{minted}
+    \end{tcolorbox}}
+
+\newenvironment{tip}
+    {\begin{tcolorbox}[title=Tip,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newenvironment{note}
+    {\begin{tcolorbox}[title=Note,colframe=white!70!red,colback=white]}
+    {\end{tcolorbox}}
+
+\newcounter{examplerun}
+\newenvironment{examplerun}
+    {\begin{tcolorbox}[title=Example Run \refstepcounter{examplerun}\theexamplerun,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleruninputs}{\tcbsubtitle{Inputs}}
+\newcommand{\examplerunoutputs}{\tcbsubtitle{Outputs}}
+
+\newcommand{\imagewithdefaults}[1]{\includegraphics[width=\maxwidth{0.95\columnwidth}]{#1}}
+
+\makeatletter
+\def\maxwidth#1{\ifdim\Gin@nat@width>#1 #1\else\Gin@nat@width\fi}
+\makeatother
+
+\usepackage{soul}
+
+\begin{document}
+
+\maketitle
+
+These lecture notes cover more details on logical operations and if statements, including short circuiting and common mistakes.
+
+\section{Short circuiting}
+
+The \texttt{\&\&} and \texttt{||} logical operators actually have very similar counterparts: the \texttt{\&} and \texttt{|} operators. However, they behave slightly differently. The \texttt{\&\&} operator is officially the ``logical and operator with short circuiting'', and the \texttt{\&} operator is officially the ``logical and operator without short circuiting''. Similarly, the \texttt{||} operator is officially the ``logical or operator with short circuiting'', and the \texttt{|} operator is officially the ``logical or operator without short circuiting''. That begs the question---what is short circuiting?
+
+\textbf{Short circuiting} is when a logical operation terminates immediately after evaluating the left operand because it's unnecessary to evaluate the right operand. For example, the \texttt{\&\&} operator represents the ``logical and'' of two boolean sub-expressions. That is to say, it will only return true if both its left \textit{and} right operands are true. As such, if your computer determines that one of the two operands is \texttt{false}, then it has no reason to even evaluate the other operand. Specifically, C++ evaluates logical operands in left-to-right order, so the \texttt{\&\&} operator will short circuit whenever the left operand evaluates to \texttt{false}.
+
+Similarly, the \texttt{||} operator returns \texttt{true} whenever at least one of its two operands is \texttt{true}. As such, if your computer has determined that one of the two operands is \texttt{true}, then it has no reason to even evaluate the other operand. Again, since C++ evaluates logical operands left-to-right, the \texttt{||} operator will short circuit whenever the left operand evaluates to \texttt{true}.
+
+The only difference between the \texttt{\&\&} and \texttt{\&} operators, then, is that the former performs short circuiting as described, but the \texttt{\&} operator does not; rather, the latter operator \textit{always} evaluates both operands. The same goes for the difference between the \texttt{||} and \texttt{|} operators.
+
+In most cases, short circuiting merely provides some performance improvements by allowing your computer to skip evaluating the second logical operand. For example, consider the following expression:
+
+\begin{cpp}{Performance-improving short circuiting}
+(1 > 100) && (sqrt(pow(2, 5)) * 3.141592 + pow(2.71, 9.81) > abs(-sqrt(100)))
+\end{cpp}
+
+The second operand of the \texttt{\&\&} operator is an arithmetic monstrosity involving many function calls. The simple act of evaluating that operand could take your computer a bit of time (not an independently noticeable amount of time, but it could become problematic if your computer frequently has to evaluate expressions similar to this). Luckily, your computer \textit{doesn't} have to evaluate that operand. The first operand, \texttt{(1 > 100)}, is clearly \texttt{false}. Since it's on the left, your computer will evaluate it first. Once it has determined that it's \texttt{false}, the \texttt{\&\&} operator can short circuit and skip all of the computations on the right.
+
+In this case, replacing the \texttt{\&\&} operator with a \texttt{\&} operator could slow down your program because the latter operator is not allowed to do short circuiting.
+
+However, to be clear, performance improvements are not why short circuiting is important. In almost all cases, the performance gained from short circuiting is miniscule. The \textit{real} reason that short circuiting matters is that, in some cases, the mere act of evaluating an expression (such as an operand) can produce side effects on the state of your program. Since short circuiting mitigates the evaluation of the right logical operand in some cases, it can also mitigate those side effects, changing the behavior of your program---for better or worse, depending on your program's goals.
+
+Consider the following example:
+
+\begin{cpp}{Short circuiting with assignment operand}
+bool i_like_spaghetti = true;
+int some_integer = 1;
+int some_other_integer = 100;
+
+if (i_like_spaghetti || (some_integer = some_other_integer) == 100) {
+    std::cout << some_integer << std::endl;
+}
+\end{cpp}
+
+Pay close attention to the right operand of the \texttt{||} operator in the above \texttt{if} statement's condition. Notice the use of an assignment operator (\texttt{=}). Indeed, this is legal C++ code. If the right operand is evaluated, it will copy the value of \texttt{some\_other\_integer} and store it inside \texttt{some\_integer}, and \textit{then} evaluate the outer equality operator (\texttt{==}) to check if that value is equal to \texttt{100}. In this case, it would, indeed, be equal to \texttt{100} because \texttt{some\_other\_integer} is equal to \texttt{100}.
+
+With or without short circuiting, the \texttt{if} statement's condition is clearly \texttt{true}, because \texttt{i\_like\_spaghetti} is \texttt{true}. However, due to short circuiting, the right operand will never be evaluated. This means that the assignment in the right operand will never happen. The result is that \texttt{some\_integer} will be left unchanged, so the program will print \texttt{1}.
+
+However, if we were to replace the \texttt{||} operator with a \texttt{|} operator, disabling short circuiting, the right operand \textit{would} be evaluated, and the assignment \textit{would} happen. In such a case case, the value of \texttt{some\_integer} will be changed to match the value of \texttt{some\_other\_integer}, and the program will print that value (\texttt{100}).
+
+Clearly, this is case where short circuiting doesn't just affect the performance of the application, but the semantics as well.
+
+A more common example is something like the following:
+
+\begin{cpp}{Short circuiting with exception}
+int numerator;
+int denominator;
+std::cin >> numerator;
+std::cin >> denominator;
+if (denominator != 0 && numerator / denominator > 10) {
+    std::cout << "The value of your fraction is greater than 10" << std::endl;
+}
+\end{cpp}
+
+Suppose the above program is executed and the user enters \texttt{0} for the denominator. If the right operand of the \texttt{\&\&} operator is evaluated in any way, the program will crash with a runtime error due to the division by zero (e.g., ``floating point exception (core dumped)''). Luckily, though, short circuiting will prevent that from happening. If the denominator is \texttt{0}, then the left operand of the \texttt{\&\&} operator will resolve to \texttt{false}, and the \texttt{\&\&} operator will short circuit without evaluating the right operand at all.
+
+This example seems different from the previous one, but they follow the same pattern. In both cases, the mere act of evaluating the right logical operand can have observable side effects on the state of our program. In the previous example, that side effect was an assignment operation. In this example, that side effect was a thrown exception due to division by zero. Whenever you're dealing with logical operands whose evaluations can impose observable side effects on your program, you should think carefully about whether you want that logical operation to short circuit. Often times, you can take advantage of short circuiting to avoid nasty side effects like exceptions, as in the division example above. Other times, you may \textit{want} the right operand to be evaluated and impose its side effects on your program, regardless of the value of the left operand.
+
+\section{Implied curly braces in if statements}
+
+It's legal to leave out the curly braces from an \texttt{if} statement's body (or an \texttt{else if} statement's body, or an \texttt{else} statement's body). In such a case, there are \ul{implied curly braces} surrounding the single statement immediately following the closing parenthesis of the \texttt{if} statement's condition (or immediately following the \texttt{else} keyword in the case of an \texttt{else} statement).
+
+For example, the following program will print \texttt{"Two plus two is four!"}:
+
+\begin{cpp}{Implied curly braces in if statements}
+if (2 + 2 == 4)
+    std::cout << "Two plus two is four!" << std::endl;
+else if (2 + 2 == 5)
+    std::cout << "What?! Two plus two is five?!" << std::endl;
+else
+    std::cout << "Oh no! Math is so hard! :(" << std::endl;
+\end{cpp}
+
+However, C++ is not whitespace sensitive. That's to say, C++ doesn't actually care about the details of your code's indentation (but humans do, of course, for the sake of readability). For example, consider the following program:
+
+\begin{cpp}{Indentation confusion in if statements}
+if (2 + 2 == 100)
+    std::cout << "Woo! Two plus two is 100!" << std::endl;
+    std::cout << "Hello, World!" << std::endl;
+\end{cpp}
+
+Even though the above program \textit{looks} like it will print nothing, it \textit{actually} prints ``Hello, World!''. This is because, even though both print statements are indented, C++ doesn't care about indentation. When you leave curly braces out of an \texttt{if} statement, only the immediately following statement will be considered part of the conditional branch. Any statements after that will be considered unconditional---they exist outside the scope of the if statement. As such, the above program is exactly equivalent to the following:
+
+\begin{cpp}{Indentation confusion resolution}
+if (2 + 2 == 100)
+    std::cout << "Woo! Two plus two is 100!" << std::endl;
+std::cout << "Hello, World!" << std::endl;
+\end{cpp}
+
+The corrected indentation here doesn't affect the semantics of our program at all since C++ is whitespace-insensitive, but it makes it much clearer that the second print statement is not attached to the \texttt{if} statement, and it will run irrespective of whether the \texttt{if} statement's condition is \texttt{true}.
+
+I personally recommend avoiding writing \texttt{if} statements without curly braces. They save you nothing but the fraction of a second required to type out the curly braces and the extra row of screen space that they occupy in your text editor, but they can cost you hours of confusion due to subtleties like in the above example. That said, the course's style guidelines do not forbid you from writing \texttt{if} statements without curly braces. Either way, whether you write \texttt{if} statements like this or not, you should know how to \textit{read} them because, for better or worse, some people write \texttt{if} statements like this.
+
+\section{Nested if statements}
+
+Of course, you can write \texttt{if} statements inside of \texttt{if} statements. The result is something akin to a logical and operation. Consider the following code:
+
+\begin{cpp}{Nested if statement example 1}
+if (i_like_spaghetti) {
+    if (i_like_broccoli) {
+        std::cout << "I like both spaghetti AND broccoli!" << std::endl;
+    }
+}
+\end{cpp}
+
+In the above example, if the value of \texttt{i\_like\_spaghetti} is \texttt{true}, then the outer (nesting) \texttt{if} statement's body will execute. Inside that body is another inner (nested) \texttt{if} statement, whose condition will then be evaluated. In such a case, if the value of \texttt{i\_like\_broccoli} is \texttt{true}, then its body will execute in turn, printing \texttt{"I like both spaghetti AND broccoli!"}. Due to the nested nature of these \texttt{if} statements, if \textit{either} condition is \texttt{false}, the program will print nothing.
+
+That is, nested \texttt{if} statements behave similarly to a logical and operator (specifically one with short circuiting: \texttt{\&\&}). However, there are often subtle differences, especially when \texttt{else} and \texttt{else if} statements are invovled. For example, consider the following program:
+
+\begin{cpp}{Nested if statement example 2}
+if (i_like_spaghetti) {
+    if (i_like_broccoli) {
+        std::cout << "A" << std::endl;
+    } else {
+        std::cout << "B" << std::endl;
+    }
+}
+\end{cpp}
+
+In the above example, if the values of \texttt{i\_like\_spaghetti} and \texttt{i\_like\_broccoli} are both \texttt{true}, the program will print \texttt{"A"}. If the value of \texttt{i\_like\_spaghetti} is \texttt{true} but the value of \texttt{i\_like\_broccoli} is \texttt{false}, the program will print \texttt{"B"}. If the value of \texttt{i\_like\_spaghetti} is \texttt{false}, the program will print nothing, regardless of the value of \texttt{i\_like\_broccoli}.
+
+In contrast, consider the following program written with a logical and operator instead of nesting:
+
+\begin{cpp}{Non-nested if statement example 1}
+if (i_like_spaghetti && i_like_broccoli) {
+    std::cout << "A" << std::endl;
+} else {
+    std::cout << "B" << std::endl;
+}
+\end{cpp}
+
+If you analyze this code carefully, you'll realize that it doesn't do quite the same thing as the previous program. This program will still print \texttt{"A"} if both conditions are satisfied. However, in all other cases, it will print \texttt{"B"}---there's no opportunity for it to print nothing. Of course, you could change the \texttt{else} statement to an \texttt{else if} statement to recover the semantics of the original program, like so:
+
+\begin{cpp}{Non-nested if statement example 2}
+if (i_like_spaghetti && i_like_broccoli) {
+    std::cout << "A" << std::endl;
+} else if (i_like_spaghetti) {
+    std::cout << "B" << std::endl;
+}
+\end{cpp}
+
+It might be hard to parse, but the above program is equivalent to our original program. Consider: if both \texttt{i\_like\_spaghetti} and \texttt{i\_like\_broccoli} are \texttt{true}, then the program will print \texttt{"A"}. If \texttt{i\_like\_spaghetti} is \texttt{true}, but \texttt{i\_like\_broccoli} is \texttt{false}, then the program will print \texttt{"B"}. If both are \texttt{false}, then the program will print nothing.
+
+In general, logical operations can almost always be replaced with nested and / or sequential \texttt{if} statements. As you may have noticed, nested \texttt{if} statements can often be easier to understand than logical operations since each layer of nesting tends to only deal with one variable at a time. In our above example, the outer (nesting) \texttt{if} statement deals with the logic surrounding \texttt{i\_like\_spaghetti}, and the inner (nested) \texttt{if} statements deal with the logic surrounding \texttt{i\_like\_broccoli}. When we want to rewrite this without nesting, it requires somewhat complex logical operations. Moreover, it can be hard to interpret an \texttt{else if} or \texttt{else} statement that's attached to an \texttt{if} statement with a logically complex condition since understanding the compliment (negation) of a complex condition can be unintuitive.
+
+However, nesting can complicate scope, as you probably know by now. Hence, there are tradeoffs to using nested \texttt{if} statements versus logical operations.
+
+Lastly, in the case of nested \texttt{if} statements with implied curly braces, any \texttt{else if} and \texttt{else} statements will be considered associated with the most adjacent preceding \texttt{if} statement. This can again lead to confusion surrounding indentation, but even more so due to the layers of nesting. For example, consider the following code:
+
+\begin{cpp}{Confusing indentation of nested if statements}
+if (2 + 2 == 4)
+    if (4 + 5 == 8)
+        std::cout << "A" << std::endl;
+else
+    std::cout << "B" << std::endl;
+\end{cpp}
+
+Although it \textit{looks} like the above program will print \textit{nothing}, it will actually print \texttt{"B"}. As mentioned, \texttt{else if} and \texttt{else} statements are considered associated with the most recent preceding \texttt{if} statement. Again, the amount of indentation is irrelevant to C++. Hence, the above code is equivalent to the following:
+
+\begin{cpp}{Resolving confusion of indentation with nested if statements}
+if (2 + 2 == 4)
+    if (4 + 5 == 8)
+        std::cout << "A" << std::endl;
+    else
+        std::cout << "B" << std::endl;
+\end{cpp}
+
+The above program is semantically equivalent to the previous program, but the indentation now makes it clear that the \texttt{else} statement is indeed nested inside the first, outer (nesting) \texttt{if} statement and associated with the second, inner (nested) \texttt{if} statement. Hence, it's now clear that the program will print \texttt{"B"}.
+
+\section{Common mistakes with booleans and if statements}
+
+\subsection{Incomplete logical operands}
+
+Some logical operations don't translate so naively from English to C++. For example, suppose your goal is to write a logical operation that represents the condition, ``\texttt{x} is equal to 2 or 0'', where \texttt{x} is some numeric expression (e.g., perhaps an \texttt{int}-typed variable, or perhaps a more complicated expression). You might naively express this in C++ like so:
+
+\begin{cpp}{Incomplete logical operand}
+x == 2 || 0
+\end{cpp}
+
+However, the above expression has a bug. Recall that the \texttt{||} operator accepts two operands (one on either side), each of which is treated as a boolean. In the above code, the two operands are \texttt{x == 2} and \texttt{0}. Of course, the latter is not actually a boolean, but rather an \texttt{int}-typed literal. In such a case, C++ will coerce (i.e., implicitly type cast) the \texttt{0} to a boolean. According to boolean conversion rules, \texttt{0} is converted to \texttt{false}. That is, the above expression is exactly equivalent to the following:
+
+\begin{cpp}{Incomplete logical operand rewrite 1}
+x == 2 || false
+\end{cpp}
+
+Of course, a logical ``or'' operation applied to a trivially \texttt{false} expression results in an identity operation. That's to say, the above expression can be further rewritten as the following:
+
+\begin{cpp}{Incomplete logical operand rewrite 2}
+x == 2
+\end{cpp}
+
+This clearly isn't the logic that we were trying to express.
+
+To express the logic ``\texttt{x} is equal to 2 or 0'', we must make sure that each operand is a complete boolean expression. For example, we could restate our goal more explicitly as ``\texttt{x} is equal to 2, or \texttt{x} is equal to 0''. If we translate this naively to C++, we get the correct operation:
+
+\begin{cpp}{Complete logical operands}
+x == 2 || x == 0
+\end{cpp}
+
+\subsection{Chaining inequalities}
+
+Suppose your goal is to express the logic, ``\texttt{x} is between 1 and 10'', where \texttt{x} is some numeric expression. In mathematics, we could express this succinctly with a chained inequality:
+
+$1 \leq x \leq 10$.
+
+If we translated this naively to C++, it might look something like this:
+
+\begin{cpp}{Incorrect compound range expression}
+1 <= x <= 10
+\end{cpp}
+
+However, again, the above expression has a bug. C++ resolves each operator one at a time---it will \textit{never} combine multiple operators into a single compound expression with new semantics and evaluate it all simultaneously. In this case, C++ will resolve the operators left-to-right. That is, the above expression is equivalent to the following:
+
+\begin{cpp}{Incorrect compound range expression rewrite 1}
+(1 <= x) <= 10
+\end{cpp}
+
+The parentheses do not change the semantics in this case, but they make it clear that these are two separate operations to be resolved one at a time, the left one being resolved first.
+
+Suppose \texttt{x} is 100. Then \texttt{1} is, indeed, less than or equal to \texttt{x}, so the above expression resolves to \texttt{true <= 10}. Believe it or not, this is a perfectly legal C++ expression. In this case, C++ will convert the \texttt{true} to an \texttt{int}-typed expression and then carry out the relational operator. According to boolean conversion rules, \texttt{true} will be converted to \texttt{1}, which results in the expression \texttt{1 <= 10}, which is in turn \texttt{true}. That's to say, the entire expression \texttt{1 <= 100 <= 10} resolves to \texttt{true} in C++, even though it would obviously be a false inequality in the world of mathematics.
+
+Similarly, suppose \texttt{x} is -100. Then \texttt{1} is \textit{not} less than or equal to \texttt{x}, so the above expression resolves to \texttt{false <= 10}. Again, C++ will convert the \texttt{false} to an \texttt{int}-typed expression. According to boolean conversion rules, \texttt{false} will be converted to \texttt{0}, which results in the expression \texttt{0 <= 10}, which is in turn \texttt{true}. That's to say, the entire expression \texttt{1 <= -100 <= 10} resolves to \texttt{true} in C++, even though it would obviously be a false inequality in the world of mathematics.
+
+More generally, the expression \texttt{1 <= x <= 10} will \textit{always} resolve to \texttt{true}; the first inequailty must either be \texttt{true} or \texttt{false}, which, when converted to an integer, will either be \texttt{1} or \texttt{0}. Both of these values are less than or equal to \texttt{10}.
+
+So, clearly, this isn't what we want. To represent a compound / ``chained'' inequality expression in C++, such as for checking whether some value lies between two bounds, you must express it as a conjunction (logical ``and'') of two separate inequalities. In this case, the expression we want it something like this:
+
+\begin{cpp}{Correct compound range expression}
+1 <= x && x <= 10
+\end{cpp}
+
+Of course, there are many other ways to write this expression (e.g., \texttt{x >= 1 \&\& x <= 10}), but the point is that chaining inequalities does not work in C++ the same way that it does in mathematics.
+
+\subsection{Else without if and vice versa}
+
+Keep in mind that an \texttt{else if} or \texttt{else} statement \textit{must} immediately follow a previous \texttt{if} or \texttt{else if} statement. Moreover, the \texttt{else if} or \texttt{else} statement's ``otherwise'' logic is associated with the immediately preceding sequence of \texttt{if} and \texttt{else if} statements (e.g., an \texttt{else if} statement's body will only execute if its condition is \texttt{true} and all immediately preceding \texttt{if} and \texttt{else if} statements' conditions were false).
+
+That is, you can't simply write \texttt{else if} or \texttt{else} as a standalone statement. Here is an attempt to do so:
+
+\begin{cpp}{Else without if}
+#include <iostream>
+int main() {
+    else {
+        std::cout << "Hello!" << std::endl;
+    }
+}
+\end{cpp}
+
+Here is the associated compiler error:
+
+\begin{terminaloutput}
+main.cpp: In function ‘int main()’:
+main.cpp:4:9: error: ‘else’ without a previous ‘if’
+    4 |         else {
+      |
+\end{terminaloutput}
+
+Similarly, if you want two adjacent \texttt{if} statements to be syntactically mutually exclusive, you must remember to make the second statement an \texttt{else if} statement rather than a plain-old \texttt{if} statement.
+
+\subsection{Assignment instead of equality (and ``Yoda notation'')}
+
+Accidentally using an assignment operator (\texttt{=}) when you intend to use an equality operator (\texttt{==}) is such a common mistake that some programming languages have actually chosen to use a different symbol entirely for assignment. Nevertheless, in C++, it persists as a very common mistake. As we've discussed, the result is often not a syntax error, nor a crashing runtime error, but rather a subtle logic error that will cause your program to behave in strange, hard-to-diagnose ways. If you've written a program using lots of \texttt{if} statements and it doesn't seem to behaving properly, this is often one of the first things you'll want to check.
+
+A common way to avoid this is via ``Yoda notation''. This is where, if you have an equality operation with a variable on one side, you prefer to put that variable on the right side. For example, you might write \texttt{5 == x} as opposed to \texttt{x == 5}. This is useful because if you accidentally use an assignment operator instead of an equality operator with Yoda notation, you end up with a non-variable expression on the left of the assignment operator (e.g., \texttt{5 = x}), which results in a compiler error (syntax error) rather than a subtle logic error.
+
+\subsection{Exact equality for floating point numbers}
+
+Just as we can't represent all fractions in floating point form perfectly in the decimal system (e.g., $\frac{1}{3}$ in floating point form requires an infinite number of digits), computers also can't represent all fractions with perfect precision. As a result, if your program performs a series of mathematical operations on some floating point values, it may find itself having to round intermediate values every now and again. The consequence is that the final result of a series of floating point operations could be very slightly off of your expectations (e.g., off by a trillionth).
+
+The consequence is that conditions designed to compare two floating point values for exact equality will often fail. Instead of comparing floating point values for exact equality, you should check if they are ``close enough'' to each other, where the exact definition of ``close enough'' depends on your application's goals. For example, don't write an \texttt{if} statement like this:
+
+\begin{cpp}{Floating point exact equality}
+if (some_floating_point_value == some_other_floating_point_value) {
+    ...
+}
+\end{cpp}
+
+Instead, write something like this:
+
+\begin{cpp}{Floating point closeness}
+if (abs(some_floating_point_value - some_other_floating_point_value) < 0.000001) {
+    ...
+}
+\end{cpp}
+
+In this case, the \texttt{if} statement's condition will resolve to \texttt{true} whenever the distance between the values \texttt{some\_floating\_point\_value} and \texttt{some\_other\_floating\_point\_value} is less than \texttt{0.000001}. To be clear, ``floating point value'' does not strictly mean a \texttt{float}-typed expression; this all applies to \texttt{double}-typed expressions as well (which are more precise, but still can't store certain fractional values with perfect precision).
+
+\subsection{If statements have scope!}
+
+Keep in mind that \texttt{if} statements have scope, whether they have curly braces or not. As such, any variables declared inside an \texttt{if} statement body (or an \texttt{else if} statement body, or an \texttt{else} statement body) are scoped within the body. Once that body of conditional code ends, the declared variables will fall out of scope.
+
+If you want to set the value of some variable inside the body of an \texttt{if} statement, but you want to be proceed to \textit{use} that value outside the body of the \texttt{if} statement, you must remember to \textit{declare} the variable outside and prior to the \texttt{if} statement so that it's accessible from both scopes. For example, the following code has a scope error since \texttt{favorite\_number} falls out of scope and is inaccessible from the print statement at the end of the program:
+
+\begin{cpp}{If statement scope issue}
+std::cout << "Is 777 your favorite number? Enter 1 for yes or 0 for no: ";
+int favorite_is_777;
+std::cin >> favorite_is_777;
+
+if (favorite_is_777 == 0) {
+    int favorite_number = 777;
+
+    std::cout << "Oh! Okay, then. What IS your favorite number?: ";
+    std::cin >> favorite_number;
+}
+
+std::cout << "Okay, so your favorite number is " << favorite_number << std::endl;
+\end{cpp}
+
+We could fix this scope error by simply moving the declaration (and initialization) of \texttt{favorite\_number} to just before the \texttt{if} statement, like so:
+
+\begin{cpp}{If statement scope resolution}
+std::cout << "Is 777 your favorite number? Enter 1 for yes or 0 for no: ";
+int favorite_is_777;
+std::cin >> favorite_is_777;
+
+int favorite_number = 777;
+
+if (favorite_is_777 == 0) {
+    std::cout << "Oh! Okay, then. What IS your favorite number?: ";
+    std::cin >> favorite_number;
+}
+
+std::cout << "Okay, so your favorite number is " << favorite_number << std::endl;
+\end{cpp}
+
+% TODO nested if statements / sequential if statements
+% TODO implied curly braces (and scope)
+
+% TODO In lecture after that: RNG
+
+\end{document}

@@ -1,0 +1,153 @@
+\documentclass{article}
+
+% Per-assignment macros
+\def\lecturetitle{Shorthand Operators}
+
+% Imports
+\usepackage{graphicx} % Required for inserting images
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue, anchorcolor=blue]{hyperref}
+\usepackage{hhline}
+
+% Titling
+\usepackage{titling}
+\preauthor{\begin{center}}
+\postauthor{\par\end{center}\vspace{-30pt}}
+\setlength{\droptitle}{-50pt}
+
+% Geometry
+
+\usepackage{geometry}
+\geometry{letterpaper, portrait, margin=1in}
+
+\usepackage[skip=5pt]{parskip}
+\newlength\tindent
+\setlength{\tindent}{\parindent}
+\setlength{\parindent}{0pt}
+\renewcommand{\indent}{\hspace*{\tindent}}
+
+% Assignment titling (number, due date, etc)
+\title{
+    Lecture Notes: \lecturetitle
+}
+\author{ENGR 103, Winter 2024}
+\date{}
+
+% Box environments
+\usepackage{tcolorbox}
+\usepackage{fancyvrb}
+\newenvironment{terminalcommand}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Command,colframe=gray!80!blue,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+\newenvironment{terminaloutput}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Output,colframe=gray!80!red,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+
+\usepackage{minted}
+\newenvironment{cpp}[1]
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=\texttt{#1},colframe=gray!50!blue,colback=white!97!black]
+    \begin{minted}{c++}}
+    {\end{minted}
+    \end{tcolorbox}}
+
+\newenvironment{tip}
+    {\begin{tcolorbox}[title=Tip,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newenvironment{note}
+    {\begin{tcolorbox}[title=Note,colframe=white!70!red,colback=white]}
+    {\end{tcolorbox}}
+
+\newcounter{examplerun}
+\newenvironment{examplerun}
+    {\begin{tcolorbox}[title=Example Run \refstepcounter{examplerun}\theexamplerun,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleruninputs}{\tcbsubtitle{Inputs}}
+\newcommand{\examplerunoutputs}{\tcbsubtitle{Outputs}}
+
+\newcommand{\imagewithdefaults}[1]{\includegraphics[width=\maxwidth{0.95\columnwidth}]{#1}}
+
+\makeatletter
+\def\maxwidth#1{\ifdim\Gin@nat@width>#1 #1\else\Gin@nat@width\fi}
+\makeatother
+
+\usepackage{soul}
+
+\begin{document}
+
+\maketitle
+
+\section{Using Variables in Their Own Assignments}
+
+As discussed previously, the assignment operator has very low precedence in order of operations---the entire expression on the right side of the assignment operator is evaluated, and then that value is stored in the variable on the left of the assignment operator.
+
+As it turns out, the variable on the left of an assignment operator may also appear on the right side of the assignment operator as well. It works exactly as you'd expect. For example, consider the following code:
+
+\begin{cpp}{Variable in its own assignment}
+int x = 0;
+x = x + 2;
+x = x - 1;
+x = x * 5;
+std::cout << x << std::endl;
+\end{cpp}
+
+The above code will print \texttt{5}. In the first line, \texttt{x} is declared and initialized to 0. In the second line, \texttt{x + 2} is computed, which yields \texttt{0 + 2 = 2}, and the result is stored inside \texttt{x}; the \texttt{0} that was previously stored in \texttt{x} is now overwritten with \texttt{2}. The pattern repeats a couple more times: \texttt{x} is decremented down to \texttt{1} in the third line and multiplied up to \texttt{5} in the fourth line. The fifth line then prints the value of \texttt{x}, which is \texttt{5} at that point.
+
+Of course, the above example generally applies to any numeric type of variable---not just \texttt{int} variables.
+
+\section{Shorthand Arithmetic Assignment Operators}
+
+Suppose you have some numeric variable called \texttt{my\_number}. It could be an \texttt{int}, \texttt{float}, \texttt{double}---it doesn't matter. If you want to increase \texttt{my\_number} by some amount \texttt{c}, where \texttt{c} is any numeric expression (and potentially another variable), you could write \texttt{my\_number = my\_number + c}. However, there's a shorthand for this statement: \texttt{my\_number += c}.
+
+As you know, the \texttt{=} operator is called the \textbf{assignment operator}. Similarly, the \texttt{+=} operator is called the \textbf{addition assignment operator}. It computes the sum of the variable on the left and the expression on the right, and then it stores the value of that sum in the variable on the left.
+
+Similarly, there is a \textbf{subtraction assignment operator} (\texttt{-=}), \textbf{multiplication assignment operator} (\texttt{*=}), \textbf{division assignment operator} (\texttt{/=}), and even a \textbf{remainder assignment operator} (\texttt{\%=}). They all work similarly; they apply the corresponding arithmetic operator between the variable on the left and the variable on the right, and then they store the result in the variable on the left.
+
+\section{Increment and Decrement Operators}
+
+Suppose your goal is to increase \texttt{my\_number} by exactly \texttt{1}. As you know, you could express this as \texttt{my\_number = my\_number + 1}, or you could do \texttt{my\_number += 1}. And yet, there are still two more options: \texttt{my\_number++} and \texttt{++my\_number}.
+
+When \texttt{++} appears after the name of a variable, it is called the \textbf{post-increment operator}. When it appears before the name of a variable, it is called the \textbf{pre-increment operator}. Both of these operators simply increase the value of the numeric variable by exactly 1. However, they are subtly different. To understand the difference, we first have to learn a bit more about assignment operations.
+
+\ul{In C++, assignments are themselves expressions.} Recall that expression is a piece of code with a type and a value, and an assignment is a statement such as \texttt{some\_variable = some\_value}. Indeed, this entire statement itself has a type and a value. The type and value of an assignment operation is simply equal to the type and value of the variable post-assignment.
+
+For example, consider the following code:
+
+\begin{cpp}{Assignment as an expression}
+int my_cool_integer = 0;
+std::cout << (my_cool_integer = 100) << std::endl;
+std::cout << my_cool_integer << std::endl;
+\end{cpp}
+
+The above code prints \texttt{100} twice. The first line declares \texttt{my\_cool\_integer} and initializes it to 0. However, the second line of code assigns it the value of \texttt{100} and then prints the value of that assignment operation. Following the rules described previously, the type and value of that assignment operation is simply the type and value of \texttt{my\_cool\_variable} after the assignment has taken place. Of course, \texttt{my\_cool\_integer} is of type \texttt{int} (and it always will be since declared variable types cannot change in C++). The value of \texttt{my\_cool\_variable} after assignment is \texttt{100}. Hence, the expression \texttt{(my\_cool\_integer = 100)} has type \texttt{int} and value \texttt{100}. So the second line in the above code will do two things: it will change the value of \texttt{my\_cool\_integer} to \texttt{100}, and then it will print \texttt{100} to the terminal. Finally, the third line simply prints the value of \texttt{my\_cool\_integer}, which is \texttt{100} at that point.
+
+Shorthand assignment operations are also expressions, and they work the same way. For example, \texttt{std::cout << (x += 5) << std::endl} will compute \texttt{x + 5}, store the result in \texttt{x}, and then print the new value of \texttt{x}.
+
+This is where the subtle difference between the pre- and post-increment operators comes in. In the pre-increment operator (e.g., \texttt{++my\_number}), the variable is incremented by \texttt{1}, and the expression is evaluated to be the newly incremented value of the variable. In the post-increment operator (e.g., \texttt{my\_number++}), the variable is incremented by \texttt{1}, but the expression is evaluated to be the \textit{original}, unincremented value of the variable. In some sense, you can think of it as if the pre-increment operator applies the incrementation \textit{before} the variable is evaluated in the expression, whereas the post-increment operator applies the incrementation after the variable is evaluated in the expression (that's not technically what happens, but you can think of it like that).
+
+For example, consider the following code:
+
+\begin{cpp}{Pre- vs post-increment}
+int x = 0;
+std::cout << (++x) << std::endl;
+std::cout << x << std::endl;
+
+x = 0;
+std::cout << (x++) << std::endl;
+std::cout << x << std::endl;
+\end{cpp}
+
+In order, the four print statements in the above code will respectively print \texttt{1}, \texttt{1}, \texttt{0}, and \texttt{1}. The pre-increment operator in the first print statement increments \texttt{x} to \texttt{1} and proceeds to print its new value. The second print statement simply prints the value of \texttt{x}, which is \texttt{1} by that point. \texttt{x} is then reset to zero just before the third print statement. The third print statement uses a post-increment operator, so, when evaluated as an expression, the \textit{old} value of \texttt{x} is used (0), even though \texttt{x} is incremented to \texttt{1}. As such, the third print statement print \texttt{0} and simultaneously increment \texttt{x} to \texttt{1}. The fourth print statement simply prints the value of \texttt{x}, which is \texttt{1} at that point.
+
+Of course, the difference between pre-increment and post-increment operators is moot if you don't intend to \textit{use} the value of the operation expression in any way. And this is very common---you often just want to increment the variable in a standalone statement, such as \texttt{x++;} or \texttt{++x;}. In these cases, since the value of the operation expression isn't used in any way (it's ``discarded''), and the only difference between pre- and post-increment operators is the final value of the operation expression, there is no functional difference between the two operators in such a case. They both simply increment \texttt{x} by \texttt{1}.
+
+Lastly, similar to pre-increment and post-increment operators, there are also \textbf{pre-decrement} and \textbf{post-decrement} operators. These work exactly the same as the corresponding increment operators, but they decrease the value of the variable by \texttt{1} instead of increasing it.
+
+\end{document}

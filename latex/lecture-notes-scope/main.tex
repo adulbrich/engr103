@@ -1,0 +1,285 @@
+\documentclass{article}
+
+% Per-assignment macros
+\def\lecturetitle{Scope}
+
+% Imports
+\usepackage{graphicx} % Required for inserting images
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue, anchorcolor=blue]{hyperref}
+\usepackage{hhline}
+
+% Titling
+\usepackage{titling}
+\preauthor{\begin{center}}
+\postauthor{\par\end{center}\vspace{-30pt}}
+\setlength{\droptitle}{-50pt}
+
+% Geometry
+
+\usepackage{geometry}
+\geometry{letterpaper, portrait, margin=1in}
+
+\usepackage[skip=5pt]{parskip}
+\newlength\tindent
+\setlength{\tindent}{\parindent}
+\setlength{\parindent}{0pt}
+\renewcommand{\indent}{\hspace*{\tindent}}
+
+% Assignment titling (number, due date, etc)
+\title{
+    Lecture Notes: \lecturetitle
+}
+\author{ENGR 103, Winter 2024}
+\date{}
+
+% Box environments
+\usepackage{tcolorbox}
+\usepackage{fancyvrb}
+\newenvironment{terminalcommand}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Command,colframe=gray!80!blue,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+\newenvironment{terminaloutput}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Output,colframe=gray!80!red,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+
+\usepackage{minted}
+\newenvironment{cpp}[1]
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=\texttt{#1},colframe=gray!50!blue,colback=white!97!black]
+    \begin{minted}{c++}}
+    {\end{minted}
+    \end{tcolorbox}}
+
+\newenvironment{tip}
+    {\begin{tcolorbox}[title=Tip,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newenvironment{note}
+    {\begin{tcolorbox}[title=Note,colframe=white!70!red,colback=white]}
+    {\end{tcolorbox}}
+
+\newcounter{examplerun}
+\newenvironment{examplerun}
+    {\begin{tcolorbox}[title=Example Run \refstepcounter{examplerun}\theexamplerun,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleruninputs}{\tcbsubtitle{Inputs}}
+\newcommand{\examplerunoutputs}{\tcbsubtitle{Outputs}}
+
+\newcommand{\imagewithdefaults}[1]{\includegraphics[width=\maxwidth{0.95\columnwidth}]{#1}}
+
+\makeatletter
+\def\maxwidth#1{\ifdim\Gin@nat@width>#1 #1\else\Gin@nat@width\fi}
+\makeatother
+
+\usepackage{soul}
+
+\begin{document}
+
+\maketitle
+
+Think back to functions' parameters and return values. You might ask yourself, ``If the goal is just to share information between functions, why do we need parameters and return values? Why can't we just declare variables in one function and access them from another function?''
+
+The answer is two-fold: 1) variables are only accessible within the \textbf{scopes} that they're declared, and 2) declaring variables in outer scopes that allow access to them by all functions (such as \textbf{global variables}) creates all sorts of problems, like functions that are hard to read, hard to use, hard to test, and hard to maintain.
+
+\section{Basics of scopes}
+
+Loosely, a \textbf{scope} is defined by everything that lies between a pair of curly braces in C++. This isn't always true---sometimes the curly braces are implied---but it's a decent proxy rule for now. \ul{All variables are bound to the scopes in which they're declared.} This means two things:
+
+\begin{enumerate}
+    \item \label{step:scope_rule_accessible} A variable can only be accessed from within the scope that it was declared.
+    \item \label{step:scope_rule_available} Once the scope in which a variable was declared ends (i.e., the program reaches the closing curly brace of the scope), the variable is said to ``fall out of scope''. At this moment, the variable is known to never be accessible again, so the variable's memory may be deleted / recycled for other purposes.
+\end{enumerate}
+
+Parameters are a bit strange, though. They're bound to the scope of their function's body. That is, you can pretend like parameters are declared at the beginning of the function body, even though they're technically declared outside of the function body (in the header).
+
+Scope rule \ref{step:scope_rule_accessible} above suggests that, for example, a variable declared in the body of the \texttt{main} function cannot be accessed from the body of the \texttt{sum} function. Attempting to do so will result in a syntax error. To prove it, the following program is a naive attempt at replacing return values with an external variable that the \texttt{sum} function simply modifies. It will fail to compile because \texttt{sum} does not have access to the \texttt{result} variable. The reason is technically two-fold: 1) the \texttt{result} variable is declared out of scope, and 2) the \texttt{result} variable is declared after (below) the \texttt{sum} function's reference to it (recall that, like functions, variables must be declared above any references to them):
+
+\begin{cpp}{Naive variable sharing attempt}
+#include <iostream>
+
+double sum(double first_value, double second_value) {
+    // Try to store the sum directly in the `result` variable
+    // within the main function
+    result = first_value + second_value;
+}
+
+int main() {
+    double result;
+    sum(2, 2);
+    std::cout << result << std::endl;
+}
+\end{cpp}
+
+Attempting to compile the above program will produce an error like the following:
+
+\begin{terminaloutput}
+main.cpp: In function ‘double sum(double, double)’:
+main.cpp:6:5: error: ‘result’ was not declared in this scope
+    6 |     result = first_value + second_value;
+      |     ^~~~~~
+main.cpp:7:1: warning: no return statement in function returning non-void [-Wreturn-type]
+    7 | }
+      | ^
+\end{terminaloutput}
+
+Scope rule \ref{step:scope_rule_available} makes memory management very easy for us. If you've ever wondered, ``how does my computer know when it's okay to delete the memory that's been allocated for a variable?'', the answer in most cases is scope. Once a variable falls out of scope, it can never be accessed again, so your computer knows that it's safe to delete it at that point.
+
+There are some finer details here. Firstly, your computer won't necessarily delete a variable's memory the moment it falls out of scope, but it's guaranteed not to delete it before that point.
+
+Second, keep in mind that a variable only falls out of scope when its scope truly ends. It's possible for your program to temporarily jump from one scope to another with the promise that it will eventually return back to the original scope. In such a case, variables declared in the original scope cannot be deleted from memory as a result of the temporary jump---they will only be temporarily inaccessible until the first scope resumes. As a simple example, consider a function call: when your program encounters a function call, it will temporarily jump to the scope of the called function until said function terminates, at which point it will resume in the scope of the calling function, immediately after the function call.
+
+\section{Nested scopes}
+
+Scopes can be \textbf{nested} in C++. A nested scope is simply a scope that exists inside another scope. In fact, you can create scopes whenever you want by just typing out some curly braces and putting stuff between them. If you do this inside another scope, then you'll end up with a nested scope.
+
+Nested scopes follow all of the same rules as other scopes. If a variable is declared in some nesting (outer) scope, it is accessible everywhere within that outer scope after its declaration, \ul{which includes any following nested (inner) scopes within the outer scope}. For an example, see the following program:
+
+\begin{cpp}{Nested scope example}
+#include <iostream>
+
+int main() {
+    // Create a second, nested scope (for academic purposes)
+    {
+        // my_cool_value is bound to this second, nested scope
+        int my_cool_value = 5;
+
+        // We can access (read or write) my_cool_value here
+        std::cout << my_cool_value << std::endl; // Prints 5
+    
+        // Create a third, nested scope (for academic purposes)
+        {
+            // We can still access (read or wrute) my_cool_value here
+            my_cool_value = 6;
+            std::cout << my_cool_value << std::endl; // Prints 6
+        }
+    
+        // We're still in the second nested scope, so we can still
+        // access my_cool_value here as well
+        my_cool_value = 7;
+        std::cout << my_cool_value << std::endl;
+    }
+
+    // However, we're now backed out of the second nested scope all
+    // the way to the main() function scope. We can no longer access
+    // my_cool_value; it may have even been deleted from memory.
+    // This would produce a syntax error if it wasn't commented out:
+    //      my_cool_value = 8;
+    // As would this:
+    //      std::cout << my_cool_value << std::endl;
+}
+\end{cpp}
+
+\section{Shadowing names}
+
+Two variables with the same name cannot be declared in the exact same scope. However, two variables with the same name \textit{can} be declared in different scopes.
+
+We've seen this already in the functions lecture:
+
+\begin{cpp}{Parameters are different from arguments}
+#include <iostream>
+
+int weird_sum(int a, int b) {
+    double result = a + b; // Compute sum
+    a = 0; // Store 0 in parameter a
+    b = 0; // Store 0 in parameter b
+    return result; // Return previously computed sum
+}
+
+int main() {
+    int a = 2;
+    int b = 3;
+    std::cout << weird_sum(a, b) << std::endl; // Prints 5
+    std::cout << a << std::endl; // Prints 2! NOT 0!
+}
+\end{cpp}
+
+In the above program, there's a local variable called \texttt{a} in the \texttt{main} function, and there's also a parameter called \texttt{a} in the \texttt{weird\_sum} function. This is perfectly legal since each variable can only be accessed from their respective scopes. It's clear that when we refer to \texttt{a} in the \texttt{main} function, we're referring to the local variable. And it's clear that when we refer to \texttt{a} in the \texttt{weird\_sum} function, we're referring to the parameter. After all, we \textit{couldn't} refer to one variable from the other variable's scope.
+
+However, you can also declare a variable in a nested (inner) scope whose name is identical to another variable declared previously in the nesting (outer) scope. This may seem strange---you'll end up with two variables with the same name that are both accessible within the nested scope. The result is called \textbf{shadowing}; the variable declared in the nested (inner) scope is said to ``shadow'' the variable declared in the nesting (outer) scope. When a variable is shadowed, it becomes inaccessible until the variable shadowing it falls out of scope (i.e., the variable declared in the outer scope will become inaccessible until the inner scope ends). As a result, any usage of the variables' name will refer to the most recently and most inner declared variable (the shadowing variable---not the shadowed variable). Note that even when a variable shadows another variable, they are still two separate variables with two separate boxes of memory and two separate values. See the following program for an example:
+
+\begin{cpp}{Shadowing variables}
+#include <iostream>
+
+int main() {
+    int my_integer = 5;
+    std::cout << my_integer << std::endl; // Prints 5
+    {
+        // Change the value of the existing my_integer
+        // variable to 10
+        my_integer = 10;
+        std::cout << my_integer << std::endl;
+
+        // Declare a NEW integer, also called my_integer,
+        // with value 0. Notice the type specifier, `int`.
+        // Without this type specifier, we would simply be
+        // modifying the existing variable again. The type
+        // specifier is what makes this a new variable
+        // declaration.
+        int my_integer = 0;
+
+        // At this point, the new my_integer shadows the old
+        // one.
+        std::cout << my_integer << std::endl; // Prints 0
+    }
+
+    // Now, the inner my_integer has fallen out of scope.
+    // The original, outer my_integer is no longer shadowed,
+    // so `my_integer` will once again refer to the original,
+    // outer my_integer variable. Recall that its value was
+    // changed to 10 in the nested scope.
+    std::cout << my_integer << std::endl; // Prints 10
+}
+\end{cpp}
+
+\section{Global scope and global variables}
+
+As it turns out, there's an implied scope that exists outside of all curly braces. It's called \textbf{global scope}. And, indeed, you can declare variables within global scope. As you might guess, variables that are declared in global scope, called \textbf{global variables}, can be accessed from anywhere below their declarations, including from within any function.
+
+\ul{However, global variables are an \textbf{antipattern} (a bad idea)}. Global variables create extremely flexible communication channels between all parts of your entire program. This much flexibility is a very bad thing---if \textit{any} part of your code can write to a global variable, and any part of your code can \textit{depend} on the value of that global variable, then global variables create a massive web of interdependence between every part of your codebase. This leads to extremely brittle code---a tiny mistake in one function that modifies a global variable in an incorrect manner could propagate to errors throughout your entire program, and it can be very difficult to locate the source of those errors since global variables can potentially be modified from anywhere and everywhere.
+
+Moreover, global variables introduce overcomplicated function contracts, which makes functions hard to read, use, and test. If a function depends on the value of a global variable, then that function might only work if you make sure to assign an appropriate value to the global variable before calling the function. That's just one more thing that you have to remember to do, and your compiler generally can't detect when you fail to do it (e.g., you usually can't enforce syntax constraints on these sorts of things). Indeed, failure to satisfy preconditions on global variables will generally result in a logic error---the worst kind of error.
+
+Global variables also break thread safety, which is too complicated to talk about in this course, but you can Google it or drop by office hours if you're curious.
+
+With all of that in mind, the following program is perfectly legal, \ul{but badly written}:
+
+\begin{cpp}{Global variables are bad!}
+// Global variables. Legal, but a very bad idea!
+double first_value;
+double second_value;
+double result;
+
+// No parameters or return values---just uses the globals.
+// Again, a very bad idea!
+void sum() {
+    result = first_value + second_value;
+}
+
+int main() {
+    // Satisfy preconditions---setup first_value and second_value
+    first_value = 2;
+    second_value = 2;
+
+    // Now run the sum function, which will add the first_value
+    // and second_value globals to compute the result global
+    sum();
+
+    // Now print the result global
+    std::cout << result << std::endl; // Prints 4
+}
+\end{cpp}
+
+Hopefully you see why this is a terrible idea. If you forget to assign values to \texttt{first\_value} or \texttt{second\_value} before calling the \texttt{sum} function, there will be no syntax errors---just logic errors. In the worst case, you could even end up with undefined behavior if these global variables have never been initialized before.
+
+In contrast, forgetting to supply arguments to a function with required parameters, or forgetting to return a value from a non-void function, results in a syntax error---a much better kind of error to deal with. Hence, parameters, return values, and scope all exist to avoid the problems associated with global communication channels like global variables.
+
+Lastly, it's important to understand that \textbf{global constants} (i.e., global variables marked as \texttt{const} or \texttt{constexpr}) are usually okay. Since they can't be changed at any point, they don't serve as a complicated communication channel between functions---they only serve as meaningful names for fixed values.
+
+\end{document}

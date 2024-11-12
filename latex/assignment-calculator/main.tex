@@ -1,0 +1,297 @@
+\documentclass{article}
+
+% Per-assignment macros
+\def\assignmentnumber{5}
+\def\assignmenttitle{Calculator}
+
+% Imports
+\usepackage{graphicx} % Required for inserting images
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue, anchorcolor=blue]{hyperref}
+\usepackage{hhline}
+\usepackage{amsmath}
+
+% Titling
+\usepackage{titling}
+\preauthor{\begin{center}}
+\postauthor{\par\end{center}\vspace{-30pt}}
+\setlength{\droptitle}{-50pt}
+
+% Geometry
+
+\usepackage{geometry}
+\geometry{letterpaper, portrait, margin=1in}
+
+\usepackage[skip=5pt]{parskip}
+\newlength\tindent
+\setlength{\tindent}{\parindent}
+\setlength{\parindent}{0pt}
+\renewcommand{\indent}{\hspace*{\tindent}}
+
+% Assignment titling (number, due date, etc)
+\title{
+    Assignment \assignmentnumber: \assignmenttitle
+}
+\author{ENGR 103, Winter 2024}
+\date{}
+
+% Box environments
+\usepackage{tcolorbox}
+\usepackage{fancyvrb}
+\newenvironment{terminalcommand}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Command,colframe=gray!80!blue,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+\newenvironment{terminaloutput}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Output,colframe=gray!80!red,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+
+\newenvironment{hint}
+    {\begin{tcolorbox}[title=Hint,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newenvironment{sourcecode}[1]
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=\texttt{#1},colframe=gray!80!green,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+
+\newenvironment{tip}
+    {\begin{tcolorbox}[title=Tip,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newcounter{examplerun}
+\newenvironment{examplerun}
+    {\begin{tcolorbox}[title=Example Run \refstepcounter{examplerun}\theexamplerun,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleruninputs}{\tcbsubtitle{Inputs}}
+\newcommand{\examplerunoutputs}{\tcbsubtitle{Outputs}}
+
+\newcounter{exampleproblem}
+\newcounter{exampleproblemsolution}
+\newenvironment{exampleproblem}
+    {\setcounter{exampleproblemsolution}{0}\begin{tcolorbox}[title=Example Problem \refstepcounter{exampleproblem}\theexampleproblem,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleproblemstatement}{\tcbsubtitle{Problem statement}}
+\newcommand{\exampleproblemsolution}{\refstepcounter{exampleproblemsolution}\tcbsubtitle{Solution \theexampleproblemsolution}}
+
+\newcommand{\imagewithdefaults}[1]{\includegraphics[width=\maxwidth{0.95\columnwidth}]{#1}}
+
+\newcommand{\refeq}[1]{\hyperref[eq:#1]{(\ref{eq:#1})}}
+
+\makeatletter
+\def\maxwidth#1{\ifdim\Gin@nat@width>#1 #1\else\Gin@nat@width\fi}
+\makeatother
+
+\usepackage{soul}
+
+\begin{document}
+
+\maketitle
+
+\section{Context}
+
+In this assignment, you'll create a simple terminal-based calculator supporting basic arithmetic operations (addition, subtraction, multiplication, and division).
+
+This assignment will \ul{not} be demoed. Instead, it will be graded in a semi-automated fashion via a grading script. Manual grading elements like your design and code style will be graded manually and asynchronously by a random TA. The starter code provides you with a grading script and instructions on how to run it so that you can simulate your grade on the assignment. In order for the grading script to work properly, your code must format its inputs and outputs exactly as described in this document.
+
+Note that the actual grading script used to grade your final submission will be slightly different from the grading script provided in the starter code. This is to prevent you from hard-coding solutions to the test cases in the grading script.
+
+\section{Program description}
+
+Build a program that does the following:
+
+\begin{enumerate}
+    \item \label{step:prompt_expression} Prompt the user for an arithmetic expression by printing ``Enter a valid arithmetic expression: '' and store the user's input in a string via \texttt{std::getline()}.
+    \item If the user entered string is not a valid arithmetic expression, print ``That isn't a valid arithmetic expression.'' and repeat from step \ref{step:prompt_expression}. Otherwise, continue to the next step. The exact definition of a ``valid arithmetic expression'' is provided in section \ref{subsection:valid_arithmetic_expressions} of this document.
+    \item Compute and print the value of the given arithmetic expression. Your program should ignore standard order of operations and instead evaluate operators in a left-to-right order. Example outputs are provided in section \ref{subsection:example_runs} of this document.
+    \item Ask the user if they'd like to evaluate another expression by printing, ``Would you like to enter another expression? Enter Y for yes: ". The user input should again be read via \texttt{std::getline()}.
+    \item If the user enters ``Y'', repeat from step \ref{step:prompt_expression}. If the user enters \ul{anything else}, continue to the next step.
+    \item Print the history of values computed from all of the user's entered expressions, each on their own line in the terminal. You should not print the expressions themselves---only their resulting values. The format of this history output should match the format in the example outputs in section \ref{subsection:example_runs}
+\end{enumerate}
+
+Critically, your program must format its outputs in a very particular way in order for the grading script to work properly. Section \ref{subsection:example_runs} of this document provides example program outputs. Your program's outputs should be formatted identically to those examples. The starter code is setup with some basic (though incomplete) printing functionality to make it easier for you to follow this required format.
+
+\begin{hint}
+    You can use the \href{https://en.cppreference.com/w/cpp/string/basic_string/stof}{\texttt{std::stod()} function} from the \texttt{<string>} header file to convert a \texttt{std::string} value into a \texttt{double} value. This function accepts one relevant argument---the \texttt{std::string} to convert to a \texttt{double}---and returns its \texttt{double} form. Importantly, the provided \texttt{std::string} argument must contain text representing a valid \texttt{double} value, or else it will throw an exception, and your program will crash.
+    
+    \vspace{6pt}
+    
+    For example, \texttt{std::stod("3.14")} evaluates to the \texttt{double}-typed value, \texttt{3.14}.
+
+    \vspace{6pt}
+
+    Similarly, the starter code provides a helper function for you called \texttt{is\_number()} that accepts a \texttt{std::string} argument and returns a boolean indicating whether the string contains a valid numeric value that can be extracted via \texttt{std::stod()}. You can use this function as a part of your strategy to verify that the user's input represents a valid arithmetic expression.
+\end{hint}
+
+\begin{hint}
+    Use an array to keep track of a history of computed values and print them back at the end of the program. Since you don't know exactly how many expressions the user will want to compute, and statically allocated arrays can't grow or shrink, just allocate your array at the beginning of the program to be big enough to store 100 values (see section \ref{subsection:history_requirements}), and keep track of the number of actual expressions that have been computed using an \texttt{int} variable that increments throughout the duration of your program.
+\end{hint}
+
+\section{Program requirements}
+
+\subsection{Valid Arithmetic Expressions}
+\label{subsection:valid_arithmetic_expressions}
+
+In the context of this assignment, a \textbf{valid arithmetic expression} is any \texttt{std::string} value consisting of alternating numbers and operators \ul{with a space separating them}. A valid arithmetic expression must start and end with a number. There must be at least one number, but not necessarily more than one (e.g., a single number by itself is, indeed, a valid arithmetic expression). Valid operators include \texttt{+}, \texttt{-}, \texttt{*}, and \texttt{/}. Numbers may be positive or negative. The distinction between a subtraction operator and a negative sign is implied by the separating space---if there's a space between a \texttt{-} symbol and a number, then the \texttt{-} symbol is a subtraction operator; else, it's a negative sign.
+
+For example, the following is a valid arithmetic expression:
+
+\begin{verbatim}
+3 + 7 * 2.4 - -4.1 / -2.0
+\end{verbatim}
+
+Notice that the subtraction of the negative number (\texttt{-4.1}) results in two \texttt{-} adjacent symbols, but there's a space separating them. This signifies that the first \texttt{-} symbol is a subtraction operator whereas the second \texttt{-} symbol is a negative sign as a part of the number being subtracted. The value of the above expression that should be computed and printed is \texttt{-14.05}.
+
+The following is also a valid arithmetic expression:
+
+\begin{verbatim}
+-7.4
+\end{verbatim}
+
+Again, a single number is, indeed, a valid arithmetic expression. Its value is simply the number itself, \texttt{-7.4}.
+
+In contrast, the following is an invalid arithmetic expression since it doesn't start with a number:
+
+\begin{verbatim}
++ 7 * 2.4 - -4.1 / -2.0
+\end{verbatim}
+
+Similarly, the following is an invalid arithmetic expression since it doesn't end with a number:
+
+\begin{verbatim}
+3 + 7 * 2.4 - -4.1 /
+\end{verbatim}
+
+The following is an invalid arithmetic expression since it there is no space between the initial \texttt{3} and the \texttt{+} operator:
+
+\begin{verbatim}
+3+ 7 * 2.4 - -4.1 / -2.0
+\end{verbatim}
+
+The following is an invalid arithmetic expression since it consists of a standalone \texttt{-} symbol where a number should be (at the end):
+
+\begin{verbatim}
+3 + 7 * 2.4 - -4.1 / -
+\end{verbatim}
+
+The following is an invalid arithmetic expression since it contains a \texttt{\%} symbol, which, although is a valid operator in the C++ language (modulo), is \ul{not} one of the four operators considered valid for your calculator in this assignment (\texttt{+}, \texttt{-}, \texttt{*}, and \texttt{/}):
+
+\begin{verbatim}
+3 + 7 * 2.4 - -4.1 % -2.0
+\end{verbatim}
+
+There are many other examples of invalid arithmetic expressions. The provided grading script tests your program against them fairly exhaustively.
+
+\subsection{Example runs}
+\label{subsection:example_runs}
+
+This section contains a series of example runs of what your program should look like when executed. Importantly, since this assignment is graded via a script, your program's output must be formatted \ul{exactly} as it is in these example runs (even down to the whitespace), or else the grading script won't be able to parse (understand) your program's outputs. The starter code is setup to make it easier for you to follow this format.
+
+\begin{examplerun}
+    \begin{verbatim}
+Enter a valid arithmetic expression: 3 + 7 * 2.4 - -4.1 // -2.0
+That isn't a valid arithmetic expression.
+Enter a valid arithmetic expression: 3 + 7 * 2.4 - -4.1 / -2.0
+-14.05
+Would you like to enter another expression? Enter Y for yes: Y
+Enter a valid arithmetic expression: f + 9
+That isn't a valid arithmetic expression.
+Enter a valid arithmetic expression: 3.0
+3
+Would you like to enter another expression? Enter Y for yes: fjdsajfsda
+
+History of computed values:
+-14.05
+3
+    \end{verbatim}
+\end{examplerun}
+
+\begin{examplerun}
+    \begin{verbatim}
+Enter a valid arithmetic expression: 14 / 8 + 9 * 10
+107.5
+Would you like to enter another expression? Enter Y for yes: Y
+Enter a valid arithmetic expression: - 9.1
+That isn't a valid arithmetic expression.
+Enter a valid arithmetic expression: -9.1
+-9.1
+Would you like to enter another expression? Enter Y for yes: Y
+Enter a valid arithmetic expression: 12.8 / 2 * 4
+25.6
+Would you like to enter another expression? Enter Y for yes: NO!!!
+
+History of computed values:
+107.5
+-9.1
+25.6
+    \end{verbatim}
+\end{examplerun}
+
+\subsection{History requirements}
+\label{subsection:history_requirements}
+
+You may assume that the user will enter no more than 100 expressions throughout the duration of your program. That's to say, you can use an array of size 100 to store computed expression values throughout the program. Of course, you'll need to keep track of exactly how many expressions have been entered throughout the program so that you know how many array elements to print at the end.
+
+\subsection{Other details}
+
+Your calculator should treat all numbers in an arithmetic expression as type \texttt{double}. That's to say, your calculator should never do any sort of truncation. For example, if the user supplies the expression \texttt{1 / 2}, the calculator should print \texttt{0.5}---\ul{not} \texttt{0}.
+
+You may use string streams in this assignment, but you're not required to (see the \href{https://cplusplus.com/reference/sstream/stringstream/stringstream/}{std::stringstream} documentation). Rather, the general expectation is that most students will solve this problem using basic string functions, \texttt{std::stod()} (as described and linked earlier), loops, if statements, and so on. String streams may make the problem slightly easier, though, so feel free to study them if you'd like. No extra credit will be awarded, nor penalties applied, for using string streams.
+
+You may assume that the user will \ul{not} try to divide by zero at any point. For example, your program is not expected to be able to handle the following expression in any particular way:
+
+\begin{verbatim}
+3 + 7 / 0
+\end{verbatim}
+
+What your program does when given the above expression is up to you. If it simply crashes due to a division by zero (floating point exception), that's perfectly fine.
+
+\section{(Upwards of 30 pts total) Extra credit}
+
+There are 30 points of potential extra credit available, distributed throughout three extra tasks of varying difficulty. You can implement any combination of these extra credit tasks that you'd like, or none of them.
+
+\subsection{(5 pts) Support exponentiation}
+
+Implement your calculator so that it supports the exponentiation operator, which is a \texttt{\^} (the caret symbol) in this context and evaluates the left operand to the power of the right operand. For example, the following would then be considered a valid arithmetic expression:
+
+\begin{verbatim}
+2.6 ^ 2
+\end{verbatim}
+
+The value of this valid arithmetic expression would be \texttt{6.76}. If you don't do this extra credit, the above should be considered an invalid arithmetic expression.
+
+\subsection{(10 pts) Support standard order of operations}
+
+Implement your calculator so that it evaluates arithmetic expressions following the standard order of operations rather than simple left-to-right order (i.e., it should respect the ``MDAS'' in ``PEMDAS'', or the ``EMDAS'' in ``PEMDAS'' if you've also done the extra credit supporting the exponentiation operator). This means that your calculator should first evaluate exponentiation operations in left-to-right order if you did the exponentiation extra credit, followed by multiplication and division operations together in left-to-right order, and finally addition and subtraction operations together in left-to-right order.
+
+\subsection{(15 pts) Support parentheses}
+
+Implement your calculator so that it supports parentheses in arithmetic expressions. Order of operations of parentheses should be respected just as it is in standard mathematical notation (i.e., it should respect the ``P'' in ``PEMDAS''). That's to say, when evaluating an arithmetic expression, your program should first evaluate the sub-expressions that are the most deeply nested within parentheses before evaluating outer sub-expressions, and so on.
+
+Following are the new rules that apply to the definition of a valid arithmetic expression related to parentheses.
+
+Each parenthesis must be separated from adjacent numbers, operators, and other parentheses by a single space, just as the numbers and operators themselves are separated by spaces. A pair of parentheses cannot be empty (i.e., there must be something between them). Whatever lies between a pair of parentheses must itself also constitute a valid arithmetic expression. A valid arithmetic expression may begin with either an opening parenthesis or a number. The number of closing parentheses [)] must match the number of opening parentheses [(]. Lastly, when analyzing an arithmetic expression expression character-by-character from left to right and counting parentheses as they appear, the number of closing parentheses counted must never exceed the number of opening parentheses counted (i.e., a closing parenthesis must be preceded by a corresponding opening parenthesis). If any of these rules are violated, then the expression is not considered to be a valid arithmetic expression.
+
+For example, the following is a valid arithmetic expression under this extra credit:
+
+\begin{verbatim}
+3 + ( 7 * 12 ) - ( -4.1 / -2.0 )
+\end{verbatim}
+
+The value of the above arithmetic expression would be $84.95$.
+
+However, the following is an invalid arithmetic expression since there's a missing space after the first opening parenthesis:
+
+\begin{verbatim}
+3 + (7 * 12 ) - ( -4.1 / -2.0 )
+\end{verbatim}
+
+\end{document}

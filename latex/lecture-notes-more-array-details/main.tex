@@ -1,0 +1,338 @@
+\documentclass{article}
+
+% Per-assignment macros
+\def\lecturetitle{More Array Details}
+
+% Imports
+\usepackage{graphicx} % Required for inserting images
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue, anchorcolor=blue]{hyperref}
+\usepackage{hhline}
+
+% Titling
+\usepackage{titling}
+\preauthor{\begin{center}}
+\postauthor{\par\end{center}\vspace{-30pt}}
+\setlength{\droptitle}{-50pt}
+\usepackage{scrextend}
+
+% Geometry
+
+\usepackage{geometry}
+\geometry{letterpaper, portrait, margin=1in}
+
+\usepackage[skip=5pt]{parskip}
+\newlength\tindent
+\setlength{\tindent}{\parindent}
+\setlength{\parindent}{0pt}
+\renewcommand{\indent}{\hspace*{\tindent}}
+
+\usepackage{makecell}
+
+% Assignment titling (number, due date, etc)
+\title{
+    Lecture Notes: \lecturetitle
+}
+\author{ENGR 103, Winter 2024}
+\date{}
+
+% Box environments
+\usepackage{tcolorbox}
+\usepackage{fancyvrb}
+\newenvironment{terminalcommand}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Command,colframe=gray!80!blue,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+\newenvironment{terminaloutput}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Output,colframe=gray!80!red,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+
+\usepackage{minted}
+\newenvironment{cpp}[1]
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=\texttt{#1},colframe=gray!50!blue,colback=white!97!black]
+    \begin{minted}{c++}}
+    {\end{minted}
+    \end{tcolorbox}}
+
+\newenvironment{tip}
+    {\begin{tcolorbox}[title=Tip,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newenvironment{note}
+    {\begin{tcolorbox}[title=Note,colframe=white!70!red,colback=white]}
+    {\end{tcolorbox}}
+
+\newcounter{examplerun}
+\newenvironment{examplerun}
+    {\begin{tcolorbox}[title=Example Run \refstepcounter{examplerun}\theexamplerun,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleruninputs}{\tcbsubtitle{Inputs}}
+\newcommand{\examplerunoutputs}{\tcbsubtitle{Outputs}}
+
+\newcommand{\imagewithdefaults}[1]{\includegraphics[width=\maxwidth{0.95\columnwidth}]{#1}}
+
+\makeatletter
+\def\maxwidth#1{\ifdim\Gin@nat@width>#1 #1\else\Gin@nat@width\fi}
+\makeatother
+
+\usepackage{soul}
+\usepackage{silence}
+
+\begin{document}
+
+\maketitle
+
+In this lecture, we'll discuss some more details about statically allocated arrays, along with some tips and tricks to use them effectively.
+
+\section{Reading into arrays}
+
+As you know, the subscript operator (\texttt{[]}) receives an index as its operand and returns a reference to the underlying array element at said index. This means that you can use the subscript operator to both read and write array elements.
+
+As you might have guessed, this means that you can read data from \texttt{std::cin} and store it within an element of an array, accessed via the subscript operator. For example, you can pipe data from a stream (such a \texttt{std::cin}) to an array element via the stream extraction operator. Here's some example code that does just that to populate an array of \texttt{int}-typed elements with data supplied by the user:
+
+\begin{cpp}{Stream extraction into array}
+int array_of_numbers[10];
+for (int i = 0; i < 10; i++) {
+    std::cout << "Enter a number: ";
+    std::cin >> array_of_numbers[i];
+}
+\end{cpp}
+
+Similarly, if you have an array of \texttt{std::string} values, you could pipe data from a stream into an array element via \texttt{std::getline()}:
+
+\begin{cpp}{\texttt{std::getline()} into array}
+std::string array_of_sentences[5];
+for (int i = 0; i < 5; i++) {
+    std::cout << "Enter a sentence: ";
+    std::getline(std::cin, array_of_sentences[i]);
+}
+\end{cpp}
+
+\section{You can't reassign an entire array}
+
+As you know, the assignment operator can be used along with the subscript operator to modify an element within an array. However, an assignment operator can't be used on an array itself. For example, the following code would produce a syntax error:
+
+\begin{verbatim}
+int numbers[100];
+int other_numbers[100];
+numbers = other_numbers;
+\end{verbatim}
+
+Perhaps you can deduce the reason. Recall that a variable is just a name that refers to a fixed location in memory of a fixed size and fixed type. Also, recall that an array's name, post-declaration, specifically refers to the base address of the underlying sequence of data. This means that \texttt{numbers = other\_numbers} reflects an attempt to change the base address of \texttt{numbers} to match the base address of \texttt{other\_numbers}. But, in order for \texttt{numbers} to continue to reflect the base address of its underlying data, this would require moving the underlying data within \texttt{numbers}. This is a contradiction, though, to the statement that variables represent a fixed location in memory (they can't move). As such, C++ simply doesn't allow you reassign entire arrays in this manner. In general, you can only work with arrays through the subscript operator to operate on individual elements one at a time. If you wanted to copy the \textit{values} from \texttt{other\_numbers} into the corresponding elements in \texttt{numbers}, you'd have to do so through a loop (or some high-level mechanism).
+
+\section{Passing arrays to functions}
+
+An array can be passed to a function, but the details are a bit complicated.
+
+\subsection{Declaration and calling syntax}
+
+First, let's discuss the parameter syntax. To declare an array as a function parameter, you use the same syntax as declaring a local array variable. For example, suppose you want a function to receive an array of 10 \texttt{std::string} elements as a parameter, and then proceed to print those 10 strings to the terminal. You might write the function like so:
+
+\begin{cpp}{Array as parameter}
+void print_strings(std::string my_strings[10]) {
+    for (int i = 0; i < 10; i++) {
+        std::cout << my_strings[i] << std::endl;
+    }
+}
+\end{cpp}
+
+You can call this function exactly as you'd expect---you just have to supply an array as an argument:
+
+\begin{cpp}{Calling function with array parameter}
+int main() {
+    std::string array_of_strings[10];
+
+    // Ask the user for 10 strings
+    for (int i = 0; i < 10; i++) {
+        std::cout << "Enter a sentence: ";
+        std::getline(std::cin, array_of_strings[i]);
+    }
+
+    // Print them back to the terminal using
+    // the function defined in the previous
+    // code sample
+    print_strings(array_of_strings);
+}
+\end{cpp}
+
+One issue with our function, however, is that it's restricted to only work with string arrays of size. Moreover, the size of the array is embedded in the parameter declaration syntax as a compile-time constant, so it's very inflexible.
+
+Luckily, there's an alternative syntax that you can use to declare array parameters---you can leave out the size entirely, replacing the \texttt{[10]} in the parameter declaration with empty square brackets, \texttt{[]}. I want to stress that this only works for parameters. Statically allocated local array variables must specify a compile-time-constant size at declaration.
+
+Of course, the goal of our function is to print all of the elements in its array parameter, so, one way or another, it \textit{needs} to know the number of elements in the array. If we're not going to supply it as a compile-time constant in the parameter declaration syntax, then we'll have to supply it as its own, standalone parameter:
+
+\begin{cpp}{Array and size parameters}
+void print_strings(std::string my_strings[], int n_strings) {
+    for (int i = 0; i < n_strings; i++) {
+        std::cout << my_strings[i] << std::endl;
+    }
+}
+\end{cpp}
+
+This function is almost the same as before, but it's more flexible. It will now work on an array of any number of strings. The catch, though, is that when you call the function, there are now two arguments to supply: the array, and the size of the array:
+
+\begin{cpp}{Calling function with array and size parameters}
+int main() {
+    std::string array_of_strings[10];
+
+    // Ask the user for 10 strings
+    for (int i = 0; i < 10; i++) {
+        std::cout << "Enter a sentence: ";
+        std::getline(std::cin, array_of_strings[i]);
+    }
+
+    // Print them back to the terminal using
+    // the function defined in the previous
+    // code sample
+    print_strings(array_of_strings, 10);
+}
+\end{cpp}
+
+This is actually a very common pattern. There's no way for your program to deduce the size of an array variable, so it's critical that an array variable is always accompanied by its size. So, in general, anytime you pass an array from one function to another, you should pass its size along with it as a separate argument.
+
+\subsection{Arrays as memory addresses}
+
+Besides the peculiar syntax, there's one more vital thing to know about array parameters: unlike regular arguments and parameters, they aren't copied in such a naive way. The result is that array parameters behave a bit like reference parameters.
+
+Recall that, once an array is declared, its name serves as a handle to the array's base address. This means that when we call \texttt{print\_strings(array\_of\_strings, 10)}, what we're \textit{actually} passing into the function is not our entire array of strings, but rather the base address of our array of strings. The function itself is responsible for performing pointer arithmetic to access the array's elements via the subscript operator.
+
+But this means that the function's array parameter, \texttt{my\_strings}, is \ul{not} an entire copy of the supplied array argument, but rather a copy of the base address referred to by the supplied array argument.
+
+Indeed, when you call a function with non-array variable argument, the argument is fully copied into the parameter, and you end up with two separate variables (the argument and parameter) each with their own entirely separate memory and separate data. In such a case, modifying the parameter's data will not effect the argument's data, as you know:
+
+\begin{cpp}{Parameters as copies}
+void foo(int x) {
+    x += 1;
+}
+
+int main() {
+    int y = 0;
+    foo(y);
+    std::cout << y << std::endl; // Prints 0
+}
+\end{cpp}
+
+However, array parameters operate differently. When an array variable is supplied as an argument, the array itself is not copied---there's only ever one actual array in memory. Instead, the array's base address (i.e., the memory address of the first element of the array) is copied into the array parameter. The result is that you have two array variables (the argument and parameter) that both reflect the same address, which effectively means that they both refer to the same underlying array of data.
+
+Indeed, this means \ul{that modifications to the elements of an array parameter do affect the data in the corresponding array argument}. In some sense, this means that arrays behave like reference parameters (e.g., the second string parameter in \texttt{std::getline()}). Study the below example for a better understanding of how this works:
+
+\begin{cpp}{Array parameters as copies of base addresses}
+void foo(int x[]) {
+    // Print the base address of x, which is the
+    // exact same memory address as the base address
+    // of y
+    std::cout << x << std::endl;
+
+    // Modify the first element in x, which is
+    // located at the exact same location in memory
+    // as the first element in y (the base address):
+    x[0] = 10;
+}
+
+int main() {
+    int y[10];
+    y[0] = 100;
+
+    // Prints the base address of y
+    std::cout << y << std::endl;
+    
+    foo(y);
+    std::cout << y << std::endl; // Prints 10
+}
+\end{cpp}
+
+\section{Returning a statically allocated array}
+
+While it's technically possible to return a statically allocated array in some form, we won't discuss how to do it. It's almost always a bad idea for reasons that we'll talk about in our lecture on references (it tends to lead to dangling pointers, depending on the allocation context).
+
+If you want some function \texttt{f()} to ``output'' a statically allocated array in some sense, rather than having \texttt{f()} try to return an array, you should instead have \texttt{f()} receive a statically allocated array as a parameter as described in the previous section. \texttt{f()} can then simply modify the values in the array parameter's elements, which can be observed in the function caller as modifications to the array argument. This effectively accomplishes the goal of ``outputting'' an array from \texttt{f()}. The only downside is that this creates a precondition---the function caller is responsible for allocating (declaring) the array prior to calling \texttt{f()}, whereas \texttt{f()} itself is only responsible for populating the array (initializing its values). That's to say, \texttt{f()} wouldn't so much ``create'' an array as it would simply fill an existing array that's given to it.
+
+\section{``Resizing'' a statically allocated array}
+
+As you know, statically allocated arrays cannot be resized. However, there's a common trick (especially employed in C where the STL isn't available) that allows you to use them in a way that simulates resizing. The principle is simple. First, you decide on a ``maximum size'' of the array. This number should reflect the largest number of elements you'll ever need to store in the array. Then, when you declare the array, you simply declare it to be of that size. At the same time, declare and initialize a size variable (e.g., an \texttt{int}) that keeps track of the number of elements in the array that your program ``acknowledges''. Let's call this size variable $n$. You then simply write your program so that it effectively ignores array elements beyond index $n - 1$. Lastly, whenever your program needs to ``add'' an element to the end of the array, it simply stores it at index $n$ and then increments $n$ by 1. Similarly, whenever your program needs to ``remove'' an element from the end of the array, it simply decrements $n$ by 1. Insertions and removals from elsewhere within the array work the same way, but they may require rearranging the array elements beforehand.
+
+Following is an example problem that employs this strategy to keep track of an array of integers supplied by the user, up to a max of 100 integers (in this program, \texttt{arr\_size} takes on the role of $n$ described above):
+
+\begin{cpp}{"Resizing" trick for a statically allocated array}
+int main() {
+    // At most, this array can store 100 integers supplied
+    // by the user
+    int arr[100];
+
+    // Initially, our program will "acknowledge" zero of
+    // them, which will change as the user "adds" elements
+    // to the array
+    int arr_size = 0;
+
+    // Ask the user for numbers until they say to stop
+    char user_input;
+    do {
+        std::cout << "Enter a number: ";
+
+        // Store their number in the first "unacknowledged"
+        // index, which is simply arr_size
+        std::cin >> arr[arr_size];
+
+        // To "acknowledge" this new element, increment
+        // arr_size
+        arr_size++;
+
+        // Ask if they want to enter another integer
+        // if the array isn't yet full
+        if (arr_size < 100) {
+            std::cout << "Would you like to enter another number? "
+                "Type Y for yes: ";
+            std::cin >> user_input;
+        }
+    } while (user_input == 'Y' && arr_size < 100);
+
+    // Print all of integers supplied by the user:
+    for (int i = 0; i < arr_size; i++) {
+        std::cout << arr[i] << std::endl;
+    }
+}
+\end{cpp}
+
+Notice that the do-while loop is guaranteed to stop when \texttt{arr\_size} hits 100 because, at that point, the array can't ``fit'' any more elements. However, it could terminate earlier than that if the user so chooses, in which case the ``unacknowledged'' elements at the end of the array will be left undefined. But that's okay since they're never accessed elsewhere within the program---the \texttt{for} loop at the end of the program only prints the initialized, acknowledged array elements.
+
+There are a couple of downsides to this strategy. First, it requires deciding on an upper bound for the number of elements that the array might need to store. Second, if the array never actually needs to store that many elements, your program is basically wasting a bunch of memory to store undefined, unacknowledged array elements. Dynamically allocated arrays and STL containers can resolve these issues (with other tradeoffs).
+
+\section{Buffer Overflows}
+
+Recall that passing an out-of-range index to a string's \texttt{.at()} member function results in an out-of-range exception being thrown and subsequent program termination (assuming you don't catch the exception, which we haven't learned how to do). What do you think happens when an out-of-range index is supplied to an array's subscript operator?
+
+You might guess that it will do the same thing---an exception will be thrown, and the program will crash. Unfortunately, it's much worse than that---the result is undefined behavior. Indeed, supplying an out-of-range index to an array subscript operator is an especially dangerous kind of error known as a \textbf{buffer overflow}, and exactly what your program should do in the case of a buffer overflow is not specified in the C++ language standard.
+
+Undefined behavior can be hard to discover since it often doesn't cause your program to crash, and it can be hard to fix since it often doesn't print out a neat error message with helpful diagnostics (e.g., ``\texttt{terminate called after throwing std::out\_of\_range}''). This makes a buffer overflow caused by improper use of an array's subscript operator much worse than an exception thrown by improper use of a string's \texttt{.at()} member function.
+
+But it gets worse. Some forms of undefined behavior typically just cause your program to behave in slightly unpredictable ways, depending on your compiler, the existing state of your program's virtual memory, and so on. However, the kind of behavior \textit{typically} exhibited by buffer overflows is \ul{extremely dangerous} from a security standpoint. If for no other reason, this is why, \ul{in real life, you should almost always avoid using raw C++ arrays in favor of the STL} (STL containers provide \texttt{.at()} member functions which, similar to strings' \texttt{.at()} member function, perform bounds checking and throw exceptions when used improperly).
+
+To understand why buffer overflows can be so dangerous, let's resume our discussion about arrays' memory structure. Recall that an array is stored contiguously in memory. Also, recall that the array's name, once declared, becomes a handle to the array's base address (i.e., the memory address of the first element in the array).
+
+When you use a subscript operator on an array, what it \textit{really} does is compute the memory address of the indexed element by adding an offset to the array's base address. The offset is simply the product of the index and the number of bytes in a single array element. An example of this was discussed in the last lecture; if your program knows the base address of an \texttt{int} array, and it knows that there are 4 bytes in each \texttt{int}, it can compute the memory address of any arbitrary element in the array by simply shifting over from the base address a number of bytes equal to 4 times the element's index. For example, the array element at index 0 is definitionally located at the array's base address; the array element at index 1 is shifted over 4 bytes from the base address (due to contiguity); the array element at index 2 is shifted over 8 bytes from the base address; and so on. The incremental space is 4 in this example because each \texttt{int} occupies 4 bytes of memory.
+
+Since the C++ language standard doesn't specify what the subscript operator will do when given an out-of-range index, it's up to your compiler to decide what it should do. As you know, C++ is designed to be a very flexible language that can support all kinds of software, including performance-critical software. If your compiler decided that the subscript operator should perform bounds checking and throw an exception (or otherwise crash) when an out-of-bounds index is supplied, that would slow down all C++ programs that use arrays. After all, the subscript operator already needs to perform some pointer arithmetic to find the target element---adding on a condition to check the index for validity would consume precious CPU clock cycles, which might matter in performance-critical software. In addition, bounds checking requires knowing the bounds against which to check, which, as you saw when we discussed array parameters, means that your array has to constantly be accompanied by some additional state that records those bounds (its size). Guaranteeing this at the compiler level would further slow down all C++ programs' efforts to pass arrays to and from functions, require a small amount of additional memory consumption from such passes (which might be problematic in embedded systems), and so on. For these reasons, C++ compilers generally don't bother to encode any sort of bounds checking into the array subscript operator.
+
+Since your C++ compiler generally won't encode any sort of bounds checking in the compiled executuable, this means that your array subscript operator is completely unaware when you pass it an out-of-range index. Unsurprisingly, this means that your program will often treat an out-of-range index in the exact same way it would treat a valid index---it performs pointer arithmetic on it to compute the memory address of a would-be element at the hypothetical (invalid) index, and then returns a reference to whatever data (bytes) happens to be at that memory address. Since that data isn't actually part of the array, those bytes might be in-use by other parts of your program, such as to store another variable (or several variables, or part of a larger variable, or worse...). Of course, since the subscript operator returns a reference, your program could then proceed to modify those bytes as if they belong to an element of your array, even though they don't. This can lead to corrupted data.
+
+Believe it or not, it gets even worse. If you take an assembly course, you'll learn that the reason your program knows where to go once a function terminates is that, whenever a function calls another function, it stores the \ul{memory address of the code} that should be executed after the called function terminates in a little place of memory adjacent to the called function's parameters and local variables. Indeed, code instructions occupy memory and therefore have memory addresses, and this particular kind of memory address is called a return address. Suppose that you accidentally implement a buffer overflow that reaches beyond the bounds of your local array variable and into the bytes of memory that happen to store the current function's return address. Suppose that your buffer overflow specifically attempts to modify the bytes at this hypothetical would-be array element. The result is that your program will effectively modify (corrupt) the return address of the currently called function. When the currently called function terminates, your program will then jump to the wrong place in memory and start interpreting whatever bytes happen to be there as instructions to be executed.
+
+I use terms like ``accidentally'' and ``happen to'' to provide benefit of the doubt. A skilled hacker knows exactly how to exploit a buffer overflow for nefarious purposes. In fact, not only will they exploit the buffer overflow to modify a function's return address, but they'll additionally exploit the very same buffer overflow (or other memory-related undefined behavior in your program) to modify the bytes of memory to which the intentionally corrupted return address points. That's to say, an attacker can exploit buffer overflows to coerce your program to execute whatever code they want it to. This is referred to as an \textbf{Arbitrary Code Execution (ACE)} exploit, and it's perhaps one of the most dangerous kinds of bugs that can exist in a program from a cybersecurity standpoint. It's especially dangerous if it can be exploited remotely from another device (also called \textbf{Remote Code Execution (RCE)}) or in a program running with privileges beyond those of the exploiting attacker.
+
+A less doom-and-gloomy way to learn about buffer overflows and ACE exploits is to watch \href{https://www.youtube.com/watch?v=hB6eY73sLV0&t=21s}{SethBling's video} on code injection in Super Mario World. In this video, SethBling exploits a buffer overflow in SMW to inject bytecode into the running program and coerce the game to transform into a Flappy-Bird-like simulator.
+
+On the other hand, suppose that the program containing an ACE exploit isn't some old retro platformer played on an SNES, but rather modern software executed on a general purpose computer that connects remotely with other peoples' computers. And suppose that the ACE exploit is actually an RCE exploit. In such a case, it may be possible that, by connecting with other people online through this software, they can coerce your computer to execute arbitrary code. Suppose this arbitrary code doesn't simulate Flappy Bird, but rather retrieves all of the private data stored on your computer (e.g., banking information) and sends it off to the attacker's file store. As some gamers might know, an RCE of this measure was discovered in the Dark Souls franchise in January of 2022 and forced Bandai Namco to shut down the entire game series's online play for nearly a year until the bug could be patched across all of the Dark Souls games. Luckily, the bug was exposed before there were any serious reports of it being exploited for nefarious purposes, but the damage could have been very, very bad.
+
+The only saving grace to all of this is that if you index an array far beyond its bounds (e.g., thousands of bytes beyond the end of the array), your operating system \textit{may} trigger a page fault, crashing the program. But that's not guaranteed.
+
+In addition, there are ways of embedding debugging metadata into your executable and running it with a memory debugging tool, like \texttt{valgrind}, to catch memory errors like buffer overflows then they occur. Unfortunately, these tools can't catch buffer overflows when they \textit{don't} occur, which is to say that memory debugging tools can't prove that a program is completely free of buffer overflow exploits---they can only help you diagnose them when they happen to occur at runtime (and they may only occur in niche circumstances, so you shouldn't rely purely on such tools). There are also some static analysis tools (i.e., tools that analyze your code directly) for locating memory errors in a C++ application, such as supplying \texttt{-fsanitize=address,undefined} as a flag to \texttt{g++}. But these tools are also somewhat unreliable.
+
+To some degree, this is all meant to scare you into not using raw arrays in C++ in real life (statically allocated or dynamically allocated), unless you have absolutely no other choice and can justify it. Instead, you should prefer to use high-level container objects with member functions that provide bounds checking (e.g., STL containers with \texttt{.at()} member functions). If you want to continue using C++ in a non-academic context after moving on from ENGR 103, please study the STL and learn how to use it appropriately (while you're at it, research dangling pointers since they can also lead to ACE exploits, and learn how to use smart pointers and RAII to avoid them). And whenever you \textit{do} find yourself using raw C++ arrays, you should be absolutely certain that your program never supplies an out-of-range index to the subscript operator.
+
+\end{document}

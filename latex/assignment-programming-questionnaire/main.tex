@@ -1,0 +1,104 @@
+\documentclass{article}
+
+% Per-assignment macros
+\def\assignmentnumber{1}
+\def\assignmenttitle{Programming Questionnaire}
+
+% Imports
+\usepackage{graphicx} % Required for inserting images
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue, anchorcolor=blue]{hyperref}
+\usepackage{hhline}
+\usepackage{amsmath}
+
+% Titling
+\usepackage{titling}
+\preauthor{\begin{center}}
+\postauthor{\par\end{center}\vspace{-30pt}}
+\setlength{\droptitle}{-50pt}
+
+% Geometry
+
+\usepackage{geometry}
+\geometry{letterpaper, portrait, margin=1in}
+
+\usepackage[skip=5pt]{parskip}
+\newlength\tindent
+\setlength{\tindent}{\parindent}
+\setlength{\parindent}{0pt}
+\renewcommand{\indent}{\hspace*{\tindent}}
+
+% Assignment titling (number, due date, etc)
+\title{
+    Assignment \assignmentnumber: \assignmenttitle
+}
+\author{ENGR 103, Spring 2024}
+\date{}
+
+% Box environments
+\usepackage{tcolorbox}
+\usepackage{fancyvrb}
+\newenvironment{terminalcommand}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Command,colframe=gray!80!blue,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+\newenvironment{terminaloutput}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Output,colframe=gray!80!red,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+
+\newenvironment{hint}
+    {\begin{tcolorbox}[title=Hint,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newenvironment{tip}
+    {\begin{tcolorbox}[title=Tip,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newcounter{examplerun}
+\newenvironment{examplerun}
+    {\begin{tcolorbox}[title=Example Run \refstepcounter{examplerun}\theexamplerun,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleruninputs}{\tcbsubtitle{Inputs}}
+\newcommand{\examplerunoutputs}{\tcbsubtitle{Outputs}}
+
+\newcounter{exampleproblem}
+\newcounter{exampleproblemsolution}
+\newenvironment{exampleproblem}
+    {\setcounter{exampleproblemsolution}{0}\begin{tcolorbox}[title=Example Problem \refstepcounter{exampleproblem}\theexampleproblem,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleproblemstatement}{\tcbsubtitle{Problem statement}}
+\newcommand{\exampleproblemsolution}{\refstepcounter{exampleproblemsolution}\tcbsubtitle{Solution \theexampleproblemsolution}}
+
+\newcommand{\imagewithdefaults}[1]{\includegraphics[width=\maxwidth{0.95\columnwidth}]{#1}}
+
+\newcommand{\refeq}[1]{\hyperref[eq:#1]{(\ref{eq:#1})}}
+
+\makeatletter
+\def\maxwidth#1{\ifdim\Gin@nat@width>#1 #1\else\Gin@nat@width\fi}
+\makeatother
+
+\usepackage{soul}
+
+\begin{document}
+
+\maketitle
+
+\section{Assignment Description}
+
+This assignment isn't \textit{really} a programming assignment, in the sense that it doesn't involve any programming. However, your submission for it does fall under the ``programming assignment'' group on Canvas, so it's weighted accordingly.
+
+This assignment is a simple questionnaire that you have to fill and submit to GitHub Classroom using the tools that we've discussed in lectures and studios. Accept the assignment on GitHub Classroom by following the link in the assignment on Canvas. That will generate your own repository containing the questionnaire. Follow the instructions in the repository's \texttt{README.md} file (the contents of which are displayed on the main page of your repository) to complete the questionnaire and submit it by staging, committing, and pushing your changes.
+
+Unlike future assignments, this assignment does not have a design portion (no formal solution design, nor an unlimited-attempt auto-graded guiding Canvas quiz). It \textit{only} has a ``programming'' portion, which just involves filling out the questionnaire and pushing your work to your GitHub Classroom repo. This assignment also does \ul{not} require a demo; it will be graded asynchronously by a random TA. Moreover, it's not worth as many points as future programming assignment portions will be worth. All that being said, you \ul{are} allowed to use up to two grace days on this submission, though this is strongly discouraged---you should save your grace days for harder assignments later on in the term.
+
+\section{Resources}
+
+You may find the lecture notes on our development environment along with the content from the first two studios to be helpful for this assignment.
+
+\end{document}

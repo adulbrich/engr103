@@ -1,0 +1,325 @@
+\documentclass{article}
+
+% Per-assignment macros
+\def\lecturetitle{String Functions}
+
+% Imports
+\usepackage{graphicx} % Required for inserting images
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue, anchorcolor=blue]{hyperref}
+\usepackage{hhline}
+
+% Titling
+\usepackage{titling}
+\preauthor{\begin{center}}
+\postauthor{\par\end{center}\vspace{-30pt}}
+\setlength{\droptitle}{-50pt}
+\usepackage{scrextend}
+
+% Geometry
+
+\usepackage{geometry}
+\geometry{letterpaper, portrait, margin=1in}
+
+\usepackage[skip=5pt]{parskip}
+\newlength\tindent
+\setlength{\tindent}{\parindent}
+\setlength{\parindent}{0pt}
+\renewcommand{\indent}{\hspace*{\tindent}}
+
+\usepackage{makecell}
+
+% Assignment titling (number, due date, etc)
+\title{
+    Lecture Notes: \lecturetitle
+}
+\author{ENGR 103, Winter 2024}
+\date{}
+
+% Box environments
+\usepackage{tcolorbox}
+\usepackage{fancyvrb}
+\newenvironment{terminalcommand}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Command,colframe=gray!80!blue,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+\newenvironment{terminaloutput}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Output,colframe=gray!80!red,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+
+\usepackage{minted}
+\newenvironment{cpp}[1]
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=\texttt{#1},colframe=gray!50!blue,colback=white!97!black]
+    \begin{minted}{c++}}
+    {\end{minted}
+    \end{tcolorbox}}
+
+\newenvironment{tip}
+    {\begin{tcolorbox}[title=Tip,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newenvironment{note}
+    {\begin{tcolorbox}[title=Note,colframe=white!70!red,colback=white]}
+    {\end{tcolorbox}}
+
+\newcounter{examplerun}
+\newenvironment{examplerun}
+    {\begin{tcolorbox}[title=Example Run \refstepcounter{examplerun}\theexamplerun,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleruninputs}{\tcbsubtitle{Inputs}}
+\newcommand{\examplerunoutputs}{\tcbsubtitle{Outputs}}
+
+\newcommand{\imagewithdefaults}[1]{\includegraphics[width=\maxwidth{0.95\columnwidth}]{#1}}
+
+\makeatletter
+\def\maxwidth#1{\ifdim\Gin@nat@width>#1 #1\else\Gin@nat@width\fi}
+\makeatother
+
+\usepackage{soul}
+
+\begin{document}
+
+\maketitle
+
+\section{Classes and Objects}
+
+As you know, the \texttt{std::string} type is not a primitive data type in C++. Rather, it's a more complicated type, declared by the \texttt{<string>} header file, known as a \textbf{class}.
+
+Loosely, a class is a complex type that represents something with both \textbf{data} and \textbf{behavior}. An instance of a class (i.e., a variable whose type is a class) is referred to as an \textbf{object}. That's to say, strings are objects in C++, and they have both data and behavior.
+
+When I say a string (or other kind of object) ``has'' behavior, I literally mean that every string has, or ``owns'', functions. These functions can be called (used) just like any other function, but the point is that they belong to the string itself, and they specifically operate on the data of the string that owns them. This is in contrast to the ``global functions'' that we've been using so far, which don't ``belong'' to anything but rather represent pure, isolated procedures, and which operate purely on their parameters.
+
+Moreover, an object is a composed data type, which is to say that a single object can have multiple pieces of data (i.e., variables) inside it and multiple functions inside it. Variables and functions owned by an object are referred to as that object's \textbf{member variables} and \textbf{member functions}, respectively.
+
+This is all in contrast to a primitive data type (e.g., an \texttt{int} or \texttt{bool}), which purely represents a \ul{single} data point \ul{without} any behavior.
+
+To access a member of an object (member variable or member function), you use a special operator known colloquially as the \textbf{dot operator}, or more formally as the \textbf{member of object operator}. The syntax for the dot operator looks like this:
+
+\begin{verbatim}
+<object>.<member>
+\end{verbatim}
+
+In the above syntax, replace \texttt{<object>} with the name of your object variable (e.g., the name of a string variable), and replace \texttt{<member>} with the name of the member that you want to access.
+
+For example, every string has a member function named \texttt{size()}, which takes no arguments and simply returns the number of characters in the string. Suppose we have a string variable named \texttt{my\_string}. We could call this string's \texttt{size} function via \texttt{my\_string.size()}.
+
+As mentioned, every object (e.g., every string) has its own set of functions. This means that if you have two strings, \texttt{my\_string\_1} and \texttt{my\_string\_2}, their respective \texttt{size()} functions are basically separate functions. Indeed, \texttt{my\_string\_1.size()} operates on \texttt{my\_string\_1} and returns its number of characters, whereas \texttt{my\_string\_2.size()} operates on \texttt{my\_string\_2} and returns its number of characters. Despite taking no arguments, they do different things in the sense that they operate on different strings.
+
+The following program asks the user for a sentence, reads it via \texttt{getline()}, and then tells the user how many characters are in their provided sentence:
+
+\begin{cpp}{Print length of sentence}
+#include <iostream>
+#include <string>
+
+int main() {
+    std::cout << "Enter a sentence: ";
+    std::string sentence;
+    std::getline(std::cin, sentence);
+    std::cout << "The number of characters in your sentence is: "
+        << sentence.size() << std::endl;
+}
+\end{cpp}
+
+This is all you need to know about classes and objects in this course. If you take CS 162, you'll learn how to define your own classes (and structures), but for this course, we'll only use classes that are already provided to us by some library or another (e.g., \texttt{std::string} as provided by the standard library).
+
+\section{\texttt{std::string::size\_type}}
+
+String objects have lots of functions other than \texttt{.size()}. Many of these functions, including the \texttt{.size()} function, accept parameters or return values of another special type---\texttt{std::string::size\_type}. Indeed, there are two scope resolution operators (\texttt{::}) used here. The first signifies that we're trying to access something within the \texttt{std} namespace, and the second signifies that we're trying to access something defined specifically within the \texttt{std::string} class. And, yes, this whole thing, \texttt{std::string::size\_type}, is itself a data type, just like \texttt{int}, \texttt{double}, \texttt{std::string}, and so on.
+
+However, unlike \texttt{std::string}, \texttt{std::string::size\_type} is not a class. In fact, it's usually an alias for a modified primitive integral type. Specifically, it's a kind of primitive integral type that's capable of storing the numeric value that represents the largest number of characters allowed in a single string (usually $2^{64} - 1$). On most platforms, an \texttt{int} variable doesn't have enough bytes to store such a large value, which highlights the difference between an \texttt{int} variable and a \texttt{std::string::size\_type} variable.
+
+The purpose of the \texttt{std::string::size\_type} data type is to represent values about the size of a string, the location of a character or substring within a string, and so on. If your strings are small enough, you \textit{could} just use an \texttt{int} variable in place of a \texttt{std::string::size\_type} variable for such cases. In fact, ``small enough'', in this context, means any string with fewer than $2^{31} - 1$ characters in it, which would undoubtedly be a very large string (but not as large as a string \textit{could} be). And yet, it's still usually a better idea to use \texttt{std::string::size\_type} variables when appropriate, at least to better align your program's syntax with its semantics, but also to avoid integer overflow in certain scenarios (see \texttt{std::string::npos}, discussed later).
+
+For example, the \texttt{.size()} function of a string returns the number of characters in said string. Unsurprisingly, the return type of this function is not simply \texttt{int}, but rather \texttt{std::string::size\_type}, since it needs to be able to represent the size of any string, including extremely large strings. If you want to store the value returned by the \texttt{.size()} function somewhere (or pass it to a function, etc), you should use the \texttt{std::string::size\_type} data type. Here's a rewrite of our previous example program doing just that:
+
+\begin{cpp}{Store and print length of sentence}
+#include <iostream>
+#include <string>
+
+int main() {
+    std::cout << "Enter a sentence: ";
+    std::string sentence;
+    std::getline(std::cin, sentence);
+
+    // Store length of string in variable. Use the std::string::size_type
+    // data type for this.
+    std::string::size_type length_of_sentence = sentence.size();
+
+    // Now print the value of the variable:
+    std::cout << "The number of characters in your sentence is: "
+        << length_of_sentence << std::endl;
+}
+\end{cpp}
+
+\section{Character Indices and the \texttt{.at()} Function}
+
+Another useful string function is \texttt{.at()}. This function accepts a single \texttt{std::string::size\_type} value as its argument representing an \textbf{index}, or position, of a character within the string. It returns a \texttt{char} representing the character at that index.
+
+In C++, strings (along with virtually all other sequential containers) are said to be \textbf{indexed by zero}. This means that, when representing indices of things within a sequence, we use \texttt{0} to represent the index of the first thing, \texttt{1} to represent the index of the second thing, and so on. In the case of a strings, this means that the first character of a string has index \texttt{0}, the second character has index \texttt{1}, and so on. Due to indexing by zero, the index of the last character in a string is always equal to the string's total size (number of characters) minus \texttt{1}.
+
+For example, suppose you have a string variable named \texttt{my\_string}, and you want to print its third character. You might do this like so:
+
+\begin{verbatim}
+std::cout << my_string.at(2) << std::endl;
+\end{verbatim}
+
+Again, due to indexing by zero, the third character has index \texttt{2}, which is why we supply \texttt{2} as our argument to the \texttt{.at()} function in this case. As you know, \texttt{2} is an \texttt{int}-typed literal, but the \texttt{.at()} function accepts a value of type \texttt{std::string::size\_type}. This is fine; \texttt{int}-typed expressions are coercible (implicitly castable) to \texttt{std::string::size\_type} expressions. However, casting the other way around (from \texttt{std::string::size\_type} to \texttt{int}) should be done with care since \texttt{std::string::size\_type} expressions can represent larger values than \texttt{int} expressions (avoid integer overflow!).
+
+Suppose you want to write a function that determines whether a given string contains a given character, returning \texttt{true} if it does and \texttt{false} otherwise. There's another string function that we can use to do this trivially (see the \texttt{.find()} function in the next section), but let's pretend there isn't; we'll write the function ourselves. To do this, we simply need to check each character of the given string, one by one, comparing it to the given character that we're trying to search for. If we ever happen to find the character within the string, we'll return \texttt{true}. Otherwise, if we traverse the entire string and never manage to find the character, we'll return \texttt{false}. That is, we need to iterate over the characters of the string using a loop.
+
+A common strategy for iterating over a sequence is to use a for loop. In fact, this is why for loops are called for loops---they represent ``for each'' logic, such as ``for each character in a string''. Our for loop will follow the common for loop header pattern, initializing its counter variable to \texttt{0}, incrementing its counter variable by one after each loop iteration, and the condition setting up our loop to run the same number of times as there are characters in the string (we'll do this by calling the \texttt{.size()} function). As you might have guessed, the counter variable itself will represent our index since it will naturally iterate over all of the valid character indices of our string. Indeed, this is why the common for loop header pattern is formulated as it is---to support iterating over a sequential container that's indexed by zero, such as a string.
+
+Our solution might look something like this:
+
+\begin{cpp}{Looking for a character}
+bool string_contains_character(std::string the_string, char char_to_look_for) {
+    // For each character in the string, starting at index 0 and going up to
+    // index .size() - 1 (i.e., the index of the last character in the string)
+    for (std::string::size_type i = 0; i < the_string.size(); i++) {
+        
+        // Check if the "ith" character in the string is equal to the
+        // character we're searching for
+        if (the_string.at(i) == char_to_look_for) {
+            // Found the character. Return true
+            return true;
+        }
+
+        // The ith character is NOT the character we're looking for. Continue
+        // onto the next character in the string (i.e., increment i via the
+        // loop's post operation and re-run the loop body if there are still
+        // more characters in the string to check)
+    }
+
+    // We traversed the entire string and never found the character we were
+    // searching for. Return false
+    return false;
+}
+\end{cpp}
+
+The \texttt{.at()} function doesn't just let you retrieve (read) a character at a given index; it also lets you \ul{modify} (write) the character at a given index. As it turns out, you can use an assignment operator, placing the \texttt{.at()} function call on the left and a character value on the right, to modify the character at whatever index is supplied to the \texttt{.at()} function call. For example, the following code would modify the fifth character in a string variable named \texttt{my\_string}, changing it to a capital \texttt{'E'}:
+
+\begin{verbatim}
+my_string.at(4) = 'E';
+\end{verbatim}
+
+This might look strange. In the past, I've said that the assignment operator computes the value on the right and stores it in the \ul{variable} on the left. That is, up until now, we've only ever put variables on the left side of the assignment operator. However, that was an overly strict definition of the assignment operator. As it turns out, you can put any ``lvalue'' on the left side of an assignment operator, which includes certain kinds of \textbf{references}. You might remember the term ``reference'' from the previous lecture---\texttt{std::getline()}'s second argument is a string reference, which is what allows it to modify the argument's value. The same thing is happening here; technically, the \texttt{.at()} function returns a reference to the character at the given index in the string, which is what allows you to modify it via assignment like this.
+
+We'll talk more about references at the very end of the course. For now, you don't need to understand how they work---you just need to understand \textit{that} they work in these specific contexts.
+
+Lastly, the \texttt{.at()} function will throw an exception if you supply it with an out-of-bounds index. This can happen if you supply it with an index whose value is greater than or equal to the length of the string. Since you haven't learned how to catch exceptions, this basically means that your entire program will crash with a runtime error if you do this (so don't do it). See the below example:
+
+\begin{cpp}{\texttt{.at()} throws an exception on out-of-bounds index}
+std::string my_string = "Hello, World!";
+std::cout << my_string.at(0) << std::endl; // Prints "H"
+std::cout << my_string.at(12) << std::endl; // Prints "!"
+std::cout << my_string.at(13) << std::endl; // Throws an exception and crashes
+\end{cpp}
+
+Running the above example code results in the following terminal output:
+
+\begin{terminaloutput}
+H
+!
+terminate called after throwing an instance of 'std::out_of_range'
+  what():  basic_string::at: __n (which is 13) >= this->size() (which is 13)
+Aborted (core dumped)
+\end{terminaloutput}
+
+Reading this error message carefully, you'll notice the issue---the supplied index (which the message refers to as \texttt{\_\_n}) is greater than or equal to the string's \texttt{size()} value, which means it's out of bounds.
+
+You'll end up with a similar error if you try to call the \texttt{.at()} function with a negative index. However, \texttt{std::string::size\_type} values can't be negative, so negative integer indices will underflow to extremely large values when coerced to \texttt{std::string::size\_type} values. Hence, the error message will report that you supplied an extremely large index rather than a negative one.
+
+\section{Other String Functions}
+
+The \texttt{.size()} and \texttt{.at()} functions are not the only string functions. In fact, there are many, many others, and when used together, they can enable somewhat powerful text processing capabilities. Following is a table of example function calls for just some of the many string functions available to you. The notation in this table assumes the availability of two pre-existing string variables, \texttt{str} and \texttt{str2}, along with various other arguments.
+
+\begin{tabular}{|p{0.45\columnwidth}|p{0.5\columnwidth}|}
+    \hline
+    Member function / operator & Behavior \\
+    \hline
+    \texttt{str.size()} & Returns the number of characters in \texttt{str} as a \texttt{std::string::size\_type} value.\\
+    \hline
+    \texttt{str.at(idx)} & \texttt{idx} is a \texttt{std::string::size\_type} argument. This function call returns a reference to the character (\texttt{char} value) within \texttt{str} at the given index, \texttt{idx}.\\
+    \hline
+    \makecell[tl]{\texttt{str.find(}\\ \texttt{\hspace{2em}query,} \\ \texttt{\hspace{2em}start\_idx} \\ \texttt{)}} & \texttt{query} is a \texttt{std::string} argument, and \texttt{start\_idx} is a \texttt{std::string::size\_type} argument. This function call returns a \texttt{std::string::size\_type} value representing the index of the start of the first occurrence of the given string, \texttt{query}, starting at or after the given starting index, \texttt{start\_idx}, within \texttt{str}. If \texttt{query} does not appear anywhere within \texttt{str} starting at or after \texttt{start\_idx}, this function call returns the magic constant, \texttt{std::string::npos}. The \texttt{start\_idx} argument is optional; if left out, it defaults to \texttt{0}. \\
+    \hline
+    \makecell[tl]{\texttt{str.substr(}\\ \texttt{\hspace{2em}start\_idx,} \\ \texttt{\hspace{2em}n\_chars} \\ \texttt{)}} & \texttt{start\_idx} and \texttt{n\_chars} are both arguments of type \texttt{std::string::size\_type}. This function call returns a \texttt{std::string} value representing the substring of \texttt{str} (i.e., a smaller string contained within \texttt{str}) starting at the given index \texttt{start\_idx} and containing a total of \texttt{n\_chars} characters.\\
+    \hline
+    \makecell[tl]{\texttt{str.erase(}\\ \texttt{\hspace{2em}start\_idx,} \\ \texttt{\hspace{2em}n\_chars} \\ \texttt{)}} & \texttt{start\_idx} and \texttt{n\_chars} are both arguments of type \texttt{std::string::size\_type}. This function call modifies \texttt{str} in-place (i.e., overwrites the text within \texttt{str}) by erasing a total of \texttt{n\_chars} characters from it, starting at index \texttt{start\_idx}. The \texttt{n\_chars} argument is optional; if left out, this function will erase \ul{all} characters from \texttt{str} starting at index \texttt{start\_idx}.\\
+    \hline
+    \texttt{str + str2} & Returns a new \texttt{std::string} object representing the concatenation of \texttt{str} and \texttt{str2}. Similarly, there is a \texttt{+=} operator that modifies the left string operand in-place by appending the right string operand to it.\\
+    \hline
+\end{tabular}
+
+There are \href{https://cplusplus.com/reference/string/string/}{many other string member functions and operators}, but if you learn these ones alone, you'll be able to solve most basic text processing problems one way or another. Refer to the following example code to better understand these string functions:
+
+\begin{cpp}{String function example program}
+#include <iostream>
+#include <string>
+
+int main() {
+    std::string my_first_string = "The quick brown fox jumps";
+    std::string my_second_string = " over the lazy dog.";
+
+    std::string big_string = my_first_string + my_second_string;
+
+    // Prints "The quick brown fox jumps over the lazy dog."
+    std::cout << big_string << std::endl;
+
+    // Prints "44"
+    std::cout << big_string.size() << std::endl;
+
+    // Prints "c"
+    std::cout << big_string.at(7) << std::endl;
+
+    std::string::size_type pos = big_string.find("fox");
+
+    if (pos == std::string::npos) {
+        // This branch will NOT execute; "fox" is present
+        // in big_string, so pos will NOT equal the
+        // std::string::npos constant
+        std::cout << "Failed to find \"fox\" in big_string" << std::endl;
+    } else {
+        // This branch WILL execute and print "16" since
+        // the "f" in "fox" appears at index 16 in
+        // big_string
+        std::cout << pos << std::endl;
+    }
+
+    pos = big_string.find("cat");
+    if (pos == std::string::npos) {
+        // This branch WILL execute
+        std::cout << "Failed to find \"cat\" in big_string" << std::endl;
+    }
+
+    // Prints "quick" (the "q" appears at index 4 in big_string, and
+    // we're extracting a total of 5 characters)
+    std::cout << big_string.substr(4, 5) << std::endl;
+
+    // Erases "quick " from big_string.
+    big_string.erase(4, 6);
+
+    // Prints "The brown fox jumps over the lazy dog."
+    std::cout << big_string << std::endl;
+}
+\end{cpp}
+
+Here's the terminal output of the above example program:
+
+\begin{terminaloutput}
+The quick brown fox jumps over the lazy dog.
+44
+c
+16
+Failed to find "cat" in big_string
+quick
+The brown fox jumps over the lazy dog.
+\end{terminaloutput}
+
+\end{document}

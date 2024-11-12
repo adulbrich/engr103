@@ -1,0 +1,270 @@
+\documentclass{article}
+
+% Per-assignment macros
+\def\assignmentnumber{2}
+\def\assignmenttitle{Linear Equations}
+
+% Imports
+\usepackage{graphicx} % Required for inserting images
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue, anchorcolor=blue]{hyperref}
+\usepackage{hhline}
+\usepackage{amsmath}
+
+% Titling
+\usepackage{titling}
+\preauthor{\begin{center}}
+\postauthor{\par\end{center}\vspace{-30pt}}
+\setlength{\droptitle}{-50pt}
+
+% Geometry
+
+\usepackage{geometry}
+\geometry{letterpaper, portrait, margin=1in}
+
+\usepackage[skip=5pt]{parskip}
+\newlength\tindent
+\setlength{\tindent}{\parindent}
+\setlength{\parindent}{0pt}
+\renewcommand{\indent}{\hspace*{\tindent}}
+
+% Assignment titling (number, due date, etc)
+\title{
+    Assignment \assignmentnumber: \assignmenttitle
+}
+\author{ENGR 103, Winter 2024}
+\date{}
+
+% Box environments
+\usepackage{tcolorbox}
+\usepackage{fancyvrb}
+\newenvironment{terminalcommand}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Command,colframe=gray!80!blue,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+\newenvironment{terminaloutput}
+    {\VerbatimEnvironment
+    \begin{tcolorbox}[title=Terminal Output,colframe=gray!80!red,colback=black!80!blue]
+    \begin{Verbatim}[formatcom=\color{white}]}
+    {\end{Verbatim}
+    \end{tcolorbox}}
+
+\newenvironment{hint}
+    {\begin{tcolorbox}[title=Hint,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newenvironment{tip}
+    {\begin{tcolorbox}[title=Tip,colframe=white!70!blue,colback=white]}
+    {\end{tcolorbox}}
+
+\newcounter{examplerun}
+\newenvironment{examplerun}
+    {\begin{tcolorbox}[title=Example Run \refstepcounter{examplerun}\theexamplerun,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleruninputs}{\tcbsubtitle{Inputs}}
+\newcommand{\examplerunoutputs}{\tcbsubtitle{Outputs}}
+
+\newcounter{exampleproblem}
+\newcounter{exampleproblemsolution}
+\newenvironment{exampleproblem}
+    {\setcounter{exampleproblemsolution}{0}\begin{tcolorbox}[title=Example Problem \refstepcounter{exampleproblem}\theexampleproblem,colframe=black!50!green,colback=white,subtitle style={boxrule=0.4pt,
+colback=lightgray!80!green}]}
+    {\end{tcolorbox}}
+\newcommand{\exampleproblemstatement}{\tcbsubtitle{Problem statement}}
+\newcommand{\exampleproblemsolution}{\refstepcounter{exampleproblemsolution}\tcbsubtitle{Solution \theexampleproblemsolution}}
+
+\newcommand{\imagewithdefaults}[1]{\includegraphics[width=\maxwidth{0.95\columnwidth}]{#1}}
+
+\newcommand{\refeq}[1]{\hyperref[eq:#1]{(\ref{eq:#1})}}
+
+\makeatletter
+\def\maxwidth#1{\ifdim\Gin@nat@width>#1 #1\else\Gin@nat@width\fi}
+\makeatother
+
+\usepackage{soul}
+
+\begin{document}
+
+\maketitle
+
+In this assignment, you will write two small programs that solve systems of linear equations in separate contexts. The second problem is much harder than the first, but it's worth many more points in the rubric.
+
+\section{Problem 1: Costs and Revenue}
+
+You're an engineer, but you're also an entrepreneur. You've founded a startup, and you're ready to start production on your cool new product, the X Device 9000.
+
+It costs $c_p$ dollars to manufacture each device. However, there is also a base cost of $b$ dollars that includes everything prior to starting manufacturing (e.g., labor and materials for R\&D and prototyping, preparing the manufacturing plant to manufacture the device, and so on). Suppose you manufacture $N$ devices. Then the total cost $c_t$ is
+
+\begin{equation}
+    c_t = c_pN + b
+\end{equation}
+
+Assume $c_p$, $b$, and $N$ are all non-negative.
+
+Suppose that each device will produce $r_p$ dollars in revenue. Then your total revenue $r_t$ is
+
+\begin{equation}
+    r_t = r_pN
+\end{equation}
+
+Assume that $r_p$ is non-negative.
+
+Your goal is to \textit{at least} break even. That's to say, you want your total revenue to be \textit{at least} equal to your total costs. You've done your research and surveying, so you already know the values of $c_p$, $b$, and $r_p$. You just need to determine the minimum number of devices, $N$, that you'll need to manufacture and sell in order to break even.
+
+You could just solve the math problem and move on with your life, but you're an engineer. You plan to create many more devices in the future, and you don't want to have to solve this math problem over and over again. Instead, you'll write a very simple program to solve it for you.
+
+\subsection{The math}
+
+The math for this problem is very simple, but it doesn't matter---this isn't a math class, so I've gone ahead and done the math for you :)
+
+The goal is to solve for $N$ such that $c_t = r_t$. Replacing $c_t$ and $r_t$ in this equation with their respective definitions gives us 
+
+\begin{equation}
+    c_pN + b = r_pN
+\end{equation}
+
+Applying algebra, we solve for N:
+
+\begin{equation}
+    \label{eq:solve_n_devices}
+    N = \frac{b}{(r_p - c_p)}
+\end{equation}
+
+This is the only equation you'll need for the assignment.
+
+However, this equation will give you a floating point number for $N$ (e.g., it might determine that you need to manufacture and sell $N=3.5$ devices to break even). It's not possible to sell a fraction of a device, so you must round your answer \ul{up} to an integer (specifically round \ul{up} since the goal is to \ul{at least} break even). You can use the \texttt{ceil()} function from the \texttt{<cmath>} header file to do this (see studio 3).
+
+\subsection{What to submit}
+
+The template code on GitHub Classroom comes with a file called \texttt{revenue.cpp}. It's mostly empty. Complete it to create a C++ program that does the following:
+
+\begin{enumerate}
+    \item Prompt the user and accept values via the terminal for $c_p$, $b$, and $r_p$. Your program should support floating point values for all of these variables (e.g., $c_p = 1.34$ is a valid user input). You may assume that the user will enter at most two decimal places (i.e., to represent cents).
+    \item Solve for $N$ and print its value to the terminal (don't forget to round the value \ul{up} before printing it, as described).
+\end{enumerate}
+
+Your program does not need to validate user inputs. That is, you may assume that the user will enter appropriate values when prompted.
+
+\section{Problem 2: Home Gardener}
+
+\subsection{Context}
+
+You've just started a home garden, but you've come to realize that fertilizer is expensive. After doing some research, you learn that you can create your own slow-release fertilizers out of cheap ingredients like bone meal, blood meal, banana peels, and so on.
+
+Each ingredient has different proportions of nitrogen (N), phosphorous (P), and potassium (K). In a complete fertilizer, the proportions of these three elements is called the NPK ratio. For a beginner gardener, the general wisdom is to use balanced fertilizers---that is, you want your fertilizer to contain equal parts nitrogen, phosphorous, and potassium so that the NPK ratio is uniform.
+
+Suppose you have three potential fertilizer ingredients, and you know the proportions of nitrogen, phosphorous, and potassium in all of three of them. Let $n_1$, $n_2$, and $n_3$ each be numbers between 0 and 1 denoting the proportions of nitrogen in ingredients 1, 2, and 3, respectively. Similarly, let $p_1$, $p_2$, and $p_3$ denote the proportions of phosphorous in ingredients 1, 2, and 3, respectively. Lastly, let $k_1$, $k_2$, and $k_3$ denote the proportions of potassium in ingredients 1, 2, and 3, respectively. For example, if $n_2=0.03$, $p_2=0.07$, and $k_2=0$, then ingredient 2 consists of $3\%$ nitrogen, $7\%$ phosphorous, and $0\%$ potassium (of course, these numbers don't add up to 1---there are lots of other stuff in an ingredient besides just these three elements, but these are the primary elements a beginner gardener should care about).
+
+Let $M_1$, $M_2$, and $M_3$ denote the mixing proportions of the three ingredients in your final fertilizer. These numbers must add up to 1, by definition. For example, suppose $M_1=0.5$, $M_2=0.2$, and $M_3=0.3$. In that case, your final fertilizer consists of $50\%$ ingredient 1, $20\%$ ingredient 2, and $30\%$ ingredient 3.
+
+Suppose you know the NPK proportions of all three of your ingredients (i.e., you know the values of all 9 constants described above). The goal is to determine the values of $M_1$, $M_2$, and $M_3$ that achieve a balanced ratio of nitrogen, phosphorous, and potassium in the final fertilizer. This is a somewhat complicated math problem that you may have to solve many times throughout your home gardening career, so you're going to write a program that does it for you.
+
+\subsection{The math}
+
+Again, this isn't a math class, so I've done the math for you :) If you want, you can skip all the way to the last paragraph of this section, which directs you to the specific equations that you'll need to implement to solve the problem. But I encourage you to review this whole section anyways to make sure you understand where the solution is coming from.
+
+The total amount of an element (N, P, or K) in the final fertilizer can be computed as a weighted average of the element's proportions in the three ingredients, where the weights are the three ingredients' respective mixing proportions. For example, suppose $n_1=0.07$, $n_2=0.01$, and $n_3=0.04$ (i.e., ingredient 1 is $7\%$ nitrogen, ingredient 2 is $1\%$ nitrogen, and ingredient 3 is $4\%$ nitrogen). Next, suppose $M_1=0.5$, $M_2=0.2$, and $M_3=0.3$. Then the total proportion of nitrogen in the final fertilizer is:
+
+\begin{equation*}
+M_1n_1 + M_2n_2 + M_3n_3 = 0.5*0.07 + 0.2*0.01 + 0.3*0.04 = 0.049.
+\end{equation*}
+
+That is, in such a case, your final fertilizer would consist of $4.9\%$ nitrogen.
+
+You can compute the final phosphorous and potassium proportions similarly. However, we don't actually care about the exact proportions of nitrogen, phosphorous, or potassium in our final fertilizer---all we care about is that the three proportions are \ul{equal} in order to achieve a balanced fertilizer. We also know that $M_1 + M_2 + M_3 = 1$, by definition. Hence, we have the following system of linear equations:
+
+\begin{equation}
+    \label{eq:mixing1}
+    M_1n_1 + M_2n_2 + M_3n_3 = M_1p_1 + M_2p_2 + M_3p_3
+\end{equation}
+\begin{equation}
+    \label{eq:mixing2}
+    M_1n_1 + M_2n_2 + M_3n_3 = M_1k_1 + M_2k_2 + M_3k_3
+\end{equation}
+\begin{equation}
+    \label{eq:mixing_sum}
+    M_1 + M_2 + M_3 = 1
+\end{equation}
+
+The lowercase letters represent known constants, and the uppercase letters represent the variables that we're trying to solve for. Notice that we have three equations and three variables.
+
+There are a few ways to solve this system of linear equations. Let's start by rearranging equation \refeq{mixing_sum} to solve for $M_3$ in terms of $M_1$ and $M_2$:
+
+\begin{equation}
+    \label{eq:solve_m3}
+    M_3 = 1 - M_1 - M_2
+\end{equation}
+
+We can now substitute $M_3$ with $1 - M_1 - M_2$ in equations \refeq{mixing1} and \refeq{mixing2}:
+
+\begin{equation}
+    \label{eq:sub_m3_1}
+    M_1n_1 + M_2n_2 + (1 - M_1 - M_2)n_3 = M_1p_1 + M_2p_2 + (1 - M_1 - M_2)p_3
+\end{equation}
+\begin{equation}
+    \label{eq:sub_m3_2}
+    M_1n_1 + M_2n_2 + (1 - M_1 - M_2)n_3 = M_1k_1 + M_2k_2 + (1 - M_1 - M_2)k_3
+\end{equation}
+
+Next, we'll simplify \refeq{sub_m3_1} and \refeq{sub_m3_2} by distributing the $(1 - M_1 - M_2)$ and refactoring, which gives us
+
+
+\begin{equation}
+    \label{eq:simplify_1}
+    M_1(n_1 - n_3) + M_2(n_2 - n_3) + n_3 = M_1(p_1 - p_3) + M_2(p_2 - p_3) + p_3
+\end{equation}
+\begin{equation}
+    \label{eq:simplify_2}
+    M_1(n_1 - n_3) + M_2(n_2 - n_3) + n_3 = M_1(k_1 - k_3) + M_2(k_2 - k_3) + k_3
+\end{equation}
+
+Okay, so now we're down to two linear equations with two variables. Let's just repeat our strategy again: we'll solve one of these equations for one variable in terms of the other, and then substitute. Let's solve equation \refeq{simplify_1} for $M_2$ in terms of $M_1$. I've skipped a few steps here, but doing some algebra on equation \refeq{simplify_1} ultimately gives us
+
+\begin{equation}
+    \label{eq:solve_m2}
+    M_2 = \frac{p_3 - n_3 - M_1(n_1 - n_3 + p_3 - p_1)}{n_2 - n_3 + p_3 - p_2}
+\end{equation}
+
+Once again, we'll do substitution. We'll substitute this new expression for $M_2$ into equation \refeq{simplify_2} and then solve for $M_1$ (which, at that point, will be the only remaining variable in the equation). Again, I've skipped a lot of steps, but this is the end result:
+
+\begin{equation}
+    \label{eq:solve_m1}
+    M_1 = \frac{k_3 - n_3 + (n_3 - n_2 + k_2 - k_3)\frac{p_3 - n_3}{n_2 - n_3 + p_3 - p_2}}{k_3 - n_3 + n_1 - k_1 + (n_3 - n_2 + k_2 - k_3)\frac{n_1 - n_3 + p_3 - p_1}{n_2 - n_3 + p_3 - p_2}}
+\end{equation}
+
+(Some further simplification may be possible, but it's unnecessary)
+
+Notice that equation \refeq{solve_m1} has exactly one variable on the left ($M_1$) and no variables (only known constants) on the right. Indeed, you can just plug in all of the known constants to solve for $M_1$ at this point. Once you've solved for $M_1$, you could go back and plug in that answer into equation \refeq{solve_m2} to solve for $M_2$. Finally, you could plug in your values for $M_1$ and $M_2$ into equation \refeq{solve_m3} to solve for $M_3$.
+
+\subsection{What to submit}
+
+The template code comes with a file called \texttt{gardening.cpp}. It's mostly empty. Complete it to create a C++ program that does the following:
+
+\begin{enumerate}
+    \item In the following order, prompt the user and accept values via the terminal for $n_1$, $p_1$, $k_1$, $n_2$, $p_2$, $k_2$, $n_3$, $p_3$, and $k_3$. Your program should support floating point values for all of these variables. 
+    \item Solve for $M_1$, $M_2$, and $M_3$.
+    \item Print the values of $M_1$, $M_2$, and $M_3$ to the terminal.
+    \item \label{step:nitrogen_proportion} Compute the total proportion of nitrogen in the fertilizer as $M_1n_1 + M_2n_2 + M_3n_3$, and print the value to the terminal via \texttt{std::cout}.
+    \item \label{step:phosphorous_proportion} Compute the total proportion of phosphorous in the fertilizer as $M_1p_1 + M_2p_2 + M_3p_3$, and print the value to the terminal via \texttt{std::cout}.
+    \item \label{step:potassium_proportion} Compute the total proportion of potassium in the fertilizer as $M_1k_1 + M_2k_2 + M_3k_3$, and print the value to the terminal via \texttt{std::cout}.
+\end{enumerate}
+
+Your program does not need to validate user inputs. That is, you may assume that the user will enter appropriate values when prompted.
+
+If your program is written correctly, then the values computed in steps \ref{step:nitrogen_proportion}, \ref{step:phosphorous_proportion}, and \ref{step:potassium_proportion} should all be the same when the user supplies appropriate values for the 9 element proportion constants. This indicates that the computed mixture proportions $M_1$, $M_2$, and $M_3$ achieve a balanced fertilizer. This is a good way to verify that your code is correct.
+
+Note that your program won't necessarily work for all possible element proportion constants that the user might supply. In a niche case, it's possible that the element proportion constants suffer from a linear dependency, in which case there may be either 0 possible solutions or infinite. In addition, if any of the denominators in the computations are zero, then your program will crash. Lastly, it's possible that your program will output negative values for one or more of $M_1$, $M_2$, and $M_3$. If any of these things happen, it's not your program's fault---it simply indicates that it's not possible to mix the given ingredients to create a balanced fertilizer. Your program is \ul{expected} to behave strangely or even crash in these niche cases, so these issues won't result in a penalty, and you don't have to think about them as you write your program.
+
+When testing your program, a simple way to avoid these niche issues is to make sure that each of the three ingredients are concentrated in a different element. For example, if ingredient 1 has much more nitrogen than it does phosphorous or potassium, ingredient 2 has much more phosphorous than it does nitrogen or potassium, and ingredient 3 has much more potassium than it does nitrogen or phosphorous, then your program shouldn't run into any issues---it should compute positive values of $M_1$, $M_2$, and $M_3$.
+
+Here is one concrete test case to help you verify that your program works correctly: Let $n_1=0.07$, $n_2=0.03$, $n_3=0.05$, $p_1=0.01$, $p_2=0.09$, $p_3=0.04$, $k_1=0.02$, $k_2=0.02$, and $k_3=0.12$. Then the correct answer should be: $M_1 \approx 0.330645$, $M_2 \approx 0.379032$, and $M_3 \approx 0.290323$. If your program gives you a different answer for these inputs, then there's likely a logic error in it somewhere. In the last part of your solution design, you'll be expected to come up with a few other test cases, including at least one other ``good'' test case such as this one.
+
+\section{Submission}
+
+Stage, commit, and push your changes to your assignment repository on GitHub classroom. After doing so, you should be able to see your up-to-date work on your assignment repository page in your web browser. If so, you have successfully submitted your assignment.
+
+Don't forget to attend your assignment demo, which you should have already scheduled by this point.
+
+\end{document}
