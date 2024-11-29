@@ -4,6 +4,7 @@ description: Get started building your docs site with Starlight.
 template: splash
 hero:
   title: |
+    Welcome to 
     <span
       class="font-black text-transparent
         bg-clip-text bg-gradient-to-b
@@ -11,18 +12,23 @@ hero:
         dark:from-accent-500 dark:to-accent-200"
     >
       ENGR 103
-    </span> Engineering Computation and Algorithmic Thinking
-  tagline: TBD
+    </span> 
+  tagline: Engineering Computation and Algorithmic Thinking
   image:
-    file: ../../assets/owl103.jpeg
+    file: ../../assets/hero.jpeg
   actions:
-    - text: Example Guide
-      link: /guides/example/
-      icon: right-arrow
-    - text: Read the Starlight docs
-      link: https://starlight.astro.build
-      icon: external
-      variant: minimal
+    - text: Overview
+      link: /introduction/overview/
+      variant: primary
+    - text: Lecture Notes
+      link: /lectures/overview/
+      variant: secondary
+    - text: Studios
+      link: /studios/overview/
+      variant: secondary
+    - text: Assignments
+      link: /assignments/overview/
+      variant: secondary
 ---
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
