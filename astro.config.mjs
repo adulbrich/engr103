@@ -1,11 +1,14 @@
 // @ts-check
 import { defineConfig } from "astro/config";
+import sitemap from "@astrojs/sitemap";
 import starlight from "@astrojs/starlight";
 import tailwind from "@astrojs/tailwind";
 
 // https://astro.build/config
 export default defineConfig({
+  site: "https://engr103.alexulbrich.com",
   integrations: [
+    sitemap(),
     starlight({
       title: "ENGR 103 Engineering Computation and Algorithmic Thinking",
       social: {
@@ -15,6 +18,10 @@ export default defineConfig({
         {
           label: "Introduction",
           autogenerate: { directory: "introduction" },
+        },
+        {
+          label: "Practicalities",
+          autogenerate: { directory: "practicalities" },
         },
         {
           label: "Lecture Notes",

@@ -1,0 +1,135 @@
+---
+title: "C++ Basics: Hello, World!"
+description: TBD
+sidebar:
+  order: 2
+---
+
+## Languages
+
+Languages are fundamental to human communication, enabling us to convey ideas, emotions, and instructions. In the realm of computing, languages serve a similar purpose, allowing us to communicate with machines and instruct them to perform specific tasks. Understanding the basic concepts of languages is crucial for anyone delving into the field of computer science and programming.
+
+To grasp the essence of programming languages, it's important to understand the following key concepts:
+
+1. **Sentence**: A sequence of symbols with semantic interpretation (meaning). In both spoken and programming languages, sentences convey complete thoughts or instructions.
+2. **Syntax**: Rules that dictate how symbols can form sentences. Syntax ensures that sentences are structured correctly, much like grammar rules in spoken languages.
+3. **Semantics**: Rules that describe the meaning of sentences. Semantics ensures that sentences make sense and convey the intended meaning.
+4. **Grammar**: Combination of syntax and semantics, describing valid sentences and their meanings. Grammar provides a framework for constructing meaningful and correct sentences.
+5. **Language**: A set of valid sentences derived from a grammar. In computing, a language is a system of communication used to write programs that a computer can execute.
+
+These principles apply to both spoken languages and programming languages. A **programming language** is used to express instructions for a computer to interpret and execute. Just as we use different spoken languages for various contexts and purposes, there are numerous programming languages, each with its own strengths and applications.
+
+In this course, we use **C++**, a versatile language popular in software engineering, game development, and computer graphics. Programs written in programming languages are called **software applications** or **programs**.
+
+### Examples of Programs
+
+- Internet browsers (e.g., Google Chrome, Firefox)
+- Text editors (e.g., Notepad)
+- File explorers, Microsoft Word, operating systems (Windows, Mac, Linux)
+
+In this course, we focus on terminal-based programs processing textual inputs and outputs. These programs are fundamental to understanding how computers interpret and execute instructions, providing a solid foundation for more advanced topics in computer science.
+
+## Translators
+
+In the realm of computing, humans write programs in high-level programming languages that are easier to understand and use. However, computers can only execute instructions written in their native machine language, which consists of binary code. To bridge this gap, we use translator programs that convert high-level language code into machine language.
+
+### Machine Language
+
+Computers understand only their machine language, which is a low-level language consisting of binary operation codes specific to a processor. Machine language is difficult for humans to read and write due to its complexity and lack of abstraction.
+
+### Translator Programs
+
+**Translator programs** are essential tools that convert high-level programming languages into machine language. There are two main types of translators:
+
+1. **Interpreters**: Interpreters translate and execute instructions line-by-line, on-the-fly. This means that the program is read, translated, and executed simultaneously. Interpreters are useful for scripting languages and development environments where immediate feedback is beneficial.
+2. **Compilers**: Compilers translate entire programs into machine language before execution. The source code is converted into an executable file, which can then be run independently of the source code. Compilers are typically used for languages that require high performance and efficiency.
+
+### Tradeoffs
+
+Each type of translator has its own advantages and disadvantages:
+
+- **Interpreted Programs**: Easier to debug and test since they provide immediate feedback. However, they tend to be slower because the translation happens at runtime.
+- **Compiled Programs**: Generally faster and more efficient since the translation is done beforehand. However, they can be less portable because the compiled code is specific to a particular machine architecture.
+
+Understanding the role of translators is crucial for programmers, as it influences the choice of programming languages and development tools based on the requirements of the project.
+
+## Errors
+
+Errors are an inevitable part of programming. Understanding the different types of errors and how to handle them is crucial for developing robust and reliable software. Errors can be broadly categorized into three types: syntax errors, runtime errors, and logic errors.
+
+### Syntax Errors
+
+These errors occur when the code violates the syntax rules of the programming language. Syntax errors are typically caught by static analysis tools such as compilers before the program is run. They prevent the program from compiling, meaning the code cannot be executed until the errors are fixed.
+
+**Example:** Missing a semicolon at the end of a statement in C++.
+
+Use compiler error messages to identify and correct syntax mistakes.
+
+### Runtime Errors
+
+These errors occur while the program is running and can cause the program to crash or behave unexpectedly. Runtime errors are detected during the execution of the program. They can cause the program to terminate unexpectedly or produce incorrect results.
+
+**Example:** Division by zero or accessing an array out of bounds.
+
+Implement error handling mechanisms such as try-catch blocks to gracefully handle runtime exceptions.
+
+### Logic Errors
+
+These errors occur when the program's logic is flawed, leading to incorrect results. Logic errors are the hardest to detect because the program runs without crashing but produces incorrect or unintended results. They can lead to subtle bugs that are difficult to trace and fix.
+
+**Example:** Using the wrong formula to calculate a value.
+
+Use debugging tools and techniques such as breakpoints and step-by-step execution to trace and fix logical flaws in the code.
+
+## C++ Build Pipeline
+
+Creating an executable program from a C++ source file involves several steps. Understanding this build pipeline is crucial to grasp how code is transformed into a runnable application. The process can be broken down into three main stages: preprocessing, compilation, and linking.
+
+1. **Preprocessing**: Handles lines starting with `#` (preprocessor directives).
+2. **Compilation**: Converts source code to object code (machine language).
+3. **Linking**: Combines object code with libraries into a final executable.
+
+### Example
+
+Source code (`hello.cpp`):
+
+```cpp
+#include <iostream>
+int main() {
+    std::cout << "Hello, World!" << std::endl;
+}
+```
+
+Command to compile:
+
+```bash
+g++ -o hello_world hello.cpp
+```
+
+Run the executable:
+
+```bash
+./hello_world
+```
+Ouput:
+
+```
+Hello, World!
+```
+
+## Dissecting “Hello, World!” Program
+
+1. `#include <iostream>`: Includes the iostream library for input/output operations.
+2. `int main()`: Defines the program's entry point.
+3. `std::cout << "Hello, World!" << std::endl;`: Prints “Hello, World!” followed by a new line.
+
+Key Elements
+
+- `std::cout`: Outputs to the terminal.
+- `<<`: Stream insertion operator.
+- `"Hello, World!"`: String (textual data).
+- `std::endl`: Ends the line, moving the cursor to the next line.
+- `;`: Marks the end of a statement.
+
+## Summary
+
