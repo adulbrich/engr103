@@ -5,7 +5,7 @@ sidebar:
   order: 2
 ---
 
-## Languages
+## Languages and Programming
 
 Languages are fundamental to human communication, enabling us to convey ideas, emotions, and instructions. In the realm of computing, languages serve a similar purpose, allowing us to communicate with machines and instruct them to perform specific tasks. Understanding the basic concepts of languages is crucial for anyone delving into the field of computer science and programming.
 
@@ -19,15 +19,11 @@ To grasp the essence of programming languages, it's important to understand the 
 
 These principles apply to both spoken languages and programming languages. A **programming language** is used to express instructions for a computer to interpret and execute. Just as we use different spoken languages for various contexts and purposes, there are numerous programming languages, each with its own strengths and applications.
 
-In this course, we use **C++**, a versatile language popular in software engineering, game development, and computer graphics. Programs written in programming languages are called **software applications** or **programs**.
+In this course, we use **C++**, a versatile language popular in software engineering, game development, and computer graphics. 
 
-### Examples of Programs
+A set of instructions written in a programming language is called a program or software application. Programs power almost everything on a computer—from browsers (e.g., Chrome, Firefox) and tools (e.g., Notepad, Microsoft Word) to entire operating systems (e.g., Windows, macOS, Linux).
 
-- Internet browsers (e.g., Google Chrome, Firefox)
-- Text editors (e.g., Notepad)
-- File explorers, Microsoft Word, operating systems (Windows, Mac, Linux)
-
-In this course, we focus on terminal-based programs processing textual inputs and outputs. These programs are fundamental to understanding how computers interpret and execute instructions, providing a solid foundation for more advanced topics in computer science.
+We will focus on terminal-based programs processing textual inputs and outputs. These programs are fundamental to understanding how computers interpret and execute instructions, providing a solid foundation for more advanced topics in computer science.
 
 ## Translators
 
@@ -41,8 +37,10 @@ Computers understand only their machine language, which is a low-level language 
 
 **Translator programs** are essential tools that convert high-level programming languages into machine language. There are two main types of translators:
 
-1. **Interpreters**: Interpreters translate and execute instructions line-by-line, on-the-fly. This means that the program is read, translated, and executed simultaneously. Interpreters are useful for scripting languages and development environments where immediate feedback is beneficial.
-2. **Compilers**: Compilers translate entire programs into machine language before execution. The source code is converted into an executable file, which can then be run independently of the source code. Compilers are typically used for languages that require high performance and efficiency.
+1. **Interpreters**: Interpreters translate and execute instructions line-by-line, on-the-fly. This means that the program is read, translated, and executed simultaneously. Interpreters are useful for scripting languages and development environments where immediate feedback is beneficial, such as Python, JavaScript, Ruby, Shell, or Perl.
+2. **Compilers**: Compilers translate entire programs into machine language before execution. The source code is converted into an executable file, which can then be run independently of the source code. Compilers are typically used for languages that require high performance and efficiency, such as C++, [Go](https://go.dev/), [Rust](https://www.rust-lang.org/), [Swift](https://www.swift.org/), or [Zig](https://ziglang.org/).
+
+In this course, we'll use the **g++ compiler** to translate C++ code into machine language. This approach allows us to create efficient, executable programs tailored to the platform.
 
 ### Tradeoffs
 
@@ -83,53 +81,142 @@ Use debugging tools and techniques such as breakpoints and step-by-step executio
 
 ## C++ Build Pipeline
 
-Creating an executable program from a C++ source file involves several steps. Understanding this build pipeline is crucial to grasp how code is transformed into a runnable application. The process can be broken down into three main stages: preprocessing, compilation, and linking.
-
-1. **Preprocessing**: Handles lines starting with `#` (preprocessor directives).
-2. **Compilation**: Converts source code to object code (machine language).
-3. **Linking**: Combines object code with libraries into a final executable.
-
-### Example
-
-Source code (`hello.cpp`):
+To write a C++ program, you start by creating a file with a `.cpp` extension, such as `hello.cpp`. This file contains your source code, which you can edit using a text editor (e.g., vim). For example:
 
 ```cpp
+// hello.cpp
 #include <iostream>
 int main() {
     std::cout << "Hello, World!" << std::endl;
 }
 ```
 
-Command to compile:
+This is a valid C++ program, but computers cannot execute C++ directly—they understand only machine language. To run your program, you need to translate your source code into a machine language executable. This process involves several steps, collectively called the build pipeline:
+
+1. **Preprocessing:** Processes lines starting with `#` (preprocessor directives), modifying the source code before compilation.
+2. **Compilation:** Translates the preprocessed C++ source code into object code (machine language files). Each `.cpp` file is compiled independently.
+3. **Linking:** Combines object code from all `.cpp` files and libraries (e.g., `<iostream>`) into a single executable file.
+
+Using the g++ compiler, you can automate these steps with a single command:
+
+```bash
+g++ -o <executable_name> <source_file1> <source_file2> ... <source_fileN>
+```
+where:
+-	`<executable_name>` is rhe desired name of your executable, and
+- `<source_fileX>` are the C++ source files to include.
+
+For example, to build a single-file program `hello.cpp` into an executable named `hello_world`, run:
 
 ```bash
 g++ -o hello_world hello.cpp
 ```
 
-Run the executable:
+On UNIX-like systems (Linux/Mac), executables usually have no file extension, while on Windows, they typically use `.exe`. To run your executable, type its path in the terminal. For example:
 
 ```bash
 ./hello_world
 ```
-Ouput:
+
+This will print `Hello, World!` to the terminal.
+
+### Updating Your Program
+
+If you update your source code (e.g., changing the output to `I love coding!!!`), you must rebuild the executable to reflect the changes:
+
+```cpp
+#include <iostream>
+int main() {
+    std::cout << "I love coding!!!" << std::endl;
+}
+```
+
+The existing executable does not automatically update. Run the `g++` command again to rebuild your program. If you forget to rebuild, your executable will still reflect the old version of your program, leading to confusion.
+
+Your **source code** is the starting point for your program, but it is not the executable itself. Always rebuild your program after making changes to ensure your executable matches the latest version of your code.
+
+## Dissecting Our “Hello, World!” Program
+
+Let's break down the key components of our original C++ program:
+
+```cpp
+// hello.cpp
+#include <iostream>
+int main() {
+    std::cout << "Hello, World!" << std::endl;
+}
+```
+
+##### `#include <iostream>`
+
+- A *preprocessor directive* A *preprocessor directive* instructing the compiler to insert the contents of the `iostream` header file from the C++ standard library before compilation. 
+- Angle brackets `<>` denote a system header file, part of the C++ Standard Library. This library provides pre-written code for common tasks. `iostream` specifically provides tools for input/output (IO) streams, enabling interaction with the terminal (console). A stream is a channel for sending and receiving data.
+- Without this line, attempting to use `std::cout` would result in a syntax error because it wouldn't be defined.
+
+##### `int main() {}`
+
+- Defines a function named `main`, the special entry point for any C++ program.
+- The `int` indicates that the function returns an integer value (typically `0` to indicate successful execution).
+- The `{}` enclose the function body, which contains the code executed when the program runs.
+- The program's *control flow* starts at `main`. When the program is executed, the code inside `main` is executed sequentially.
+
+##### `std::cout << "Hello, World!" << std::endl;`
+
+- `std::cout` represents the standard output stream (connected to the terminal).
+- `<<` is the stream insertion operator, used to send data into the output stream.
+- `"Hello, World!"` is a string enclosed in double quotes, representing the text to output. Strings are sequences of characters. Omitting the quotes means treating the text as code, which would result in a syntax error.
+- `std::endl` inserts a line break (like pressing Enter).
+- `;` terminates the statement. C++ is not whitespace-sensitive; multiple spaces or line breaks between statements are generally ignored, but semicolons are essential.
+
+Note that there is another stream insertion operator before `std::endl`, which appends the line break to the output. 
+
+Multiple insertions can be chained: `std::cout << a << b << c;` is equivalent to:
+
+```cpp
+std::cout << a; 
+std::cout << b; 
+std::cout << c;
+```
+
+--- 
+
+If `#include <iostream>` is omitted, running `g++` would produce two errors:
+
+```
+hello.cpp:2:3: error: use of undeclared identifier 'std'
+    2 |   std::cout << "Hello, World!" << std::endl;
+      |   ^
+hello.cpp:2:35: error: use of undeclared identifier 'std'
+    2 |   std::cout << "Hello, World!" << std::endl;
+      |                                   ^
+2 errors generated.
+```
+
+This indicates `std` is undefined because the iostream library was not included:
+
+- `std` refers to the *standard namespace*, which organizes C++ standard library components. A namespace organizes code to avoid naming conflicts.
+- `::` is the *scope resolution operator*, used to access tools like `cout` (console output) and `endl` within `std`.
+
+--- 
+
+We can modify the program , for example by adding another `std::out` statement:
+
+```cpp
+std::cout << "Hello, World!" << std::endl;
+std::cout << "Hello, World!" << std::endl;
+```
+
+This produces:
 
 ```
 Hello, World!
+Hello, World!
 ```
 
-## Dissecting “Hello, World!” Program
+If you omit `std::endl` in the first statement, the output will be:
 
-1. `#include <iostream>`: Includes the iostream library for input/output operations.
-2. `int main()`: Defines the program's entry point.
-3. `std::cout << "Hello, World!" << std::endl;`: Prints “Hello, World!” followed by a new line.
+```
+Hello, World!Hello, World!
+```
 
-Key Elements
-
-- `std::cout`: Outputs to the terminal.
-- `<<`: Stream insertion operator.
-- `"Hello, World!"`: String (textual data).
-- `std::endl`: Ends the line, moving the cursor to the next line.
-- `;`: Marks the end of a statement.
-
-## Summary
-
+Without `std::endl`, output strings are printed on the same line, demonstrating the importance of line breaks for formatting.
