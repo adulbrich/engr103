@@ -5,4 +5,165 @@ sidebar:
   order: 2
 ---
 
-TBD
+import { Steps } from '@astrojs/starlight/components';
+
+All assignment work in this class will be submitted to GitHub Classroom using Git. In this studio, you will practice using Git and GitHub and familiarize yourself with the assignment work and submission process.
+
+## Create a GitHub Account and Log In
+
+GitHub is an online platform for hosting Git repositories. It allows you to store your Git projects, share them with others, and collaborate effectively. Due to its popularity, many people mistakenly think GitHub and Git are the same thing—they are not.
+
+1. Go to [GitHub's website](https://github.com).
+2. If you already have a GitHub account: Log in.
+3. If you don't have a GitHub account, or if you want to create a new one using your OSU email for school-related work, sign up for a new account and then log in.
+
+## Accept the “Studio 2” Assignment on GitHub Classroom
+
+GitHub Classroom is a tool that integrates with GitHub to create virtual classrooms. Instructors can assign projects linked to starter repositories, which students can copy into their personal GitHub accounts. This allows students to work on assignments within their own repositories.
+
+1. Navigate to **Canvas → Assignments → Studio 2**.
+2. On the Studio 2 Canvas assignment page, locate the link to the **Studio 2 GitHub Classroom** assignment.
+3. Click the link to accept the assignment. This action will create your personal GitHub repository named `studio-2-XXX`, where `XXX` is your GitHub username.
+4. Open your new repository. It will initially contain only a `README.md` file, which serves as the text displayed on the repository's main page.
+
+You're now set up and ready to start working on your Studio 2 assignment!
+
+## Generate and Configure SSH Keys
+
+To clone your Studio 2 GitHub repository onto the ENGR filespace for editing, you need to authenticate your ENGR user account with GitHub. This can be done using either **Personal Access Tokens (PATs) **or **SSH keys**. Since SSH keys are more versatile, we'll use them.
+
+In the previous studio, you generated an SSH key pair to authenticate your laptop with your ENGR user account, bypassing the need for passwords and Duo authentication. Now, you'll generate a second, separate SSH key pair to authenticate your ENGR user account with your GitHub account. Follow the steps below.
+
+<Steps>
+
+1. **Connect to the ENGR Servers**
+    
+    Open a terminal and connect to the ENGR servers using SSH.
+
+2. **Generate SSH Keys (if not already done)**
+
+    If you've already generated SSH keys on the ENGR servers, skip to step 3. Otherwise enter the following command in your terminal and press Enter:
+
+    ```bash
+    ssh-keygen -t rsa -b 4096
+    ```
+
+    Follow the on-screen instructions. Pay attention to where the keys are stored (default location is recommended).
+
+	    - When prompted, press Enter to save the keys to the default location.
+	    - You'll be asked to set an SSH key password. Using a password is recommended but optional.
+	    - If you choose to set a password, you'll need to enter it each time you use your SSH keys unless you add the keys to your SSH agent.
+	    - To skip setting a password, press Enter without typing anything. Passwords may not appear on the screen as you type—this is a security feature.
+      
+3. **Locate and Copy Your Public Key**
+
+    Navigate to the directory where your SSH keys are stored (default: `~/.ssh/`). By default, your SSH key files should be named `id_rsa` and `id_rsa.pub`. Use the following command to print the contents of the public key file (`id_rsa.pub`):
+
+    ```bash
+    cat id_rsa.pub
+    ```
+    The output should begin with ssh-rsa. Highlight the contents and copy it to your clipboard.
+
+4. **Add the Public Key to GitHub**
+
+    Open your web browser and log in to GitHub. Navigate to **Profile icon → Settings → SSH and GPG Keys → New SSH Key**.
+    
+    Fill in the details:
+
+	    - **Title**: Enter a name for the key (e.g., “ENGR SERVERS).
+	    - **Key type**: Ensure it is set to “Authentication Key.”
+	    - **Key**: Paste the public SSH key copied earlier into this box.
+	  
+    Click **Add SSH Key**.
+</Steps>
+
+Your ENGR user account is now authenticated with your GitHub account via SSH!
+
+## Clone Your GitHub Repository to a Local Mirror on the ENGR Servers
+
+Follow these steps to clone your Studio 2 GitHub repository to the ENGR servers. Before starting, review the [Git section](../../lectures/development-environment/#git) in the Development Environment lecture notes.
+
+<Steps>
+
+1. **Locate Your Studio 2 GitHub Repository**
+	  
+    Open your browser and navigate to your Studio 2 GitHub repository. If you've forgotten how to find it, click on your profile icon → **Your Organizations** → Select the organization for this course → Click on the **Repositories** tab.
+
+2. **Copy the Repository's SSH URL**
+
+    On the main page of your GitHub repository, locate and click the green `<>` Code button. Select the SSH tab and copy the repository's SSH URL by clicking the clipboard icon.
+
+3. **Navigate to the Correct Directory on the ENGR Servers**
+
+    Open your terminal and navigate to the directory where your studio work is stored. This should be the parent directory of where your Studio 1 work is located, not the Studio 1 directory itself.
+
+4. **Clone the Repository**
+
+    Run the following command in your terminal, replacing `<repository-ssh-url>` with the SSH URL you copied earlier:
+
+    ```bash
+    git clone <repository-ssh-url>
+    ```
+5. **Verify the Clone**
+    
+    Run the `ls` command. You should see a new directory named `studio-2-XXX`, where `XXX` is your GitHub username. Navigate into the new directory using:
+    
+    ```bash
+    cd studio-2-XXX
+    ```
+
+    Run `ls` again. The directory should contain the contents of your repository. Initially, it will be nearly empty, with only a `README.md` file. This file displays the text shown on your repository's main page on GitHub.
+</Steps>
+
+You've successfully cloned your Studio 2 repository to the ENGR servers!
+
+## Copy Your Studio 1 Work into Your Repository
+
+At this stage, you have a GitHub Classroom repository and a local mirror of it on the ENGR servers. For a typical programming assignment, you would edit the starter code, then stage, commit, and push your changes to your GitHub repository. To simulate this workflow, you'll copy your work from Studio 1 into your Studio 2 repository, then stage, commit, and push it to GitHub.
+
+<Steps>
+
+1. **Copy Your main.cpp File**
+
+    Using the `cp` command or Vim's copy/paste functionality, copy the `main.cpp` file from last week's Studio 1 (which contains your “Hello, World!” application) into the directory containing your local mirror of the Studio 2 repository. Refer to the lecture notes for instructions on how to use the `cp` command.
+
+2. **Stage the File**
+
+    Stage `main.cpp` using Git. Refer to the lecture notes on `git add` for guidance.
+
+3. **Create a Commit**
+
+    Create a commit to record the changes. Refer to the lecture notes on `git commit` for the correct steps.
+
+4. **Push the Commit to GitHub**
+
+    Push the changes from your local repository mirror back to your GitHub repository. Refer to the lecture notes on `git push`.
+
+5. **Verify the Changes on GitHub**
+
+    If the push is successful, you'll see a confirmation message. To confirm:
+
+      1. Open your GitHub repository page in your browser.
+      2. Refresh the page.
+      3. You should see `main.cpp` listed in the repository.
+      4. Click on `main.cpp` and verify that it contains the “Hello, World!” program from Studio 1.
+
+    Once verified, show your repository to one of your studio TAs to complete the studio.
+
+</Steps>
+
+## Summary of Workflow for Programming Assignments
+
+The process you followed mirrors the steps you'll use for future programming assignments:
+
+1. Accept the assignment on GitHub Classroom to generate your personal repository with starter code.
+2. Clone the repository into your ENGR file space.
+3. Complete the assignment by editing the starter code (e.g., using Vim).
+4. Stage, commit, and push your work to GitHub.
+
+:::tip[Commit and Push Frequently]
+
+It's highly recommended to create new commits regularly and push them to GitHub as you work. This practice allows you to easily recover previous versions of your code if needed.
+
+Each commit should focus on a single, small change and have a concise message (no longer than a single sentence). This makes your commit history clear and easy to navigate.
+:::
