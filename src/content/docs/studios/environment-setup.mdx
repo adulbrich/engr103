@@ -44,7 +44,7 @@ In this course, we'll rely on `ssh` to connect to and work with the ENGR servers
 
 2. Type the following command into the terminal and press enter:
     ```bash
-    ssh <Your_ONID>@access.engr.oregonstate.ed
+    ssh <Your_ONID>@access.engr.oregonstate.edu
     ``` 
     Replace `<Your_ONID>` in the command with the first part of your ONID username (the first part of your OSU email address). After pressing Enter, you'll be prompted to enter your ONID password--the same password you use to log in to OSU services like Canvas and Outlook. As you type your password, it will remain invisible for security reasons. This is intentional.
     
@@ -144,7 +144,7 @@ You've completed most of this studio, but there's one final step to make future 
     ```bash
     ssh-keygen -t rsa -b 4096
     ```
-    Follow the on-screen instructions. You'll be asked where to store your SSH keys. Take note of the storage location—you'll need this information for the next step. Press **Enter** to save them in the default location (recommended).
+    Follow the on-screen instructions. You'll be asked where to store your SSH keys. Take note of the storage location--you'll need this information for the next step. Press **Enter** to save them in the default location (recommended).
 
     Next, you'll be prompted to create an SSH key password. While using a password is optional, it's recommended for added security. Keep in mind:
 
@@ -171,19 +171,23 @@ You've completed most of this studio, but there's one final step to make future 
     Paste the public key you copied earlier onto its own separate line in the file, then save and close the file.
     
     :::tip[Tips for Copying and Pasting in Terminals]
-	    - Windows and Linux Terminals: Use Ctrl+Shift+C to copy and Ctrl+Shift+V to paste. If this doesn’t work, you may need to enable these shortcuts. For example, in PowerShell, right-click the menu bar, select Properties, and check “Enable Ctrl key shortcuts” and “Use Ctrl+Shift+C/V as Copy/Paste”.
+	    - Windows and Linux Terminals: Use Ctrl+Shift+C to copy and Ctrl+Shift+V to paste. If this doesn't work, you may need to enable these shortcuts. For example, in PowerShell, right-click the menu bar, select Properties, and check “Enable Ctrl key shortcuts” and “Use Ctrl+Shift+C/V as Copy/Paste”.
 	    - Mac Terminals: Use Command+C to copy and Command+V to paste.
     :::
 
 6. Update the permissions of your `~/.ssh/authorized_keys` file via the following command:
+
     ```bash
     chmod 600 ~/.ssh/authorized_keys
     ```
+
 7. In the second terminal session (the one where you generated your SSH keys and are not currently connected to the ENGR servers), try reconnecting to the ENGR servers using the same command you used at the start of this studio:
 
     ```bash
-    ssh <Your_ONID>@access.engr.oregonstate.ed
+    ssh <Your_ONID>@access.engr.oregonstate.edu
     ```
 
     If everything is set up correctly, you should no longer need to enter your ONID password or authenticate via Duo. However, if you created an SSH key password, you may need to enter it. To avoid entering the SSH key password repeatedly, you can configure your SSH agent to remember it until the next reboot.
 </Steps>
+
+IT supports also provides some directions to configure SSH keys. You can find them [here](https://it.engineering.oregonstate.edu/ssh-keygen).
