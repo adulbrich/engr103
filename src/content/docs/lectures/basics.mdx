@@ -13,7 +13,7 @@ To grasp the essence of programming languages, it's important to understand the 
 
 1. **Sentence**: A sequence of symbols with semantic interpretation (meaning). In both spoken and programming languages, sentences convey complete thoughts or instructions.
 2. **Syntax**: Rules that dictate how symbols can form sentences. Syntax ensures that sentences are structured correctly, much like grammar rules in spoken languages.
-3. **Semantics**: Rules that describe the meaning of sentences. Semantics ensures that sentences make sense and convey the intended meaning.
+3. **Semantics**: describe how a sentence should be interpreted. They provide meaning to sentences, ensuring that they convey the intended message.
 4. **Grammar**: Combination of syntax and semantics, describing valid sentences and their meanings. Grammar provides a framework for constructing meaningful and correct sentences.
 5. **Language**: A set of valid sentences derived from a grammar. In computing, a language is a system of communication used to write programs that a computer can execute.
 
@@ -21,24 +21,45 @@ These principles apply to both spoken languages and programming languages. A **p
 
 In this course, we use **C++**, a versatile language popular in software engineering, game development, and computer graphics. 
 
+:::note[The Story of C++]
+In the early 1970s, Dennis Ritchie created C at Bell Labs. His goal? To develop a powerful, efficient language for writing system software, like operating systems. In fact, the Unix operating system—the backbone of modern computing—was written in C, making it one of the most influential programming languages in history.
+
+Fast forward to the 1980s. A Danish computer scientist named Bjarne Stroustrup was working on his Ph.D. at Cambridge University and later joined Bell Labs. Stroustrup loved C for its efficiency but found it lacking in tools for organizing complex software—especially in large projects. Inspired by the object-oriented programming (OOP) concepts in a language called Simula, he decided to build on C's strengths by adding objects, classes, and other high-level features. The result? C with Classes, which he later renamed C++ in 1983.
+
+The name “C++” is a playful nod to the programming world. In C, the ++ operator means “increment by one.” So, “C++” represents an incremental improvement over C—a clever way to signal that it builds upon the original language.
+
+C++ is still actively maintained and improved. Major updates, like C++11, C++17, and C++20, have added modern features while staying true to its roots. It's a language that has stood the test of time, evolving to meet the demands of modern computing.
+:::
+
 A set of instructions written in a programming language is called a program or software application. Programs power almost everything on a computer—from browsers (e.g., Chrome, Firefox) and tools (e.g., Notepad, Microsoft Word) to entire operating systems (e.g., Windows, macOS, Linux).
+
+:::note[Did You Know?]
+The visual effects in Pixar movies, like Toy Story and Finding Nemo, were powered by software written in C++. And many popular video games, like The Sims and Counter-Strike, use C++ for their graphics and physics engines. C++ has shaped industries and powered some of the most iconic creations in entertainment.
+:::
 
 We will focus on terminal-based programs processing textual inputs and outputs. These programs are fundamental to understanding how computers interpret and execute instructions, providing a solid foundation for more advanced topics in computer science.
 
 ## Translators
 
-In the realm of computing, humans write programs in high-level programming languages that are easier to understand and use. However, computers can only execute instructions written in their native machine language, which consists of binary code. To bridge this gap, we use translator programs that convert high-level language code into machine language.
+In the realm of computing, humans write programs in **high-level** programming languages that are easier to understand and use. However, computers can only execute instructions written in their native machine language, which consists of binary code. To bridge this gap, we use translator programs that convert high-level language code into machine language.
 
 ### Machine Language
 
-Computers understand only their machine language, which is a low-level language consisting of binary operation codes specific to a processor. Machine language is difficult for humans to read and write due to its complexity and lack of abstraction.
+Computers understand only their machine language, which is a **low-level** language consisting of binary operation codes specific to a processor. Machine language is difficult for humans to read and write due to its complexity and lack of abstraction.
+
+It would be very difficult to write meaningful software using such a primitive language. To make matters worse, different processors (computers) have different machine languages, so your program wouldn't even be portable (e.g., it might only run on one very specific style of CPU).
 
 ### Translator Programs
 
 **Translator programs** are essential tools that convert high-level programming languages into machine language. There are two main types of translators:
 
-1. **Interpreters**: Interpreters translate and execute instructions line-by-line, on-the-fly. This means that the program is read, translated, and executed simultaneously. Interpreters are useful for scripting languages and development environments where immediate feedback is beneficial, such as Python, JavaScript, Ruby, Shell, or Perl.
+1. **Interpreters**: Interpreters translate and execute instructions line-by-line, on-the-fly. This means that the program is read, translated, and executed simultaneously. Interpreters are useful for scripting languages and development environments where immediate feedback is beneficial, such as [Python](https://www.python.org/), JavaScript, [Ruby](https://www.ruby-lang.org/en/), Shell, or [Perl](https://www.perl.org/).
 2. **Compilers**: Compilers translate entire programs into machine language before execution. The source code is converted into an executable file, which can then be run independently of the source code. Compilers are typically used for languages that require high performance and efficiency, such as C++, [Go](https://go.dev/), [Rust](https://www.rust-lang.org/), [Swift](https://www.swift.org/), or [Zig](https://ziglang.org/).
+
+:::note[Hybrid Approaches?]
+The reality is a little less clear-cut. Most programming languages tend to lean toward one translation style or another, but any kind of translator
+can be built for any programming language. In particular, you can have a hybrid approach where a program is first compiled into an intermediate form (bytecode) and then interpreted in a runtime environment or virtual machine. This is the approach taken by languages like Java (with the Java Virtual Machine), C#, Python (with the CPython implementation), and even JavaScript. This allows high portability across platforms, while still providing some of the performance benefits of compilation. Hybrid translators are more complex and a bit slower than pure compilers.
+:::
 
 In this course, we'll use the **g++ compiler** to translate C++ code into machine language. This approach allows us to create efficient, executable programs tailored to the platform.
 
@@ -149,13 +170,13 @@ int main() {
 
 ##### `#include <iostream>`
 
-- A *preprocessor directive* A *preprocessor directive* instructing the compiler to insert the contents of the `iostream` header file from the C++ standard library before compilation. 
+- A *preprocessor directive* instructing the compiler to insert the contents of the `iostream` header file from the C++ standard library before compilation. 
 - Angle brackets `<>` denote a system header file, part of the C++ Standard Library. This library provides pre-written code for common tasks. `iostream` specifically provides tools for input/output (IO) streams, enabling interaction with the terminal (console). A stream is a channel for sending and receiving data.
 - Without this line, attempting to use `std::cout` would result in a syntax error because it wouldn't be defined.
 
 ##### `int main() {}`
 
-- Defines a function named `main`, the special entry point for any C++ program.
+- Defines a **function** named `main`, the special entry point for any C++ program.
 - The `int` indicates that the function returns an integer value (typically `0` to indicate successful execution).
 - The `{}` enclose the function body, which contains the code executed when the program runs.
 - The program's *control flow* starts at `main`. When the program is executed, the code inside `main` is executed sequentially.
@@ -192,18 +213,21 @@ hello.cpp:2:35: error: use of undeclared identifier 'std'
 2 errors generated.
 ```
 
-This indicates `std` is undefined because the iostream library was not included:
+This indicates `std` is undefined because the `iostream` library was not included:
 
 - `std` refers to the *standard namespace*, which organizes C++ standard library components. A namespace organizes code to avoid naming conflicts.
 - `::` is the *scope resolution operator*, used to access tools like `cout` (console output) and `endl` within `std`.
 
 --- 
 
-We can modify the program , for example by adding another `std::out` statement:
+We can modify the program , for example by adding another `std::cout` statement:
 
-```cpp
-std::cout << "Hello, World!" << std::endl;
-std::cout << "Hello, World!" << std::endl;
+```diff lang="cpp"
+  #include <iostream>
+  int main() {
+      std::cout << "I love coding!!!" << std::endl;
++     std::cout << "I love coding!!!" << std::endl;
+  }
 ```
 
 This produces:

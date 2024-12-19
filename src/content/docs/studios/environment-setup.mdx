@@ -1,0 +1,192 @@
+---
+title: Environment Setup and Familiarization
+description: TBD
+sidebar:
+  order: 1
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+In this studio, you will:
+
+1. Create an OSU CoE account if you don't already have one.
+2. Setup and familiarize yourself with your development environment.
+3. Create a simple “Hello, World!” application in C++.
+4. Learn how to build and execute that application.
+5. Generate SSH keys to authenticate your computer with the ENGR servers and bypass Duo authentication.
+
+Before you leave, be sure to show your work to a TA to get checked off. If you don't, it will be assumed that you were absent, and you will receive a 0.
+
+## Create an OSU Engineering Account
+
+If you haven't already done so, start by creating an OSU College of Engineering (CoE) account for yourself:
+
+1. [Click here to navigate to TEACH](https://teach.engr.oregonstate.edu/teach.php?type=want_auth) (or just search the web for “OSU TEACH”)
+2. Click “Create a new account (Enable your Engineering Resources)”
+3. Follow the instructions on screen to finish setting up your CoE account
+
+Once your CoE account is created, you'll have access to a home directory on the ENGR servers and the ability to connect to them via SSH.
+
+## Connecting to the ENGR Servers
+
+In this class, we will perform all our work on the **ENGR servers** to ensure consistency. The ENGR servers are powerful computers housed in the server room of the Kelley Engineering Center. However, rather than working on them directly, we will access and control them **remotely** from our own computers by issuing text-based commands.
+
+
+To facilitate this, we'll use a **terminal**, a program that allows you to issue text commands to control a computer. By default, these commands operate on your local machine. However, one key command we'll use is `ssh` (Secure Shell), which enables you to securely connect to and control another computer remotely, provided you have the necessary permissions.
+
+In this course, we'll rely on `ssh` to connect to and work with the ENGR servers.
+
+<Steps>
+1. Open your terminal.
+    - **Windows**: Click on the start menu, search for “powershell” and launch it.
+    - **macOS**: Click on the Spotlight search icon (the magnifying glass), search for “terminal” and launch it.
+    - **Linux**: Presumably, you're already familiar with terminals if you use Linux. Use whatever terminal you'd like.
+
+2. Type the following command into the terminal and press enter:
+    ```bash
+    ssh <Your_ONID>@access.engr.oregonstate.ed
+    ``` 
+    Replace `<Your_ONID>` in the command with the first part of your ONID username (the first part of your OSU email address). After pressing Enter, you'll be prompted to enter your ONID password--the same password you use to log in to OSU services like Canvas and Outlook. As you type your password, it will remain invisible for security reasons. This is intentional.
+    
+    Next, you'll be asked to authenticate with Duo. If you have multiple Duo devices registered, type the number corresponding to the device you want to use and press Enter. Complete the login process by authenticating through Duo.
+</Steps>
+
+## Project Directory Setup
+
+Your terminal should now be connected to the ENGR servers. From this point on, any commands you run will be executed directly on the ENGR servers.
+
+Review the [Linux shell commands](../../lectures/development-environment/#shell-commands) section of the Development Environment lecture notes. Use the commands from the lecture notes to complete the following tasks:
+
+<Steps>
+1. Create a directory to store your ENGR 103 work.
+2. Inside that directory, create another directory specifically for your studio work.
+3. Within the studio work directory, create a folder for **Studio 1**.
+4. Use the `cd` command to navigate to the directory you created in step 3 and set it as your working directory.
+</Steps>
+
+## Creating a “Hello, World!” Application
+
+“Hello, World!” is a famous academic program used to familiarize yourself with a new programming language that simply prints the text, “Hello, World!” to the terminal.
+
+In your studio 1 project directory, use vim to open a file called `main.cpp`:
+
+```bash
+vim main.cpp
+```
+
+The `.cpp` file extension stands for C++.
+
+Review the [text editors](../../lectures/development-environment/#text-editors-vim-nano) section of the Development Environment lecture notes. Use vim to write the following code to the file:
+
+```cpp 
+// main.cpp
+#include <iostream>
+int main() {
+  std::cout << "Hello, World!" << std::endl;
+}
+```
+
+Save the file and quit vim.
+
+## Building and Running Your Program
+
+The only type of code your computer can directly interpret is **machine code**. However, machine code is difficult for humans to read and write because it consists of binary operation codes (op codes). This is why your computer cannot interpret a C++ program directly.
+
+To run a program written in a language other than machine code, you need one of two tools: a **compiler** or an **interpreter**.
+
+- A **compiler** converts your code into machine code in one step, creating an executable file that your computer can run repeatedly without additional translation.
+- An **interpreter** processes and translates code on the fly, interpreting it line by line as your program runs.
+
+Since compilation frontloads the translation process, compiled programs usually run faster than interpreted ones. C++ is designed for performance-critical applications, so most C++ programs are compiled.
+
+In this course, we will use the g++ compiler to translate our C++ code into machine code. While g++ is referred to as a “compiler,” it's actually a comprehensive build tool. It includes components such as a **preprocessor**, **assembler**, **compiler**, **linker**, and **optimizer**. You'll learn about these components in lectures, but for this studio, understanding their distinctions is not essential.
+
+To compile your C++ code into machine code, use the following command:
+
+```bash
+g++ -o <name of executable> <file1.cpp> <file2.cpp> ... <fileN.cpp>
+```
+
+This command will create a new executable file that can run your program directly, just like a terminal command. Replace `<name of executable>` with the desired name for your executable file, and replace the list of `.cpp` files with the specific `.cpp` files you want to compile.
+
+In ENGR 103, you'll typically only compile one `.cpp` file at a time, as we won't be working on large programs with multiple source code files. For example, if your only source file is `main.cpp`, you could use the following command to create an executable named run:
+
+```bash
+g++ -o run main.cpp
+```
+
+If your terminal displays any output (such as an error or warning), it means there's a mistake in your code. Fix the issue and rebuild your program by running the `g++` command again.
+
+:::caution 
+Anytime you make changes to your code, you must rebuild it with `g++` for those changes to appear in the executable. Running an outdated executable is a common source of confusion.
+:::
+
+If `g++` doesn't report any errors or warnings, your program was likely built successfully. To confirm, use the `ls` command to list the files in your directory. You should see a file named `run` (or whatever you chose as the executable's name).
+
+To execute your program, you can run the executable just like any other terminal or shell command. Simply type its name (e.g., `run`). However, depending on your shell configuration, this might not work directly. For example, the terminal may try to execute a system-installed command named `run` instead of your file.
+
+If this happens and you see an error like “command not found,” you'll need to specify the executable in your current working directory. To do this, try the following:
+
+```bash
+./run
+```
+
+As explained in the lecture notes, `.` refers to the working directory. By using it, you explicitly specify the file you want to execute.
+
+If everything is set up correctly, the program will run, and the text `Hello, World!` will appear in your terminal.
+
+## Bypassing Duo on SSH via SSH Keys
+
+You've completed most of this studio, but there's one final step to make future connections easier. When you connected to the ENGR servers via SSH, you had to enter your ONID password and authenticate with Duo. By generating SSH keys on your computer and configuring the ENGR servers to trust them, you can skip the Duo authentication step in the future. Follow these steps to set it up:
+
+<Steps>
+1. Open a second terminal window, but don't close the first one.
+
+2. If you've generated SSH keys on your computer in the past, skip to step 3. Otherwise, type the following command into your second terminal and press enter:
+    ```bash
+    ssh-keygen -t rsa -b 4096
+    ```
+    Follow the on-screen instructions. You'll be asked where to store your SSH keys. Take note of the storage location—you'll need this information for the next step. Press **Enter** to save them in the default location (recommended).
+
+    Next, you'll be prompted to create an SSH key password. While using a password is optional, it's recommended for added security. Keep in mind:
+
+      - If you set a password, you'll need to type it each time you use your SSH keys unless you add the keys to your SSH agent (search online for guidance on this).
+      - To protect your keys with a password, type your desired password and press Enter. If you prefer not to use a password, press **Enter** without typing anything.
+
+3. In a file explorer (e.g., Windows File Explorer or Mac Finder), navigate to the directory where your SSH keys are stored. By default, the  generated keys are named `id_rsa` and `id_rsa.pub`. 
+
+    Open the one ending in `.pub` using your text editor of choice (e.g., Notepad). The contents of the file should begin with “ssh-rsa”. Highlight the entire contents of the file and copy it to your clipboard.
+
+4. Open your original terminal session where you're still connected to the ENGR servers. Run the following commands to create and configure the permissions on a `~/.ssh` folder:
+
+    ```bash
+    mkdir -p ~/.ssh
+    chmod 700 ~/.ssh
+    ```
+    Note that the first character in those file paths is a tilde (`~`).
+5. Use vim to open your SSH authorized keys file:
+
+    ```bash
+    vim ~/.ssh/authorized_keys
+    ```
+
+    Paste the public key you copied earlier onto its own separate line in the file, then save and close the file.
+    
+    :::tip[Tips for Copying and Pasting in Terminals]
+	    - Windows and Linux Terminals: Use Ctrl+Shift+C to copy and Ctrl+Shift+V to paste. If this doesn’t work, you may need to enable these shortcuts. For example, in PowerShell, right-click the menu bar, select Properties, and check “Enable Ctrl key shortcuts” and “Use Ctrl+Shift+C/V as Copy/Paste”.
+	    - Mac Terminals: Use Command+C to copy and Command+V to paste.
+    :::
+
+6. Update the permissions of your `~/.ssh/authorized_keys` file via the following command:
+    ```bash
+    chmod 600 ~/.ssh/authorized_keys
+    ```
+7. In the second terminal session (the one where you generated your SSH keys and are not currently connected to the ENGR servers), try reconnecting to the ENGR servers using the same command you used at the start of this studio:
+
+    ```bash
+    ssh <Your_ONID>@access.engr.oregonstate.ed
+    ```
+
+    If everything is set up correctly, you should no longer need to enter your ONID password or authenticate via Duo. However, if you created an SSH key password, you may need to enter it. To avoid entering the SSH key password repeatedly, you can configure your SSH agent to remember it until the next reboot.
+</Steps>
