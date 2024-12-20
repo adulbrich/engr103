@@ -48,34 +48,52 @@ Consider a cross-shell prompt, such as [Starship](https://starship.rs/), [Oh My 
 
 ## ENGR Servers
 
-In some sense, you can think of a terminal as being similar to the Windows File Explorer or Mac Finder, but everything is text-based. By issuing textual commands in your terminal (i.e., typing them and pressing enter), you can navigate your file system, view files, edit files, and execute files (if they're executable). Indeed, anything you can do in a file explorer, you can also do in a terminal. But there are also lots of things that you can do in a terminal that you can't do in a file explorer. For this reason, terminals are indispensable
-tools when you need to interface with your computer in intricate ways, such as in software development. 
+A terminal is similar to file explorers like **Windows File Explorer** or **Mac Finder**, but entirely text-based. By typing commands into the terminal and pressing Enter, you can navigate the file system, view, edit, and even execute files (if they're executable). While a terminal can perform everything a graphical file explorer can, it also offers functionality that file explorers can't. This makes terminals indispensable for tasks requiring fine-grained control over your computer, such as software development.
 
-However, we're going to do things a little differently in this course. Rather than issuing commands to our computer via the terminal, we're primarily going to be issuing commands to a different computer. In particular, OSU's College of Engineering has some big, fancy computers in the Kelley Engineering Center's server room. I'll refer to these computers as the ENGR servers. For this course, we're going to be doing all of our work on the ENGR servers. But there's one issue—the ENGR servers don't have monitors, mice, or keyboards attached to them (not to mention, they're behind locked doors, and only certain faculty and
-staff are allowed physical access). So... How do we use them?
+In this course, we'll be working a bit differently. Instead of using the terminal to control your own computer, you'll primarily use it to interact with a remote computer. Specifically, we'll be using powerful machines located in the Kelley Engineering Center's server room at Oregon State University (OSU). These are referred to as the ENGR servers.
 
-Well, it's simple—we're going to issue a single command to our computer's terminal to instruct our computer to connect to the ENGR servers remotely. At that point, we will be able to control the ENGR servers via a remote shell (i.e., we will be able to type commands into our terminal to control the ENGR servers). Note that this requires internet access.
+The ENGR servers don't have physical monitors, mice, or keyboards attached, and access to the server room is restricted to authorized faculty and staff. So, how will we use these servers?
 
-Of course, connecting to and controlling OSU's ENGR servers requires authentication. First, you have to create an ENGR account if you don't already have one. To do this, navigate to [CoE TEACH](https://teach.engr.oregonstate.edu/teach.php), click “Create a new account”, and follow the instructions on screen to create your ENGR account.
+To control the ENGR servers, you'll use a remote connection via your computer's terminal. By issuing a single command, your computer will connect to the ENGR servers over the internet, giving you access to a remote shell. This allows you to type commands into your local terminal to control the ENGR servers, as if you were using them directly.
 
-Once you have an ENGR account setup, you should be able to connect to the ENGR servers from your terminal. To do this, type the following command into your terminal and press enter, substituting `<ONID>` with your ONID (e.g., mine is `ulbrical`):
+Accessing the ENGR servers requires authentication. If you don’t already have an ENGR account, you’ll need to create one:
+
+1. Visit the [CoE TEACH](https://teach.engr.oregonstate.edu/teach.php) website.
+2. Click **“Create a new account”**
+3. Follow the on-screen instructions to create your ENGR account.
+
+Once your account is created and you have internet access, you’ll be ready to connect to and work on the ENGR servers.
+
+To do this, type the following command into your terminal and press enter, substituting `<ONID>` with your ONID username (e.g., mine is `ulbrical`):
 
 ```sh
 ssh <ONID>@access.engr.oregonstate.edu
 ```
 
-`ssh` stands for “Secure Shell”. It is a cryptographic network protocol that lets you connect to and control another computer remotely with a predefined user account and associated permissions.
+`ssh` stands for **Secure Shell**, a cryptographic network protocol that allows you to securely connect to and control a remote computer. It uses predefined user accounts and permissions to authenticate and manage access.
 
-At this point, your terminal should prompt you for a password (if not, then there's likely something wrong with your internet connection, or perhaps the ENGR servers are temporarily down). Type in your ONID password and press enter (i.e., the password you use to login to OSU services, like Canvas and Outlook). **Note that your password will be invisible as you type it.** That's okay—it's an intended security feature.
+When you connect to the ENGR servers using ssh, your terminal will prompt you for a password. If this doesn't happen, it may indicate an issue with your internet connection or that the ENGR servers are temporarily unavailable.
 
-Your terminal should now prompt you to verify your login via Duo. If you have multiple Duo devices, then it will ask you which duo device you'd like to use for authentication. Type the desired device number and press enter. Approve the Duo push via your device. You should now be logged into the ENGR servers.
+1. Type your ONID password (the same one you use for OSU services like Canvas and Outlook) and press Enter. Your password will not appear as you type--it's invisible for security reasons. This is expected.
+2. After entering your password, you'll be prompted to verify your login using Duo.
+  - If you have multiple Duo devices, the terminal will ask you to select which device to use. Type the corresponding number and press Enter.
+  - Approve the Duo push notification on your device.
+
+Once authenticated, you should see a screen indicating that you are now logged into the ENGR servers.
 
 ![A terminal logged into the ENGR servers](./terminal-engr-servers.png)
 
-The ENGR servers run Linux, which means any commands you type into your terminal from here on out will be interpreted by the ENGR servers as Linux shell commands. You can configure your user account's Linux shell on TEACH, but the default one will work just fine. In addition, it's important to understand that, since your terminal is now controlling the ENGR servers rather than your own computer, you are now operating on the ENGR filespace. Soon, we will learn how to create and edit files on the ENGR server—understand that these files will be located on the ENGR servers and cannot be accessed trivially from your computer / Windows File Explorer / Mac Finder (if you wanted to transfer files between your computer and the ENGR
-servers, you'd have to use a file transfer protocol like SFTP or SCP; feel free to Google it).
+The ENGR servers run **Linux**, so any commands you type into the terminal will now be interpreted as **Linux shell commands**. You can customize your shell settings on the TEACH platform if needed, but the default configuration will work fine for this course.
 
-Some terminology: When we say something is local, or done locally, it means that it occurs directly on your computer. When we say something is remote, or done remotely, it means that it occurs on the ENGR servers (or whatever server you're connected to).
+Now that you’re logged in, your terminal is controlling the ENGR servers, not your personal computer. This means:
+
+- **File Operations Are Remote**: Any files you create, edit, or manage will exist on the ENGR servers and not on your local computer. These files will not appear in tools like Windows File Explorer or Mac Finder unless you transfer them.
+- **Transferring Files**: To move files between your local computer and the ENGR servers, you'll need to use a file transfer protocol such as **SFTP** (Secure File Transfer Protocol) or **SCP** (Secure Copy Protocol). If you're interested, you can look up tutorials for these tools.
+
+:::note[Terminology: Local vs. Remote]
+
+**Local** refers to actions or files on your own computer. **Remote** refers to actions or files on the ENGR servers (or any server you're connected to). Understanding this distinction will be essential as we work on the ENGR servers throughout the course.
+:::
 
 ## The Prompt
 
@@ -106,17 +124,17 @@ Now that our terminal is connected to the ENGR servers, we should learn how to u
 
 | Command | Description |
 | ------- | ----------- |
-| `ssh` | |
-| `pwd` | |
-| `ls` | |
-| `mkdir` | |
-| `cd` | |
-| `clear` | |
-| `cp` | |
-| `mv` | |
-| `rm` | |
-| `cat` | |
-| `vim <path>` | |
+| `ssh <connection_string>` | Connects to the SSH server specified by the connection string. You already used this command locally (from your computer) to connect to the ENGR servers. |
+| `pwd` | Prints the working directory. |
+| `ls <path>` | Lists the files and directories within directory located at the specified path. Lists the files and directories within the working directory if `<path>` is omitted. |
+| `mkdir <path>` | Creates a new directory at the specified path. |
+| `cd <path>` | Navigates to the directory at the specified path, making it the new working directory. Navigates one level up in the directory tree if `<path>` is omitted or is `..`. |
+| `clear` | Clears the text on-screen in the terminal. |
+| `cp <path1> <path2>` | Copies the file located at the specified `<path1>` to the location specified by `<path2>`. `cp -r <path1> <path2>` can be used to copy an entire directory and all of its contents.|
+| `mv <path1> <path2>` | Moves the file or directory located at the specified `<path1>` to the location specified by `<path2>`. This can also be used to rename files/directories. If the specified `<path2>` already exists and is itself a directory, this will move the file/directory located at the specified `<path1>` into the directory located at the specified `<path2>`. |
+| `rm <path>` | Removes (deletes) the file located at the specified path. To remove an entire non-empty directory, use `rm -r <path>`. To remove an empty directory, you can also use `rmdir <path>`. |
+| `cat <path1> <path2> ... <pathN>` | Concatenates the contents of the files at all of the specified paths in the order provided and prints the concatenated content to the terminal. Note that this is also used for just printing the contents of a single file. |
+| `vim <path>` | Opens the file at the specified path in the vim text editor (see next section). |
 
 ### Basic Structure
 
@@ -170,25 +188,399 @@ tar -czf archive.tar.gz file1 file2
 
 where `-czf` is a combination of options for creating (c), compressing (z), and specifying a file (f), `archive.tar.gz` is the argument specifying the output file, and `file1` and `file2` are the files to archive.
 
+### Using the Shell
+
+A terminal can be thought of as a text-based version of a file explorer. At any given time, your terminal (or shell) operates within a specific folder, referred to as a **directory**. The directory you are currently working in is called the **working directory**.
+
+To see your current working directory, use the following command:
+
+```bash
+pwd
+```
+
+`pwd` stands for “print working directory,” which means it will display your current directory in the terminal. For example:
+
+```bash
+/nfs/stak/users/ulbrical
+```
+
+After logging into the ENGR servers, your working directory will default to your **home directory**. This directory is specific to your account, and its path will include your ONID username.
+
+To view the files and directories within your working directory, use:
+
+```bash
+ls
+```
+
+`ls` stands for “list.” Its output might include color-coded items.
+
+A path specifies the location of a file or directory. Paths use a path separator (`/` on Linux systems) to separate directories. For example:
+
+```text
+A/B/C.jpg
+```
+
+This path represents a file `C.jpg` inside directory `B`, which is inside directory `A`.
+
+We distinguish between two types of paths:
+
+- **Absolute Paths**: Start from the root directory (`/`) and specify the full path to a file or directory. For example:
+
+```text
+/nfs/stak/users/<ONID>/A/B/C.jpg
+```
+
+- **Relative Paths**: Start from the current working directory and specify the path relative to it. For example:
+
+```text
+A/B/C.jpg
+```
+
+We also have some special path shortcuts:
+
+- `.` refers to the current directory.
+- `..` refers to the parent directory.
+- `~` represents your home directory. For example, `~/A` is equivalent to `/nfs/stak/users/<ONID>/A`.
+
+To create a new directory, use:
+
+```bash
+mkdir <path>
+```
+
+For example
+
+```bash
+mkdir A
+```
+
+This creates a directory named `A` in the current working directory. If you want to create a directory along with its parent directories, use the `-p` flag:
+
+```bash
+mkdir -p A/B/C
+```
+
+This command creates `A`, `B`, and `C` if they don't already exist.
+
+To move to a different directory, use:
+
+```bash
+cd <path>
+```
+For example:
+
+```bash
+cd A
+```
+This sets your working directory to A. You can return to your home directory by running either of the following:
+
+```bash
+cd
+cd ..
+```
+
+To clean up your terminal screen, use:
+
+```bash
+clear
+```
+
+This command behaves differently depending on the terminal:
+
+- Some terminals scroll down to clear the screen.
+- Others erase the entire presentation buffer, preventing you from scrolling back up.
+
+Experiment with your terminal to understand how it behaves.
+
+To copy a file, use:
+
+```bash
+cp <source_path> <destination_path>
+```
+For example:
+
+```bash
+cp file1.txt file2.txt
+```
+
+This copies `file1.txt` to `file2.txt`. To copy an entire directory, add the `-r` flag (recursive):
+
+```bash
+cp -r dir1 dir2
+```
+
+To move a file or directory, use:
+
+```bash
+mv <source_path> <destination_path>
+```
+
+For example:
+
+```bash
+mv file1.txt dir1/
+```
+
+This moves `file1.txt` into `dir1/`. You can also use `mv` to rename files:
+
+```bash
+mv old_name.txt new_name.txt
+```
+
+This renames the file from `old_name.txt` to `new_name.txt`.
+
+To delete a file, use:
+
+```bash
+rm <path>
+```
+
+For example:
+
+```bash
+rm file1.txt
+```
+
+To remove a directory and all its contents, use the `-r` flag:
+
+```bash
+rm -r dir1
+```
+
+Most shell commands require a path as an argument. For example, to list the contents of a specific directory, use:
+
+```bash
+ls <path>
+```
+This command displays the contents of the directory at `<path>`. Similarly, paths are used with commands like `cp`, `mv`, and `rm` to specify files or directories to operate on.
+
+By mastering these basic commands, you can effectively navigate and manage files within the terminal:
+
+- Use `pwd`, `ls`, and `cd` to explore directories.
+- Use `mkdir`, `cp`, `mv`, and `rm` to create, copy, move, or delete files and directories.
+-	Understand the difference between relative and absolute paths to work efficiently in the terminal.
+
 ### Additional Concepts
+
+In the previous section, we covered essential file and directory management commands to help you navigate and manipulate your system. Now, let's explore more advanced terminal concepts that enhance the power and flexibility of the command line: pipes, redirection, subcommands, environment variables, and command order and logic.
+
+These concepts allow you to chain commands, manage output and input efficiently, and work with complex logic in the shell. Let's dive in.
 
 #### Pipes
 
+A pipe connects the output of one command directly to the input of another, enabling you to chain commands together to perform complex tasks efficiently. The pipe operator (`|`) makes it easy to process data without creating intermediate files.
+
+Example:
+
+```bash
+ls | grep "example"
+```
+- `ls` lists the files in the directory.
+- `grep "example"` filters the output, showing only files or directories that contain “example” in their name.
+
+Pipes are powerful for combining commands to handle streams of text, like filtering log files, processing data, or chaining utilities.
+
 #### Redirection
 
-#### Subcommands
+Redirection allows you to control where a command's output goes or where it takes input from. This is particularly useful for saving output to files or providing input to commands.
+
+- Output Redirection (`>`) redirects the output of a command to a file, overwriting the file if it exists.
+
+```bash
+echo "Hello, World!" > output.txt
+```
+
+- Append Output (`>>`) appends the output of a command to a file without overwriting it.
+
+```bash
+echo "Another line" >> output.txt
+```
+
+- Input Redirection (`<`) redirects a file as input to a command.
+
+```bash
+wc -l < input.txt
+```
+
+Here, the `wc -l` command counts the lines in `input.txt`.
+
+Redirection enables you to store results, feed data into commands, or even create complex workflows with minimal effort.
 
 #### Environment Variables
 
+Environment variables are dynamic values stored in the shell's environment that can influence how commands and programs operate. They're often used to store system-wide configurations or user-specific settings.
+
+Common Environment Variables:
+- `PATH`: Directories where the shell looks for executable files.
+- `HOME`: The current user's home directory.
+- `USER`: The name of the current user.
+
+```bash
+echo $HOME
+```
+
+This command prints the value of the `HOME` environment variable, which should return something like `/nfs/stak/users/<ONID>` on the ENGR servers.
+
+You can also define your own variables:
+
+```bash
+MY_VAR="Hello, World!"
+echo $MY_VAR
+```
+
+Environment variables are invaluable for customizing your shell, managing system settings, and scripting.
+
 #### Command Order and Logic
 
-#### Miscellaneous
+The shell allows you to execute commands in specific orders and combine them using **logical operators** for advanced control. This lets you define conditions for when commands should run.
 
-`.` `..` etc.
+- `&&` executes the next command only if the previous command succeeds.
 
-## Text Editors: `vim`, `nano`
+```bash
+mkdir new_dir && cd new_dir
+```
 
-TBD
+- `||` executes the next command only if the previous command fails.
+
+```bash
+cd nonexistent_dir || echo "Directory not found"
+```
+
+- `;` executes commands sequentially, regardless of success or failure.
+
+```bash
+echo "First" ; echo "Second"
+```
+These operators provide fine-grained control over the flow of commands, enabling you to automate and script tasks with precision.
+
+#### Subshell
+
+A subshell is a separate child process created by the shell to execute commands. It inherits the environment of the parent shell but operates independently. When a subshell runs a command or a group of commands, changes made in the subshell (like variable assignments or directory changes) do not affect the parent shell.
+
+```bash
+(cd /tmp && ls)
+```
+
+- `( ... )` runs the enclosed commands in a subshell.
+- Here, the subshell changes to `/tmp` and lists its contents.
+- The parent shell remains in its original directory after the subshell completes.
+
+#### Command Substitution
+
+Command substitution is a way to capture the output of a command and use it in another command. This is achieved using the `$()` syntax, making it a crucial tool for dynamic command generation and scripting. When using `$()`, the shell spawns a subshell to execute the command inside the `$()` and replaces the substitution with the command's output.
+
+```bash
+echo "Today is $(date)"
+```
+
+## Text Editor: vim
+
+By now, you should have a solid understanding of how to navigate a file system in the terminal. The next step is learning how to create and edit text-based files directly in the terminal. To do this, we'll use a terminal-based text editor--a program that runs within the terminal instead of a separate window (like Notepad or Microsoft Word). On the ENGR servers, you have access to editors like vim, nano, and emacs. For this course, we'll focus on vim.
+
+{/* TODO: some vim history */}
+
+To open a file in vim, use the following command:
+
+```bash
+vim <path>
+```
+
+This opens the file at the specified path. If the file doesn't exist, vim will create it. For instance, to create a file named `hello.txt` in your current directory, you would run:
+
+```bash
+vim hello.txt
+```
+
+Vim is similar to editors like Notepad or Word, but it's entirely terminal-based, so there are no visible menu buttons. For example, after opening `hello.txt`, your terminal might look something like this: 
+
+![vim new file](./vim-new-file.png)
+
+Your screen might differ slightly (e.g., it might not show line numbers), but the general interface will be similar. Note that any menu-like elements belong to your terminal, not vim itself. Actions like saving, quitting, and copying text in vim are done via text-based commands.
+
+Vim operates in several **modes**, and understanding these is key to using it effectively. By default, vim starts in **normal mode**, which is used for issuing commands (e.g., saving a file, quitting vim, copying, pasting). If you want to write text into a file, you need to switch to **insert mode**":
+
+- Press the `i` key to switch to insert mode.
+- You can now start typing into the file. For example, write the text `Hello, world!` into `hello.txt`: 
+  
+![vim insert mode](./vim-insert-mode.png)
+
+:::tip
+Vim hotkeys and commands are case-sensitive. For example, `i` (lowercase) and `I` (uppercase) both switch to insert mode, but other commands may differ. Ensure caps lock is off to avoid errors.
+:::
+
+Saving a file and quitting vim requires issuing commands in normal mode. Since you cannot issue commands in insert mode, you must first switch back to normal mode:
+
+1. Press the Esc key to exit insert mode and return to normal mode.
+2. To issue a command, type a colon `:`. The colon will appear at the bottom-left of the screen.
+3. Follow the colon with the desired vim command. 
+
+| Command | Description |
+| ------- | ----------- |
+| `w`  | Write (save) the file |
+| `q` | Quit vim (without saving) | 
+| `wq` | Write (save) the file and quit | 
+| `set mouse=a` | Enable the mouse in vim (it's disabled by default) | 
+| `set nu` | Display line numbers | 
+| `syntax on` | Enable syntax highlighting (usually enabled by default, but may need to be enabled in certain circumstances) | 
+| `colorscheme <colorscheme>` | Set the syntax highlighting colorscheme. Writing `:colorscheme` and pressing tab should cycle you through the available options. | 
+
+{/* TODO insert table */}
+
+To save and quit the file, use the `:wq` command:
+
+```bash
+:wq
+```
+
+![vim wq](./vim-wq.png)
+
+After pressing **Enter**, you'll return to your regular SSH session.
+
+You can customize vim by creating a file named `.vimrc` in your home directory. Open it in vim:
+
+```bash
+vim ~/.vimrc
+```
+
+Add vim commands (without colons) to configure default settings. For instance:
+
+- Enable line numbers.
+- Allow mouse usage.
+
+Each command should go on its own line.
+
+![vimrc](./vimrc.png)
+
+To confirm that a file was saved, run the following command in the correct directory:
+
+```bash
+ls
+```
+
+This will show `hello.txt` in your working directory. 
+
+To show hidden files (like `.vimrc`), use the `-a` flag:
+
+```bash
+ls -a ~
+```
+
+You can use the `cat` command to view the contents of a file. Originally designed to concatenate files, `cat` also works for a single file, printing its contents to the terminal. For example:
+
+```bash
+cat hello.txt
+```
+
+This will display the text you wrote in `hello.txt`. If you want to view the contents of a file without opening it in an editor, `cat` is a quick and easy way to do so.
+
+The cat command can also concatenate multiple files. For example:
+
+```bash
+cat file1.txt file2.txt file3.txt
+```
+This will combine the contents of `file1.txt`, `file2.txt`, and `file3.txt` in order, displaying the result in the terminal.
+
+By following these steps, you've learned how to create, edit, save, and view text-based files directly in the terminal. With vim and cat, you're equipped to efficiently manage text files on the ENGR servers.
 
 ## Git
 
@@ -212,6 +604,12 @@ git config --global user.email "<your_email>"
 ```
 
 You can update these settings at any time, and they can also be overridden with project-specific settings.
+
+:::tip
+If you are using GitHub, it will provide you with a GitHub-specific email address if you have email privacy enabled. You can use this email address for your Git configuration. It looks something like: `<gh_username>@users.noreply.github.com`.
+
+This will be used for web-based Git operations. You can also use your personal email address if you prefer.
+:::
 
 ### Understanding Repositories
 
@@ -349,6 +747,10 @@ This will display each commit in reverse chronological order, showing the commit
 
 ![git log](./terminal-git-log.png)
 
+:::note
+If the output of `git log` looks strange, there might be a problem with output colorizing. You can disable colors by running `git log --no-color` or to make it default behavior `git config --global color.ui false`.
+:::
+
 In this case, there are three commits. The first one (with the message “Initial commit”) was created when the repository was initialized and the second one when the first version of `main.cpp` was added. The third one reflects the recent removal of the semicolon.
 
 If a file in your repository has been modified but not yet staged, you can use `git diff` to view the changes since the last commit:
@@ -380,4 +782,4 @@ Other useful commands include:
 - `git branch`: Manages branches in your repository.
 - `git merge` and `git rebase`: Integrate changes from one branch into another.
 
-While we won't cover all of these in this course, the commands introduced here should suffice for your needs. Feel free to explore additional Git commands on your own or ask questions outside of class.
+While we won't cover all of these in this course, the commands introduced here should suffice for your needs. Feel free to explore additional Git commands on your own or ask questions outside of class. I highly recommend **Julia Evans**'s posts, such as this one about [git branches: intuition and reality](https://jvns.ca/blog/2023/11/23/branches-intuition-reality/).
