@@ -1,0 +1,175 @@
+---
+title: "Linear Equations"
+description: TBD
+sidebar:
+    order: 2
+---
+
+import Latex from '../../../components/Latex.astro'
+
+In this assignment, you will write two small programs to solve systems of linear equations in different contexts. The second problem is more challenging and carries more weight in the rubric.
+
+Stage, commit, and push your changes to your assignment repository on GitHub classroom. After doing so, you should be able to see your up-to-date work on your assignment repository page in your web browser. If so, you have successfully submitted your assignment.
+
+Don't forget to attend your assignment demo, which you should have already scheduled by this point.
+
+## Problem 1: Costs and Revenue
+
+As an engineer and entrepreneur, you have founded a startup and are ready to start production on your innovative product, the **X Device 9000**. The cost to manufacture each device is <Latex formula="c_p"/> dollars. Additionally, there is a base cost of <Latex formula="b"/> dollars, which includes all expenses before manufacturing begins (e.g., labor, materials for R&D, prototyping, and preparing the manufacturing plant).
+
+If you manufacture <Latex formula="N"/> devices, the total cost <Latex formula="c_t"/> is given by:
+
+<Latex formula="c_t = c_pN + b" inline={false}/>
+
+Assume that <Latex formula="c_p"/>, <Latex formula="b"/>, and <Latex formula="N"/> are all non-negative.
+
+Each device generates <Latex formula="r_p"/> dollars in revenue. Therefore, the total revenue <Latex formula="r_t"/> is:
+
+<Latex formula="r_t = r_pN" inline={false}/>
+
+Your goal is to at least break even, meaning your total revenue should be at least equal to your total costs. You already know the values of <Latex formula="c_p"/>, <Latex formula="b"/>, and <Latex formula="r_p"/> from your research and surveys. Now, you need to determine the minimum number of devices, <Latex formula="N"/>, that you need to manufacture and sell to break even.
+
+Instead of solving this math problem repeatedly, you decide to write a simple program to automate the process, as you plan to create many more devices in the future.
+
+### The Math
+
+To break even, we need to solve for <Latex formula="N"/> such that <Latex formula="c_t = r_t"/>. Substituting the definitions of <Latex formula="c_t"/> and <Latex formula="r_t"/> into this equation, we get:
+
+<Latex formula="c_pN + b = r_pN" inline={false}/>
+
+Using algebra, we can solve for <Latex formula="N"/>:
+
+<Latex formula="N = \frac{b}{r_p - c_p}" inline={false}/>
+
+This is the only equation you'll need for the assignment.
+
+However, this equation might give you a floating-point number for <Latex formula="N"/> (e.g., it might determine that you need to manufacture and sell <Latex formula="N = 3.5"/> devices to break even). Since it's not possible to sell a fraction of a device, you must round your answer up to the nearest integer to ensure you at least break even. You can use the `ceil()` function from the `<cmath>` header file to do this (refer to studio 3 for more details).
+
+### The Submission
+
+The template code on GitHub Classroom comes with a file called `revenue.cpp`. It's mostly empty. Complete it to create a C++ program that does the following:
+
+1. Prompt the user and accept values via the terminal for <Latex formula="c_p"/>, <Latex formula="b"/>, and <Latex formula="r_p"/>. Your program should support floating point values for all of these variables (e.g., <Latex formula="c_p = 1.34"/> is a valid user input). You may assume that the user will enter at most two decimal places (i.e., to represent cents).
+
+2. Solve for <Latex formula="N"/> and print its value to the terminal (don't forget to round the value up before printing it, as described).
+
+Your program does not need to validate user inputs. That is, you may assume that the user will enter appropriate values when prompted.
+
+## Problem 2: Home Gardener
+
+Starting a home garden is an exciting journey, but you may have noticed that fertilizers can be quite expensive. After researching, you've discovered that it's possible to make your own slow-release fertilizers using affordable ingredients like bone meal, blood meal, and banana peels.
+
+Each ingredient contains varying amounts of nitrogen (N), phosphorus (P), and potassium (K), the three key elements essential for plant growth. In fertilizers, the proportions of these elements are expressed as the NPK ratio. For beginner gardeners, the common recommendation is to use a balanced fertilizer, which means the NPK ratio should have equal amounts of nitrogen, phosphorus, and potassium.
+
+Let's say you have three fertilizer ingredients, and you already know their respective proportions of nitrogen, phosphorus, and potassium. Specifically:
+
+- Let <Latex formula="n_1"/>, <Latex formula="n_2"/>, and <Latex formula="n_3"/> (values between 0 and 1) represent the proportions of nitrogen in ingredients 1, 2, and 3, respectively.
+- Similarly, let <Latex formula="p_1"/>, <Latex formula="p_2"/>, and <Latex formula="p_3"/> represent the phosphorus proportions, and <Latex formula="k_1"/>, <Latex formula="k_2"/>, and <Latex formula="k_3"/> represent the potassium proportions.
+
+For example, if <Latex formula="n_2 = 0.03"/>, <Latex formula="p_2 = 0.07"/>, and <Latex formula="k_2 = 0"/>, then ingredient 2 consists of 3% nitrogen, 7% phosphorus, and 0% potassium. 
+
+:::note
+The proportions don't need to add up to 1 because fertilizer ingredients also contain other substances. However, nitrogen, phosphorus, and potassium are the primary elements to focus on as a beginner gardener.
+:::
+
+To create your final fertilizer mix, let <Latex formula="M_1"/>, <Latex formula="M_2"/>, and <Latex formula="M_3"/> represent the mixing proportions of the three ingredients. These values must sum to 1 because they define how much of each ingredient contributes to the final blend. For instance, if <Latex formula="M_1 = 0.5"/>, <Latex formula="M_2 = 0.2"/>, and <Latex formula="M_3 = 0.3"/>, your final fertilizer will consist of 50% ingredient 1, 20% ingredient 2, and 30% ingredient 3.
+
+Now, suppose you know the NPK proportions for all three ingredients, i.e., <Latex formula="n_i, k_i, p_i"/> for <Latex formula="i = 1, 2, 3"/>. Your task is to determine the values of <Latex formula="M_1"/>, <Latex formula="M_2"/>, and <Latex formula="M_3"/> that create a balanced fertilizer with equal proportions of nitrogen, phosphorus, and potassium.
+
+This involves solving a mathematical problem that balances the NPK ratios in the final fertilizer. Since this is something you may need to do repeatedly as you garden, you've decided to write a program to automate the calculations.
+
+### The Math
+
+This isn't a math class, so I've already done the math for you! If you're in a hurry, feel free to skip to the last paragraph of this section, where you'll find the specific equations you need to implement to solve the problem. However, I recommend reviewing this entire section to understand how the solution is derived.
+
+To calculate the total amount of any element (nitrogen, phosphorus, or potassium) in the final fertilizer, you use a weighted average of the element's proportions in the three ingredients. The weights are the mixing proportions of each ingredient. For example, let's assume the following values:
+
+- <Latex formula="n_1 = 0.07"/>, <Latex formula="n_2 = 0.0`7`"/>, and <Latex formula="n_3 = 0.04"/>, meaning ingredient 1 is 7% nitrogen, ingredient 2 is 1% nitrogen, and ingredient 3 is 4% nitrogen.
+- <Latex formula="M_1 = 0.5"/>, <Latex formula="M_2 = 0.2"/>, and <Latex formula="M_3 = 0.3"/>, meaning the final mix consists of 50% ingredient 1, 20% ingredient 2, and 30% ingredient 3.
+
+The total proportion of nitrogen in the final fertilizer is calculated as:
+
+<Latex formula="M_1n_1 + M_2n_2 + M_3n_3 = 0.5 \cdot 0.07 + 0.2 \cdot 0.01 + 0.3 \cdot 0.04 = 0.049" inline={false}/>
+
+This means the final fertilizer contains 4.9% nitrogen.
+
+The same approach applies to calculate the final proportions of phosphorus and potassium. However, we're not concerned with the exact proportions of these elements. What we want is for the three proportions to be equal, creating a balanced fertilizer. Additionally, we know that:
+
+<Latex formula="M_1 + M_2 + M_3 = 1" inline={false}/>
+
+This gives us the following system of linear equations to solve:
+
+<Latex formula="M_1n_1 + M_2n_2 + M_3n_3 = M_1p_1 + M_2p_2 + M_3p_3 \\ M_1n_1 + M_2n_2 + M_3n_3 = M_1k_1 + M_2k_2 + M_3k_3 \\ M_1 + M_2 + M_3 = 1" inline={false}/>
+
+In this system:
+
+- The lowercase letters <Latex formula="n_i, k_i, p_i"/> are known constants representing the proportions of nitrogen, phosphorus, and potassium in the ingredients.
+- The uppercase letters <Latex formula="M_i"/> are the variables to solve for.
+
+Since there are three equations and three variables, the system is solvable. Let's start by rearranging the third equation to express <Latex formula="M_3"/> in terms of <Latex formula="M_1"/> and <Latex formula="M_2"/>:
+
+<Latex formula="M_3 = 1 - M_1 - M_2" inline={false}/>
+
+Next, substitute <Latex formula="M_3"/> into the first two equations:
+
+<Latex formula="M_1n_1 + M_2n_2 + (1 - M_1 - M_2)n_3 = M_1p_1 + M_2p_2 + (1 - M_1 - M_2)p_3 \\ M_1n_1 + M_2n_2 + (1 - M_1 - M_2)n_3 = M_1k_1 + M_2k_2 + (1 - M_1 - M_2)k_3" inline={false}/>
+
+Simplify by distributing <Latex formula="(1 - M_1 - M_2)"/> and refactoring terms:
+
+<Latex formula="M_1(n_1 - n_3) + M_2(n_2 - n_3) + n_3 = M_1(p_1 - p_3) + M_2(p_2 - p_3) + p_3 \\ M_1(n_1 - n_3) + M_2(n_2 - n_3) + n_3 = M_1(k_1 - k_3) + M_2(k_2 - k_3) + k_3" inline={false}/>
+
+Now, we're left with two equations and two variables. Let's solve the first equation for <Latex formula="M_2"/> in terms of <Latex formula="M_1"/>. After some algebra, we get:
+
+<Latex formula="M_2 = \frac{p_3 - n_3 - M_1(n_1 - n_3 + p_3 - p_1)}{n_2 - n_3 + p_3 - p_2}" inline={false}/>
+
+Next, substitute this expression for <Latex formula="M_2"/> into the second equation and solve for <Latex formula="M_1"/>. After simplifying, the result is:
+
+<Latex formula="M_1 = \frac{k_3 - n_3 + (n_3 - n_2 + k_2 - k_3) \cdot \frac{p_3 - n_3}{n_2 - n_3 + p_3 - p_2}}{k_3 - n_3 + n_1 - k_1 + (n_3 - n_2 + k_2 - k_3) \cdot \frac{n_1 - n_3 + p_3 - p_1}{n_2 - n_3 + p_3 - p_2}}" inline={false}/>
+
+At this point, <Latex formula="M_1"/> can be calculated by substituting all the known constants into the equation. Once you've found <Latex formula="M_1"/>, use it in the earlier equation for <Latex formula="M_2"/> to calculate its value. Finally, substitute the values of <Latex formula="M_1"/> and <Latex formula="M_2"/> into the equation for <Latex formula="M_3"/> to complete the solution.
+
+### The Submission
+
+The provided template code includes a file named `gardening.cpp`, which is mostly empty. Your task is to complete this file to create a C++ program that performs the following steps:
+
+1. Prompt the user in the terminal (in the specified order) to input values for <Latex formula="n_1"/>, <Latex formula="p_1"/>,<Latex formula="k_1"/>,<Latex formula="n_2"/>,<Latex formula="p_2"/>,<Latex formula="k_2"/>,<Latex formula="n_3"/>,<Latex formula="p_3"/>, and <Latex formula="k_3"/>. The program should accept floating-point values for all these variables.
+2. Solve for the mixing proportions <Latex formula="M_1"/>, <Latex formula="M_2"/>, and <Latex formula="M_3"/>.
+3. Print the values of <Latex formula="M_1"/>, <Latex formula="M_2"/>, and <Latex formula="M_3"/> to the terminal.
+4. Calculate the total proportion of nitrogen in the fertilizer as <Latex formula="M_1n_1 +M_2n_2 +M_3n_3"/>, and display the result using `std::cout`.
+5. Calculate the total proportion of phosphorus in the fertilizer as <Latex formula="M_1p_1 + M_2p_2 + M_3p_3"/>, and display the result using `std::cout`.
+6. Calculate the total proportion of potassium in the fertilizer as <Latex formula="M_1k_1 + M_2k_2 + M_3k_3"/>, and display the result using `std::cout`.
+
+:::note[Input Validation] 
+Your program does not need to validate user input. Assume the user will always enter appropriate values when prompted.
+:::
+
+:::note[Verification] 
+If your program is implemented correctly, the calculated values in steps 4, 5, and 6 should all be equal when valid input is provided. This equality indicates that the calculated mixing proportions <Latex formula="M_1"/>, <Latex formula="M_2"/>, and <Latex formula="M_3"/> successfully create a balanced fertilizer. Use this as a way to verify that your program works as expected.
+:::
+
+Limitations and Edge Cases:
+
+- **Linear Dependency**: In rare cases, the element proportion constants may exhibit linear dependency, leading to either no solutions or infinite solutions.
+- **Zero Denominators**: If any denominator in the computations is zero, your program will crash.
+- **Negative Values**: The program may output negative values for <Latex formula="M_1"/>, <Latex formula="M_2"/>, and <Latex formula="M_3"/>, indicating that it's impossible to create a balanced fertilizer using the given inputs.
+
+If any of these scenarios occur, *it is not considered a failure of your program*. These are inherent limitations of the problem, and such cases will not be penalized. You don't need to account for these issues while writing your program.
+
+To avoid running into these edge cases during testing, ensure that each of the three ingredients is concentrated in a different element. For example:
+
+- Ingredient 1 should contain significantly more nitrogen than phosphorus or potassium.
+- Ingredient 2 should contain significantly more phosphorus than nitrogen or potassium.
+- Ingredient 3 should contain significantly more potassium than nitrogen or phosphorus.
+
+When the ingredients are well-differentiated in this way, the program should compute positive values for <Latex formula="M_1"/>, <Latex formula="M_2"/>, and <Latex formula="M_3"/> without any issues.
+
+:::tip[Test Case]
+Use the following input values to verify your program:
+<Latex formula="n_1 = 0.07, n_2 = 0.03, n_3 = 0.05, \\ p_1 = 0.01, p_2 = 0.09, p_3 = 0.04, \\ k_1 = 0.02, k_2 = 0.02, k_3 = 0.12" inline={false}/>
+The correct output should be approximately:
+<Latex formula="M_1 \approx 0.330645, M_2 \approx 0.379032, M_3 \approx 0.290323" inline={false}/>
+If your program produces different results for these inputs, there is likely a logic error in your implementation.
+:::
+
+In the last part of your solution design, you'll be expected to come up with a few other test cases, including at least one other “good” test case such as this one.
+
