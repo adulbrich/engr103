@@ -1,6 +1,10 @@
 # ENGR 103: Engineering Computation and Algorithmic Thinking
 
-TBD
+To generate the documentation in PDF format, use:
+
+```bash
+ npx starlight-to-pdf https://engr103.alexulbrich.com/
+```
 
 ## 🚀 Project Structure
 
