@@ -1,0 +1,105 @@
+---
+title: "Financial Planner"
+description: TBD
+sidebar:
+  order: 3
+---
+
+import Latex from '../../../components/Latex.astro'
+
+In this assignment you'll write a program that helps users plan their savings or payments by calculating either the future value, present value, or recurring payments. This can be applied to long-term investing (e.g., retirement savings), short-term savings (e.g., saving for a vacation or a car), or calculating loans, mortgages, or other debts.
+
+## The Math
+
+The future value <Latex formula="FV"/> and present value <Latex formula="PV"/> equation is a cornerstone concept in finance and economics that helps calculate how the value of money changes over time, accounting for interest or discount rates. These equations use the concept of the time value of money, which states that a dollar today is worth more than a dollar in the future due to its earning potential.
+
+The future value is the amount an investment made today will grow to after earning interest over a specified period:
+
+<Latex formula="FV = PV \cdot (1 + r)^n" inline = {false} />
+
+- <Latex formula="FV"/> is the future value of the investment or cash flow,
+- <Latex formula="PV"/> is the present value, i.e., the initial investment or starting amount of money,
+- <Latex formula="r"/> is the return or interest rate per period, as a decimal (e.g., 0.05 for 5%),
+- <Latex formula="n"/> is the number of periods (e.g., years, months).
+
+We can also calculate the present value of a future amount of money, which is the amount that needs to be invested today to grow to a specified future value (i.e., the current worth of a future sum of money or cash flow, discounted at a specific interest rate):
+
+<Latex formula="PV = \frac{FV}{(1 + r)^n}" inline = {false} />
+
+When we incorporate regular payments (PMT) into the future value (FV) and present value (PV) equations, it allows us to calculate the value of money when periodic cash flows (like loan payments, savings contributions, or withdrawals) are involved. This is commonly used for loans, annuities, and retirement planning.
+
+When regular, fixed payments <Latex formula="PMT"/> are made into an account that earns interest, the future value formula becomes:
+
+<Latex formula="FV = PV \cdot (1 + r)^n + PMT \cdot (1 + r) \cdot \frac{(1+ r)^n - 1}{r}" inline = {false} />
+
+For the keen-eyed, you may notice the extra <Latex formula="(1 + r)"/>  in the formula. This is because the payment is made at the beginning of each period, so it earns interest for one additional period compared to the principal. *You should leave that out if the payment is made at the end of each period. This also applies to the equation below.*
+
+You can also calculate the required periodic payment <Latex formula="PMT"/> needed to reach a future value <Latex formula="FV"/>:
+
+<Latex formula="PMT = \frac{FV - PV \cdot (1 + r)^n }{(1 + r) \cdot \frac{(1 + r)^n - 1}{r}}" inline = {false} />
+
+:::caution[Adjustments for Compounding]
+When interest is compounded more frequently than annually, you need to adjust the rate and number of periods accordingly.
+
+For this assignment, you can decide the period you want to use (e.g., monthly, yearly, or else). This will influence the rates, number of periods, and periodic amount.
+
+For example, if you want to save every month but to plan on a yearly basis, <Latex formula="n"/> should be the number of years times 12, and <Latex formula="r"/> should be the return rate per month. If you only have it per year, divide it by 12.
+:::
+
+## Use Cases
+
+Here are some use cases where these equations can be applied.
+
+### Retirement Savings
+
+You can use these equations to calculate how much you need to save each month to reach a specific retirement goal. For example, if you want to retire in 30 years with $1,000,000, and you expect a 7% annual return on your investments (adjusted for inflation), you can calculate the monthly savings needed to reach that goal.
+
+### Loan Payments
+
+You can use these equations to calculate the monthly payment needed to pay off a loan. For example, if you take out a $100,000 loan at 5% interest for 30 years, you can calculate the monthly payment needed to pay off the loan.
+
+### Inflation Prediction
+
+You can use these equations to predict the future value of an item based on its current price and expected inflation rate. For example, if an item costs $1,000 today and the inflation rate is 2% per year, you can calculate how much the item will cost in 10 years.
+
+### Business Valuation
+
+You can use these equations to value a business based on its future cash flows. For example, if a business is expected to generate $1,000,000 in cash flow each year for the next 10 years, you can calculate the present value of those cash flows to determine the value of the business.
+
+## The Program
+
+When the program runs, the user can choose between two options:
+
+1. **Future Value Calculation**: The program calculates how much the user's current savings will grow over a specified number of years with or without regular contributions. Alternatively, it can calculate the future value of a specific item with an expected annual inflation rate. The program will display the future value of the investment or the cost of the item after the specified number of years. 
+2. **Monthly Savings Calculator**: The program calculates the monthly savings required to reach a desired future value (adjusted for inflation) over a specified number of years for a given rate of return. It can take into account current savings.
+
+### Option 1: Future Value Calculation
+
+The user must provide the following inputs:
+
+- **Current amount**: Initial amount of money (USD).
+- **Annual return rate**: Expected annual rate as a percentage (e.g., 5 for 5%, must be non-negative). If the user enters a negative value, notify the user that negative values aren't allowed and override their entry with a default of 5%.
+- **Number of periods (years)**: The number of years the investment will grow (non-negative) or when the purchase is expected to be made. If the user enters a negative value, print an error to the terminal and terminate the program immediately.
+- **Recurring payment**: The amount added to savings each period (USD). If the user enters a negative value, notify the user that negative values aren't allowed and override their entry with a default of 0.
+
+The output will be the total future value of the investment or item, formatted as currency.
+
+### Option 2: Monthly Savings Calculator
+
+The user provides the following inputs:
+
+- **Annual return rate**: Expected annual rate of return as a percentage (e.g., 5 for 5%, must be non-negative). If the user enters a negative value, notify the user that negative values aren't allowed and override their entry with a default of 5%.
+- **Inflation rate**: Annual inflation rate as a percentage (e.g., 2 for 2%, must be non-negative). If the user enters a negative value, notify the user that negative values aren't allowed and override their entry with a default of 2%.
+- **Number of periods (years)**: The number of years to save (strictly positive). If the user enters a value that is equal to zero or less, print an error to the terminal and terminate the program immediately.
+- **Current savings**: Initial amount of money saved, which can be negative to represent debt (USD).
+- **Future value goal**: The target savings amount after the specified period (USD, non-negative). If the user enters a negative value, print an error to the terminal and terminate the program immediately.
+
+Ensure future value goal is greater than current savings.
+
+The output will be the required monthly savings needed to reach the future value goal, formatted as currency.
+
+## The Submission
+
+The provided template code includes a file named `planner.cpp`, which is mostly empty. Your task is to complete this file to create a C++ program that performs the steps outlined above.
+
+You need to validate user input and manage errors as described in the program requirements. If the user enters invalid input, print an error message to the terminal and terminate the program immediately.
