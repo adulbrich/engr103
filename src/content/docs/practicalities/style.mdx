@@ -3,4 +3,302 @@ title: Style Guide
 description: TBD
 ---
 
-TBD
+
+
+Most guidelines outlined are about improving readability. The goal is to make the code easier to read, understand, and maintain. Consistent style across the codebase is essential for collaboration and maintainability.
+
+If you're interested in what comprehensive style guides look like, check out:
+
+- [Google C++ Style Guide](https://google.github.io/styleguide/cppguide.html)
+- [C++ Core Guidelines](https://github.com/isocpp/CppCoreGuidelines)
+
+
+## Indentation
+
+Indentation in C++ is crucial for improving the readability and maintainability of the code. It is mainly used for code inside looping statements, control structures, functions, etc. Proper indentation makes the code more readable and easier to understand.
+
+Use only spaces, and indent 2 or 4 spaces at a time.
+
+Avoid using tabs to ensure consistent formatting across editors. You should set your editor to emit spaces when you hit the tab key.
+
+We also recommend the K&R style for brackets, where the opening bracket is on the same line as the function declaration or control structure, and the closing bracket is on its own line, aligned vertically.
+
+As with everything in this guide, consistency is key. **Choose a style and stick with it.**
+
+```c++
+// good_indentation.cpp
+#include <iostream>
+using namespace std;
+
+int main() {
+    int number = 5; 
+    if (number > 0) {
+        cout << "Positive number" << endl;
+    }
+    return 0;
+}
+```
+
+```c++
+// bad_indentation.cpp
+#include <iostream>
+using namespace std;
+
+int main() {
+int number = 5; 
+if (number > 0) {
+cout << "Positive number" << endl; 
+}
+return 0; 
+}
+```
+
+## Whitespace
+
+You should use whitespace to visually group related code. 
+
+Add whitespace around operators (`=`, `+`, etc.) and after commas for readability. Use blank lines to separate logical sections of the code.
+
+```c++
+// good_whitespace.cpp
+int addNumbers(int a, int b) {
+    return a + b;
+}
+
+int main() {
+    int x = 5;
+    int y = 10;
+    int sum = addNumbers(x, y);
+
+    cout << "Sum: " << sum << endl;
+    return 0;
+}
+```
+
+```c++
+// bad_whitespace.cpp
+int addNumbers(int a,int b){return a+b;}
+
+int main(){
+  int x=5;int y=10;int sum=addNumbers(x,y);cout<<"Sum:"<<sum<<endl;return 0;
+}
+```
+
+## Line Length
+
+If a line of code is longer than the width of the text editor window, it will usually wrap around to the next line. The wrapping can occur in the middle of a variable name, keyword, etc. This can make your code
+difficult to read.
+
+Keep lines under 80 characters for better readability. Break long lines logically, preferably at operators.
+
+```c++
+// good_line_length.cpp
+int main() {
+    double radius;
+    std::cin >> radius;
+    double volume_of_sphere = 4.0 / 3.0 * 3.14159265 * 
+        radius * radius * radius;
+}
+```
+Alternatively, you could use `pow(radius, 3)` from the `<cmath>` library.
+
+```c++
+// bad_line_length.cpp
+int main() {
+    double radius;
+    std::cin >> radius;
+    double volume_of_sphere = 4.0 / 3.0 * 3.14159265 * radius * radius * radius;
+}
+```
+
+You can also break a long string:
+
+```c++
+// good_line_length_string.cpp
+cout << "This is a long message that needs to be "
+     << "split into two lines for readability." << endl;
+```
+
+{/* https://google.github.io/styleguide/cppguide.html#Line_Length */}
+
+## Naming Conventions
+
+C++ does not have official naming conventions for variables, functions, etc. The only criteria are the strict C++ identifier rules (identifiers can only contain letters, numbers, and underscores, and they can't start
+with a number).
+
+- Use **camelCase** or **snake_case** for variables and functions.
+- Use **PascalCase** for class names. Never use **PascalCase** for variables or functions.
+- Use meaningful, descriptive names.
+
+You are free to choose your own naming conventions, but consistency is key. Stick to one style throughout your codebase.
+
+```c++
+// good_naming_conventions.cpp
+int calculateArea(int width, int height) {
+    return width * height;
+}
+
+class Rectangle {
+    // Class implementation
+};
+```
+
+```c++
+// bad_naming_conventions.cpp
+int calArea(int w, int h) {
+    return w * h;
+}
+
+class rectangle {
+    // Class implementation
+};
+```
+
+To be fair, the C++ standard library uses **snake_case** for variables and functions which leads many developers to follow the same convention.
+
+
+## Code Comments
+
+Include **file-level comments** at the top and **function-level comments** above functions. Write inline comments *sparingly* to clarify non-obvious logic. Do not be unnecessarily verbose or state the completely obvious.
+
+For complex functions, you could explain the parameters and return value. 
+
+```c++
+// good_comments.cpp
+/**
+ * Computes the roots of a quadratic equation in the form ax^2 + bx + c = 0.
+ *
+ * The function calculates the real roots of the quadratic equation
+ * using the quadratic formula:
+ *      x = (-b ± sqrt(b^2 - 4ac)) / (2a)
+ *
+ * If the discriminant (b^2 - 4ac) is negative, the function returns false,
+ * as the roots are complex and cannot be represented as real numbers.
+ *
+ * Parameters:
+ *   a: Coefficient of x^2. Must not be zero.
+ *   b: Coefficient of x.
+ *   c: Constant term.
+ *   root1: Reference to a double where the first root will be stored.
+ *   root2: Reference to a double where the second root will be stored.
+ * 
+ * Returns: True if the roots are real and successfully calculated, 
+ *     false if the discriminant is negative.
+ */
+bool calculateQuadraticRoots(double a, double b, double c, double &root1, double &root2) {
+    // Function implementation
+}
+```
+
+For simple functions, a brief description is enough, given that the function and parameter names are descriptive.
+
+```c++
+/**
+ * Calculates the area of a rectangle.
+ */
+int calculateArea(int width, int height) {
+    return width * height;
+}
+```
+
+```c++
+// bad_comments.cpp
+// calc area
+int ca(int w, int h) { return w * h; }
+```
+
+{/* Use TODO comments for code that is temporary, a short-term solution, or good-enough but not perfect. */}
+
+{/* https://google.github.io/styleguide/cppguide.html#Comments */}
+
+:::tip[Program Design and Comments]
+Some of these function-level comments can take time to write, but they are essential for understanding the codebase. They can also help you understand the code when you revisit it after a long time.
+
+It's **strongly** recommended that you write and submit these function block comments as a part of your **program design** for each programming assignment. This will make your life far easier when you're ready to actually implement your solution design.
+:::
+
+## Global Variables
+
+Avoid global variables whenever possible. Global variables lead to code that is harder to debug and maintain. Global constants are perfectly fine and in fact encouraged when appropriate (e.g., for program-wide constants).
+
+```c++
+// global_constant.cpp
+const double PI = 3.14159; 
+```
+
+## Functions
+
+### Single Responsibility Principle (SRP)
+
+Each function should perform only one task. Functions should be small and focused. If a function is too long, consider breaking it down into smaller functions.
+
+What exactly constitutes a responsibility is hard to say, but if you can think of any reasonable way to break a function into two smaller functions that serve smaller purposes and might be useful in isolation, then you're probably breaking the SRP.
+
+A good rule of thumb is to avoid writing functions longer than 15 lines of code. Functions that exceed this length often violate the Single Responsibility Principle (SRP). However, this is just a guideline. It is entirely possible to have a function with more than 15 lines that still adheres to the SRP, just as a shorter function may fail to comply with it. Ultimately, it is the SRP—not the number of lines—that truly matters, and your code style will be evaluated based on how well you adhere to this principle.
+
+In alignment with the SRP, you should generally avoid writing non-void functions that also produce direct side effects. If a function needs to generate side effects (e.g., interacting with the terminal, files, or network), it is often better for the function to have a void return type. This is because side effects are another form of output, much like a return value. When a function both returns a value and generates side effects, it risks taking on too many responsibilities. Functions with multiple output channels (e.g., return values and side effects) are also harder to understand and can confuse other developers.
+
+That said, this, too, is only a guideline—the SRP is still the priority. Some side effects may reflect inputs rather than outputs, or they may naturally align with the function's single responsibility. A classic example is the use of `std::cin`, which produces an observable side effect by interfacing with the terminal (an external context). However, in this case, the side effect serves the single responsibility of collecting user input. For this reason, it is perfectly appropriate—and often encouraged—to write a function that prompts the user with `std::cout`, retrieves their input via `std::cin`, and returns the collected value. Such a function adheres to the SRP despite producing both a return value and side effects.
+
+On the other hand, if your program needs to prompt the user for input, perform complex computations on the input, and then print the final result, you should separate these tasks into distinct functions. For instance, the function performing and returning the computations should be independent of the functions that handle user prompting and result printing. These are clearly separate responsibilities and should be treated as such.
+
+Lastly, avoid daisy-chaining functions. Daisy-chaining happens when responsibilities are divided into functions based primarily on procedural order rather than logical semantics. This results in a “deep” function call graph, where each function performs one step and calls the next function, and so on, until the final function is reached. Instead, aim to separate responsibilities semantically, not procedurally.
+
+Start by writing low-level functions that perform small, isolated, and modular tasks. These functions generally should not call other functions. Once you have these low-level building blocks, you can move on to writing higher-level functions. High-level functions call multiple low-level functions to perform more abstract operations. This approach results in a “wide” function call graph with better modularity and clearer separation of responsibilities. It also makes your code easier to read, test, and maintain.
+
+By adhering to these principles, your code will be easier to understand and follow, ensuring better collaboration and maintainability.
+
+### Don't Repeat Yourself (DRY)
+
+Avoid repeating code. 
+
+```c++
+// bad_dry.cpp
+std::cout << "Enter your grade as a percentage: ";
+double grade;
+std::cin >> grade;
+if (grade < 0) {
+    std::cout << "Bad input" << std::endl;
+} else if (grade >= 0 && grade < 60) {
+    std::cout << "F" << std::endl;
+} else if (grade >= 60 && grade < 70) {
+    std::cout << "D" << std::endl;
+} else if (grade >= 70 && grade < 80) {
+    std::cout << "C" << std::endl;
+} else if (grade >= 80 && grade < 90) {
+    std::cout << "B" << std::endl;
+} else if (grade >= 90) {
+    std::cout << "A" << std::endl;
+}
+```
+The above code prompts the user for their grade as a percentage and prints out their letter grade. However, there are a lot of unnecessarily complex conditions in the above code.
+
+Recall that else if and else statements will never execute if any of the immediately preceding if statements or else if statements executed. We can exploit this mutual exclusivity to rewrite the above code with fewer and simpler conditions:
+
+```c++
+// good_dry.cpp
+std::cout << "Enter your grade as a percentage: ";
+double grade;
+std::cin >> grade;
+if (grade < 0) {
+    std::cout << "Bad input" << std::endl;
+} else if (grade < 60) {
+    std::cout << "F" << std::endl;
+} else if (grade < 70) {
+    std::cout << "D" << std::endl;
+} else if (grade < 80) {
+    std::cout << "C" << std::endl;
+} else if (grade < 90) {
+    std::cout << "B" << std::endl;
+} else {
+    std::cout << "A" << std::endl;
+}
+```
+
+The semantics of this rewrite are the same as before, but there are fewer and simpler conditions. This is an application of the DRY principle in the sense that we've avoided repeated boundary conditions.
+
+:::note[DAMP Principle]
+The DRY principle does not always apply. You'll learn later that when testing your code, DAMP (Descriptive And Meaningful Phrases) is often more important than DRY. In testing, it's more important to have clear, self-contained, and descriptive tests than to minimize code repetition. A developer reading a test should be able to fully understand its purpose and logic without needing to chase down references to shared code. Each test should be as isolated and independent as possible. Sharing code between tests can inadvertently introduce coupling, where changes to the shared code affect multiple tests, possibly leading to unexpected failures.
+Testing is outside the scope of this course, but it's important to keep in mind that the DRY principle is not always the best choice.
+:::
+
