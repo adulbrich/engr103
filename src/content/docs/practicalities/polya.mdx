@@ -116,3 +116,81 @@ Calculate the average of `n` test scores that are between 0 and 100.
 
 ### Devise a Plan / Design
 
+Here's a flowchart to help visualize the steps:
+
+import Mermaid from "../../../components/Mermaid.astro";
+
+<Mermaid title="">
+```mermaid
+flowchart TD
+    id1[Ask for n]
+    id2{If n > 0 and n is a whole number}
+    id2.1[Print error]
+    id3[Ask for test score]
+    id4{If test score > 0 and < 100 and is a real number}
+    id4.1[Print error]
+    id5[Add 1 to count of scores read]
+    id6[Add test score to sum of all test scores]
+    id7{If count of scores read equals n}
+    id8[Divide sum of all test scores by n]
+    id9[Print average]
+    id1 --> id2
+    id2 -->|Yes| id3
+    id2 -->|No| id2.1
+    id2.1 --> id1
+    id3 --> id4
+    id4 -->|Yes| id5
+    id4 -->|No| id4.1
+    id4.1 --> id3
+    id5 --> id6
+    id6 --> id7
+    id7 -->|No| id3
+    id7 -->|Yes| id8
+    id8 --> id9
+```
+</Mermaid>
+
+And here's the equivalent "pseudocode":
+
+```text
+Declare n as an integer
+Prompt user for n
+Read n from user
+While (n <= 0) or (n not an integer)
+    Print error message
+    Prompt user for n
+    Read n from user
+Declare sum as a real number
+Declare count as an integer
+Set count to 1
+While count < n
+    Declare testScore as a real number
+    Prompt user for testScore
+    Read testScore from user
+    While (testScore < 0) or (testScore > 100) or (testScore not a real number)
+        Print error message
+        Prompt user for testScore
+        Read testScore from user
+    Add 1 to count
+    Add testScore to sum
+Calculate average as sum / n
+Print average
+```
+
+### Test Cases
+
+| Variable(s) | Value(s) | Expectations |
+|----------|-------|--------------|
+| n | 3 | Prompts user for 3 test scores |
+| n | 0 | Error message and re-prompts the user for a good n value |
+| n | -1 | Error message and re-prompts the user for a good n value |
+| n | 3.5 | Error message and re-prompts the user for a good n value |
+| testScore | -1 | Error message and re-prompts the user for a good test score |
+| testScore | 101 | Error message and re-prompts the user for a good test score |
+| testScore | 50.5 | Accepts a test score of 50.5 |
+| testScore | not a number | Error message and re-prompts the user for a good test score |
+| n, testScore | 1, 100 | Average should be 100 |
+| n, testScore, testScore, testScore | 3, 100, 0, 50 | Average should be 50 |
+| n, testScore, testScore | 1, 100.5, 0 | Average should be 0 |
+
+
