@@ -4,3 +4,128 @@ description: TBD
 sidebar:
   order: 3
 ---
+
+import Latex from '../../../components/Latex.astro'
+
+
+## Expressions and Operators
+
+Below are example problems demonstrating how to convert mathematical expressions into C++ expressions. Note that there may be multiple valid solutions for each problem. Make sure you understand the examples before attempting the remaining three problems.
+
+You may write your solutions on paper or in any text document.
+
+:::note[Example Problem 1]
+Convert the following mathematical expression into a C++ expression:
+
+<Latex formula="x^2 + 3x - 7" inline={false}/>
+
+```text title="Solution 1"
+pow(x, 2) + 3 * x - 7
+```
+
+```text title="Solution 2"
+x * x + 3 * x - 7
+```
+:::
+
+:::note[Example Problem 2]
+Convert the following mathematical expression into a C++ expression:
+
+<Latex formula="\frac{\ln(x+5)}{x^y + z}" inline={false}/>
+
+```text title="Solution"
+log(x + 5) / (pow(x, y) + z)
+```
+:::
+
+Review the provided examples carefully and ensure you account for operator precedence and truncation issues when writing your solutions. Use parentheses as needed for clarity and correctness.
+
+### Problem 1
+
+Convert the following mathematical expression into a C++ expression:
+
+<Latex formula="\frac{x^4 + 3y^3 - 1}{2x^2 + z - 13}" inline={false}/>
+
+If you compute <Latex formula="\frac{1}{2}"/> directly, ensure you avoid truncation by using `1.0 / 2` instead of `1 / 2`.
+
+### Problem 2
+
+Convert the following mathematical expression into a C++ expression:
+
+<Latex formula="\sqrt[3]{\sqrt{x} + 3} \div y" inline={false}/>
+
+<Latex formula="\sqrt[3]{y}"/> can be written as <Latex formula="y^{1/3}"/> using `pow(y, 1.0 / 3)`. Similarly, <Latex formula="\sqrt{x}"/> can be expressed as <Latex formula="x^{1/2}"/> using `pow(x, 1.0 / 2)`.
+
+### Problem 3
+
+Convert the following mathematical expression into a C++ expression:
+
+<Latex formula="\lfloor \ln(x^2) \rfloor" inline={false}/>
+
+<Latex formula="\lfloor \cdot \rfloor"/> is the floor operator, which rounds a value down to the nearest integer. If the input is already an integer, the output will remain the same. The `cmath` library provides the floor function for this purpose. For example, `floor(x / 2)` divides `x` by `2` and rounds the result down. Similarly, the `ceil` function in `cmath` performs the ceiling operation (rounding up to the nearest integer).
+
+To compute the natural logarithm <Latex formula="\ln"/>, use the `log` function. For instance, `log(5)` in C++ is equivalent to <Latex formula="\ln(5)"/>.
+
+## Variables 
+
+A variable represents a fixed location in memory where data of a fixed, specified type is stored. Below are example problems involving the conversion of mathematical equations into corresponding C++ variable initializations. There may be more than one valid solution for each problem. Ensure you understand the examples before attempting the provided problems.
+
+Assumptions:
+
+- The `cmath` library is already included.
+- Use the `int` type for variables that are guaranteed to hold integer values. Use the `double` type for all other variables.
+
+You may write your solutions on paper or in any text document.
+
+:::note[Example Problem 1]
+Convert the following mathematical equations into a series of C++ variable initializations:
+
+<Latex formula="\begin{align*} x &= 5 \\ y &= x^3 + 7 \\ z &= \ln(y) \end{align*}" inline={false}/>
+
+```cpp title="Solution"
+int x = 5;
+int y = pow(x, 3) + 7;
+double z = log(y);
+```
+:::
+
+:::note[Example Problem 2]
+Convert the following mathematical equations into a series of C++ variable initializations:
+
+
+<Latex formula="\begin{align*} a &= 5.3 \\ b &= \lfloor a \rfloor \\ c &= \sqrt[b]{a} \end{align*}" inline={false}/>
+
+```cpp title="Solution 1"
+double a = 5.3;
+int b = floor(a);
+double c = pow(a, 1.0 / b);
+```
+
+```cpp title="Solution 2"
+double a = 5.3;
+int b = a; // Implicit truncation by coercion
+double c = pow(a, 1.0 / b);
+```
+:::
+
+### Problem 1
+
+Convert the following mathematical equations into a series of C++ variable initializations:
+
+<Latex formula="\begin{align*} a &= 5.3 \\ b &= \lceil a \rceil \\ c &= \frac{b}{1371} \end{align*}" inline={false}/>
+
+### Problem 2
+
+Convert the following mathematical equations into a series of C++ variable initializations:
+
+<Latex formula="\begin{align*} x &= 7 \\ y &= x^{12} + 5 \\ z &= x \cdot y \end{align*}" inline={false}/>
+
+Raising one integer to the power of another integer results in an integer. Similarly, the product of two integers is still an integer.
+
+### Problem 3
+
+Convert the following mathematical equations into a series of C++ variable initializations:
+
+<Latex formula="\begin{align*} a &= 5.3 \\ b &= 12 \\ c &= \sqrt[b]{a} \\ d &= \log_a(b) + c \end{align*}" inline={false}/>
+
+## Quadratics
