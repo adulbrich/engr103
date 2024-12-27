@@ -164,3 +164,27 @@ There is a strict requirement on error handling. The only assumption you may mak
 **Example:**
 
 If you decide to implement a numbered interface and ask the user to enter a number corresponding to their choice, your program must not assume that the input will always be a number. For instance, the user might enter non-numeric text, and the program must be able to handle this scenario gracefully.
+
+## Extra Credit Opportunities
+
+Create a new set of functions to retrieve an example sentence for a given word. These functions should follow the patterns of the existing `query_XXX` and `extract_XXX` functions. To complete this, you'll need to:
+
+1. Study the provided functions to understand their structure and functionality.
+2. Review the [Free Dictionary API](https://dictionaryapi.dev/) API to learn how its responses are formatted. Example sentences are included in a nested property called "example", which you'll need to extract.
+
+You may also benefit from learning about the JSON data format and the `json11` library. However, you likely don't need to dive deeply into the `json11` documentation. Instead, you can achieve success by studying, copying, and modifying one of the existing `extract_XXX` function implementations.
+
+The existing `query_definition()` and `extract_definition()` functions are nearly identical to what you need to retrieve example sentences. You'll just need to make a small modification to adapt them. You don't need to fully understand every part of these functions—focus on identifying the single necessary change, and you should be able to complete the task.
+
+**Implementation Steps**:
+
+1. Create New Functions
+    - Implement `query_example()` and `extract_example()` functions to query the API and extract the example sentence.
+    - Base these functions on the existing `query_definition()` and `extract_definition()` functions, making the necessary adjustments to target the "example" property in the API response.
+2. Update the Program Interface
+    - Add a fifth option to your program's terminal interface. This option should allow users to request an example sentence for a word, similar to how they request definitions, audio URLs, or pronunciations.
+    - Ensure this new option includes the same level of error handling as the existing features.
+3. Error Handling
+    - Make sure your program handles cases where an example sentence is not available for a word (e.g., by displaying an appropriate error message).
+
+By completing this extra credit task, you'll not only enhance your program's functionality but also gain valuable experience working with APIs, JSON data, and structured programming patterns.
