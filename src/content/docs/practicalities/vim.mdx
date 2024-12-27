@@ -1,0 +1,52 @@
+---
+title: Vim Cheat Sheet
+description: TBD
+---
+
+Want more? Check out [this Vim cheat sheet](https://vim.rtorr.com/) or [this one](https://vimsheet.com/).
+
+## `.vimrc`
+
+
+If you create a file directly in your ENGR home folder with the name `.vimrc` (yes, its name must be exactly this, starting with a period), then you can specify a list of vim commands in this file—one per line—that will execute whenever you startup vim. Note that all files starting with a period are considered to be “hidden files”, which means that they won't show up when you run `ls` unless you supply the `-a` flag, like so: `ls -a`
+
+When listing commands in the `.vimrc` file, they should not start with a colon, despite that you'd usually prefix commands with a colon in order to run them within vim.
+
+Here's a simple `.vimrc` file:
+
+```vim
+set mouse=a
+set nu
+set autoindent
+filetype plugin indent on
+set tabstop=4
+set shiftwidth=4
+colorscheme slate
+syntax on
+set colorcolumn=81
+```
+
+- `set mouse=a`: Enables mouse support in all modes.
+- `set nu`: Displays line numbers.
+- `set autoindent`: Automatically indents new lines to match the indentation of the previous line.
+- `filetype plugin indent on`: Enables file type detection, loading of file type plugins, and indentation settings.
+- `set tabstop=4`: Sets the number of spaces that a tab character represents.
+- `set shiftwidth=4`: Sets the number of spaces to use for each step of (auto) indent.
+- `colorscheme slate`: Sets the color scheme to "slate". You can change this to any other color scheme you like.
+- `syntax on`: Enables syntax highlighting.
+- `set colorcolumn=81`: Highlights the 81st column to help with line length limits.
+
+## Hotkeys
+
+There are various hotkeys that you can use in normal mode to speed up development in vim. These hotkeys should not be prefixed with a colon; they're not full-fledged commands—just hotkeys that you can use at any time while in normal mode. As you type them, nothing will appear on the screen. That's okay since each of these hotkeys is just a couple of key presses. These hotkeys are case-sensitive (e.g., the `gg` hotkey command is very different from the `GG` hotkey command).
+
+- Pressing `yy` will copy the current line of code (the one the cursor is on) into the vim clipboard.
+- Pressing `dd` will cut the current line of code into the vim clipboard.
+- Pressing `p` will paste the currently copied / cut line of code from the vim clipboard.
+- Pressing `y`, followed by a number, followed by the enter key, will copy the current line of code, followed by the number of subsequent lines matching the typed number. For example, typing `y12` and pressing enter will copy 13 total lines of code, including the current line of code.
+- Pressing `d`, followed by a number, followed by the enter key, will cut the current line of code, followed by the number of subsequent lines matching the typed number.
+- Pressing `gg` will jump your cursor to the beginning of the file.
+- Pressing `G` will jump your cursor to the end of the file.
+- Pressing `=G` will automatically correct the indentation of all code that appears after the cursor. Running this command after `gg` will correct the indentation of your entire file. It's a good idea to run this before submitting your code if you're concerned that your code might not conform to proper indentation as described by the course's style guidelines.
+- Pressing `u` will perform an undo operation.
+- Holding `ctrl` and pressing `r` will perform a redo operation.
