@@ -1,0 +1,198 @@
+---
+title: "Calculator"
+description: TBD
+sidebar:
+  order: 5
+---
+
+In this assignment, you will develop a simple terminal-based calculator that supports basic arithmetic operations, including addition, subtraction, multiplication, and division.
+
+The assignment will not require a live demo. Instead, it will be graded through a combination of semi-automated and manual evaluation. A grading script, run by a randomly selected TA, will handle the semi-automated portion. However, certain aspects—such as your design, code style, and specific rubric criteria related to your use of arrays and the history component (explained later in this document)—will be graded manually by the TA.
+
+The provided starter code includes a grading script and detailed instructions on how to use it. This allows you to simulate your grade before submitting the assignment. To ensure the grading script functions correctly, you must complete all “TODO” items in the starter code and follow the rules specified in the comments. In particular, you must *not* alter the headers of the two required functions: `is_valid_expression` and `compute_value`.
+
+Be aware that the grading script used for your final submission will differ slightly from the one provided in the starter code. This adjustment is designed to prevent hard-coding solutions that could bypass or manipulate the grading process.
+
+## Program Requirements
+
+Build a program that performs the following tasks:
+
+1. Prompt the User for an Arithmetic Expression
+    - Print: "Enter a valid arithmetic expression: ".
+    - Use `std::getline()` to read the user's input as a string.
+2. Validate the Input
+    - If the input is not a valid arithmetic expression, print: "That isn't a valid arithmetic expression." and go back to step 1.
+    - If the input is valid, proceed to the next step.
+    - The exact criteria for a “valid arithmetic expression” are detailed below.
+3. Compute and Display the Result
+    - Calculate and print the result of the arithmetic expression.
+    - Ignore the standard order of operations and evaluate operators strictly from left to right.
+    - Example outputs are provided below.
+4. Ask to Evaluate Another Expression
+    - Print: "Would you like to enter another expression? Enter Y for yes: ".
+    - Read the user's input using `std::getline()`.
+5. Handle User's Response
+    - If the user enters "Y", return to step 1.
+    - For any other input, proceed to the next step.
+6. Print Computed Values History
+    - Display the history of results from all entered expressions, with each value on its own line.
+    - Do not display the expressions—only their computed results.
+    - Ensure the format matches the examples provided below.
+
+The starter code partially implements some of the steps above.
+
+:::tip[Converting Strings to Double]
+Use the `std::stod()` function from the `<string>` header to convert a `std::string` into a double. `std::stod()` takes one argument—the string to convert—and returns its double value. If the string does not represent a valid double, the function will throw an exception, causing your program to crash.
+
+Example: `std::stod("3.14")` returns the double value 3.14.
+
+The starter code includes a helper function, `is_number()`. This function takes a `std::string` argument and returns `true` if the string represents a valid numeric value that can be converted using `std::stod()`. Use this function to check if the user's input is a valid numeric value as part of verifying whether the input is a valid arithmetic expression.
+:::
+
+:::tip[Storing Computed Values]
+Use an array to keep track of the history of computed results and print them at the end of the program.	Since the number of expressions the user will compute is unknown, allocate a statically sized array large enough to store up to 100 values. Maintain an `int` variable to track the number of expressions computed, incrementing it after each calculation.
+:::
+
+### Valid Arithmetic Expression Criteria
+
+In this assignment, a valid arithmetic expression is defined as a `std::string` consisting of alternating numbers and operators, with a space separating each component. The expression must begin and end with a number, and it must contain at least one number (though a single number is sufficient to be valid).
+
+1. Structure:
+    - The expression alternates between numbers and operators.
+    - Each component (number or operator) is separated by a space.
+2. Starting and Ending: A valid expression must start and end with a number.
+3. Operators: Only `+`, `-`, `*`, and `/` are considered valid operators.
+4. Numbers:
+    - Numbers can be positive or negative.
+    - A `-` symbol is interpreted as a subtraction operator if it is separated by a space. Otherwise, it is treated as a negative sign when directly preceding a number.
+
+```text title="Valid Arithmetic Expressions"
+3 + 7 * 2.4 - -4.1 / -2.0
+-7.4
+```
+
+```text title="Invalid Expressions"
++ 7 * 2.4 - -4.1 / -2.0
+3 + 7 * 2.4 - -4.1 /
+3+ 7 * 2.4 - -4.1 / -2.0
+3 + 7 * 2.4 - -4.1 / -
+3 + 7 * 2.4 - -4.1 % -2.0
+```
+
+There are numerous other invalid arithmetic expressions. The provided grading script is designed to thoroughly test your program against various cases to ensure it correctly validates inputs.
+
+### Example Runs
+
+This section contains a series of example runs of what your program should look like when executed.
+
+```text title="Example Run 1"
+Enter a valid arithmetic expression: 3 + 7 * 2.4 - -4.1 // -2.0  
+That isn't a valid arithmetic expression.  
+Enter a valid arithmetic expression: 3 + 7 * 2.4 - -4.1 / -2.0  
+-14.05  
+Would you like to enter another expression? Enter Y for yes: Y  
+Enter a valid arithmetic expression: f + 9  
+That isn't a valid arithmetic expression.  
+Enter a valid arithmetic expression: 3.0  
+3  
+Would you like to enter another expression? Enter Y for yes: fjdsajfsda  
+
+History of computed values:  
+-14.05  
+3
+```
+
+```text title="Example Run 2"
+Enter a valid arithmetic expression: 14 / 8 + 9 * 10  
+107.5  
+Would you like to enter another expression? Enter Y for yes: Y  
+Enter a valid arithmetic expression: - 9.1  
+That isn’t a valid arithmetic expression.  
+Enter a valid arithmetic expression: -9.1  
+-9.1  
+Would you like to enter another expression? Enter Y for yes: Y  
+Enter a valid arithmetic expression: 12.8 / 2 * 4  
+25.6  
+Would you like to enter another expression? Enter Y for yes: NO!!!
+
+History of computed values:  
+107.5  
+-9.1  
+25.6
+```
+
+### History
+
+You can assume that the user will enter no more than 100 expressions during the program's execution. This means you can use an array of size 100 to store the computed values of the expressions. However, you must also keep track of the total number of expressions entered so that you know how many elements of the array to print at the end of the program.
+
+### Additional Details
+
+Your calculator should treat all numbers in an arithmetic expression as double values, ensuring that no truncation occurs. For example, if the user enters the expression 1 / 2, the calculator should output 0.5—not 0.
+
+While you are welcome to use string streams (e.g., `std::stringstream`) for this assignment, doing so is not mandatory. Most students are expected to solve the problem using basic string functions, `std::stod()` (as previously described), loops, if statements, and similar techniques. However, string streams might simplify the task, so feel free to explore them if you're interested. Note that using string streams will not result in extra credit or penalties.
+
+You may also assume that the user will not attempt to divide by zero. For example, your program is not required to handle an expression like:
+
+```text
+3 + 7 / 0
+```
+
+How your program behaves in such cases is up to you. If it crashes with a floating-point exception (e.g., division by zero), that is considered acceptable.
+
+## Extra Credit Opportunities
+
+There are three optional tasks of varying difficulties that you can complete for extra credit.
+
+### Support Exponentiation
+
+Modify your calculator to support the exponentiation operator (`^`). In this context, `^` raises the left operand to the power of the right operand. For example:
+
+```text
+2.6 ^ 2
+```
+
+This expression would be valid and evaluate to 6.76. If you do not implement this extra credit task, the above expression should be treated as invalid.
+
+### Support Standard Order of Operations
+
+Implement standard order of operations in your calculator, instead of evaluating expressions strictly left to right. This requires following the PEMDAS rule (minus the P). Specifically:
+
+- If exponentiation is supported, evaluate it first in left-to-right order.
+- Next, evaluate multiplication and division operations together in left-to-right order.
+- Finally, evaluate addition and subtraction operations together in left-to-right order.
+
+For example, an expression like:
+
+```text
+3 + 4 * 2
+```
+
+Should evaluate as `3 + (4 * 2) = 11`, respecting the standard order of operations.
+
+### Support Parentheses
+
+Extend your calculator to handle parentheses in arithmetic expressions. Parentheses must follow standard mathematical notation, adhering to the P in PEMDAS. This means your program should evaluate the most deeply nested sub-expressions first, working outward.
+
+New Rules for Valid Arithmetic Expressions with Parentheses:
+
+1. Parentheses must be separated from adjacent numbers, operators, and other parentheses by a single space (just like numbers and operators are separated).
+2. Parentheses cannot be empty (i.e., there must be something inside them).
+3. The contents within a pair of parentheses must also constitute a valid arithmetic expression.
+4. An expression may begin with either an opening parenthesis or a number.
+5. The total number of opening parentheses `(` must equal the total number of closing parentheses `)`.
+6. As the expression is analyzed from left to right:
+    - The count of closing parentheses `)` must never exceed the count of opening parentheses `(`. 
+    - Each closing parenthesis must correspond to a preceding opening parenthesis.
+
+If any of these rules are violated, the expression is considered invalid.
+
+```text title="Valid Expression"
+3 + ( 7 * 12 ) - ( -4.1 / -2.0 )
+```
+
+```text title="Invalid Expressions"
+3 + (7 * 12 ) - ( -4.1 / -2.0 )
+```
+
+This expression is invalid because there is no space after the first opening parenthesis.
+

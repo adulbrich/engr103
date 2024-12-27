@@ -1,0 +1,166 @@
+---
+title: "Dictionary"
+description: TBD
+sidebar:
+  order: 4
+---
+
+For this assignment, you will build a simple terminal interface for a dictionary API using the [Free Dictionary API](https://dictionaryapi.dev/).
+
+You don't need to know anything about APIs or how to use them. When you accept this assignment on GitHub Classroom, your repository will automatically include some starter code. This starter code contains libraries and functions that will handle communication with the API for you. Your task is to call these functions appropriately.
+
+There are commented-out examples in the provided skeleton `main()` function to guide you. Additionally, the starter code includes a file called `README.md` with more implementation tips. The contents of `README.md` will be displayed on your repository's main page.
+
+## Strings
+
+This assignment involves working with strings (sequences of characters, like words or sentences) in several basic ways. While lectures will cover strings, this might occur after your design for this assignment is due. To help you get started, please review the following explanation of string data types and their basic uses.
+
+**Basic String Operations Required for This Assignment:**
+
+1. Prompting the user for a one-word string.
+2. Storing strings in variables.
+3. Passing strings as arguments in function calls.
+4. Receiving strings as return values from function calls.
+5. Comparing strings to one another.
+6. Checking if a string is empty.
+
+Many of these tasks are similar to operations you've already performed with primitive variable types. In fact, working with strings is nearly identical in approach.
+
+### What Are Strings?
+
+In C++, strings are not a primitive data type (i.e., they are not built into the language). Instead, they are a complex data type provided by the standard library, implemented as a class.
+
+To use strings in your program, you need to include the `<string>` header at the top of your code. Alternatively, other header files like `<iostream>` also include the `<string>` library indirectly.
+
+Once included, you can use the string data type as `std::string`, similar to how you use `int`, `double`, or `bool`. Since `std::string` is part of the standard namespace, it must be prefixed with `std::`.
+
+### Declaring and Using Strings
+
+You can assign string literals (text surrounded by quotation marks) to `std::string` variables. For example:
+
+```cpp
+std::string my_string = "Hello, World!";
+```
+
+You can output the value of a `std::string` variable using `std::cout`, just like other data types:
+
+```cpp
+std::cout << my_string << std::endl;
+```
+
+You can also:
+
+- Return `std::string` values from functions (by specifying the return type as `std::string`).
+- Pass `std::string` values as arguments to functions and receive them as parameters.
+
+### Reading Strings from User Input
+
+You can use `std::cin` to read strings from the user. However, note that the `>>` operator only reads one word at a time. If the user inputs multiple words separated by spaces, only the first word is stored, and the remaining input stays in the buffer. For this assignment, reading a single word is sufficient.
+
+```cpp
+#include <string>
+#include <iostream>
+
+std::string prompt_for_word() {
+    std::cout << "Enter a word: ";
+    std::string word;
+    std::cin >> word;
+    return word;
+}
+
+int main() {
+    std::string first_word = prompt_for_word();
+    std::string second_word = prompt_for_word();
+}
+```
+
+### Comparing Strings
+
+To compare two strings for equality, use the == operator. For example:
+
+```cpp
+#include <iostream>
+#include <string>
+
+int main() {
+    std::cout << "Guess the magic word: ";
+    std::string guess;
+    std::cin >> guess;
+
+    if (guess == "alakazam") {
+        std::cout << "You got it!" << std::endl;
+    } else {
+        std::cout << "Good guess, but no." << std::endl;
+    }
+}
+```
+
+### Checking if a String is Empty
+
+You can check whether a string is empty using one of the following methods:
+
+1. `if (my_string == "") {...}`
+2. `if (my_string.empty()) {...}`
+
+:::caution[C Strings]
+String literals (e.g., "Hello") are technically of a more primitive type known as "C strings.” A C string is a character pointer (`char*`) that points to the first character of a null-terminated sequence of characters.
+
+While you can assign C strings to `std::string` variables (e.g., `std::string my_string = "Hello";`), avoid using C strings directly in complex operations. For example, comparing two C strings with the `==` operator may lead to unexpected behavior. Instead, convert C strings to `std::string` using a `std::string` variable or static casting.
+
+It is safe to compare a std::string to a C string for equality, as seen in the examples above:
+
+```cpp
+if (guess == "alakazam") { ... }
+```
+:::
+
+## Program Requirements
+
+Complete the program (`main.cpp`) in the provided starter code to perform the following tasks:
+
+1. Prompt the user to select one of the following four options:
+    - Look up the definition of a given word.
+    - Look up a URL to an audio sample of a given word being spoken.
+    - Look up the formal pronunciation of a given word.
+    - Exit the program.
+2. If the user selects an invalid option:
+    - Display a scolding message in the terminal.
+    - Repeat step 1, prompting the user again.
+3. If the user selects the option to exit:
+	  - Terminate the program immediately.
+4. For options the first three options, prompt the user to enter the word they want to look up.
+5. Use the appropriate query function (provided in the starter code) to retrieve the requested information about the word.
+6. If the retrieved information is an empty string, it means that either the word does not exist in the dictionary API's database or the database does not contain the requested information about the word.
+    - Notify the user with a clean and readable message stating that the information could not be found.
+	  - Repeat step 1, prompting the user again.
+7. If the requested information is successfully found (i.e., the returned string is not empty):
+    - Print the information to the terminal in a clean and readable message.
+	  - Repeat step 1, prompting the user again.
+
+### Interface Design
+
+The exact design of the program's interface is up to you. Here are two possible approaches:
+
+1. **Option-Based Input** asks the user to enter a number to select an option, such as:
+    - "Type 1 to look up a definition.”
+    - "Type 2 to look up an audio URL.”
+    - "Type 3 to look up a pronunciation.”
+    - "Type 4 to exit.”
+2. **Word-Based Input** asks the user to type a word representing their choice, such as:
+    - "Type 'definition' to look up a definition.”
+    - "Type 'audio' to look up an audio URL.”
+    - "Type 'pronunciation' to look up a pronunciation.”
+    - "Type 'exit' to quit the program.”
+
+### Error Handling
+
+There is a strict requirement on error handling. The only assumption you may make about the user's input is that it will not contain whitespace. Beyond this, the program must handle any input the user provides.
+
+**Implementation Details:**
+
+- When reading user input with `std::cin`, always store the input in a `std::string` variable.
+-	This ensures your program can handle virtually any sequence of characters that does not contain whitespaces the user might enter, regardless of whether the input matches the expected format.
+
+**Example:**
+
+If you decide to implement a numbered interface and ask the user to enter a number corresponding to their choice, your program must not assume that the input will always be a number. For instance, the user might enter non-numeric text, and the program must be able to handle this scenario gracefully.
