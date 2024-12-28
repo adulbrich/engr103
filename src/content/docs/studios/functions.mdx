@@ -5,4 +5,164 @@ sidebar:
   order: 4
 ---
 
-TBD
+import Latex from '../../../components/Latex.astro'
+
+Functions are reusable blocks of code that interact with other functions by accepting one or more inputs (parameters) and producing zero or one outputs (return values). Below are examples of basic function problems in C++. Review them carefully before attempting the remaining problems.
+
+:::note[Example Problem 1]
+The following function computes the cumulative distribution function (CDF) of a uniform distribution, defined by endpoints <Latex formula="a"/> and  <Latex formula="b"/>, evaluated at a specific point <Latex formula="x"/>.
+
+```c++ title="Function Definition"
+/*
+ * Function: cdf_uniform
+ * Description: Computes the CDF of a uniform distribution evaluated at 
+ *   the given point.
+ * Parameters:
+ *   x (double): The point at which to evaluate the CDF.
+ *   a (double): The lower bound of the uniform distribution’s support.
+ *   b (double): The upper bound of the uniform distribution’s support.
+ * Returns (double): The CDF value of the distribution at the given point.
+ */
+double cdf_uniform(double x, double a, double b) {
+    return (x - a) / (b - a);
+}
+```
+
+Write a program that uses the above function to compute and print <Latex formula="P(X \in [1, 2])"/> for <Latex formula="X \sim U(0, 5)"/>.
+
+Specifically:
+
+1. Compute the cumulative CDF of the uniform distribution with <Latex formula="a = 0"/> and <Latex formula="b = 5"/> at <Latex formula="x = 1"/>
+2. Compute the CDF of the same distribution at <Latex formula="x = 2"/>
+3. Subtract the first computed value from the second and print the result
+
+```c++ title="Solution"
+#include <iostream>
+
+// Function definition
+double cdf_uniform(double x, double a, double b) {
+    return (x - a) / (b - a);
+}
+
+int main() {
+    double lower_cdf = cdf_uniform(1, 0, 5);
+    double upper_cdf = cdf_uniform(2, 0, 5);
+    std::cout << (upper_cdf - lower_cdf) << std::endl;
+    return 0;
+}
+```
+:::
+
+:::note[Example Problem 2]
+Implement a function to compute the y-coordinate of a point on a line in a Cartesian plane, given:
+
+- <Latex formula="x"/> the x-coordinate,
+- <Latex formula="m"/> the slope of the line, and
+- <Latex formula="b"/> the y-intercept of the line.
+
+The function should calculate <Latex formula="y = mx + b"/>. Write a block comment for the function, adhering to the course style guidelines.
+
+Additionally, write a program that uses this function to compute and print the y-coordinates for <Latex formula="m = 10"/>, <Latex formula="b = 5"/>, and x-values of <Latex formula="0"/>, <Latex formula="1"/>, <Latex formula="5"/>, and <Latex formula="100"/>.
+
+```c++ title="Solution"
+#include <iostream>
+
+/*
+ * Function: linear_function
+ * Description: Computes the y-coordinate of a linear function at a given x-coordinate.
+ * Parameters:
+ *   x (double): The x-coordinate at which to evaluate the linear function.
+ *   slope (double): The slope of the linear function.
+ *   y_intercept (double): The y-intercept of the linear function.
+ * Returns (double): The y-coordinate of the linear function evaluated at the given x-coordinate.
+ */
+double linear_function(double x, double slope, double y_intercept) {
+    return slope * x + y_intercept;
+}
+
+int main() {
+    constexpr double slope = 10;
+    constexpr double y_intercept = 5;
+
+    std::cout << linear_function(0, slope, y_intercept) << std::endl;
+    std::cout << linear_function(1, slope, y_intercept) << std::endl;
+    std::cout << linear_function(5, slope, y_intercept) << std::endl;
+    std::cout << linear_function(100, slope, y_intercept) << std::endl;
+
+    return 0;
+}
+```
+:::
+
+## Problem 1
+
+1. Implement a function that rotates a Cartesian point counterclockwise around the origin by a given number of degrees and returns the rotated point's x-coordinate.
+2. Implement a second function that performs the same operation but returns the rotated point's y-coordinate.
+
+Write a program that uses these functions to rotate the point <Latex formula="(x = 1, y = 2)"/> counterclockwise around the origin by 90 degrees. The program should print the <Latex formula="x"/> and <Latex formula="y"/> coordinates of the newly rotated point. If your implementation is correct, the output should be <Latex formula="(x = -2, y = 1)"/>.
+
+### Mathematical Equations
+
+To rotate a point <Latex formula="(x_1, y_1)"/> counterclockwise around the origin by <Latex formula="\theta"/> radians, use the following formulas to compute the new point <Latex formula="(x_2, y_2)"/>:
+
+<Latex formula="\begin{align*}x_2 &= \cos(\theta) \cdot x_1 - \sin(\theta) \cdot y_1 \\ y_2 &= \sin(\theta) \cdot x_1 + \cos(\theta) \cdot y_1\end{align*}" inline={false}/>
+
+To convert degrees <Latex formula="d"/> to radians <Latex formula="\theta"/>, use the equation:
+
+<Latex formula="\theta = \frac{d \cdot \pi}{180}" inline={false}/>
+
+### Function Parameters
+
+Each function should take the values <Latex formula="x_1"/>, <Latex formula="y_1"/>, and <Latex formula="d"/> (degrees) as inputs:
+
+- The first function computes and returns <Latex formula="x_2"/>
+- The second function computes and returns <Latex formula="y_2"/>
+
+### Hints
+
+- The `<cmath>` header provides trigonometric functions like `sin` and `cos`, which take a single argument in radians and return the corresponding trigonometric value.
+- Follow the course's style guidelines, ensuring adherence to the Single Responsibility Principle (SRP) and Don't Repeat Yourself (DRY) principles.
+- Since both functions involve some shared computations (e.g., converting degrees to radians), extract common logic into a helper function. You should end up with more than just the two required functions.
+- Include detailed block comments for all functions.
+
+## Problem 2
+
+Write a program that:
+
+1. Prompts the user to input a whole number between 1 and 10.
+2. Stores the user input in an `int` variable.
+3. Multiplies the stored number by 1.5, preserving decimal places (ie., no truncation).
+4. Prints the result, formatted as:
+
+```text
+Your number multiplied by 1.5 is: <RESULT_HERE>
+```
+
+### Hints
+
+- Follow the course's style guidelines.
+- Avoid writing a single function that both interacts with the terminal and performs mathematical calculations. Instead, separate tasks into distinct functions to improve clarity and reusability.
+- For printing the final result, consider using a function with no return value. Such functions can be created by specifying the return type as `void`.
+- Include detailed block comments for all functions.
+
+## Quadratics Revisited
+
+In the previous studio, you wrote a program that:
+
+1. Prompted the user to input values for <Latex formula="a"/>, <Latex formula="b"/>, and <Latex formula="c"/> for a quadratic equation in the form <Latex formula="ax^2 + bx + c = 0"/>.
+2. Used the quadratic formula to calculate the discriminant and the roots of the equation.
+3. Applied the program to solve for the time variable in a uniform motion problem.
+
+In this studio, you'll build on that work by refactoring your program into smaller, well-structured functions.
+
+Start by copying your code from the last studio into a new file. Use the `cp` command for this purpose. 
+
+Refactoring involves reorganizing your code to improve readability, modularity, and maintainability without altering its behavior. Specifically, you'll:
+
+1. Break down your program into several smaller, well-designed functions.
+2. Follow the course style guidelines, ensuring your code remains clean and consistent.
+3. Provide detailed function block comments for each function to describe its purpose, parameters, and return values.
+
+Your program should still perform exactly as it did previously. Verify this by solving the same uniform motion problem as in the previous studio and confirming that the output matches.
+
+Remember that if <latex formula="d > 0"/>, the quadratic equation has two real roots. Hence, you'll need two functions, one for each root. While it's possible to return multiple values in C++ by packing them into a single object, this concept has not yet been covered in the course. Stick to separate functions for now.
