@@ -108,6 +108,8 @@ double c = pow(a, 1.0 / b);
 ```
 :::
 
+When writing your solutions, pay attention to operator precedence and type conversions to avoid unintended truncation or type mismatches. Use parentheses to clarify operations when necessary.
+
 ### Problem 1
 
 Convert the following mathematical equations into a series of C++ variable initializations:
@@ -128,4 +130,77 @@ Convert the following mathematical equations into a series of C++ variable initi
 
 <Latex formula="\begin{align*} a &= 5.3 \\ b &= 12 \\ c &= \sqrt[b]{a} \\ d &= \log_a(b) + c \end{align*}" inline={false}/>
 
+Use the change of base formula for logarithms:
+
+<Latex formula="\log_a(b) = \frac{\ln(b)}{\ln(a)}" inline={false}/>
+
+You can use any base, but this uses <Latex formula="e"/> (natural logarithm) for simplicity. This makes the code straightforward to implement.
+
 ## Quadratics
+
+A quadratic equation is an equation that can be written in the following form:
+
+<Latex formula="ax^2 + bx + c = 0" inline={false}/>
+
+where <Latex formula="a"/>, <Latex formula="b"/>, and <Latex formula="c"/> are known constants, and <Latex formula="x"/> is the variable.
+
+Quadratic equations frequently appear in real-world applications. For example:
+
+- The position of an object undergoing constant acceleration is a quadratic function of time.
+- The surface areas of various 2D and 3D shapes can be expressed as quadratic functions of side lengths.
+
+To solve a quadratic equation for <Latex formula="x"/>, you can use the quadratic formula, which is guaranteed to work (provided a real-valued solution exists):
+
+<Latex formula="x = \frac{-b \pm \sqrt{d}}{2a}" inline={false}/>
+
+where <Latex formula="d"/> is the discriminant: 
+
+<Latex formula="d = b^2 - 4ac" inline={false}/>
+
+The <Latex formula="±"/> symbol in the quadratic formula indicates there are two possible values of <Latex formula="x"/> for any given quadratic equation (unless <Latex formula="d = 0"/>, in which case the two solutions are the same).
+
+- Using the <Latex formula="+"/> sign gives one solution for <Latex formula="x"/>.
+- Using the <Latex formula="-"/> sign gives the other solution.
+
+### Creating a Quadratic Solver
+
+Create a program that does the following:
+
+1. Prompt the user to input values for <Latex formula="a"/>, <Latex formula="b"/>, and <Latex formula="c"/> using `std::cout`, and receive the values via `std::cin`. 
+2. Compute the discriminant <Latex formula="d = b^2 - 4ac"/> and print its value using `std::cout`.
+3. Use the quadratic formula to compute the two possible values of <Latex formula="x"/>, and print both results using `std::cout`.
+
+### Using Your Program to Solve a Problem
+
+Now, let's test your program with a real-world example.
+
+> **Scenario**
+>
+> Your car accelerates at a constant rate of 10 meters per second squared when you press the gas pedal. Assume there's no maximum speed (the car will keep accelerating as long as the gas pedal is pressed).
+>
+>When you start the stopwatch:
+>- Your car is already moving at 2.2 meters per second.
+>- Your car is 20 meters away from the garage.
+
+
+The distance <Latex formula="d_t"/> between the garage and your car after <Latex formula="t"/> seconds can be expressed as: 
+
+<Latex formula="d_t = d_0 + v_0t + \frac{1}{2}at^2" inline={false}/>
+
+where:
+- <Latex formula="d_0"/> is the initial distance from the garage (20 meters), 
+- <Latex formula="v_0"/> is the initial speed (2.2 meters per second),
+- <Latex formula="a"/> is the acceleration (10 meters per second squared),
+- <Latex formula="t"/> is the time in seconds.
+
+By substituting the known values (<Latex formula="d_0 = 20"/>, <Latex formula="v_0 = 2.2"/>, <Latex formula="a = 10"/>) into the equation, we get:
+
+<Latex formula="d_t = 20 + 2.2t + 5t^2" inline={false}/>
+
+> **Question**
+>
+> How many seconds will it take for the car to reach a distance of 1 kilometer (1,000 meters) from the garage? Use your program to solve this problem by plugging in the appropriate values for <Latex formula="a"/>, <Latex formula="b"/>, and <Latex formula="c"/>.
+
+Keep in mind that your program will calculate two possible solutions for t, but one of them will be negative. Since negative time does not make sense in this context, only the positive solution is relevant.
+
+If you substitute <Latex formula="d_t = 1000"/> and rearrange the equation, it looks like this: <Latex formula="5t^2 + 2.2t - 980 = 0"/>. Looking at this equation, what are the appropriate values of <Latex formula="a"/>, <Latex formula="b"/>, and <Latex formula="c"/> with respect to the quadratic formula? Don't get hung up on the fact that our variable is called <Latex formula="t"/> instead of <Latex formula="x"/> (names are just names).
