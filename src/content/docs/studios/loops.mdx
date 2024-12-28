@@ -5,4 +5,222 @@ sidebar:
   order: 7
 ---
 
-TBD
+import Latex from '../../../components/Latex.astro'
+
+## Basic Loops
+
+Below are two example problems involving loops. Note that there may be more valid solutions than those provided. Ensure you understand the solutions, then write programs to solve the remaining problems.
+
+:::note[Example Problem 1]
+Prompt the user for 10 integers, then print out the minimum and maximum values among them. Do not use 10 separate integer variables. Instead, compute the minimum and maximum values as you go.
+
+This is a “counting loop” problem, meaning you need to repeat the same instructions a predetermined number of times (10, in this case). A for loop is a good choice.
+
+```cpp title="Solution"
+/*
+ * Function: prompt_for_number
+ * Description: Prompts the user for an integer and returns it.
+ * Returns (int): Number provided by the user.
+ */
+int prompt_for_number() {
+    std::cout << "Enter an integer: ";
+    int current_num;
+    std::cin >> current_num;
+    return current_num;
+}
+
+int main() {
+    int max_num;
+    int min_num;
+
+    for (int i = 0; i < 10; i++) {
+        int current_num = prompt_for_number();
+
+        if (i == 0 || current_num > max_num) {
+            max_num = current_num;
+        }
+        if (i == 0 || current_num < min_num) {
+            min_num = current_num;
+        }
+    }
+
+    std::cout << "Max: " << max_num << std::endl;
+    std::cout << "Min: " << min_num << std::endl;
+}
+```
+
+Alternatively, you can simulate the `for` loop using a `while` loop with an external counting variable and a manual increment statement at the end of the loop body. However, this approach is less concise and clean.
+:::
+
+:::note[Example Problem 2]
+Prompt the user for an integer. Ask the user if they want to enter another integer by prompting them for a character. If the user enters 'Y', repeat from step 1. Otherwise, proceed to the next step. Print the sum of all numbers entered by the user.
+
+Since step 1 must execute at least once, a `do-while` loop is a good choice.
+
+```cpp title="Solution"
+/*
+ * Function: prompt_for_number
+ * Description: Prompts the user for an integer and returns it.
+ * Returns (int): Number provided by the user.
+ */
+int prompt_for_number() {
+    std::cout << "Enter an integer: ";
+    int current_num;
+    std::cin >> current_num;
+    return current_num;
+}
+
+/*
+ * Function: prompt_for_enter_again
+ * Description: Asks the user if they want to enter another number (Y/N).
+ * Returns (char): Character entered by the user (Y or N).
+ */
+char prompt_for_enter_again() {
+    char again;
+    std::cout << "Would you like to enter another integer? Enter Y for yes or N for no: ";
+    std::cin >> again;
+    return again;
+}
+
+int main() {
+    char enter_again;
+    int sum = 0;
+
+    do {
+        int x = prompt_for_number();
+        sum += x;
+        enter_again = prompt_for_enter_again();
+    } while (enter_again == 'Y');
+
+    std::cout << "The sum of the integers you entered is: " << sum << std::endl;
+}
+```
+
+You can also simulate the `do-while` loop using a standard `while` loop. In this case, ensure the loop condition is initially true to guarantee at least one iteration. However, this approach is not as clean or intuitive.
+:::
+
+### Problem 1
+
+Write a program that:
+
+1. Prompts the user to enter an integer N.
+2. Prompts the user to enter N floating-point numbers (i.e., values of type double).
+3. Calculates and prints the average of the entered numbers.
+
+To calculate the average, use the formula:
+
+<Latex formula="\text{Average} = \frac{\text{Sum of values}}{\text{Number of values}}" inline={false}/>
+
+Here, “Sum of values” refers to the total of all floating-point numbers entered by the user, and “Number of values” refers to N.
+
+### Problem 2
+
+Write a program that:
+
+1. Prompts the user to enter an integer.
+2. Checks if the entered integer is a prime number.
+3. Prints:
+    - "That number is prime!" if the number is prime.
+    - "That number is composite!" if the number is not prime.
+
+An integer <Latex formula="X"/> is considered prime if it is only divisible by 1 and itself. Examples of prime numbers include: 1, 2, 3, 5, 7, 11, 13, 17, and 19.
+
+A composite number (non-prime) is divisible by other integers besides 1 and itself. Examples:
+
+- 9 is composite because it is divisible by 3.
+- 15 is composite because it is divisible by 3 and 5.
+- All even numbers greater than 2 are composite because they are divisible by 2.
+
+To check divisibility of an integer <Latex formula="a"/> by another integer <Latex formula="b"/>, use the following boolean expression:
+
+```cpp
+a % b == 0
+```
+
+This expression evaluates to `true` if `a` is divisible by `b`.
+
+You only need to check divisors smaller than <Latex formula="X"/>. Numbers cannot be divisible by integers larger than themselves.
+
+### Problem 3
+
+Write a program that:
+
+1. Prompts the user to enter 10 integers.
+2. For each entered integer, computes and prints its factorial.
+
+he factorial of a number <Latex formula="n"/> is represented in mathematics as <Latex formula="n!"/> (this exclamation point denotes the factorial operator).
+
+The factorial of <Latex formula="n"/> is defined as the product of all positive integers less than or equal to <Latex formula="n"/>:
+
+<Latex formula="\begin{align*} n! &= n \times (n-1) \times (n-2) \times \dots \times 2 \times 1 \\ n! &= n \times (n-1)! \end{align*}" inline={false}/>
+
+For example, <Latex formula="5! = 5 \times 4! = 5 \times 4 \times 3 \times 2 \times 1 = 120"/>. The value of <Latex formula="0!"/> is <Latex formula="1"/>.
+
+Use a loop to perform the multiplication required to compute the factorial for each number.
+
+## Approximating Pi
+
+Imagine a unit circle (a circle with a radius of 1) inscribed within a square. The setup looks like this:
+
+{/* TODO Insert Image */}
+
+The area <Latex formula="A"/> of a circle with radius <Latex formula="r"/> is calculated using the formula <Latex formula="A = \pi r^2"/>. For a unit circle, this becomes: <Latex formula="A = \pi (1)^2 = \pi"/>
+
+Since the radius of the circle is 1, the side length of the square that encloses the circle must be 2. The area of the square is: <Latex formula="2^2 = 4"/>
+
+Let P represent the ratio of the area of the circle to the area of the square. For this scenario:
+
+<Latex formula="P = \frac{\pi}{4}" inline={false}/>
+
+By rearranging the equation algebraically, we get:
+
+<Latex formula="\pi = 4P" inline={false}/>
+
+This relationship shows that if we can approximate <Latex formula="P"/>, we can multiply it by 4 to approximate <Latex formula="\pi"/>.
+
+### Monte Carlo Methods
+
+Monte Carlo methods are a class of computational algorithms that rely on random sampling to approximate solutions. In this case, our goal is to approximate P using a Monte Carlo method.
+
+Here's the approach:
+
+- If we randomly sample Cartesian points within the square, some proportion of these points will also fall inside the circle.
+- If the sampling is uniform (i.e., every point within the square is equally likely to be chosen), then the probability of a point landing inside the circle is exactly equal to <Latex formula="P"/>.
+- To approximate <Latex formula="P"/>, we simply need to sample many points within the square and calculate the proportion of those points that fall inside the circle.
+
+#### Coordinates of the Square and Circle
+
+- The circle is centered at the origin <Latex formula="(0, 0)"/>.
+- The square has a side length of 2, with its corners at the following coordinates:
+    - Top-left: <Latex formula="(-1, 1)"/>
+    - Top-right: <Latex formula="(1, 1)"/>
+    - Bottom-right: <Latex formula="(1, -1)"/>
+    - Bottom-left: <Latex formula="(-1, -1)"/>
+
+#### Sampling Points
+
+To randomly sample a point within the square:
+
+- Generate an X-coordinate within the range <Latex formula="[-1, 1]"/>
+- Generate a Y-coordinate within the range <Latex formula="[-1, 1]"/>
+- Together, these values form the sampled point <Latex formula="(X, Y)"/>
+
+#### Checking if a Point is Inside the Circle
+
+A point <Latex formula="(X, Y)"/> lies inside the circle if it satisfies the circle's equation:
+
+<Latex formula="X^2 + Y^2 \leq 1" inline={false}/>
+
+### Implementation
+
+Implement the Monte Carlo method described above to approximate <Latex formula="P"/> and <Latex formula="\pi"/>.
+
+Use the Monte Carlo method to sample 100,000 random points within the square. This provides a sufficiently large number of samples for an accurate approximation. Determine the proportion of sampled points that fall inside the circle. This proportion represents <Latex formula="P"/>. 	Multiply <Latex formula="P"/> by 4 to calculate an approximation of <Latex formula="\pi"/>. Print the calculated value of <Latex formula="P"/> to the standard output. Print the approximation of <Latex formula="\pi"/> to the standard output.
+
+Avoid using integers to sample coordinates, as truncation would lead to a highly inaccurate approximation. Instead, use floating-point values (e.g., double).
+
+To randomly sample a floating-point value within a specific interval <Latex formula="[a, b]"/>, use the following expression:
+
+```cpp
+(static_cast<double>(rand()) / RAND_MAX) * (b - a) + a
+```
