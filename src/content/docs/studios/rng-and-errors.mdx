@@ -5,4 +5,224 @@ sidebar:
   order: 6
 ---
 
-TBD
+## Pseudorandom Number Generation
+
+Pseudorandom number generation was not covered in the lecture but may appear in future assignments, studios, or the final exam. Therefore, this studio begins by introducing the topic, which you'll explore briefly below.
+
+Modern digital computers are designed to be deterministic, meaning they are intended to behave predictably. However, many software applications benefit from simulating randomness. For example, randomness can be used to implement game mechanics, create statistical models, or design orchestration systems that distribute requests randomly across servers.
+
+Since computers are inherently deterministic, they cannot generate true randomness. Instead, they rely on pseudorandomness, which appears random but is produced through a deterministic process. A pseudorandom number generator (PRNG) is a software tool that generates numbers that seem random but are mathematically derived. While these numbers are predictable in theory, the underlying process is often complex enough to make reverse engineering impractical for humans. Some advanced PRNGs, such as cryptographically secure PRNGs, even draw entropy from user interactions like mouse movements, making them more unpredictable.
+
+In C++, a PRNG is available in the standard library. To use it, include the `<cstdlib>` header at the top of your program. This gives you access to the `srand` and `rand` functions. Note that these functions are not part of the `std` namespace, so they do not require a `std::` prefix.
+
+### How PRNGs Work
+
+Most PRNGs start with a number called the random seed. This seed undergoes a series of complex mathematical transformations to generate the next number in the pseudorandom sequence. The output of this process is then used as the seed for the next iteration, creating a sequence of numbers. A good PRNG ensures that small changes in the seed result in significant and seemingly arbitrary differences in the output sequence.
+
+By default, C++ initializes the PRNG with a seed of `0`. As a result, running the program repeatedly will produce the same sequence of pseudorandom numbers. To avoid this, you must ensure that the seed is different for each program execution.
+
+### Using the Current Time as a Seed
+
+A common approach is to derive the seed from the current time. Specifically, the number of seconds since the Unix epoch (midnight, January 1, 1970) is often used. To retrieve this value, include the `<ctime>` header and use one of the following expressions: `time(nullptr)`, `time(NULL)`, or `time(0)`.
+
+To set the PRNG seed, use the `srand` function provided by `<cstdlib>`. This function accepts an integer argument representing the seed. Typically, you should call `srand` only once at the beginning of your program, usually in the main function.
+
+Example of setting the seed:
+```cpp
+srand(time(nullptr));
+```
+
+### Generating Pseudorandom Numbers
+
+Once the PRNG is seeded, you can generate pseudorandom numbers by calling the `rand` function. This function returns a positive integer between `0` and a constant value `RAND_MAX`. If you need numbers in a specific range, such as a die roll (1 to 6) or a probability (0.0 to 1.0), you'll need to adjust the output of `rand` using mathematical operations.
+
+Here's an example program that demonstrates how to generate random numbers:
+
+```cpp
+// random_numbers.cpp
+#include <iostream>
+#include <cstdlib> // For rand() and srand()
+#include <ctime>   // For time()
+
+int main() {
+    // Seed the PRNG at the start of the program
+    srand(time(nullptr));
+
+    // Generate and print two random integers
+    std::cout << "Value 1: " << rand() << std::endl;
+
+    // Store a random value in a variable
+    int another_value = rand();
+    std::cout << "Value 2: " << another_value << std::endl;
+
+    return 0;
+}
+```
+
+### Guiding Questions
+
+Answer the following questions based on a PRNG seeded with `srand(time(nullptr))` at the beginning of the main function:
+
+1. What is the value of `0 % 4`?
+2. What is the value of `1 % 4`?
+3. What is the value of `2 % 4`?
+4. What is the value of `3 % 4`?
+5. What is the value of `4 % 4`?
+6. What is the value of `5 % 4`?
+7. Identify the interval in which `x % 4` lies, regardless of the value of `x`.
+8. Identify the interval in which `x % 10` lies, regardless of the value of `x`.
+9. Construct an expression using the above information to generate a pseudorandom integer between 0 and 5, inclusive.
+10. Given a pseudorandom integer between 0 and 10, explain how to transform it into a pseudorandom integer between 5 and 15.
+11. Construct an expression that generates a pseudorandom integer between 5 and 15, inclusive.
+12. Construct an expression that generates a pseudorandom integer between `a` and `b` (inclusive), where `a` and `b` are `int` variables.
+13. Construct an expression that generates a pseudorandom `double` value between 0.0 and 1.0, inclusive. Use `static_cast` to avoid truncation.
+14. Assume the PRNG generates uniform random numbers between 0 and 1. Create a boolean expression that evaluates to true 54.3% of the time and false 45.7% of the time.
+
+### Program
+
+Write a program that simulates rolling two dice. Each die should generate a pseudorandom integer between 1 and 6. Print the two values, and if the rolls are equal, display the message: “You rolled doubles!”
+
+## Common Errors
+
+This section is dedicated to helping you identify and resolve common errors in a C++ program. Each error is accompanied by an example, an explanation, and suggestions for fixes.
+
+### Syntax Errors
+
+#### Error 1: Variable Not Declared in Scope
+
+```text frame='terminal'
+main.cpp: In function 'double triple_number()':
+main.cpp:4:16: error: 'favorite_number' was not declared in this scope
+4 | return favorite_number * 3;
+  |        ^~~~~~~~~~~~~~~
+main.cpp: In function 'int main()':
+main.cpp:12:47: error: too many arguments to function 'double triple_number()'
+12 | double triple_favorite = triple_number(favorite_number);
+   |                                        ^~~~~~~~~~~~~~
+main.cpp:3:8: note: declared here
+3 | double triple_number() {
+  |        ^~~~~~~~~~~~~~
+```
+
+Read this error carefully. Focus especially on the beginning of the error message. What does the error mean? On what line does the error directly occur? In what function does the error directly occur? You should be able to figure out the answers to these questions without looking at the associated code, but for context, suppose the code looks like this:
+
+```cpp title="Error 1"
+#include <iostream>
+
+double triple_number() {
+    return favorite_number * 3;
+}
+
+int main() {
+    std::cout << "Enter your favorite number, and I'll triple it for you: ";
+    double favorite_number;
+    std::cin >> favorite_number;
+
+    double triple_favorite = triple_number(favorite_number);
+    std::cout << "Your number, tripled, is: " << triple_favorite << std::endl;
+}
+```
+
+Looking at the code and the error message, what changes might you make to the code to resolve the error?
+
+#### Error 2: Missing Return Statement and Variable Not Declared
+
+```text frame='terminal'
+main.cpp: In function 'char prompt_for_character()':
+main.cpp:7:1: warning: no return statement in function returning non-void [-Wreturn-type]
+7 | }
+  | ^
+main.cpp: In function 'int main()':
+main.cpp:11:65: error: 'initial' was not declared in this scope
+11 | std::cout << "You said that your first initial is: " << initial;
+   |                                                         ^~~~~~
+```
+
+Read this error carefully. Focus especially on the beginning of the error message. What does the error mean? On what line does the error directly occur? In what function does the error directly occur? You should be able to figure out the answers to these questions without looking at the associated code, but for context, suppose the code looks like this:
+
+```cpp title="Error 2"
+#include <iostream>
+
+char prompt_for_character() {
+    std::cout << "What is your first initial? Enter a single character: ";
+    char initial;
+    std::cin >> initial;
+}
+
+int main() {
+    prompt_for_character();
+    std::cout << "You said that your first initial is: " << initial;
+}
+```
+
+Looking at the code and the error message, what changes might you make to the code to resolve the error?
+
+### Logic Errors
+
+#### Error 3: Incorrect Mathematical Expression
+
+```text frame='terminal'
+main.cpp: In function 'double f(double)':
+main.cpp:4:16: error: unable to find numeric literal operator 'operator""x'
+4 | return 2x + 5;
+  |        ^
+```
+
+Read this error carefully. Focus especially on the beginning of the error message. What does the error mean? On what line does the error directly occur? In what function does the error directly occur? You should be able to figure out the answers to these questions without looking at the associated code, but for context, suppose the code looks like this:
+
+```cpp title="Error 3"
+#include <iostream>
+
+double f(double x) {
+    return 2x + 5;
+}
+...
+```
+
+Looking at the code and the error message, what changes might you make to the code to resolve the error?
+
+#### Error 4: Incorrect Conditional Logic
+
+The program always recommends “Candyland,” regardless of the user's age, because the conditions in the if and else if statements are written incorrectly. In C++, the syntax `2 <= age <= 7` does not work as intended,it always evaluates as `true`.
+
+
+```cpp title="Error 4"
+#include <iostream>
+
+/**
+* Function: prompt_for_age
+* Description: Prompts for user’s age
+* Returns (int): User’s age as given through the terminal
+*/
+int prompt_for_age() {
+    std::cout << "Enter your age: ";
+    int age;
+    std::cin >> age;
+    return age;
+}
+
+/**
+* Function: print_board_game_recommendation
+* Description: Prints a board game recommendation based on the user’s age
+* Parameters:
+*    age (int): User’s age
+*/
+void print_board_game_recommendation(int age) {
+    if (2 <= age <= 7) {
+        std::cout << "Candyland" << std::endl;
+    } else if (8 <= age <= 12) {
+        std::cout << "Monopoly" << std::endl;
+    } else if (age >= 13) {
+        std::cout << "Munchkin" << std::endl;
+    }
+}
+
+int main() {
+    // Get user’s age
+    int age = prompt_for_age();
+    // Print board game recommendation
+    print_board_game_recommendation(age);
+}
+```
+
+What's causing the logic error, and how would you fix it?
