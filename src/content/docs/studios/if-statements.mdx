@@ -5,4 +5,120 @@ sidebar:
   order: 5
 ---
 
-TBD
+import Latex from '../../../components/Latex.astro'
+
+If statements are used to execute a block of code only if a certain condition is met. 
+
+:::note[Example Problem]
+Write a program that prompts the user for an integer grade and prints a corresponding string based on the following table:
+
+| Grade Range | String Output | 
+|-------------|---------------|
+| (-∞, 0)     | Bad input     |
+| [0, 60)     | You got an F  |
+| [60, 70)    | You got a D   |
+| [70, 80)    | You got a C   |
+| [80, 90)    | You got a B   |
+| [90, 100]   | You got an A  |
+| (100, ∞)    | You got above 100%! |
+
+Assume that the user will always enter an integer value. The program should follow the structure provided below.
+
+```cpp title="Solution"
+// File description: Program that prints letter grades based on integer percentage input.
+// Author: Alexander Guyer
+
+#include <iostream>
+
+/**
+ * Function: prompt_for_grade
+ * Description: Prompts the user for an integer grade percentage.
+ * Returns (int): The grade entered by the user.
+ */
+int prompt_for_grade() {
+    std::cout << "Enter an integer grade: ";
+    int grade;
+    std::cin >> grade;
+    return grade;
+}
+
+/**
+ * Function: print_grade_string
+ * Description: Takes a grade as input and prints the corresponding message
+ *   based on the grade ranges provided in the problem statement.
+ * Parameters:
+ *   grade (int): The integer grade percentage.
+ */
+void print_grade_string(int grade) {
+    if (grade < 0) {
+        std::cout << "Bad input" << std::endl;
+    } else if (grade < 60) {
+        std::cout << "You got an F" << std::endl;
+    } else if (grade < 70) {
+        std::cout << "You got a D" << std::endl;
+    } else if (grade < 80) {
+        std::cout << "You got a C" << std::endl;
+    } else if (grade < 90) {
+        std::cout << "You got a B" << std::endl;
+    } else if (grade <= 100) { // Notice the use of `<=` here to include 100.
+        std::cout << "You got an A" << std::endl;
+    } else {
+        std::cout << "You got above 100%!" << std::endl;
+    }
+}
+
+int main() {
+    // Get the grade from the user.
+    int grade = prompt_for_grade();
+
+    // Print the result based on the grade.
+    print_grade_string(grade);
+
+    return 0;
+}
+```
+:::
+
+## Problem 1
+
+Decide on an integer to serve as the “magic number.” This can be any integer of your choice.
+
+Write a program that prompts the user to guess the magic number.
+
+- If the user's guess matches the magic number, print: `Good guess!`
+- If the guess is incorrect, print: `Sorry, but no :(`
+
+Assume the user will always input an integer value.
+
+## Problem 2
+
+Write a program that prompts the user for a tax filing code (`0` → “Single filer”, `1` → “Married, Filing Jointly.”) and an annual salary, and outputs the tax percentage based based on their tax bracket from the following table.
+
+| Tax Percentage | Single Filers | Married, Filing Jointly |
+|----------------|---------------|-------------------------|
+| 10%            | [$0, $9,875)  | [$0, $19,750)           |
+| 12%            | [$9,875, $40,125) | [$19,750, $80,250)  |
+| 22%            | [$40,125 - $85,525) | [$80,250 - $171,050)   |
+| 24%            | [$85,525 - ∞) | [$171,050 - ∞)  |
+
+Assume the user will always valid inputs for the tax filing code and salary.
+
+For example, if the user enters `0` for the tax filing code (Single filer) and `50000` for the salary, the program should print: `22%`
+
+## Problem 3
+
+Write a program that prompts the user for their job title code (`0` → “Mechanical Engineer”, `1` → “Software Engineer”, `2` → “Electrical Engineer”, `3` → “Architectural Engineer”) then for their state code (`0` → “Oregon”, `1` → “California”). 
+
+Ensure the prompts clearly explains what each code represents. If the user enters an invalid code, print an appropriate error message and terminate the program. You can assume the user will enter an integer for both the job title code and state code.
+
+If both codes are valid, print the expected salary based on the following table. 
+
+| Job Title	| Oregon | California |
+|-----------|--------|------------|
+| Mechanical Engineer | $88,830 | $104,203 |
+| Software Engineer | $112,197 | $140,244 |
+| Electrical Engineer | $97,355 | $110,740 |
+| Architectural Engineer | $102,094 | $123,729 |
+
+For example, if the user enters `0` for the job title (Mechanical Engineer) and `1` for the state (California), the program should print: `$104,203`
+
