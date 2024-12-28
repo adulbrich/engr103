@@ -9,15 +9,15 @@ sidebar:
 
 Pseudorandom number generation was not covered in the lecture but may appear in future assignments, studios, or the final exam. Therefore, this studio begins by introducing the topic, which you'll explore briefly below.
 
-Modern digital computers are designed to be deterministic, meaning they are intended to behave predictably. However, many software applications benefit from simulating randomness. For example, randomness can be used to implement game mechanics, create statistical models, or design orchestration systems that distribute requests randomly across servers.
+Modern digital computers are designed to be **deterministic**, meaning they are intended to behave predictably. However, many software applications benefit from simulating randomness. For example, randomness can be used to implement game mechanics, create statistical models, or design orchestration systems that distribute requests randomly across servers.
 
-Since computers are inherently deterministic, they cannot generate true randomness. Instead, they rely on pseudorandomness, which appears random but is produced through a deterministic process. A pseudorandom number generator (PRNG) is a software tool that generates numbers that seem random but are mathematically derived. While these numbers are predictable in theory, the underlying process is often complex enough to make reverse engineering impractical for humans. Some advanced PRNGs, such as cryptographically secure PRNGs, even draw entropy from user interactions like mouse movements, making them more unpredictable.
+Since computers are inherently deterministic, they cannot generate true randomness. Instead, they rely on **pseudorandomness**, which appears random but is produced through a deterministic process. A **pseudorandom number generator (PRNG)** is a software tool that generates numbers that seem random but are mathematically derived. While these numbers are predictable in theory, the underlying process is often complex enough to make reverse engineering impractical for humans. Some advanced PRNGs, such as cryptographically secure PRNGs, even draw entropy from user interactions like mouse movements, making them more unpredictable.
 
 In C++, a PRNG is available in the standard library. To use it, include the `<cstdlib>` header at the top of your program. This gives you access to the `srand` and `rand` functions. Note that these functions are not part of the `std` namespace, so they do not require a `std::` prefix.
 
 ### How PRNGs Work
 
-Most PRNGs start with a number called the random seed. This seed undergoes a series of complex mathematical transformations to generate the next number in the pseudorandom sequence. The output of this process is then used as the seed for the next iteration, creating a sequence of numbers. A good PRNG ensures that small changes in the seed result in significant and seemingly arbitrary differences in the output sequence.
+Most PRNGs start with a number called the **random seed**. This seed undergoes a series of complex mathematical transformations to generate the next number in the **pseudorandom sequence**. The output of this process is then used as the seed for the next iteration, creating a sequence of numbers. A good PRNG ensures that small changes in the seed result in significant and seemingly arbitrary differences in the output sequence.
 
 By default, C++ initializes the PRNG with a seed of `0`. As a result, running the program repeatedly will produce the same sequence of pseudorandom numbers. To avoid this, you must ensure that the seed is different for each program execution.
 
