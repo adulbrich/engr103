@@ -90,6 +90,8 @@ This section is dedicated to helping you identify and resolve common errors in a
 
 #### Error 1: Variable Not Declared in Scope
 
+Suppose your compiler outputs the following error message when trying to compile a program:
+
 ```text frame='terminal'
 main.cpp: In function 'double triple_number()':
 main.cpp:4:16: error: 'favorite_number' was not declared in this scope
@@ -127,6 +129,8 @@ Looking at the code and the error message, what changes might you make to the co
 
 #### Error 2: Missing Return Statement and Variable Not Declared
 
+Suppose your compiler outputs the following error message when trying to compile a program:
+
 ```text frame='terminal'
 main.cpp: In function 'char prompt_for_character()':
 main.cpp:7:1: warning: no return statement in function returning non-void [-Wreturn-type]
@@ -161,6 +165,8 @@ Looking at the code and the error message, what changes might you make to the co
 
 #### Error 3: Incorrect Mathematical Expression
 
+Suppose you want to convert the mathematical statement <Latex formula="f(x) = 2x + 5"/> to a C++ function. You've implemented the function for it, but your compiler outputs the following error message when trying to compile your code:
+
 ```text frame='terminal'
 main.cpp: In function 'double f(double)':
 main.cpp:4:16: error: unable to find numeric literal operator 'operator""x'
@@ -183,8 +189,7 @@ Looking at the code and the error message, what changes might you make to the co
 
 #### Error 4: Incorrect Conditional Logic
 
-The program always recommends “Candyland,” regardless of the user's age, because the conditions in the if and else if statements are written incorrectly. In C++, the syntax `2 <= age <= 7` does not work as intended,it always evaluates as `true`.
-
+You've written a program that recommends a board game to the user based on their age. However, you've noticed that there's some sort of logic error--it always recommends “Candyland” to them, regardless of their age.
 
 ```cpp title="Error 4"
 #include <iostream>
