@@ -5,4 +5,144 @@ sidebar:
   order: 10
 ---
 
-TBD
+:::danger[ENGR+ Survey]
+To complete the end-of-term ENGR+ survey, either fill out the survey or click the button on the survey page to opt out. Once done, show your screen to your TA to confirm that you have either completed or opted out of the survey.
+:::
+
+## File I/O in C++
+
+Since the last lecture primarily focused on references, this studio introduces File I/O in C++ to expand your learning through exploration.
+
+I/O stands for input/output, describing how programs receive and send data to external sources. Throughout the term, you've already worked with I/O, as the `<iostream>` header provides console I/O (e.g., `std::cin` for input and `std::cout` for output). File I/O extends this concept to reading and writing data to files, enabled by the `<fstream>` header.
+
+The `<fstream>` header introduces two key classes:
+
+- `std::ifstream` the input file stream for reading data from files.
+- `std::ofstream` the output file stream for writing data to files.
+
+Both classes are like `std::string`--they are objects created using constructors. Below, we'll explore the syntax and examples for using these classes.
+
+#### Creating File Stream Objects
+
+To create an `std::ifstream` or `std::ofstream` object, use the constructor syntax:
+
+```cpp
+<type> <variable_name>(<constructor_arguments>);
+```
+
+For example, the following creates an `std::ofstream` object for writing to a file:
+
+```cpp
+std::ofstream my_cool_ofstream("my_cool_file.txt", std::ios::app);
+```
+
+### `std::ofstream` Objects
+
+The `std::ofstream` constructor accepts:
+
+1. A file path (as a `std::string`) where data will be written.
+2. An open mode, a constant specifying how the file should be accessed. 
+
+Two common modes are:
+
+- `std::ios::trunc`: Truncates (erases) the file's contents if it already exists, writing new data from scratch.
+- `std::ios::app`: Appends new data to the end of the file without erasing existing content.
+
+If the file doesn't exist, it will be created during this process.
+
+Once an `std::ofstream` object is created, writing to the file is as simple as using the same syntax as `std::cout`:
+
+```cpp
+std::cout << "Hello, World!" << std::endl; // Writes to the console.
+hello_world_stream << "Hello, World!" << std::endl; // Writes to the file.
+```
+
+Here's a complete example program that writes “Hello, World!” to a file:
+
+```cpp
+#include <fstream>
+
+int main() {
+    std::ofstream hello_world_stream("hello.txt", std::ios::trunc);
+    hello_world_stream << "Hello, World!" << std::endl;
+}
+```
+
+Execute this program, then check your working directory. A file named `hello.txt` should appear, containing “Hello, World!”.
+
+### `std::ifstream` Objects
+
+The `std::ifstream` constructor accepts a single argument: the path to the file to read. The file must already exist and match the expected format. If the file doesn't exist, the object fails to open.
+
+`std::ifstream` works similarly to `std::cin`. For example:
+
+- The stream extraction operator `>>` reads data word-by-word.
+- `std::getline()` reads entire lines.
+
+When created, an `std::ifstream` object points to the start of the file. As you read data, it moves sequentially through the file.
+
+Consider a file `data.txt` with the following content:
+
+```text
+5
+George Washington
+John Adams
+Thomas Jefferson
+James Madison
+James Monroe
+```
+
+Here's a program that reads this file and prints names in the format: `<last name>, <first name>`:
+
+```cpp
+#include <iostream>
+#include <fstream>
+
+int main() {
+    std::ifstream my_cool_data_stream("data.txt");
+
+    int num_names;
+    my_cool_data_stream >> num_names;
+
+    for (int i = 0; i < num_names; i++) {
+        std::string first_name, last_name;
+        my_cool_data_stream >> first_name >> last_name;
+        std::cout << last_name << ", " << first_name << std::endl;
+    }
+}
+```
+
+If `data.txt` is present in the working directory, this program will output:
+
+```text
+Washington, George
+Adams, John
+Jefferson, Thomas
+Madison, James
+Monroe, James
+```
+
+## Finding the Oldest Student
+
+Suppose you have a file, `student-data.txt`, with the following structure:
+
+```text
+<number of students>
+<first name> <last name> <age>
+<first name> <last name> <age>
+...
+```
+
+Write a program to:
+
+1. Read data from `student-data.txt` to identify the oldest student.
+2. Write the oldest student's name and age to a new file, `oldest-student.txt`, with each detail on a separate line.
+
+In other words:
+
+1. Create an `std::ifstream` object for `student-data.txt`.
+2. Use the stream extraction operator to read the data and determine the oldest student.
+3. Create an `std::ofstream` object for `oldest-student.txt` in truncate mode.
+4. Write the oldest student's details (first name, last name, age) to the file.
+
+You can either use the stream extraction operator `>>` or `std::getline()` to read from a `std::ifstream` object, just as you can with `std::cin`. However, recall that you should avoid mixing both of these mechanisms on a single stream in a single program, unless you're very careful about how you handle whitespace. **For this particular program, it's strongly recommended that you stick with the stream extraction operator.**
