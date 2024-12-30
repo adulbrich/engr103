@@ -5,4 +5,166 @@ sidebar:
   order: 8
 ---
 
-TBD
+## Example Problems
+
+The following examples demonstrate common string problems. These examples aim to help you better understand string manipulation before proceeding to create a text-based adventure in the next section.
+
+:::note[Example Problem 1]
+Write a function: 
+```cpp
+std::string get_first_name(std::string full_name)
+```
+This function accepts a string `full_name`, representing a person's full name in the format `"last, first middle"`. It returns the person's first name. For example, calling `get_first_name("Machetti, Mario John")` should return `"Mario"`.
+
+```cpp title="Solution 1"
+std::string get_first_name(std::string full_name) {
+    int space_position = full_name.find(" ");
+    std::string first_and_middle = full_name.substr(space_position + 1);
+    space_position = first_and_middle.find(" ");
+    std::string first_name = first_and_middle.substr(0, space_position);
+    return first_name;
+}
+```
+
+```cpp title="Solution 2"
+std::string get_first_name(std::string full_name) {
+    int space_position = full_name.find(" ");
+    full_name.erase(0, space_position + 1);
+    space_position = full_name.find(" ");
+    full_name.erase(space_position);
+    return full_name;
+}
+```
+:::
+
+:::note[Example Problem 2]
+Write a function:
+```cpp
+int count_substr(std::string str, std::string substr)
+```
+This function returns the number of times the string `substr` appears within the string `str`. The occurrences of `substr` in `str` are allowed to overlap. For instance, calling `count_substr("ooo", "oo")` should return `2`, as the middle `"o"` is part of both occurrences.
+
+```cpp title="Solution 1"
+int count_substr(std::string str, std::string substr) {
+    int count = 0;                // Tracks the number of occurrences found
+    int cur_position = 0;         // The starting position for each search
+
+    while (cur_position != std::string::npos) {
+        int position = str.find(substr, cur_position);
+
+        if (position == std::string::npos) {
+            // No more occurrences found; end the loop
+            cur_position = position;
+        } else {
+            // Found an occurrence; increment the count
+            count++;
+            // Update cur_position to search for the next occurrence
+            cur_position = position + 1;
+        }
+    }
+
+    return count;
+}
+```
+
+```cpp title="Solution 2"
+int count_substr(std::string str, std::string substr) {
+    int count = 0;                // Tracks the number of occurrences found
+    int cur_position = 0;         // The starting position for each search
+
+    // Using assignment within the loop condition for efficiency
+    while ((cur_position = str.find(substr, cur_position)) != std::string::npos) {
+        // Found an occurrence; increment the count
+        count++;
+        // Move to the next position to allow overlapping matches
+        cur_position++;
+    }
+
+    return count;
+}
+```
+:::
+
+These examples illustrate different approaches to solving string-related problems in C++, showing how to manipulate strings effectively and efficiently.
+
+## Text-Based Game
+
+Create a text-based game that runs in the terminal. The content of your game is entirely up to you, as long as it remains appropriate. Your game must meet the following requirements:
+
+1. User Interaction: Your game must prompt the user for actions using `std::cout`.
+2. Input Handling: Each user action must be read as a string using `getline(std::cin, some_string_variable)`.
+3. Input Validation: The program must verify the validity of each user action. For example, if the program asks the user to enter “north” or “south,” it should ensure the input matches one of those options.
+4. Handling Invalid Input: When the user enters an invalid action, the program must notify them with an appropriate message and prompt them again. This will require the use of loops.
+5. Dynamic Storyline: The game's storyline must evolve based on the user's chosen actions. You'll need to use conditional statements (e.g., if statements) to implement this behavior.
+6. Multiple Prompts: The game must include at least three distinct prompts, each with its own set of valid actions. Note: The user doesn't need to encounter all three prompts in a single playthrough. Some actions may end the game before all prompts are reached.
+
+Here are some example runs of Alexander Guyer's text-based game:
+
+```text frame="terminal"
+./a.out
+You wake up and find yourself in a desert. You feel weak and nauseous.
+There appears to be an oasis in the distance. What do you do?
+
+Type "walk toward oasis" to walk toward the oasis, or "walk into desert"
+to walk away from the oasis, deeper into the desert:
+
+drink water
+
+That's not a valid action!
+
+Type "walk toward oasis" to walk toward the oasis, or "walk into desert"
+to walk away from the oasis, deeper into the desert:
+
+walk toward oasis
+
+You begin stumbling toward the oasis... After hours of walking, 
+the oasis appears just as far away as when you started. 
+You're dehydrated, but you've stumbled across a desert cactus. 
+What do you do?
+
+Type "walk toward oasis" to continue walking toward the oasis. 
+Type "drink cactus water" to drink water from the cactus.
+
+drink cactus water
+
+You drink the cactus water. It tastes acrid. 
+Even worse, cactus water is apparently not meant for human consumption.
+You feel weak... 
+Your legs give out, and you pass out in the hot desert sand.
+
+Game over.
+```
+
+```text frame="terminal"
+./a.out
+You wake up and find yourself in a desert. You feel weak and nauseous. 
+There appears to be an oasis in the distance. What do you do?
+
+Type "walk toward oasis" to walk toward the oasis, or "walk into desert"
+to walk away from the oasis, deeper into the desert:
+
+walk into desert
+
+You feel uneasy about the oasis, suspecting it to be a hallucination. 
+You turn around and walk deeper into the desert. 
+After hours of walking, you come across a well-kept road running from 
+north to south, but you see the peak of a building emerging on the eastern 
+horizon. You feel dehydrated, and you're probably too exhausted to reach 
+it... What do you do?
+
+Type "go east" to fight the odds and walk through the sand toward the building. 
+Type "go north" to walk north along the road. 
+Type "go south" to walk south along the road. 
+Type "lay down" to lay down in the middle of the road.
+
+lay down
+
+You recognize that you're nearing your limits. 
+You choose to lay down in the road to conserve energy, 
+hoping that help will arrive soon...
+
+Your decision pays off. 
+A caravan of merchants arrives from the north, apparently on their way to 
+sell their wares in a distant town to the south. 
+They offer you water and escort you to safety.
+```
