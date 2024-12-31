@@ -1,0 +1,192 @@
+---
+title: "Operators"
+description: TBD
+sidebar:
+  order: 6
+---
+
+import Latex from '../../../components/Latex.astro'
+
+In C++, the following is a perfectly valid statement:
+
+```cpp
+5;
+```
+
+But what does it actually do? The answer: nothing. This statement contains an integer literal expression representing the value 5, but nothing is done with it.
+
+To make expressions useful, we need to operate on them. For example, you've already learned about one kind of operator: the stream insertion operator `<<`. We used this operator in our “Hello, World!” program to output values of expressions to the terminal.
+
+As we progress through the course, we'll explore many other operations that can be applied to expressions to make them perform useful tasks. For now, let's focus on mathematical operations. Below is a table summarizing some basic mathematical operators in C++:
+
+| Operator | Name | Description |
+|----------|------|-------------|
+| `+` | Addition | Adds the expression on the left to the expression on the right, forming a new expression representing the sum. |
+| `-` | Subtraction | Subtracts the expression on the right from the expression on the left, forming a new expression representing the difference. |
+| `*` | Multiplication | Multiplies the expression on the left with the expression on the right, forming a new expression representing the product. |
+| `/` | Division | Divides the expression on the left by the expression on the right, forming a new expression representing the quotient. |
+| `%` | Modulo (Remainder) | Divides the expression on the left by the expression on the right and forms a new expression representing the remainder after division. (Both expressions must have integral types, such as `int`.) |
+
+You can also use parentheses to explicitly control the order in which expressions are evaluated, just as in mathematics. C++ follows the standard mathematical order of operations for these arithmetic operators. This is often referred to as PEMDAS (Parentheses, Exponents, Multiplication/Division, Addition/Subtraction), but in C++, there are no exponents, and the modulo operator `%` shares the same precedence as multiplication and division. The order is as follows:
+
+1. Parentheses are evaluated first.
+2. Multiplication `*`, division `/`, and modulo `%` are evaluated next, from left to right.
+3. Addition `+` and subtraction `-` are evaluated last, also from left to right.
+
+When arithmetic operators interact with others, such as the stream insertion operator `<<`, things can get a bit confusing. Instead of memorizing all the precedence rules and expecting others to do the same, it's often a good idea to use extra parentheses to make your intentions clear.
+
+For example, you can assume that most readers understand PEMDAS well enough to know that multiplication and division happen before addition and subtraction. However, if you're computing a complex mathematical expression and want to send the result to `std::cout` for printing, it's a good practice to wrap all the arithmetic in a single set of parentheses. This ensures that the calculations are performed first and the result is then sent to `std::cout`.
+
+By using parentheses effectively, you can make your code easier to read and prevent subtle bugs caused by misunderstandings about operator precedence.
+
+Let's bring everything together. Consider the following program:
+
+```cpp
+// arithmetic_ex1.cpp
+#include <iostream>
+
+int main() {
+    std::cout << (5 * 3 + 1.0 / 2.0) << std::endl;
+    std::cout << (6.0 / 3.0 - 8 % 3) << std::endl;
+}
+```
+
+When this program is run, it produces the following output:
+
+```text frame="terminal"
+15.5
+0
+```
+
+Let's break this down:
+
+The expression `(5 * 3 + 1.0 / 2.0)` is evaluated as follows:
+
+- Multiplication is performed first: `5 * 3 = 15`.
+- Then, the division `1.0 / 2.0 = 0.5` is calculated.
+- Finally, the results are added: `15 + 0.5 = 15.5`.
+
+The expression `(6.0 / 3.0 - 8 % 3)` is evaluated as follows:
+
+- Division is performed first: `6.0 / 3.0 = 2.0`.
+- The modulo operation calculates the remainder of `8 % 3 = 2`.
+- Finally, subtraction is performed: `2.0 - 2 = 0`.
+
+Notice that I used double-typed literals (e.g., 1.0, 2.0, 6.0) for division and int-typed literals for everything else. This distinction is important. Let's look at a slight modification of the first line of the code:
+
+```cpp
+std::cout << (5 * 3 + 1 / 2) << std::endl;
+```
+
+Here, the only change is replacing `1.0 / 2.0` with `1 / 2`. You might expect this to produce the same output (15.5), but it doesn't. Instead, it prints:
+
+```text frame="terminal"
+15
+```
+
+Why does this happen?
+
+In C++, every expression has both a type and a value. When performing arithmetic operations, the type of the resulting expression depends on the types of the operands involved. As a general rule, the type of an expression resulting from an arithmetic operation is the “more precise” type of the two operands:
+
+- Floating-point types (e.g., `float`, `double`) are considered more precise than integral types (e.g., `int`).
+- Within each category, types with larger sizes (e.g., `double` is more precise than `float`) are considered more precise.
+
+For example, the expression `5.0 * 2` results in a double because `5.0` is a double and double is more precise than int.
+
+However, integer division behaves differently. Consider the expression `1 / 2`. Both 1 and 2 are of type `int`, so the expression is also of type int. Since int can only represent whole numbers, the true mathematical result of `1 / 2`, which is `0.5`, cannot be represented. In this case, C++ performs *truncation*--it discards everything after the decimal point and "rounds down" to the nearest whole number. Thus:
+
+- `1 / 2` is evaluated as `0` (type `int`), not `0.5` (type `double`).
+
+This truncation occurs whenever you divide integers, even if the result is mathematically non-whole. For example:
+
+- `999 / 1000` is truncated to `0`.
+
+This behavior is commonly referred to as integer division. To avoid truncation and ensure accurate results when dividing, you need to make sure at least one of the operands is of a floating-point type (e.g., float or double). This is why, in the original example, I used double-typed literals (1.0 and 2.0) for division.
+
+By doing so, the division produces a double result, preserving the fractional part and avoiding truncation.
+
+## Modulo Operator in C++
+
+On another note, the modulo operator `%` only works with integral types. If you attempt to use a floating-point operand on either side of the modulo operator, it will result in a syntax error, and your program will fail to compile. For example, consider the following program:
+
+```cpp 
+// bad-modulo.cpp
+#include <iostream>
+
+int main() {
+    std::cout << (5 % 2.0) << std::endl;
+}
+```
+
+When you try to compile this code using `g++`, you'll encounter an error like this:
+
+```text frame="terminal"
+bad-modulo.cpp: In function ‘int main()':
+bad-modulo.cpp:4:21: error: invalid operands of types ‘int' and ‘double' to binary ‘operator%'
+    4 |     std::cout << (5 % 2.0) << std::endl;
+      |                   ~ ^ ~~~
+      |                   |   |
+      |                   int double
+```
+
+This error occurs because `5` is an `int` and `2.0` is a `double`, and the `%` operator cannot operate on mixed types or floating-point values. If you need to compute the remainder after division for floating-point values (a rare use case), you'll need to employ some mathematical techniques to achieve this functionality.
+
+## Multiplication Notation in C++
+
+In traditional mathematical notation, you can represent the product of two terms by placing them side by side. For instance:
+
+- <Latex formula="4x"/> means “4 multiplied by x.”
+- <Latex formula="2(1 + 3)"/> means “2 multiplied by the sum of 1 and 3.”
+
+However, this shorthand is not valid in C++. In C++, you must explicitly use the multiplication operator `*` to indicate multiplication. For example:
+
+- The mathematical expression <Latex formula="4x"/> should be written as `4 * x` in C++ (variables will be discussed a little later).
+- The expression <Latex formula="2(1 + 3)"/> should be written as `2 * (1 + 3)`.
+
+## Mathematical Functions in C++ Standard Library
+
+In addition to built-in arithmetic operators, the C++ standard library provides many functions for performing more complex mathematical operations. While we'll cover functions in more detail later, for now, you just need to know that these functions can be used to simplify your code and handle advanced mathematics once you've included the necessary header files.
+
+Let's focus on three commonly used functions: `pow`, `sqrt`, and `abs`. These functions are provided by the `<cmath>` header file. Interestingly, they are not part of the `std` namespace or any namespace, so you can use them directly *without* the `std::` prefix.
+
+### Using Functions
+
+To use a function, you write its name followed by parentheses. Inside the parentheses, you provide the inputs (also known as arguments) the function needs to operate on. The function call itself is an expression that computes a value, which you can then use just like any other expression.
+
+Here's what these three functions do:
+
+- `pow(a, b)`: Stands for “power.” It takes two inputs, `a` and `b`, and computes  `a^b`  (a raised to the power of b).
+- `sqrt(x)`: Stands for “square root.” It takes one input, `x`, and computes the square root of x.
+- `abs(x)`: Stands for “absolute value.” It takes one input, `x`, and computes the absolute value of x.
+
+Here's a simple program demonstrating the use of these functions:
+
+```cpp
+// math-examples.cpp
+#include <iostream>
+#include <cmath>
+
+int main() {
+    std::cout << pow(2, 5) << std::endl;  // 2^5
+    std::cout << abs(-12) << std::endl;   // Absolute value of -12
+    std::cout << sqrt(64) << std::endl;   // Square root of 64
+}
+
+When you run this program, the output will be:
+
+```text frame="terminal"
+32
+12
+8
+```
+
+It's important to include the `<cmath>` header file to access these functions. If you forget to include it, your program will fail to compile, and you'll get an error like this:
+
+```text frame="terminal"
+math-examples.cpp: In function 'int main()':
+math-examples.cpp:4:22: error: 'pow' was not declared in this scope
+
+4 | std::cout << pow(2, 5) << std::endl;
+```
+
+The `cmath` header file offers a wide range of additional mathematical functions beyond pow, sqrt, and abs. You'll learn about a few more in upcoming lessons, and others will be introduced as they become relevant. In the meantime, I encourage you to explore the documentation for the `cmath` library. This will not only help you discover its full range of capabilities but also improve your ability to read and understand technical documentation.
