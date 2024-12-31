@@ -5,4 +5,88 @@ sidebar:
   order: 4
 ---
 
-TBD
+As your C++ programs grow in complexity, documenting your code effectively becomes crucial. Documentation refers to any records or notes that help you or others interpret your code more easily.
+
+Ideally, your goal should be to write **self-documenting code**—code that is so clear and well-organized that it serves as its own documentation. However, achieving perfectly self-documenting code is often unrealistic. Even if your code appears self-explanatory, expecting others to interpret it directly from the source is impractical. Therefore, supplementing your code with dedicated documentation is essential.
+
+The easiest way to document your code is through **code comments**. A comment is text included within your source code that does not execute as part of the program. Instead, it serves to clarify the code for human readers.
+
+In C++, there are two types of comments: single-line comments and multi-line comments.
+
+## Single-Line Comments
+
+To create a single-line comment, use two consecutive forward slashes `//`. Any text following the slashes on the same line will be treated as a comment and ignored by the compiler. For example:
+
+```cpp title="Single-Line Comment Example"
+#include <iostream>
+#include <cmath>
+
+int main() {
+    double pi = 3.14159265;
+
+    // Prompt the user for the radius of the circle
+    double radius;
+    std::cout << "What is the radius of the circle?" << std::endl;
+    std::cin >> radius;
+
+    // Compute and print the area
+    double area = pi * pow(radius, 2);
+    std::cout << "The area is: " << area << std::endl;
+}
+```
+
+Single-line comments apply only to the remainder of their respective line. If you need to write longer comments spanning multiple lines, using single-line comments can become cumbersome, as each line must begin with `//`:
+
+```cpp title="Cumbersome Single-Line Comments"
+// This is the first line of a comment
+// This is the second line of the same comment
+// And so on...
+```
+
+## Multi-Line Comments
+
+For longer comments, you can use multi-line comments. These start with `/*` and end with `*/`. Everything between these markers is considered part of the comment, allowing you to span multiple lines without repeatedly adding `//`:
+
+```cpp title="Multi-Line Comment Example"
+/* This is a multi-line comment.
+   It spans several lines.
+   Use this format for long notes or explanations. */
+```
+
+## Why Documentation Matters
+
+Code comments are critical for ensuring your code is understandable, both to others and to your future self. For this course, you are expected to adhere to style guidelines that emphasize clear documentation through frequent, meaningful comments.
+
+It can be tempting to think documentation isn't important when working alone, but nearly all meaningful software is developed collaboratively. Without proper documentation, your colleagues will struggle to understand your code. Even you might have difficulty understanding your own work after some time. In team environments, thorough documentation is often a strict requirement. Neglecting it could result in your code being rejected during peer reviews.
+
+In addition to aiding others, comments can also help you. Writing comments forces you to think about your code more critically. It can reveal logical errors, inconsistencies, or areas where your code could be improved. Comments can also serve as a roadmap for future development, helping you remember your thought process when you revisit the code later.
+
+## Writing Comments During the Design Phase
+
+A practical strategy for ensuring good documentation is to write comments as part of your design process, even before writing the actual code. This approach helps you outline the structure of your program and organize your thoughts. For instance:
+
+```cpp title="Commenting During Design"
+#include <iostream>
+#include <cmath>
+
+int main() {
+    // TODO: Prompt the user for the radius of the circle
+
+    // TODO: Compute and print the area
+}
+```
+
+By adding comments like `// TODO:`, you create placeholders for future code. These comments serve as reminders of what needs to be implemented and help you focus on one task at a time. Once you've completed a task, you can replace the `TODO` comment with the actual code.
+
+## Commenting Best Practices
+
+When writing comments, consider the following best practices:
+
+1. **Keep comments concise**: Avoid writing lengthy paragraphs to explain a few lines of code. Overly complex code that requires extensive explanation is often a sign that it needs to be refactored.
+2. **Focus on clarity**: Write comments that are clear and relevant, providing just enough context to make the code understandable.
+3. **Document for collaboration**: Always assume others will read your code. Even solo projects can benefit from good documentation, especially when revisiting the code after a long time.
+4. **Update comments**: As you modify your code, remember to update the comments accordingly. Outdated comments can be misleading and cause confusion.
+5. **Use comments to explain why, not what**: Comments should explain the rationale behind your code, not what the code does. The code itself should be self-explanatory.
+6. **Avoid redundant comments**: Don't write comments that merely restate the code. Comments should add value by providing insights that aren't immediately obvious from the code itself.
+
+By consistently documenting your code with meaningful comments, you'll improve not only your own workflow but also your ability to work effectively in team environments.

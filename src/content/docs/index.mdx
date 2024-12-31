@@ -31,23 +31,32 @@ hero:
       variant: secondary
 ---
 
-import { Card, CardGrid } from '@astrojs/starlight/components';
+import { LinkCard } from '@astrojs/starlight/components';
+import { CardGrid } from '@astrojs/starlight/components';
 
 ## Practicalities
 
 {/* Change to LinkCard with description */}
 
 <CardGrid stagger>
-  <Card title="Demos Scheduling" icon="list-format">
-		TBD.
-	</Card>
-	<Card title="C++ STyle Guide" icon="seti:cpp">
-		TBD.
-	</Card>
-	<Card title="Polya Design Guidelines" icon="rocket">
-		TBD.
-	</Card>
-	<Card title="Vim Cheatsheet" icon="seti:notebook">
-		TBD.
-	</Card>
+  <LinkCard
+    title="Demos Scheduling"
+    href="/practicalities/demos/"
+    description="Instructions to schedule demos for your assignments."
+  />
+  <LinkCard
+    title="C++ Style Guide"
+    href="/practicalities/style/"
+    description="Minimal course-specific style guide for C++ programming."
+  />
+  <LinkCard
+    title="Polya Design"
+    href="/practicalities/polya/"
+    description="Problem solving guidelines for programming assignments."
+  />
+  <LinkCard
+    title="Vim Cheatsheet"
+    href="/practicalities/vim/"
+    description="Course-specific Vim cheatsheet for terminal-based text editing."
+  />
 </CardGrid>
