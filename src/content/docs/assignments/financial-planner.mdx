@@ -7,7 +7,13 @@ sidebar:
 
 import Latex from '../../../components/Latex.astro'
 
-In this assignment you'll write a program that helps users plan their savings or payments by calculating either the future value, present value, or recurring payments. This can be applied to long-term investing (e.g., retirement savings), short-term savings (e.g., saving for a vacation or a car), or calculating loans, mortgages, or other debts.
+This assignment will introduce you to financial formulas commonly used in personal finance, business, and investment scenarios. You will write a C++ program that calculates **future value (FV)**, **present value (PV)**, or **regular payments (PMT)** based on user input. These calculations are essential for understanding the value of money over time and making informed financial decisions.
+
+1. **Future Value (FV)**: Used to calculate how much an investment or savings will grow to after a certain number of periods, considering regular payments and interest. Example: “How much will my retirement savings grow to after 30 years if I save $500 per month?”
+2. **Present Value (PV)**: Used to determine the current value of a future sum of money or cash flows, discounted at a specific interest rate. Example: “What is the current worth of receiving $10,000 five years from now?”
+3. **Regular Payments (PMT):** Used to calculate how much needs to be paid regularly to achieve a specific future goal. Example: “How much should I save every month to have $100,000 in 10 years?”
+
+{/* In this assignment you'll write a program that helps users plan their savings or payments by calculating either the future value, present value, or recurring payments. This can be applied to long-term investing (e.g., retirement savings), short-term savings (e.g., saving for a vacation or a car), or calculating loans, mortgages, or other debts. */}
 
 ## The Math
 
@@ -37,6 +43,10 @@ For the keen-eyed, you may notice the extra <Latex formula="(1 + r)"/>  in the f
 You can also calculate the required periodic payment <Latex formula="PMT"/> needed to reach a future value <Latex formula="FV"/>:
 
 <Latex formula="PMT = \frac{FV - PV \cdot (1 + r)^n }{(1 + r) \cdot \frac{(1 + r)^n - 1}{r}}" inline = {false} />
+
+We can also calculate the present value of a future sum of money with regular payments:
+
+<Latex formula="PV = \frac{FV - PMT \cdot (1+r) \cdot \frac{(1 + r)^n - 1}{r}}{(1 + r)^n}" inline = {false} />
 
 :::caution[Adjustments for Compounding]
 When interest is compounded more frequently than annually, you need to adjust the rate and number of periods accordingly.
@@ -68,10 +78,11 @@ You can use these equations to value a business based on its future cash flows. 
 
 ## The Program
 
-When the program runs, prompt the user to choose between two options:
+When the program runs, prompt the user to choose between three options:
 
 1. **Future Value Calculation**: The program calculates how much the user's current savings will grow over a specified number of years with or without regular contributions. Alternatively, it can calculate the future value of a specific item with an expected annual inflation rate. The program will display the future value of the investment or the cost of the item after the specified number of years. 
-2. **Monthly Savings Calculator**: The program calculates the monthly savings required to reach a desired future value (adjusted for inflation) over a specified number of years for a given rate of return. It can take into account current savings.
+2. **Present Value Calculation**: The program calculates the current value of a future sum of money, discounted at a specific interest rate. The program will display the present value of the future sum.
+3. **Monthly Savings Calculator**: The program calculates the monthly savings required to reach a desired future value over a specified number of years for a given rate of return. It can take into account current savings.
 
 ### Option 1: Future Value Calculation
 
@@ -81,18 +92,31 @@ The user must provide the following inputs:
 - **Annual return rate**: Expected annual rate as a percentage (e.g., 5 for 5%, must be non-negative). If the user enters a negative value, notify the user that negative values aren't allowed and override their entry with a default of 5%.
 - **Number of periods (years)**: The number of years the investment will grow (non-negative) or when the purchase is expected to be made. If the user enters a negative value, print an error to the terminal and terminate the program immediately.
 - **Recurring payment**: The amount added to savings each period (USD). If the user enters a negative value, notify the user that negative values aren't allowed and override their entry with a default of 0.
+- **When are payments made**: The user can choose between payments made at the beginning or end of each period. Ask only if recurring payments are not zero.
 
 The output will be the total future value of the investment or item, formatted as currency.
 
-### Option 2: Monthly Savings Calculator
+### Option 2: Present Value Calculation
 
 The user provides the following inputs:
 
-- **Annual return rate**: Expected annual rate of return as a percentage (e.g., 5 for 5%, must be non-negative). If the user enters a negative value, notify the user that negative values aren't allowed and override their entry with a default of 5%.
-- **Inflation rate**: Annual inflation rate as a percentage (e.g., 2 for 2%, must be non-negative). If the user enters a negative value, notify the user that negative values aren't allowed and override their entry with a default of 2%.
-- **Number of periods (years)**: The number of years to save (strictly positive). If the user enters a value that is equal to zero or less, print an error to the terminal and terminate the program immediately.
+- **Future amount**: The future sum of money (USD).
+- **Annual return rate**: Expected annual rate as a percentage (e.g., 5 for 5%, must be non-negative). If the user enters a negative value, notify the user that negative values aren't allowed and override their entry with a default of 5%.
+- **Number of periods (years)**: The number of years until the future amount is received (non-negative). If the user enters a negative value, print an error to the terminal and terminate the program immediately.
+- **Recurring payment**: The amount added to savings each period (USD). If the user enters a negative value, notify the user that negative values aren't allowed and override their entry with a default of 0.
+- **When are payments made**: The user can choose between payments made at the beginning or end of each period. Ask only if recurring payments are not zero.
+
+### Option 3: Monthly Savings Calculator
+
+The user provides the following inputs:
+
 - **Current savings**: Initial amount of money saved, which can be negative to represent debt (USD).
 - **Future value goal**: The target savings amount after the specified period (USD, non-negative). If the user enters a negative value, print an error to the terminal and terminate the program immediately.
+- **Annual return rate**: Expected annual rate of return as a percentage (e.g., 5 for 5%, must be non-negative). If the user enters a negative value, notify the user that negative values aren't allowed and override their entry with a default of 5%.
+- **Number of periods (years)**: The number of years to save (strictly positive). If the user enters a value that is equal to zero or less, print an error to the terminal and terminate the program immediately.
+- **When are payments made**: The user can choose between payments made at the beginning or end of each period. Ask only if recurring payments are not zero.
+{/* - **Inflation rate**: Annual inflation rate as a percentage (e.g., 2 for 2%, must be non-negative). If the user enters a negative value, notify the user that negative values aren't allowed and override their entry with a default of 2%. */}
+
 
 Ensure future value goal is greater than current savings.
 
@@ -109,3 +133,9 @@ Your code should rigorously adhere to all of the course's C++ style guidelines. 
 The provided template code includes a file named `planner.cpp`, which is mostly empty. Your task is to complete this file to create a C++ program that performs the steps outlined above.
 
 You need to validate user input and manage errors as described in the program requirements. If the user enters invalid input, print an error message to the terminal and terminate the program immediately.
+
+## Extra-Credit Opportunities
+
+1. **Inflation Adjustment**: Modify the program to account for inflation in the future value calculations. The user should be able to provide an expected annual inflation rate, and the program should adjust the future value calculations accordingly.
+2. **Compounding Periods**: Allow the user to specify the compounding period (e.g., monthly, quarterly, annually) for the interest rate. Adjust the calculations accordingly.
+3. **Interactive Mode**: Implement an interactive mode where the user can perform multiple calculations without restarting the program. After each calculation, the user should be prompted to choose another calculation or exit the program.
