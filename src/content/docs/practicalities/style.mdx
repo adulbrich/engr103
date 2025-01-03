@@ -161,6 +161,15 @@ To be fair, the C++ standard library uses **snake_case** for variables and funct
 
 Include **file-level comments** at the top and **function-level comments** above functions. Write inline comments *sparingly* to clarify non-obvious logic. Do not be unnecessarily verbose or state the completely obvious.
 
+For file-level comments, you should include the following information:
+
+```c++
+/*
+* Author: <INSERT YOUR FIRST AND LAST NAME HERE>
+* Description: <BRIEFLY DESCRIBE THE PURPOSE OF THIS PROGRAM>
+*/
+```
+
 For complex functions, you could explain the parameters and return value. 
 
 ```c++
@@ -206,6 +215,8 @@ int calculateArea(int width, int height) {
 // calc area
 int ca(int w, int h) { return w * h; }
 ```
+
+If the function has **side-effects**, you should mention them in the comments. Side effects include any state changes that the function performs that can be observed outside the function. Predominantly, this includes writing to streams (including printing data to the terminal via `std::cout` or writing data to a file) and modifying reference parameters.
 
 {/* Use TODO comments for code that is temporary, a short-term solution, or good-enough but not perfect. */}
 
