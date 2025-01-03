@@ -38,13 +38,11 @@ When regular, fixed payments <Latex formula="PMT"/> are made into an account tha
 
 <Latex formula="FV = PV \cdot (1 + r)^n + PMT \cdot (1 + r) \cdot \frac{(1+ r)^n - 1}{r}" inline = {false} />
 
-For the keen-eyed, you may notice the extra <Latex formula="(1 + r)"/>  in the formula. This is because the payment is made at the beginning of each period, so it earns interest for one additional period compared to the principal. *You should leave that out if the payment is made at the end of each period. This also applies to the equation below.*
+For the keen-eyed, you may notice the extra <Latex formula="(1 + r)"/>  in the formula. This is because the payment is made at the beginning of each period, so it earns interest for one additional period compared to the principal. **You should leave that out if the payment is made at the end of each period. This also applies to the equation below.**
 
-You can also calculate the required periodic payment <Latex formula="PMT"/> needed to reach a future value <Latex formula="FV"/>:
+You can shuffle the above equations to calculate recurring payments <Latex formula="PMT"/> or the present value <Latex formula="PV"/>:
 
 <Latex formula="PMT = \frac{FV - PV \cdot (1 + r)^n }{(1 + r) \cdot \frac{(1 + r)^n - 1}{r}}" inline = {false} />
-
-We can also calculate the present value of a future sum of money with regular payments:
 
 <Latex formula="PV = \frac{FV - PMT \cdot (1+r) \cdot \frac{(1 + r)^n - 1}{r}}{(1 + r)^n}" inline = {false} />
 
@@ -88,7 +86,7 @@ When the program runs, prompt the user to choose between three options:
 
 The user must provide the following inputs:
 
-- **Current amount**: Initial amount of money (USD).
+- **Current amount**: Initial amount of money (USD). If the user enters a negative value, print an error to the terminal and terminate the program immediately.
 - **Annual return rate**: Expected annual rate as a percentage (e.g., 5 for 5%, must be non-negative). If the user enters a negative value, notify the user that negative values aren't allowed and override their entry with a default of 5%.
 - **Number of periods (years)**: The number of years the investment will grow (non-negative) or when the purchase is expected to be made. If the user enters a negative value, print an error to the terminal and terminate the program immediately.
 - **Recurring payment**: The amount added to savings each period (USD). If the user enters a negative value, notify the user that negative values aren't allowed and override their entry with a default of 0.
@@ -100,7 +98,7 @@ The output will be the total future value of the investment or item, formatted a
 
 The user provides the following inputs:
 
-- **Future amount**: The future sum of money (USD).
+- **Future amount**: The future sum of money (USD). If the user enters a negative value, print an error to the terminal and terminate the program immediately.
 - **Annual return rate**: Expected annual rate as a percentage (e.g., 5 for 5%, must be non-negative). If the user enters a negative value, notify the user that negative values aren't allowed and override their entry with a default of 5%.
 - **Number of periods (years)**: The number of years until the future amount is received (non-negative). If the user enters a negative value, print an error to the terminal and terminate the program immediately.
 - **Recurring payment**: The amount added to savings each period (USD). If the user enters a negative value, notify the user that negative values aren't allowed and override their entry with a default of 0.
@@ -110,13 +108,12 @@ The user provides the following inputs:
 
 The user provides the following inputs:
 
-- **Current savings**: Initial amount of money saved, which can be negative to represent debt (USD).
-- **Future value goal**: The target savings amount after the specified period (USD, non-negative). If the user enters a negative value, print an error to the terminal and terminate the program immediately.
+- **Current savings**: Initial amount of money (USD). If the user enters a negative value, print an error to the terminal and terminate the program immediately.
+- **Future value goal**: The target savings amount after the specified period (USD). If the user enters a negative value, print an error to the terminal and terminate the program immediately.
 - **Annual return rate**: Expected annual rate of return as a percentage (e.g., 5 for 5%, must be non-negative). If the user enters a negative value, notify the user that negative values aren't allowed and override their entry with a default of 5%.
 - **Number of periods (years)**: The number of years to save (strictly positive). If the user enters a value that is equal to zero or less, print an error to the terminal and terminate the program immediately.
 - **When are payments made**: The user can choose between payments made at the beginning or end of each period. Ask only if recurring payments are not zero.
 {/* - **Inflation rate**: Annual inflation rate as a percentage (e.g., 2 for 2%, must be non-negative). If the user enters a negative value, notify the user that negative values aren't allowed and override their entry with a default of 2%. */}
-
 
 Ensure future value goal is greater than current savings.
 
@@ -124,7 +121,7 @@ The output will be the required monthly savings needed to reach the future value
 
 ### Additional Details
 
-Even though the formula is very flexible, make sure to validate inputs as described above, and handle errors or defaults gracefully.
+Even though the formula is very flexible, make sure to validate inputs as described above, and handle errors or defaults gracefully. For example, what happens if the user inputs return rate of zero or if the user wants to save for 0 years?
 
 Your code should rigorously adhere to all of the course's C++ style guidelines. That includes breaking it up into several modularized functions each with a single responsibility.
 
@@ -134,8 +131,67 @@ The provided template code includes a file named `planner.cpp`, which is mostly 
 
 You need to validate user input and manage errors as described in the program requirements. If the user enters invalid input, print an error message to the terminal and terminate the program immediately.
 
-## Extra-Credit Opportunities
+## Extra Credit Opportunities
 
-1. **Inflation Adjustment**: Modify the program to account for inflation in the future value calculations. The user should be able to provide an expected annual inflation rate, and the program should adjust the future value calculations accordingly.
-2. **Compounding Periods**: Allow the user to specify the compounding period (e.g., monthly, quarterly, annually) for the interest rate. Adjust the calculations accordingly.
-3. **Interactive Mode**: Implement an interactive mode where the user can perform multiple calculations without restarting the program. After each calculation, the user should be prompted to choose another calculation or exit the program.
+There are three optional tasks of varying difficulties that you can complete for extra credit.
+
+### Inflation Adjustment
+
+Modify the program to account for inflation in the future value calculations. The user should be able to provide an expected (annual) inflation rate, and the program should adjust the future value calculations accordingly.
+
+The adjustment for inflation involves considering the real interest rate instead of the nominal interest rate. The [real interest rate](https://www.investopedia.com/ask/answers/032515/what-difference-between-real-and-nominal-interest-rates.asp) reflects the true growth of money after accounting for inflation. It can be calculated using the [Fisher Equation](https://en.wikipedia.org/wiki/Fisher_effect):
+
+<Latex formula="(1 + r_{\text{real}}) = \frac{(1 + r_{\text{nominal}})}{(1 + r_\text{inflation})}" inline={false}/>
+
+where:
+- <Latex formula="r_{\text{real}}"/> is the real interest rate
+- <Latex formula="r_{\text{nominal}}"/> is the nominal interest rate (e.g., annual return from an investment)
+- 	<Latex formula="r_\text{inflation}"/> is the expected annual inflation rate
+
+The real interest rate is then used in the FV formula instead of the nominal interest rate.
+
+This adjustment is critical for scenarios where inflation significantly impacts long-term financial planning, such as retirement or education savings.
+
+### Compounding Periods
+
+Allow the user to specify the compounding period (e.g., monthly, quarterly, annually) for the interest rate. Adjust the calculations accordingly. You can choose the periods supported, but it must be more than one period.
+
+### Interactive Mode
+
+Implement an interactive mode where the user can perform multiple calculations without restarting the program. After each calculation, the user should be prompted to choose another calculation or exit the program.
+
+{/* ### Calculate the Interest Rate
+
+Rearranging the future value equation to isolate <Latex formula="r"/> is not straightforward because <Latex formula="r"/> appears in multiple places, including as part of both exponential and fractional terms.
+
+Since it's not possible to solve for <Latex formula="r"/> algebraically, we use an iterative numerical method. Here's how it can be done:
+
+The Newton-Raphson method is an iterative numerical technique used to find roots of a function. For our case, we define a function <Latex formula="f(r)"/> as:
+
+<Latex formula="f(r) = PV \cdot (1 + r)^n + PMT \cdot \frac{(1 + r)^n - 1}{r} - FV" inline={false}/>
+
+To apply the Newton-Raphson method, we also need the derivative of <Latex formula="f(r)"/>, which is:
+
+<Latex formula="f{\prime}(r) = PV \cdot n \cdot (1 + r)^{n-1} + PMT \cdot \left[ \frac{n \cdot (1 + r)^{n-1}}{r} - \frac{(1 + r)^n - 1}{r^2} \right]" inline={false}/>
+
+The Newton-Raphson formula iteratively updates <Latex formula="r"/> as:
+
+<Latex formula="r_{\text{new}} = r_{\text{old}} - \frac{f(r_{\text{old}})}{f{\prime}(r_{\text{old}})}" inline={false}/>
+
+#### Steps for Implementation
+
+1. Start with an Initial Guess: 
+    - Begin with a reasonable initial guess for <Latex formula="r"/>, such as <Latex formula="r = 0.05"/> (5% interest rate).
+2. Iteratively Refine <Latex formula="r"/>:
+    - Use the Newton-Raphson formula to calculate a new <Latex formula="r"/>.
+    - Repeat the process until the difference between successive <Latex formula="r"/> values is very small (e.g., <Latex formula="|r_{\text{new}} - r_{\text{old}}| < 10^{-6}"/>).
+3. Stop After Convergence:
+    - If the method converges, return the value of <Latex formula="r"/>.
+    - If it fails to converge after a set number of iterations (e.g., 100 iterations), report an error.
+
+#### Notes
+
+1. Initial Guess Matters: Newton-Raphson depends on the initial guess. If the guess is far from the actual solution, the method may fail to converge.
+2. Edge Cases: Handle cases where <Latex formula="PMT = 0"/> (i.e., no regular payments) or <Latex formula="r = 0"/> (no interest).
+
+This method is widely used in financial software and is a practical approach to computing interest rates in real-world scenarios. */}
