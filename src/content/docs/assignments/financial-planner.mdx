@@ -80,17 +80,17 @@ When the program runs, prompt the user to choose between three options:
 
 1. **Future Value Calculation**: The program calculates how much the user's current savings will grow over a specified number of years with or without regular contributions. Alternatively, it can calculate the future value of a specific item with an expected annual inflation rate. The program will display the future value of the investment or the cost of the item after the specified number of years. 
 2. **Present Value Calculation**: The program calculates the current value of a future sum of money, discounted at a specific interest rate. The program will display the present value of the future sum.
-3. **Monthly Savings Calculator**: The program calculates the monthly savings required to reach a desired future value over a specified number of years for a given rate of return. It can take into account current savings.
+3. **Recurring Payments Calculation**: The program calculates the monthly savings required to reach a desired future value over a specified number of years for a given rate of return. It can take into account current savings.
 
-If the user selects an invalid option, display an error message and terminate the program imediately.
+If the user selects an invalid option, display an error message and terminate the program immediately.
 
 ### Option 1: Future Value Calculation
 
 The user must provide the following inputs:
 
 - **Current amount**: Initial amount of money (USD). If the user enters a negative value, print an error to the terminal and terminate the program immediately.
-- **Annual return rate**: Expected annual rate as a percentage (e.g., 5 for 5%, must be non-negative). If the user enters a negative value, notify the user that negative values aren't allowed and override their entry with a default of 5%.
-- **Number of periods (years)**: The number of years the investment will grow (non-negative) or when the purchase is expected to be made. If the user enters a negative value, print an error to the terminal and terminate the program immediately.
+- **Annual return rate**: Expected annual rate as a percentage (e.g., 5 for 5%, must be positive). If the user enters a negative value, notify the user that negative values aren't allowed and override their entry with a default of 5%.
+- **Number of periods (years)**: The number of years the investment will grow (strictly positive) or when the purchase is expected to be made. If the user enters a negative value, print an error to the terminal and terminate the program immediately.
 - **Recurring payment**: The amount added to savings each period (USD). If the user enters a negative value, notify the user that negative values aren't allowed and override their entry with a default of 0.
 - **When are payments made**: The user can choose between payments made at the beginning or end of each period. Ask only if recurring payments are not zero. If the user enters an invalid option, notify the user that the input is invalid and override their entry with the default option.
 
@@ -101,20 +101,20 @@ The output will be the future value of the investment or item, formatted as curr
 The user provides the following inputs:
 
 - **Future amount**: The future sum of money (USD). If the user enters a negative value, print an error to the terminal and terminate the program immediately.
-- **Annual return rate**: Expected annual rate as a percentage (e.g., 5 for 5%, must be non-negative). If the user enters a negative value, notify the user that negative values aren't allowed and override their entry with a default of 5%.
-- **Number of periods (years)**: The number of years until the future amount is received (non-negative). If the user enters a negative value, print an error to the terminal and terminate the program immediately.
+- **Annual return rate**: Expected annual rate as a percentage (e.g., 5 for 5%, must be positive). If the user enters a negative value, notify the user that negative values aren't allowed and override their entry with a default of 5%.
+- **Number of periods (years)**: The number of years until the future amount is received (strictly positive). If the user enters a negative value, print an error to the terminal and terminate the program immediately.
 - **Recurring payment**: The amount added to savings each period (USD). If the user enters a negative value, notify the user that negative values aren't allowed and override their entry with a default of 0.
 - **When are payments made**: The user can choose between payments made at the beginning or end of each period. Ask only if recurring payments are not zero. If the user enters an invalid option, notify the user that the input is invalid and override their entry with the default option.
 
 The output will be the present value of the future sum, formatted as currency.
 
-### Option 3: Monthly Savings Calculator
+### Option 3: Recurring Payments Calculation
 
 The user provides the following inputs:
 
 - **Current savings**: Initial amount of money (USD). If the user enters a negative value, print an error to the terminal and terminate the program immediately.
 - **Future value goal**: The target savings amount after the specified period (USD). If the user enters a negative value, print an error to the terminal and terminate the program immediately.
-- **Annual return rate**: Expected annual rate of return as a percentage (e.g., 5 for 5%, must be non-negative). If the user enters a negative value, notify the user that negative values aren't allowed and override their entry with a default of 5%.
+- **Annual return rate**: Expected annual rate of return as a percentage (e.g., 5 for 5%, must be positive). If the user enters a negative value, notify the user that negative values aren't allowed and override their entry with a default of 5%.
 - **Number of periods (years)**: The number of years to save (strictly positive). If the user enters a value that is equal to zero or less, print an error to the terminal and terminate the program immediately.
 - **When are payments made**: The user can choose between payments made at the beginning or end of each period. Ask only if recurring payments are not zero. If the user enters an invalid option, notify the user that the input is invalid and override their entry with the default option.
 {/* - **Inflation rate**: Annual inflation rate as a percentage (e.g., 2 for 2%, must be non-negative). If the user enters a negative value, notify the user that negative values aren't allowed and override their entry with a default of 2%. */}
@@ -125,7 +125,7 @@ The output will be the required monthly payments needed to reach the future valu
 
 ### Additional Details
 
-Even though the formula is very flexible, make sure to validate inputs as described above, and handle errors or defaults gracefully. For example, what happens if the user inputs return rate of zero or if the user wants to save for 0 years?
+Even though the formula is very flexible, make sure to validate inputs as described above, and handle errors or defaults gracefully. For example, what happens if the user inputs a return rate of zero or if the user wants to save for 0 years?
 
 Your code should rigorously adhere to all of the course's C++ style guidelines. That includes breaking it up into several modularized functions each with a single responsibility.
 
