@@ -16,8 +16,8 @@ export default defineConfig({
       },
       sidebar: [
         {
-          label: "Introduction",
-          autogenerate: { directory: "introduction" },
+          label: "Overview",
+          autogenerate: { directory: "overview" },
         },
         {
           label: "Practicalities",
