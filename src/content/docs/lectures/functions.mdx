@@ -5,4 +5,148 @@ sidebar:
   order: 11
 ---
 
+import Latex from '../../../components/Latex.astro'
+
+In C++, a function is a reusable block of code that simplifies repetitive computations in your program. By creating functions, you avoid reinventing the wheel each time you need a specific computation. You've already used functions like `main`, `pow`, `sqrt`, and `abs`. In this lecture, you'll learn how to create your own functions to better organize and modularize your code.
+
+## Creating Functions
+
+A function definition consists of two main parts:
+
+1. **Function Header**, which includes:
+    - A function name
+    - A parameter list
+    - A return type
+2. **Function Body**, which contains the code to execute.
+
+The general syntax for a function definition is as follows:
+
+```cpp
+<return type> <function name>(<parameter list>) {
+    <function body>
+}
+```
+
+A function must be declared (in this context, “declared” means defined) before it can be used. This means the function definition must appear above any calls to that function.
+
+To illustrate, let's examine this simple function definition:
+
+```cpp
+double sum(double first_value, double second_value) {
+    return first_value + second_value;
+}
+```
+
+### Function Headers
+
+The function header is the first thing to determine when creating a function. It consists of the function's name, parameter list, and return type. Syntactically, it is the part of the function definition before the opening curly brace `{`.
+
+```cpp
+double sum(double first_value, double second_value)
+```
+
+A well-designed function header should clearly communicate what the function does and how to use it.
+
+#### Function Names
+
+To use a function after it's created, you need a way to refer to it—this is the function's name. Like variable names, function names (identifiers) in C++:
+
+- May consist of letters, numbers, and underscores.
+- Cannot start with a number.
+
+The function name should be descriptive enough to indicate its purpose. For example:
+
+- `sqrt` clearly computes the square root of its input.
+- `abs` computes the absolute value of its input.
+
+Although abbreviations like `sqrt` and `abs` are acceptable when conventional, avoid over-abbreviation. Descriptive names are preferable, even if they take a few extra keystrokes to type. For instance, in the case study, the function name `sum` is appropriate because it computes the sum of two values.
+
+#### Function Parameters
+
+Functions often need to accept input data to be useful. This is achieved through parameters, which act as placeholders for the data that will be passed to the function.
+
+In mathematics, parameters function as placeholders in expressions like <Latex formula="f(x) = 3x + 7"/>. For example:
+
+- In <Latex formula="f(5)"/>, the parameter <Latex formula="x"/> takes the value <Latex formula="5"/>.
+- In <Latex formula="f(10)"/>, <Latex formula="x"/> takes the value <Latex formula="10"/>.
+
+Similarly, function parameters in C++ are placeholders filled with actual values when the function is called. Parameters are declared as variables, but without initialization, since they are just placeholders. Their declarations are listed within parentheses after the function name, separated by commas if there are multiple parameters. This is referred to as the parameter list.
+
+```cpp
+double first_value, double second_value
+```
+
+In the case study, the sum function has two parameters:
+
+- `first_value` of type double
+-	`second_value` of type double
+
+Parameter names should be meaningful and provide context. For instance, instead of vague names like `distance` or `time`, use descriptive names like `double feet` and `int milliseconds`, which also convey units. This approach improves readability and comprehension.
+
+Parameters can be of any type, and a function can have multiple parameters of different types. The types of the parameters should align with the function's purpose. In the sum example, both parameters are double because the function adds two numbers that may have decimal points.
+
+#### Function Return Types
+
+In addition to accepting input, functions also produce output. The return value is how a function communicates its result. While a function can have multiple parameters, it can only return a single value in C++. The return type specifies the type of this output.
+
+In the function header, the return type appears before the function name. Importantly, the return value is not the same as console output; instead, it allows functions to pass data to one another. For example, the return value of the sum function is passed back to main or any other function that calls it.
+
+In the case study, the return type of the `sum` function is `double`, which makes sense because the function adds two double values. The result, therefore, is also a double.
+
+### Function Bodies
+
+The function body immediately follows the function header. It is enclosed in curly braces `{ }` and contains all the code that determines how the function fulfills its purpose. While the header describes what a function does and how to use it, the body implements the specific steps to achieve the function's purpose. In essence:
+
+- The function header represents the interface or contract (e.g., inputs, outputs, and the function's name).
+- The function body represents the implementation (i.e., the operations that execute to fulfill the contract).
+
+Simply put, the function body is the code inside the curly braces that the function executes when called.
+
+#### Using Parameters and Local Variables
+
+Within the function body, you can:
+
+1. Refer to the function's parameters by name.
+2. Declare and use additional local variables, which are variables defined within the function body. These variables, like those in the main function, exist only within the function in which they are declared.
+
+#### Returning a Value
+
+The primary role of the function body is to process its parameters and produce a return value. Once the function completes its intended operations, you can use the return statement to send the result back to the calling location. The syntax for returning a value is:
+
+```cpp
+return <expression>;
+```
+
+Here, the `<expression>` is evaluated, and its resulting value is sent back to wherever the function was called.
+
+In the case study, the `sum` function calculates the sum of its two parameters, `first_value` and `second_value`, and returns the result:
+
+```cpp
+return first_value + second_value;
+```
+
+This `return` statement evaluates the expression `first_value + second_value` and outputs the sum as the function's result.
+
+#### Function Termination with return
+
+A function terminates immediately after a return statement is executed. Any code written after a return statement is considered **dead code** because it can never execute. For example:
+
+```cpp
+double sum(double first_value, double second_value) {
+    return first_value + second_value;
+
+    // The code below will NEVER execute because the above return statement
+    // ends the function.
+    std::cout << "Hello!" << std::endl;
+}
+```
+
+Here, the `std::cout` line is unreachable because the return statement ends the function execution.
+
+#### Multiple return Statements
+
+In some cases, it is valid for a function to include multiple return statements. Whether or not this results in dead code depends on the specific context. Regardless, the function terminates as soon as any one of its return statements is executed. This is a key point to remember when designing functions with *branching* logic.
+
+## Function calls
+
 Coming Soon!

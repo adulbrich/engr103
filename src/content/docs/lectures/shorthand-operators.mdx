@@ -5,4 +5,103 @@ sidebar:
   order: 10
 ---
 
-Coming Soon!
+The assignment operator in C++ has a very low precedence in the order of operations. This means that the entire expression on the right side of the assignment operator is evaluated first, and only then is the resulting value stored in the variable on the left side of the assignment operator.
+
+Interestingly, the variable on the left of an assignment operator can also appear on the right side of the same assignment. This works exactly as expected. For example, consider the following code:
+
+```cpp
+int x = 0;
+x = x + 2;
+x = x - 1;
+x = x * 5;
+std::cout << x << std::endl;
+```
+
+The output of this code will be `5`. Here's how it works:
+
+1. `x` is declared and initialized to `0` in the first line.
+2. In the second line, `x + 2` is computed (i.e., `0 + 2 = 2`), and the result is stored in `x`, overwriting its previous value.
+3. In the third line, `x` is decremented to `1` by subtracting `1` from the current value.
+4. In the fourth line, `x` is multiplied by `5`, resulting in `5`.
+5. Finally, the fifth line prints the value of `x`, which is now `5`.
+
+This behavior is not limited to int variables; it applies to any numeric type.
+
+## Shorthand Arithmetic Assignment Operators
+
+If you have a numeric variable (e.g., `my_number`), you can increase its value by some amount `c` (where `c` is any numeric expression or variable) using the following shorthand: instead of writing `my_number = my_number + c`, you can simply write `my_number += c`.
+
+In this context:
+
+- The `=` operator is called the assignment operator.
+- The `+=` operator is called the addition assignment operator. It calculates the sum of the variable on the left and the expression on the right, then stores the result back in the variable on the left.
+
+Similarly, there are shorthand operators for other arithmetic operations:
+
+- Subtraction: `-=`
+- Multiplication: `*=`
+- Division: `/=`
+- Remainder/Modulo: `%=`
+
+Each operator works in the same way: the corresponding arithmetic operation is performed, and the result is stored in the left-hand variable.
+
+## Increment and Decrement Operators
+
+If you need to increase `my_number` by exactly `1`, you can write `my_number = my_number + 1` or use `my_number += 1`. However, there are two additional shorthand options: `my_number++` and `++my_number`.
+
+- Post-Increment (`my_number++`): Increments the variable by `1`, but the *expression* evaluates to the *original* value of the variable *before* the increment.
+- Pre-Increment (`++my_number`): Increments the variable by `1`, and the expression evaluates to the new value of the variable after the increment.
+
+To understand the difference, it's important to know that in C++, assignments are *also* expressions. For example:
+
+```cpp
+int my_cool_integer = 0;
+std::cout << (my_cool_integer = 100) << std::endl;
+std::cout << my_cool_integer << std::endl;
+```
+
+The output of this code will be:
+
+```plaintext frame="terminal"
+100
+100
+```
+
+Here's what happens:
+
+1. `my_cool_integer` is declared and initialized to `0`.
+2. In the second line, `my_cool_integer` is assigned the value `100`. The assignment itself is an expression, and its value is the new value of `my_cool_integer` (i.e., `100`), which gets printed.
+3. The third line prints the current value of `my_cool_integer`, which is still `100`.
+
+Shorthand assignment operations (e.g., `+=`) also behave as expressions. For instance, the statement `std::cout << (x += 5) << std::endl;` computes `x + 5`, stores the result in `x`, and then prints the new value of `x`.
+
+Now consider the difference between pre-increment and post-increment operators:
+
+```cpp
+int x = 0;
+std::cout << (++x) << std::endl; // Pre-increment
+std::cout << x << std::endl;
+
+x = 0;
+std::cout << (x++) << std::endl; // Post-increment
+std::cout << x << std::endl;
+```
+The output will be:
+
+```plaintext frame="terminal"
+1
+1
+0
+1
+```
+
+Here's the explanation:
+
+1. In the first print statement, the pre-increment operator (`++x`) increments `x` to `1` and then prints the new value.
+2. The second print statement shows the current value of `x`, which is `1`.
+3. `x` is then reset to `0`. In the third print statement, the post-increment operator (`x++`) evaluates to the original value of `x` (i.e., `0`), then increments `x` to `1`.
+4. The fourth print statement shows the updated value of `x`, which is `1`.
+
+If you don't use the value of the operation (e.g., in a standalone statement like `x++;` or `++x;`), there's no functional difference between the two. Both simply increment the variable by `1`.
+
+Finally, just as with increment operators, there are pre- and post-decrement operators (`--x` and `x--`). These behave the same way but decrease the variable's value by `1` instead of increasing it.
