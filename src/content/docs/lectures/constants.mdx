@@ -5,4 +5,96 @@ sidebar:
   order: 8
 ---
 
-TBD
+In C++, you can use type modifiers to modify a type. These keywords, such as `const` and `constexpr`, can be used wherever a type is declared, but we'll focus on their role in variable declarations.
+
+## Runtime Constants
+
+One such type modifier is `const`. A variable declared with the `const` keyword is a **runtime constant**. This means:
+
+- It must be initialized at the time of declaration (in a single statement).
+- Its value cannot be changed after initialization.
+
+To use a type modifier, place it before or after the type being modified. For example:
+
+```cpp
+const char my_cool_character = 'D';
+```
+
+This declares a variable named `my_cool_character` of type `const char` (i.e., a runtime constant character) and initializes it with the value `'D'`.
+
+Failing to initialize a runtime constant during declaration, or attempting to assign it a new value later, will result in a syntax error, preventing your program from building.
+
+## Compile-Time Constants
+
+Another type modifier is `constexpr`. The `constexpr` keyword marks a variable as a **compile-time constant**. These constants share the same rules as runtime constants:
+
+-	They must be initialized at the time of declaration.
+-	Their values cannot be reassigned.
+
+However, compile-time constants have an additional restriction: their initial values must themselves be compile-time constants. A compile-time constant is any value that the compiler can determine during compilation (e.g., literals or values of other `constexpr` variables).
+
+Here's an example of a `constexpr` declaration:
+
+```cpp
+constexpr char my_cool_character = 'D';
+```
+
+This works because `'D'` is a literal and, therefore, a compile-time constant.
+
+### Difference Between `const` and `constexpr`
+
+While `const` and `constexpr` often overlap, they are not interchangeable in all cases. Consider the following example:
+
+```cpp
+char user_input;
+std::cin >> user_input;
+const char my_cool_character = user_input;
+```
+
+Here, `my_cool_character` is a runtime constant initialized with the value of `user_input`. This is valid because const allows initialization with non-constant variables. However, replacing `const` with `constexpr` would cause a syntax error. Why?
+
+1. `constexpr` variables require initialization with a compile-time constant, but `user_input` is not a compile-time constant.
+2. Marking `user_input` as `constexpr` char would also fail because:
+    - It wouldn't be initialized at declaration.
+    - Assigning it a value via `std::cin` involves user input, which is not a compile-time constant.
+
+### Common Use of `constexpr`
+
+`constexpr` variables are particularly useful for replacing literals. For example, instead of hardcoding the value of π multiple times, you can define it as a `constexpr`:
+
+```cpp
+constexpr double pi = 3.14159265;
+```
+
+Using such variables enhances code readability, as meaningful variable names are easier to understand than repeated hardcoded values.
+
+## Why Use Constants?
+
+You might wonder why constants are necessary, given their additional rules. While you could replace constants with regular variables, constants serve two primary purposes:
+
+1. Preventing mistakes
+2. Improving code readability
+
+### Preventing Mistakes
+
+Constants help eliminate logic errors by converting them into syntax errors. For example, consider the following declaration:
+
+```cpp
+double pi = 3.14159265;
+```
+
+As a fixed mathematical constant, `pi` should never change. However, with a regular variable, it's possible to *accidentally* reassign its value, leading to a logic error. Logic errors are problematic because they're syntactically valid and often difficult to diagnose. If you instead declare pi as a constant:
+
+```cpp
+constexpr double pi = 3.14159265;
+```
+
+Any attempt to reassign its value will result in a syntax error. Syntax errors are far easier to detect and resolve during development, making this approach more robust.
+
+### Improving Readability
+
+Constants also improve code readability. When reading code, seeing a variable marked as `const` or `constexpr` reassures you that its value won't change. This eliminates the need to search through the code for potential reassignments. Later in the course, you'll learn about **side effects**--unexpected changes to program state caused by certain operations. Constants prevent such side effects by ensuring their values remain unchanged.
+
+### Advanced Use Cases
+
+Certain advanced features in C++ require `constexpr` variables or other compile-time constants. However, these topics are beyond the scope of this course. 

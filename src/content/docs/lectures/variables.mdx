@@ -5,4 +5,197 @@ sidebar:
   order: 7
 ---
 
-Coming Soon!
+import Latex from '../../../components/Latex.astro'
+
+We've learned how to represent data in our programs and explored ways to manipulate it to compute new data. However, as our computations become more complex, it will eventually become impractical—if not impossible—to perform all operations in a single, large expression or statement. Additionally, the data we've used so far has been constant, hard-coded values (literals or operations based on them). But what if we need to perform computations on values that vary at runtime, such as an integer input provided by a user? To address these needs, we require a way to store and name values, enabling us to refer to them later in our code.
+
+In C++, a **variable** is a named entity that refers to a fixed location in memory, which stores a value of a specific, predetermined type. Similar to expressions, variables have both a type and a value. However, what makes variables unique is that they have names, allowing you to refer to them whenever needed. This means you can both **write** (update) and **read** (access) their values throughout your program.
+
+## Declaring Variables
+
+To create a variable in C++, you must first declare it. A standalone C++ variable declaration follows this structure:
+
+```cpp
+<type> <identifier>;
+```
+
+Here, `<type>` specifies the kind of data the variable will store, and `<identifier>` is the name you assign to the variable. For example, to declare a variable named `num_students` of type `int`, you would write:
+
+```cpp
+int num_students;
+```
+
+This simple declaration sets up a variable that you can use in your program to store and manipulate integer values.
+
+### Rules for Identifiers
+
+All **identifiers** in C++, including variable names, must adhere to the following rules:
+
+- An identifier may only contain letters (a-z, A-Z), digits (0-9), and underscores (_).
+- An identifier cannot be empty; it must have at least one character.
+- An identifier cannot start with a digit (0-9).
+
+If any of these rules are violated, a syntax error will occur.
+
+## Assigning Values to Variables
+
+After declaring a variable, you can use it by simply referring to it by name. The first action you'll typically take with a variable is to **store a value** in it. This process is called **assignment** (or "write", as previously mentioned).
+
+Assignment in C++ is performed using the **assignment operator**, represented by the single equals symbol (`=`). An assignment operation is usually written as a standalone statement, where:
+
+- The **variable name** appears on the left side of the assignment operator.
+- An **expression** appears on the right side.
+
+The expression is evaluated, and its resulting value is stored in the variable's memory. For example, the following statement stores the value `10` in the variable `num_students`:
+
+```cpp
+num_students = 10;
+```
+
+The first time a value is assigned to a variable, the process is called **initialization**.
+
+It's important to note that the value assigned doesn't have to be a literal (like 10); it can be any valid expression, as long as the expression's type can be **converted** (or **coerced**) to the variable's type. For example, you could assign the result of a mathematical operation or a function call to the variable.
+
+This will be discussed later, but most primitive types in C++ can be coerced to and from one another. **However, coercing a floating-point expression to an integral type (like int) results in truncation (the fractional part is discarded).**
+
+It's also essential to understand that assignment happens last. If the expression on the right side of the assignment operator is complex, the entire expression will be evaluated first, and only then will the resulting value be assigned to the variable on the left. In terms of order of operations, the assignment operator (`=`) has very low precedence.
+
+## Reading Variables
+
+Once a value is assigned to a variable (e.g., num_students), you can **read** or **use** it in other parts of your program. To do this, simply refer to the variable by name. At runtime, the variable's name will be replaced by its stored value. For instance, to print the value of num_students to the terminal, you can write:
+
+```cpp
+std::cout << num_students << std::endl;
+```
+
+This will produce the following output:
+
+```plaintext frame="terminal"
+10
+```
+
+But what happens if you try to read (or “use”) a variable before assigning it a value? For example, consider this program:
+
+```cpp
+#include <iostream>
+
+int main() {
+    int my_cool_integer;
+    std::cout << my_cool_integer << std::endl;
+}
+```
+
+What will this program output? The answer is that it exhibits **undefined behavior**.
+
+Undefined behavior means the program can do anything--literally anything. It might print random garbage or crash. Undefined behavior is a serious issue that should always be avoided.
+
+Critically, undefined behavior is not a syntax error and cannot be reliably detected by the compiler (e.g., `g++`). It's a runtime issue. Tools like [Valgrind](https://valgrind.org/) can help detect and diagnose some types of undefined behavior during execution.
+
+To prevent undefined behavior, it's a best practice to initialize variables immediately after declaring them. C++ allows you to combine variable declaration and initialization in a single statement:
+
+```cpp
+<type> <identifier> = <expression>;
+```
+
+For example:
+
+```cpp
+int my_cool_integer = 0;
+```
+
+Even if you plan to update the variable later, initializing it to a **default value** (like `0` in the above example) ensures it has a valid state and avoids undefined behavior. This habit is especially important for beginners and can save you from frustrating bugs in your code.
+
+## Reassigning Values to Variables
+
+One of the key features of variables in C++ is that you can assign new values to them at any time. For example, consider the following program:
+
+```cpp
+#include <iostream>
+
+int main() {
+    int num_students = 10;
+    num_students = 20;
+    std::cout << num_students << std::endl;
+
+    num_students = num_students + 1;
+    std::cout << num_students << std::endl;
+}
+```
+
+This program produces the following output:
+
+```plaintext frame="terminal"
+20
+21
+```
+
+Even though `num_students` was initially set to `10`, it was immediately reassigned the value `20`. This is completely legal, though somewhat unnecessary in this example. The second reassignment, `num_students = num_students + 1;`, demonstrates an important concept: variables can appear in the expression on the right-hand side of the assignment operator.
+
+It's worth noting that the statement `num_students = num_students + 1` might look confusing if you interpret the assignment operator (`=`) as mathematical equality. After all, nothing can logically be equal to itself plus one. However, in procedural programming, this statement makes perfect sense. The assignment operator does not represent equality. Instead, it indicates a **state change**: the expression on the right-hand side is evaluated, and the result is stored in the variable on the left-hand side.
+
+It's crucial to remember that variables should be **declared only once**. In the program above, the variable `num_students` is declared and initialized with the statement:
+
+```cpp
+int num_students = 10;
+```
+
+In every subsequent line, the variable is referenced simply as `num_students`, without being prefixed by its type (int). This is because once a variable is declared, you only need to refer to it by its name.
+
+If you mistakenly prefix the variable name with its type again, like this:
+
+```cpp
+int num_students = num_students + 1;
+```
+
+You would be trying to declare a new variable named `num_students`, which would result in a syntax error in this case. This behavior is consistent with the rules of C++, where referencing a variable by name without its type refers to an existing variable, whereas prefixing it with a type declares a new variable. Declaring multiple variables with the same name is illegal in most contexts and leads to errors.
+
+## Reading Values from the User
+
+Variables can be used to store data provided by the user via the terminal. Let's explore how this works.
+
+In C++, data is sent to and received from the console using streams provided by the `<iostream>` header file:
+
+- To send data out of your program to the console, you use `std::cout` (console output).
+- To receive data into your program from the console, you use `std::cin` (console input).
+
+We also have stream operators
+
+- The stream **insertion** operator `<<` is used with `std::cout` to output data.
+- The stream **extraction** operator `>>` is used with `std::cin` to input data.
+
+Using `std::cin`, you can capture user input and store it in a variable. The syntax is as follows:
+
+```cpp
+std::cin >> <variable_identifier>;
+```
+
+Replace `<variable_identifier>` with the name of the variable where the input value should be stored. When the program reaches this line, it pauses execution, waits for the user to enter a value and press Enter, and then stores the input in the specified variable.
+
+Here's an example program that asks the user to enter two integers (<Latex formula="a"/> and <Latex formula="b"/>), computes the value of <Latex formula="a^b"/>, and prints the result:
+
+```cpp
+#include <iostream>
+#include <cmath>
+
+int main() {
+    std::cout << "Please enter a whole number for a: ";
+    int a;
+    std::cin >> a;
+
+    std::cout << "Please enter a whole number for b: ";
+    int b;
+    std::cin >> b;
+
+    std::cout << "a^b is: " << pow(a, b) << std::endl;
+
+    return 0;
+}
+```
+
+:::caution[Important Notes on User Input]
+
+- **Variable Types**: In this example, integers are used, but `std::cin` can also handle other primitive types, such as float, double, and char. However, be cautious with bool inputs--they behave a bit differently.
+- **Type Mismatches**: If the user enters a value that doesn't match the variable's type, unexpected behavior can occur. For instance, entering a decimal value (e.g., `3.5`) for an int variable like `a` or `b` in the program above won't simply truncate the number. Instead, it may lead to undefined or unpredictable behavior.
+
+We'll discuss how to handle such user errors later in the term. For now, assume that users will provide reasonable, type-appropriate inputs.
+:::
