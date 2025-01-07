@@ -5,4 +5,116 @@ sidebar:
   order: 9
 ---
 
-Coming Soon!
+Type casting refers to converting an expression of one type into an expression of another type. In C++, there are two main categories of type casting:
+
+- **Implicit** type casting, also known as **type coercion**
+- **Explicit** type casting
+
+We will discuss how to perform these shortly, but first, let's review the rules of type casting.
+
+You can only cast an expression from type A to type B if type A is convertible to type B. Most primitive data types we've covered so far are generally convertible to and from one another.
+
+Different type conversions follow different rules, depending on the source and target types. In some cases, the rules are intuitive. For example, casting the integer literal `5` to a double results in `5.0`. However, in other cases, the rules are less obvious. A key example to remember for now is that converting a floating-point type (e.g., float or double) to an integral type (e.g., int) results in truncation. For instance, casting the double value `5.999` to an int results in `5`. This behavior is similar to what happens when dividing two integers, although that scenario doesn't involve type casting, as no floating-point values are involved. Nevertheless, the principle is the same.
+
+We will address other less obvious type conversion rules as needed—for instance, when we explore booleans and characters later in the term.
+
+It's also important to note that type casting does not alter the original expression. Instead, it creates a new expression with its own type and value, derived from the original expression based on the applicable conversion rules. This distinction will be especially important when discussing explicit type casting.
+
+Now that we've covered the rules, let's move on to how type casting works.
+
+## Type Coercion
+
+Type coercion is a form of type casting that happens automatically when an expression of one type is used where an expression of another type is expected. Consider the following example:
+
+```cpp
+double x = 3;
+```
+
+Here, the variable `x` is of type double, and the assignment expects a double value on the right-hand side. However, `3` is an int literal, not a double. This is valid syntax because type coercion automatically converts the int-typed value `3` to a double-typed value `3.0`, which is then stored in `x`.
+
+Type coercion isn't limited to assignment. It occurs in various contexts where an expression of one type is used in place of another. If the “wrong” type is convertible to the “right” type, C++ will attempt the conversion automatically. If it isn't, a syntax error occurs.
+
+For example, type coercion is common in function calls. Consider the `sqrt` function, which calculates the square root of a value and expects a double argument. If you pass an int (e.g., `sqrt(4)` or `sqrt(myVariable)` where `myVariable` is an int), C++ coerces the int to a double before executing the function. Similarly, the `sqrt` function can accept expressions of most numeric types.
+
+You can also perform type coercion on variables. Consider the following code:
+
+```cpp
+double pi = 3.14159265;
+int x = pi;
+std::cout << x << std::endl;
+std::cout << pi << std::endl;
+```
+
+The above program prints:
+
+```plaintext frame="terminal"
+3
+3.14159265
+```
+
+Here, when assigning `pi` to `x`, the double value of `pi` is coerced to an int. As noted earlier, coercing a floating-point type to an integral type results in truncation. Thus, `pi` is truncated to `3` and stored in `x`. However, type coercion does not alter the original variable or expression. The variable `pi` remains a double with its original value of `3.14159265`. This is why printing `pi` after printing `x` still outputs `3.14159265`.
+
+Type coercion is useful because it allows related types to be used interchangeably in various contexts, with necessary conversions handled automatically. However, there are edge cases (rarely covered in detail) where the types are convertible, but implicit type casting is not permitted by C++.
+
+Additionally, there are situations where you might want to perform a conversion explicitly, either because implicit casting is not allowed or because implicit casting alone would complicate the process. In such cases, explicit type casting is the solution.
+
+## Explicit Type Casting
+
+Explicit type casting occurs when you use specific syntax to intentionally cast an expression to a different type. C++ provides several mechanisms for explicit type casting, but we'll focus on the most common one: **static casting**.
+
+To perform a static cast, use the following syntax:
+
+```cpp
+static_cast<TARGET_TYPE>(EXPRESSION)
+```
+
+Here, `TARGET_TYPE` is the type you want to convert the expression to, and `EXPRESSION` is the value you want to cast. The angle brackets `<>` are *part of the syntax* and are not placeholders.
+
+Suppose you have a double variable and want to print its truncated int representation. Using type coercion (implicit type casting), you'd need to create a new int variable to store the coerced value before printing it:
+
+```cpp
+// Cumbersome type coercion
+double pi = 3.14159265;
+
+// Create a new int variable and coerce pi into an int
+int pi_truncated = pi;
+
+// Print the truncated value
+std::cout << pi_truncated << std::endl;
+```
+
+While this works, it's unnecessarily cumbersome because it requires creating an extra intermediate variable just for type casting.
+
+A more concise approach is to use explicit type casting with `static_cast` to directly cast the value in place and print it in a single statement:
+
+```cpp
+// Explicit type casting
+double pi = 3.14159265;
+std::cout << static_cast<int>(pi) << std::endl;
+```
+
+This approach produces the same output as the previous example but eliminates the need for an additional variable.
+
+### Order of Operations with `static_cast`
+
+When performing explicit type casting, the expression inside the parentheses is first evaluated, and only then is the type casting applied. This evaluation order can lead to subtle but important differences in behavior. Consider the following code:
+
+```cpp
+std::cout << (static_cast<int>(2.5) / 0.5) << std::endl;
+std::cout << (static_cast<int>(2.5 / 0.5)) << std::endl;
+```
+
+1. First Statement:
+    - The `static_cast<int>` is applied to `2.5`, truncating it to `2`.
+    - The result (`2`) is then divided by `0.5`, producing the double value `4.0`.
+    - When printed, `std::cout` typically omits trailing zeros for double values, so the output will be `4`.
+2. Second Statement:
+    - The expression `2.5 / 0.5` is evaluated first, resulting in `5.0` (a double).
+    - The result (`5.0`) is then cast to int, truncating it to `5`.
+    - The output will be `5`.
+
+These examples highlight the importance of understanding how parentheses affect the evaluation order in expressions involving explicit type casting.
+
+### Special Cases Requiring Explicit Casting
+
+In certain niche scenarios, C++ forbids implicit type casting (type coercion) and requires explicit type casting instead. These cases are beyond the scope of this lecture, but understanding explicit casting with `static_cast` is sufficient for most common applications.
