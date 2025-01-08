@@ -7,6 +7,8 @@ sidebar:
 
 import Latex from '../../../components/Latex.astro'
 
+{/* TODO: default value for parameters? */}
+
 In C++, a function is a reusable block of code that simplifies repetitive computations in your program. By creating functions, you avoid reinventing the wheel each time you need a specific computation. You've already used functions like `main`, `pow`, `sqrt`, and `abs`. In this lecture, you'll learn how to create your own functions to better organize and modularize your code.
 
 ## Creating Functions
@@ -147,6 +149,301 @@ Here, the `std::cout` line is unreachable because the return statement ends the 
 
 In some cases, it is valid for a function to include multiple return statements. Whether or not this results in dead code depends on the specific context. Regardless, the function terminates as soon as any one of its return statements is executed. This is a key point to remember when designing functions with *branching* logic.
 
-## Function calls
+## Function Calls
 
-Coming Soon!
+Now that you know how to define your own functions, let's explore how to use them. Using, or “**calling**”, a function involves invoking its behavior in your code after it has been defined.
+
+A function, like a variable, can only be used if it has been **declared** (defined) before it is called. In other words, the function definition must appear above any usage of that function in your source code file.
+
+This is similar to why we place `#include` directives at the top of our source code files—they give us access to predefined functions like `pow` and `sqrt` that we may want to use later in the program.
+
+Once a function is defined, it can be called from within any other function that appears after it. **To call a function simply means to use it.**
+
+The syntax for calling a function is as follows:
+
+```cpp
+<name>(<argument 1>, <argument 2>, ..., <argument N>);
+```
+
+Here:
+
+- `<name>` is the name of the function you want to call.
+- The values inside the parentheses represent the **argument list**--the inputs you are passing to the function.
+
+Arguments are expressions whose values are substituted for the corresponding **parameters** (placeholders) in the function definition. Arguments are mapped to parameters in **left-to-right order**.
+
+Taking the above `sum` function as an example, you can call it like this:
+
+```cpp
+sum(2, 3);
+```
+
+The sum function has two parameters: `first_value` and `second_value` (as defined earlier). In this call:
+
+- The first argument (`2`) corresponds to the parameter `first_value`.
+- The second argument (`3`) corresponds to the parameter `second_value`.
+
+When the function is executed, `first_value` will take the value `2`, and `second_value` will take the value `3`.
+
+Similarly,
+
+```cpp
+sum(3, 2);
+```
+In this case:
+
+- `first_value` takes the value `3`.
+- `second_value` takes the value `2`.
+
+As you can see, changing the order of arguments changes the values assigned to the parameters.
+
+### Rules for Arguments
+
+1. **Type Compatibility**: Arguments must be of a type that can be converted to the type of the corresponding parameter. This is similar to the rules for values appearing on the right-hand side of assignment operators.
+2. **Matching the Number of Arguments**: The number of arguments in a function call must match the number of parameters in the function definition.
+
+For example, consider the following incorrect function call:
+
+```cpp
+sum(2);
+```
+
+Here, only one argument (`2`) is supplied, but the `sum` function is defined to require *two* parameters. This mismatch results in a **compilation error**.
+
+```plaintext layout="terminal"
+functions.cpp:9:13: error: no matching function for call to 'sum'
+    9 |     cout << sum(2) << endl;
+      |             ^~~
+functions.cpp:4:8: note: candidate function not viable: requires 2 arguments, but 1 was provided
+    4 | double sum(double first_value, double second_value) {
+      |        ^   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 error generated.
+```
+
+The error message points out that the `sum` function expects two arguments (as declared), but only one is provided in the call.
+
+### Accessing the Output of a Function Call
+
+We've learned how to call a function, but one important question remains: how do we access the output of a function call? For example, while it's perfectly valid to call the sum function like this:
+
+```cpp
+sum(2, 3);
+```
+
+This call produces a return value of `5.0` (a double), but how can we use that return value in our code?
+
+The answer is straightforward: a function call is an expression! As you may recall, expressions have both types and values:
+
+- The type of a function call is the return type of the function.
+- The value of a function call is the return value produced by the function.
+
+Since a function call is an expression, it can be used anywhere that an expression of its return type is valid. For example, you can directly use a function call in an output statement, as shown here:
+
+```cpp
+std::cout << sum(3, 0.14) << std::endl; // Prints 3.14
+```
+
+A common use case is to store the return value of a function call in a variable for later use. Here's an example:
+
+```cpp
+int main() {
+    // Call the sum function with first_value = 2 and second_value = 3
+    // Store the return value (5.0) in a new local variable called ‘result'
+    double result = sum(2, 3);
+
+    // Print the result (or use it in any other way)
+    std::cout << result << std::endl; // Prints 5
+}
+```
+
+You can also use the return value of one function call as an argument to another function. This enables you to chain function calls and perform more complex operations.
+
+```cpp
+int main() {
+    // Compute 3 + 0.1 + 0.04 as:
+    // (3 + 0.1) + 0.04
+    // = sum(sum(3, 0.1), 0.04)
+    std::cout << sum(sum(3, 0.1), 0.04) << std::endl; // Prints 3.14
+}
+```
+
+In this example:
+
+1. The inner call `sum(3, 0.1)` computes `3.1`.
+2. The result of `3.1` is passed as the first argument to the outer call `sum(3.1, 0.04)`.
+3. The outer call computes `3.14`, which is then printed.
+
+## Control Flow of Function Calls
+
+Function calls alter the control flow of a program. By default, program execution begins at the first line of the `main()` function and proceeds in a top-down order. However, when a function call is encountered, the **calling function** (the function that initiated the call) temporarily “pauses.” At this point:
+
+1. The program “jumps” to the first line of code in the **called function** (the function being invoked).
+2. The called function executes its body.
+3. Once the called function terminates, the program “jumps back” to the calling function. The function call in the calling function is replaced by the return value of the called function, and the calling function then resumes execution.
+
+This behavior demonstrates that functions terminate in a **last in, first out (LIFO)** order:
+
+- The most recently called function must finish execution before the program can return to its caller.
+- This is why the `main()` function always serves as both the entry point and the exit point of a program—unless an unexpected event, like a fatal runtime error, causes early termination.
+
+## Arguments Are Not Parameters!
+
+It's common to pass local variables as arguments to function calls, but it's essential to understand how arguments differ from parameters. Let's clarify this with an example:
+
+```cpp
+double sum(double first_value, double second_value) {
+    return first_value + second_value;
+}
+
+int main() {
+    // Setup argument variables
+    double x = 2;
+    double y = 3;
+
+    // Add x and y to get z
+    double z = sum(x, y); // LINE A
+
+    // Print z
+    std::cout << z << std::endl; // Prints 5
+}
+```
+
+At `LINE A`, the variable `x` is not the same as the parameter `first_value`. Here's the distinction:
+
+- **Parameters** (e.g., `first_value` and `second_value`) are placeholders declared in the function definition.
+- **Arguments** (e.g., `x` and `y`) are the actual values or expressions passed to the function when it is called.
+
+Although parameters and arguments may seem connected, they are entirely **separate variables** with separate memory locations. When a function is called, the **value** of an argument is **copied** into the memory location of the corresponding parameter. After this initial copying, the argument and parameter no longer affect each other.
+
+To understand how arguments and parameters are independent, consider the following example:
+
+```cpp
+int weird_sum(int a, int b) {
+    int result = a + b; // Compute sum
+    a = 0;              // Modify parameter a
+    b = 0;              // Modify parameter b
+    return result;      // Return the previously computed sum
+}
+
+int main() {
+    int x = 2;
+    int y = 3;
+
+    std::cout << weird_sum(x, y) << std::endl; // Prints 5
+    std::cout << x << std::endl;               // Prints 2 (NOT 0)
+}
+```
+
+In this example:
+
+1. Inside `weird_sum`, the parameter `a` is set to `0`, but this does not affect the value of the argument `x`.
+2. Similarly, the parameter `b` is set to `0`, but this does not change the value of `y`.
+
+This is because `a` and `x` are entirely separate variables, as are `b` and `y`. Each has its own memory location, and modifying one does not affect the other.
+
+To make things even more confusing, argument variables and parameters can have the same names and still remain completely separate. Consider the following example, which behaves identically to the previous one:
+
+```cpp
+int weird_sum(int a, int b) {
+    int result = a + b; // Compute sum
+    a = 0;              // Modify parameter a
+    b = 0;              // Modify parameter b
+    return result;      // Return the previously computed sum
+}
+
+int main() {
+    int a = 2;
+    int b = 3;
+
+    std::cout << weird_sum(a, b) << std::endl; // Prints 5
+    std::cout << a << std::endl;               // Prints 2 (NOT 0)
+}
+```
+
+In this program:
+
+1. The argument `a` in the `main()` function has the same name as the parameter `a` in `weird_sum`, and the same is true for `b`.
+2. Despite the shared names, these are completely separate variables with separate memory locations.
+3. Within the body of `main()`, a refers to the local variable initialized to `2`.
+4. Within the body of `weird_sum`, a refers to the parameter received during the function call.
+
+This behavior highlights the concept of **variable scope**, which we will explore in greater detail later. For now, remember:
+
+- Arguments and parameters are separate variables.
+- Even if they share the same name, they do not interfere with each other.
+
+## Void Functions
+
+In C++, it's possible to create functions that do not return a value. These are known as **void functions**, and they are commonly used when the purpose of the function is to produce **side effects** rather than return a value.
+
+A **side effect** is any observable effect of a function other than its return value. Examples of side effects include:
+
+- Printing output to the terminal (e.g., using `std::cout`).
+- Writing data to a file.
+- Sending a request to a server over the internet.
+- Modifying reference parameters (which will be discussed later).
+
+Void functions are ideal for these scenarios because they perform actions but do not need to provide a return value.
+
+Every function's header must include a return type. For functions that do not return a value, the return type is specified as `void`. Note that `void` is not a regular data type--it is a special keyword used to indicate the *absence* of a return type.
+
+The following example demonstrates a `void` function that takes a number as input, rounds it to the nearest penny, formats it as a U.S. dollar amount, and prints it to the terminal. This function has a side effect (printing to the terminal) but does not return any value.
+
+```cpp
+#include <cmath> // For the round() function
+#include <iostream> // For std::cout
+
+void print_money(double dollars) {
+    // Round to the nearest penny
+    // round() rounds its input to the nearest whole number (still a double),
+    // which we then coerce to an integer.
+    int pennies = round(dollars * 100);
+
+    // Convert back to dollars
+    double rounded_dollars = pennies / 100.0;
+
+    // Format and print the rounded dollar amount
+    std::cout << "$" << rounded_dollars << std::endl;
+}
+```
+
+## Good Function Design
+
+Implementing functions that work correctly is one thing, but designing good **function contracts** is a separate and essential skill. Below are two fundamental principles of function design that you should adopt. These principles are also detailed in the course's [style guidelines](../../practicalities/style).
+
+### The Single Responsibility Principle (SRP)
+
+The Single Responsibility Principle (SRP) is a modularity principle that states that a component of code (such as a function) should have exactly one responsibility. While SRP originates from object-oriented programming, it applies to all types of programming paradigms, including procedural and functional programming.
+
+Although there is no strict definition of what constitutes a “responsibility,” the following guidelines can help you adhere to SRP:
+
+#### Avoid Mixing Computation and Side Effects
+
+Functions with side effects--like writing to the terminal (`std::cout`), writing to a file, or modifying reference parameters--should typically not perform computations that produce return values. Functions should communicate through one channel at a time, either via side effects or via return values.
+
+Example: A function that prompts the user for input via `std::cout`, receives input `via std::cin`, and returns the input as a value is still considered to have a single responsibility because the responsibility is interacting with the user.
+
+#### Avoid Daisy-Chaining Functions
+
+Daisy-chaining is when one function calls another, which calls another, and so on, creating a deeply nested function call graph. While calling functions within functions is not inherently bad, problems arise when this becomes the dominant pattern in your code.
+
+Solution: Write modular, stand-alone low-level functions that each perform exactly one task and avoid relying on other functions unnecessarily. Then, create high-level functions that combine these low-level functions to accomplish more abstract tasks. This approach creates a “**wide**” function call graph rather than a *deep* one, resulting in **better separation of responsibilities**.
+
+If you can reasonably break a function into two smaller functions with independent purposes, you should do so. This helps avoid violating SRP.
+
+### The “Don't Repeat Yourself” (DRY) Principle
+
+The Don't Repeat Yourself (DRY) principle states that if you find yourself implementing the same complex operations multiple times, you should extract those operations into a single reusable function. You can then call this function wherever the operations are needed.
+
+Benefits of the DRY Principle:
+
+1. **Maintainability**: By centralizing functionality in one place, you make your code easier to update. If the logic needs to change, you only have to modify the single function rather than hunting down multiple instances of duplicated code. This reduces the risk of introducing errors from missing updates.
+2. **Reduced Clutter**: Extracting repetitive operations into a function keeps your code cleaner and easier to understand. Instead of interpreting the same series of operations multiple times, a reader can focus on understanding the extracted function.
+
+### Function Block Comment
+
+The style guidelines include specific expectations for documenting your code. Every function you write--except for `main()`--must include a function block comment.
+
+The level of details of the function block comment depends on how complex the function is. For simple functions, a brief description of the function's purpose and its parameters is sufficient. For more complex functions, you should provide a more detailed explanation of the function's behavior, including any assumptions or invariants.
+
+If the function produces side effects (e.g., writing to a file, modifying a global variable), document them. If the function assumes certain conditions (e.g., non-negative inputs), specify them.
