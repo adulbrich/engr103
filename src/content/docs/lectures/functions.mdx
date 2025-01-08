@@ -205,17 +205,26 @@ As you can see, changing the order of arguments changes the values assigned to t
 For example, consider the following incorrect function call:
 
 ```cpp
-sum(2);
+// functions.cpp
+#include <iostream>
+
+double sum(double first_value, double second_value) {
+    return first_value + second_value;
+}
+
+int main() {
+    std::cout << sum(2) << std::endl;
+}
 ```
 
 Here, only one argument (`2`) is supplied, but the `sum` function is defined to require *two* parameters. This mismatch results in a **compilation error**.
 
 ```plaintext layout="terminal"
-functions.cpp:9:13: error: no matching function for call to 'sum'
-    9 |     cout << sum(2) << endl;
-      |             ^~~
-functions.cpp:4:8: note: candidate function not viable: requires 2 arguments, but 1 was provided
-    4 | double sum(double first_value, double second_value) {
+functions.cpp:8:18: error: no matching function for call to 'sum'
+    8 |     std::cout << sum(2) << std::endl;
+      |                  ^~~
+functions.cpp:3:8: note: candidate function not viable: requires 2 arguments, but 1 was provided
+    3 | double sum(double first_value, double second_value) {
       |        ^   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 1 error generated.
 ```

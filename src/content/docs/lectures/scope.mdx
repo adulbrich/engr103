@@ -5,4 +5,108 @@ sidebar:
   order: 12
 ---
 
+You might wonder: “If the goal is simply to share information between functions, why do we need parameters and return values? Can't we just declare variables in one function and access them from another?”
+
+The answer lies in two important reasons:
+
+1. Variables are only accessible within the scope in which they are declared.
+2. Declaring variables in outer scopes (e.g., **global variables**) that can be accessed by all functions creates numerous issues, such as making functions harder to read, use, test, and maintain.
+
+## Understanding Scopes
+
+In C++, a **scope** is typically defined by the code enclosed between a pair of curly braces (`{` and `}`). While there are some exceptions (e.g., implied curly braces), this is a useful rule of thumb. Variables are tightly bound to the scope in which they are declared, leading to two key rules:
+
+1. A variable can only be accessed from within the scope in which it was declared.
+2. When the program exits a scope (i.e., reaches the closing curly brace), any variable declared within that scope falls out of scope. At this point, the variable is no longer accessible, and its memory can be deleted or reused.
+
+:::note[Parameters]
+Function parameters are a unique exception. Although they appear in the function's header (outside the curly braces), they are treated as if they were declared at the beginning of the function body. This means parameters are bound to the scope of the function body.
+:::
+
+For example, a variable declared inside the `main` function cannot be accessed within the `sum` function. Attempting to do so would result in a syntax error, as demonstrated below.
+
+Consider the following naive attempt to share a variable (result) between the main and sum functions, without using parameters or return values. This program attempts to modify a variable from an out-of-scope function:
+
+```cpp
+// bad_scope.cpp
+#include <iostream>
+
+double sum(double first_value, double second_value) {
+    // Attempt to modify the 'result' variable from the main function
+    result = first_value + second_value; 
+}
+
+int main() {
+    double result; 
+    sum(2, 2);
+    std::cout << result << std::endl;
+}
+```
+
+When you attempt to compile this code, you will see an error similar to this:
+
+```plaintext layout="terminal"
+bad_scope.cpp:5:5: error: use of undeclared identifier 'result'
+    5 |     result = first_value + second_value; 
+      |     ^
+1 error generated.
+```
+
+1. The variable `result` is out of scope for the `sum` function. It was declared in the main function and cannot be accessed outside of it.
+2. The variable `result` is declared below the `sum` function's reference to it. In C++, variables (like functions) must be declared before they are used.
+
+Scope is crucial for **efficient memory management**. When you ask, “How does my computer know when it’s okay to delete memory allocated to a variable?” the answer is almost always scope. Once a variable falls out of scope, it becomes inaccessible, signaling that its memory can safely be reclaimed.
+
+1. A variable’s memory may not be deleted immediately after it falls out of scope, but it is guaranteed to remain allocated until the scope ends.
+2. If your program temporarily jumps to another scope (e.g., during a function call), variables in the original scope remain in memory. These variables are inaccessible during the jump but become accessible again when the program returns to the original scope.
+
+When a program calls a function, it temporarily jumps to the called function’s scope. After the function finishes, the program resumes at the point immediately following the function call. During this jump, variables from the original scope are not deleted—they simply remain temporarily inaccessible.
+
+## Nested Scopes
+
+In C++, scopes can be nested, meaning one scope can exist inside another. You can create a new scope at any time by adding a pair of curly braces (`{` and `}`) and placing code between them. When this is done inside an existing scope, the new scope is considered a nested scope.
+
+Nested scopes follow the same rules as any other scope:
+
+- A variable declared in an outer scope is accessible throughout that scope, including any nested (inner) scopes that come after the variable's declaration.
+-	However, variables declared in a nested scope are not accessible in the enclosing (outer) scope once the program exits the nested scope.
+
+The following example demonstrates how nested scopes work in practice:
+
+```cpp
+#include <iostream>
+
+int main() {
+
+    // Create a second, nested scope (for demonstration purposes)
+    {
+        // my_cool_value is declared in this second, nested scope
+        int my_cool_value = 5;
+
+        // We can access (read or write) my_cool_value here
+        std::cout << my_cool_value << std::endl; // Prints 5
+
+        // Create a third, nested scope (for demonstration purposes)
+        {
+            // my_cool_value is still accessible here from the second, outer scope
+            my_cool_value = 6;
+            std::cout << my_cool_value << std::endl; // Prints 6
+        }
+
+        // Back in the second nested scope, my_cool_value is still accessible
+        my_cool_value = 7;
+        std::cout << my_cool_value << std::endl; // Prints 7
+    }
+
+    // Now, we’ve exited the second nested scope.
+    // my_cool_value is no longer accessible here.
+    // This would produce a syntax error if it wasn’t commented out:
+    // my_cool_value = 8;
+    // As would this:
+    // std::cout << my_cool_value << std::endl;
+}
+```
+
+## Shadowing Names
+
 Coming Soon!
