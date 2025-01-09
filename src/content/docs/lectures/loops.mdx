@@ -5,4 +5,184 @@ sidebar:
   order: 15
 ---
 
+You've already learned how to express sequential logic in C++ (a series of operations written as a sequence of lines of code that execute from top to bottom) and conditional logic (using `if`, `else if`, and `else` statements). Now it's time to explore another key type of logic in C++: repetition logic.
+
+**Repetition logic** allows an operation or set of operations to be performed repeatedly as long as a specified condition is met. For example, you might write a program that prints “Hello” ten times, a program that asks the user for 100 numbers and calculates their sum, or a terminal-based chess game that continues until there is a win or a draw. These scenarios all involve executing a set of operations repeatedly until a specific condition is satisfied or no longer valid.
+
+In C++, repetition logic is implemented using loops. A **loop** is a block of code that executes repeatedly as long as a specified boolean expression evaluates to true. C++ provides three types of loops: `while` loops, `do`-`while` loops, and `for` loops. While any of these loops can theoretically handle any repetition logic problem, each type is often better suited to particular scenarios.
+
+## While Loops
+
+The simplest type of loop in C++ is the `while` loop. It functions similarly to an `if` statement but with one key difference: after the body of a `while` loop finishes executing, the control flow returns to the loop's condition. If the condition is still `true`, the body will execute again, and this process repeats. When the condition evaluates to `false`, the body is skipped, and the program continues beyond the loop.
+
+The syntax for a `while` loop is nearly identical to an `if` statement, except that `while` is used instead of `if`. However, unlike an `if` statement, a `while` loop cannot include `else if` or `else` branches. The general syntax is:
+
+```cpp
+while (<condition>) {
+    <loop body>
+}
+```
+
+Here, `<condition>` is a boolean expression that determines whether the loop should continue executing. The `<loop body>` contains one or more statements to be executed repeatedly.
+
+When a program encounters a `while` loop, it evaluates the condition. If the condition is `false`, the loop body is *skipped*, and the program proceeds with the next statement after the loop. If the condition is `true`, the loop executes its body. After executing the body, the condition is evaluated again. This process repeats until the condition becomes `false`.
+
+The condition in a `while` loop often depends on variables whose values change during the loop's execution. Without such changes, a condition that evaluates to `true` will remain `true`, resulting in an infinite loop. An **infinite loop** occurs when the condition never becomes `false`, causing the program to run endlessly. Infinite loops are almost always a bug since most programs are expected to terminate at some point.
+
+:::tip
+If your program gets stuck in an infinite loop, you can usually terminate it by pressing `Ctrl + C` in the terminal.
+:::
+
+Suppose you want to write a program that asks the user for numbers until they choose to stop. After each entry, the program asks: `“Would you like to enter another number? Type ‘y' for yes or ‘n' for no.”` The program keeps a running sum of the numbers entered and displays the total at the end. Here's how you could implement this using a while loop:
+
+```cpp
+// input_numbers.cpp
+#include <iostream>
+
+/*
+ * Function: prompt_for_number
+ * Description: Prompts the user to enter a number.
+ * Returns (double): The number provided by the user.
+ */
+double prompt_for_number() {
+    std::cout << "Enter a number: ";
+    double user_number;
+    std::cin >> user_number;
+    return user_number;
+}
+
+/*
+ * Function: prompt_for_go_again
+ * Description: Prompts the user to decide whether to continue.
+ * Returns (char): 'y' if the user wants to continue, 'n' otherwise.
+ */
+char prompt_for_go_again() {
+    std::cout << "Would you like to enter another number? Type 'y' for yes or 'n' for no: ";
+    char response;
+    std::cin >> response;
+    return response;
+}
+
+int main() {
+    char go_again_response = 'y';
+    double running_sum = 0.0;
+
+    while (go_again_response == 'y') {
+        double number = prompt_for_number();
+        running_sum += number;
+
+        go_again_response = prompt_for_go_again(); // Update loop condition (Line A)
+    }
+
+    std::cout << "The sum of the numbers you entered is: " << running_sum << std::endl;
+}
+```
+
+Here's an explanation of the program:
+
+1. **Loop Condition**: The condition `go_again_response == 'y'` ensures the loop continues as long as the user wants to input more numbers. This condition is a boolean expression, similar to those used in `if` statements.
+2. **Updating the Condition**: The variable `go_again_response` is updated within the loop body at Line A to reflect the user's input. This is essential to allow the loop condition to eventually become `false`, preventing an infinite loop. Without this update, the program would keep running indefinitely, and any code after the loop would be unreachable (dead code).
+3. **Initialization**: The variable `go_again_response` is initialized to `'y'` before the loop starts. **This ensures the loop executes at least once, even before any user input is provided.** This “artificial initialization” effectively tricks the loop into running initially. In the next section, you'll learn about a different type of loop that avoids this kind of setup.
+
+## Do-While Loops
+
+Sometimes, you need a loop that always executes at least once. This was the case in the previous example: the user must always enter at least one number, so it's imperative that the loop executes at least once.
+
+There are two common strategies for ensuring a while loop runs at least once:
+
+1. **Artificial Initialization**: Initialize the condition variable to a value that guarantees the loop condition is `true` on the first evaluation. In the previous example, `go_again_response` was initialized to `'y'` before the loop started.
+2. **Duplicate the Loop Body**: Replicate the loop's logic outside the loop to ensure the body runs once before checking the condition.
+
+Both strategies have drawbacks. The first approach often involves extra variables to “trick” the loop into executing. The second violates the DRY (Don't Repeat Yourself) principle, as it duplicates code unnecessarily. While you could extract the duplicated code into a function, this still results in an unnecessary function call.
+
+Thankfully, C++ provides the `do-while` loop, a construct specifically designed for cases where a loop must run at least once. The key difference between `while` and `do-while` loops lies in their execution order:
+
+1. While Loop: The **condition** is evaluated first. If the condition is `true`, the loop body is executed. This repeats until the condition becomes `false`.
+2. Do-While Loop: The **loop body** is executed first. After the body executes, the condition is evaluated. If the condition is `true`, the body executes again. This continues until the condition becomes `false`.
+
+This distinction is reflected in their syntax. A `while` loop places the condition before the loop body, while a `do-while` loop places the body before the condition:
+
+```cpp
+do {
+    <loop body>
+} while (<condition>);
+```
+
+A semicolon is required after the closing parenthesis of a `do-while` loop's condition.
+
+Let's revisit the previous example, where the program asked the user to input numbers until they chose to stop. Using a `do-while` loop, we can simplify the code:
+
+```cpp
+// input_numbers.cpp
+#include <iostream>
+
+/*
+ * Function: prompt_for_number
+ * Description: Prompts the user to enter a number.
+ * Returns (double): The number entered by the user.
+ */
+double prompt_for_number() {
+    std::cout << "Enter a number: ";
+    double user_number;
+    std::cin >> user_number;
+    return user_number;
+}
+
+/*
+ * Function: prompt_for_go_again
+ * Description: Prompts the user to decide whether to continue.
+ * Returns (char): 'y' to continue, 'n' to stop.
+ */
+char prompt_for_go_again() {
+    std::cout << "Would you like to enter another number? Type 'y' for yes or 'n' for no: ";
+    char response;
+    std::cin >> response;
+    return response;
+}
+
+int main() {
+    char go_again_response;
+    double running_sum = 0.0;
+
+    do {
+        double number = prompt_for_number();
+        running_sum += number;
+
+        go_again_response = prompt_for_go_again(); // Update loop condition
+    } while (go_again_response == 'y');
+
+    std::cout << "The sum of the numbers you entered is: " << running_sum << std::endl;
+}
+```
+
+The `do-while` loop eliminates the need to initialize `go_again_response` to `'y'` before the loop. Since the loop body executes before the condition is evaluated, the user's response is always captured before the condition is checked. Note that `go_again_response` is still declared outside the loop, otherwise it won't be accessible from the condition.
+
+The structure is more intuitive because the logic aligns with the problem's requirements--a body that executes before the condition is checked. 
+
+We can streamline the code by taking advantage of the fact that assignment operations are expressions. Instead of updating `go_again_response` inside the loop body, we can include the assignment directly in the condition:
+
+```cpp
+do {
+    double number = prompt_for_number();
+    running_sum += number;
+} while ((go_again_response = prompt_for_go_again()) == 'y');
+```
+
+This approach removes the need to update `go_again_response` explicitly in the loop body. However, it wouldn't work in a `while` loop because the condition is evaluated before the body executes, disrupting the order of prompts.
+
+If the condition variable (`go_again_response`) is only used within the condition and not elsewhere in the program, it can be removed entirely:
+
+```cpp
+do {
+    double number = prompt_for_number();
+    running_sum += number;
+} while (prompt_for_go_again() == 'y');
+```
+
+This works because the function `prompt_for_go_again()` directly provides the value needed for the condition. However, if the variable is required elsewhere, this simplification is not viable.
+
+`do-while` loops are ideal when you need a loop that always executes at least once. For scenarios where the loop may not execute at all, depending on the initial condition, a `while` loop is more appropriate.
+
+## For Loops
+
 Coming Soon!
