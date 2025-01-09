@@ -5,4 +5,148 @@ sidebar:
   order: 13
 ---
 
+Up to this point, our programs have been strictly **sequential**. Each operation is executed in a prescribed order following top-down control flow, which can only be interrupted by function calls.
+
+However, some types of logic cannot be implemented with purely sequential programs. For example, imagine a program that behaves as follows: if the user inputs “1,” the program outputs “good,” but if the user inputs “0,” it outputs “bad.” This is an example of conditional logic--logic that requires specific actions to be taken only under certain conditions that are evaluated during runtime.
+
+Since conditional logic cannot be expressed in a purely sequential program, we need to explore how to implement such logic in C++.
+
+## Booleans
+
+To write a program that performs certain operations when a condition is met, we need a way to represent the satisfaction of that condition in our code.
+
+In C++ (and most other programming languages), the satisfaction of a condition is represented using an expression of type bool, or an expression of another type that can be converted to bool. Recall that bool is a primitive type, as briefly discussed in our lecture on expressions, operators, and variables. The term **boolean** simply refers to a value that is either **true** or **false**.
+
+There are exactly two valid boolean literals in C++: `true` and `false`. For example, you can define boolean variables and assign values to them like this:
+
+```cpp
+// Boolean Literals
+bool i_like_spaghetti = true;
+bool i_like_broccoli = false;
+```
+
+Booleans in C++ can also be converted to and from numeric types, though the conversion rules may not be immediately intuitive:
+
+1. Converting a `bool` to a numeric type:
+    - `true` is converted to `1`.
+    - `false` is converted to `0`.
+2. Converting a numeric value to `bool`:
+    - `0` is converted to `false`.
+    - Any other value (positive, negative, or very small) is converted to `true`. For example, even the value `-0.0000001` converts to `true`.
+
+When you print a `bool` value using `std::cout`, it is automatically converted to an integer before being displayed. This means that `true` will appear as `1` and `false` as `0`. Consider the following examples:
+
+```cpp
+// Printing booleans
+bool i_like_spaghetti = true;
+bool i_like_broccoli = false;
+
+std::cout << i_like_spaghetti << std::endl; // Prints 1
+std::cout << i_like_broccoli << std::endl;  // Prints 0
+
+std::cout << true << std::endl;  // Prints 1
+std::cout << false << std::endl; // Prints 0
+
+// Example with typecasting
+std::cout << static_cast<bool>(-0.000001) << std::endl; // Prints 1
+```
+
+### Relational Operators
+
+Often, you’ll want to compare the values of two expressions to produce a boolean result. For example, you may want a boolean to evaluate to true if two expressions have equal values. To compare values and produce booleans in C++, you can use **relational operators**.
+
+Relational operators differ from arithmetic operators (e.g., `+`, `-`, `*`). While arithmetic operators produce numeric outputs, relational operators produce boolean outputs. For example, the equality operator (`==`) compares two operands and evaluates to true if their values are equal, and false otherwise.
+
+| Operator | Name | Syntax | Example | Behavior |
+|----------|------|--------|---------|----------|
+| `==` | Equal to | `x == y` | `5 == 5` | Evaluates to `true` if `x` is equal to `y`; otherwise, evaluates to `false`. |
+| `!=` | Not equal to | `x != y` | `5 != 5` | Evaluates to `true` if `x` is not equal to `y`; otherwise, evaluates to `false`. |
+| `>` | Greater than | `x > y` | `5 > 5` | Evaluates to `true` if `x` is greater than `y`; otherwise, evaluates to `false`. |
+| `>=` | Greater than or equal to | `x >= y` | `5 >= 5` | Evaluates to `true` if `x` is greater than or equal to `y`; otherwise, evaluates to `false`. |
+| `<` | Less than | `x < y` | `5 < 5` | Evaluates to `true` if `x` is less than `y`; otherwise, evaluates to `false`. |
+| `<=` | Less than or equal to | `x <= y` | `5 <= 5` | Evaluates to `true` if `x` is less than or equal to `y`; otherwise, evaluates to `false`. |
+
+The operands `x` and `y` in these examples can be any expressions that are comparable. For example, comparing two numeric values with `x == y` is valid, even if `x` and `y` are of different numeric types (e.g., int vs float).
+
+While the operators `>`, `>=`, `<`, and `<=` are primarily intended for comparing numeric values, the equality (`==`) and inequality (`!=`) operators can be applied to any expressions that are comparable for equality or inequality. For example, comparing two booleans (`x == y`) is perfectly valid, and it evaluates to `true` if both `x` and `y` have the same value (either `true` or `false`).
+
+It is also possible to use `==` and `!=` to compare expressions of different types, as long as those types can be converted for comparison. For example, comparing an int to a float using `==` is valid.
+
+Here’s an example program to illustrate relational operators:
+
+```cpp
+// Relational operator examples
+std::cout << (1 == 2) << std::endl;  // Prints 0 (false)
+std::cout << (1 == 1) << std::endl;  // Prints 1 (true)
+std::cout << (1 != 1) << std::endl;  // Prints 0 (false)
+std::cout << (1 != 100) << std::endl; // Prints 1 (true)
+std::cout << (5 > 7) << std::endl;   // Prints 0 (false)
+std::cout << (5 <= 7) << std::endl;  // Prints 1 (true)
+```
+
+### Logical Operators
+
+Just as arithmetic operators are used to perform operations on numeric values to produce numeric results, and relational operators compare values to produce booleans, logical operators are specifically designed to operate on boolean values to produce boolean results. Their purpose is to combine multiple boolean expressions into a single, more complex boolean expression representing operations such as conjunction (AND), disjunction (OR), or negation (NOT). Below is a table summarizing the logical operators in C++:
+
+| Operator | Name | Example | Syntax| Behavior |
+|----------|------|---------|-------|----------|
+| `&&` | Logical AND | `x && y` | Evaluates to `true` if both `x` and `y` are `true`. Performs short-circuiting. |
+| `\|\|` | Logical OR | `x \|\| y` | Evaluates to `true` if either `x` or `y` is `true`. Performs short-circuiting. |
+| `&` | Logical AND | `x & y` | Evaluates to `true` if both `x` and `y` are `true`. Does not perform short-circuiting. |
+| `\|` | Logical OR | `x \| y` | Evaluates to `true` if either `x` or `y` is `true`. Does not perform short-circuiting. |
+| `!` | Negation (NOT) | `!x` | Evaluates to `true` if `x` is `false`, and evaluates to `false` if `x` is `true`. |
+
+For the `&&`, `&`, `||`, and `|` operators, the operands can be any expressions that can be converted to boolean values. These operators evaluate the operands separately to produce boolean results before applying the logical operation.
+
+If you want to check whether a variable x is equal to either 1 or 2, the correct boolean expression would be:
+
+```cpp
+x == 1 || x == 2
+```
+
+A common mistake is writing:
+
+```cpp
+x == 1 || 2
+```
+
+This is incorrect because `x == 1` is evaluated as a boolean, but `2` is treated as a numeric literal. According to the boolean conversion rules, all non-zero numeric values are treated as `true`. As a result, the expression `x == 1 || 2` simplifies to:
+
+```cpp
+x == 1 || true
+```
+
+This is always `true`, regardless of the value of `x`, making it a tautology.
+
+If you want to check whether a variable x is between two values a and b, you would write:
+
+```cpp
+x >= a && x <= b
+```
+
+A common mistake is writing:
+
+```cpp
+a <= x <= b
+```
+
+This syntax may seem logical in mathematics, but it doesn’t work as expected in C++. The expression `a <= x` is first evaluated as a boolean (`true` or `false`), which is then implicitly converted to an integer (`1` for `true`, `0` for `false`). This integer is then compared to `b`, leading to unintended results.
+
+The following example demonstrates how logical operators behave in C++:
+
+```cpp
+int x = 0;
+
+std::cout << (x == 1 || 2) << std::endl;       // Prints '1' (true)
+std::cout << (x == 1 || x == 2) << std::endl; // Prints '0' (false)
+std::cout << (x == 0 && x == 1) << std::endl; // Prints '0' (false)
+std::cout << (x == 0 && true) << std::endl;   // Prints '1' (true)
+std::cout << (x == 10000 || true) << std::endl; // Prints '1' (true)
+std::cout << !(x == 10000 || true) << std::endl; // Prints '0' (false)
+std::cout << !(!(x == 10000 || true)) << std::endl; // Prints '1' (true)
+std::cout << (((x < 100) && (x > -100)) || (x == -1)) << std::endl; // Prints '1' (true)
+```
+
+## If Statements
+
 Coming Soon!
