@@ -2,151 +2,328 @@
 title: "If Statements"
 description: TBD
 sidebar:
-  order: 13
+  order: 14
 ---
 
-Up to this point, our programs have been strictly **sequential**. Each operation is executed in a prescribed order following top-down control flow, which can only be interrupted by function calls.
+Now that we know how to evaluate conditions using booleans and relational and logical operators, we can explore how to control the flow of our programs based on these conditions. This is where **conditional statements** come into play.
 
-However, some types of logic cannot be implemented with purely sequential programs. For example, imagine a program that behaves as follows: if the user inputs “1,” the program outputs “good,” but if the user inputs “0,” it outputs “bad.” This is an example of conditional logic--logic that requires specific actions to be taken only under certain conditions that are evaluated during runtime.
+Conditional logic in programming is often represented in the following structure, common to most languages, including C++:
 
-Since conditional logic cannot be expressed in a purely sequential program, we need to explore how to implement such logic in C++.
+1. **If** a specific condition is satisfied/true, **then** execute a particular sequence of operations (A).
+2. **Else, if** the first condition is not satisfied, check another condition, and if it's satisfied/true, **then** execute a different sequence of operations (B).
+3. ... (repeat as necessary)
+4. **Else**, none of the conditions being satisfied/true, **then** execute a *default* sequence of operations.
 
-## Booleans
+import Mermaid from "../../../components/Mermaid.astro";
 
-To write a program that performs certain operations when a condition is met, we need a way to represent the satisfaction of that condition in our code.
+Here's a flowchart to help visualize the steps:
 
-In C++ (and most other programming languages), the satisfaction of a condition is represented using an expression of type bool, or an expression of another type that can be converted to bool. Recall that bool is a primitive type, as briefly discussed in our lecture on expressions, operators, and variables. The term **boolean** simply refers to a value that is either **true** or **false**.
+<Mermaid title="">
+```mermaid
+graph TD
+    A{IF Condition A} -->|True| B[THEN Sequence of operations A]
+    A -->|False| C{ELSE IF Condition B}
+    C -->|True| D[THEN Sequence of operations B]
+    C -->|False| E{ELSE IF Condition C}
+    E -->|True| F[THEN Sequence of operations C]
+    E -->|False| G[ELSE Default sequence of operations]
+```
+</Mermaid>
 
-There are exactly two valid boolean literals in C++: `true` and `false`. For example, you can define boolean variables and assign values to them like this:
+This chain of “**if…else if…else**” logic ensures that *only one* sequence of operations is executed, creating a *mutually* exclusive set of actions. You can include as many **else if** conditions as necessary--or omit them entirely if not needed.
+
+## If Statements in C++
+
+Here's how you can represent this logic in C++:
 
 ```cpp
-// Boolean Literals
-bool i_like_spaghetti = true;
-bool i_like_broccoli = false;
+if (condition_A) {
+    // Sequence of operations A
+} else if (condition_B) {
+    // Sequence of operations B
+} else if (...) {
+    // Sequence of operations ...
+} else {
+    // Default sequence of operations
+}
 ```
 
-Booleans in C++ can also be converted to and from numeric types, though the conversion rules may not be immediately intuitive:
+Replace `condition_X` with an *expression* that evaluates to a *boolean* (or can be converted to one, such as an integer). Replace `// Sequence of operations X` with the code you want to execute when the respective condition is satisfied.
 
-1. Converting a `bool` to a numeric type:
-    - `true` is converted to `1`.
-    - `false` is converted to `0`.
-2. Converting a numeric value to `bool`:
-    - `0` is converted to `false`.
-    - Any other value (positive, negative, or very small) is converted to `true`. For example, even the value `-0.0000001` converts to `true`.
+In summary, the key points to remember about this structure are:
 
-When you print a `bool` value using `std::cout`, it is automatically converted to an integer before being displayed. This means that `true` will appear as `1` and `false` as `0`. Consider the following examples:
+1. Only **one** sequence of operations is executed.
+    - If the first condition is `true`, the first block of code runs, and the rest of the conditions are ignored.
+    - If the first condition is `false`, the program evaluates the second condition, and so on.
+    - If all conditions are `false`, the *default* `else` block is executed.
+2. Each `if`, `else if`, and `else` block is enclosed in curly braces (`{}`), meaning each has its own **scope**.
+
+Below is a basic example of using if statements in C++:
 
 ```cpp
-// Printing booleans
-bool i_like_spaghetti = true;
-bool i_like_broccoli = false;
+// if_statements.cpp
+#include <iostream>
 
-std::cout << i_like_spaghetti << std::endl; // Prints 1
-std::cout << i_like_broccoli << std::endl;  // Prints 0
+/*
+ * Function: prompt_for_integer
+ * Description: Prompts the user for an integer
+ * Returns (int): Integer entered by the user
+ */
+int prompt_for_integer() {
+    std::cout << "Enter an integer: ";
+    int user_input;
+    std::cin >> user_input;
+    return user_input;
+}
 
-std::cout << true << std::endl;  // Prints 1
-std::cout << false << std::endl; // Prints 0
+int main() {
+    // Prompt user for a number
+    int number = prompt_for_integer();
 
-// Example with typecasting
-std::cout << static_cast<bool>(-0.000001) << std::endl; // Prints 1
+    // Check the value of the number
+    if (number < 10) {
+        std::cout << "You entered a number less than 10" << std::endl;
+    } else if (number > 10) {
+        std::cout << "You entered a number greater than 10" << std::endl;
+    } else {
+        std::cout << "You entered 10!" << std::endl;
+    }
+}
 ```
 
-### Relational Operators
+1. The program first prompts the user to input an integer by calling the `prompt_for_integer` function.
+2. The user's input is stored in the variable `number`.
+3. The program evaluates the value of number using the following conditional logic:
+    - If the number is less than `10`, it outputs: `"You entered a number less than 10"`.
+    - If the number is greater than `10`, it outputs: `"You entered a number greater than 10"`.
+    - If the number is exactly `10`, it outputs: `"You entered 10!"`.
 
-Often, you’ll want to compare the values of two expressions to produce a boolean result. For example, you may want a boolean to evaluate to true if two expressions have equal values. To compare values and produce booleans in C++, you can use **relational operators**.
+### Dropping `else if` and `else` Statements
 
-Relational operators differ from arithmetic operators (e.g., `+`, `-`, `*`). While arithmetic operators produce numeric outputs, relational operators produce boolean outputs. For example, the equality operator (`==`) compares two operands and evaluates to true if their values are equal, and false otherwise.
+Sometimes, your program may require conditional logic that executes operations only in one or two specific scenarios. If no conditions are met, you might want the program to simply proceed to the next set of instructions without performing any specific operations. In such cases, you can **omit** the `else if` and `else` statements entirely.
 
-| Operator | Name | Syntax | Example | Behavior |
-|----------|------|--------|---------|----------|
-| `==` | Equal to | `x == y` | `5 == 5` | Evaluates to `true` if `x` is equal to `y`; otherwise, evaluates to `false`. |
-| `!=` | Not equal to | `x != y` | `5 != 5` | Evaluates to `true` if `x` is not equal to `y`; otherwise, evaluates to `false`. |
-| `>` | Greater than | `x > y` | `5 > 5` | Evaluates to `true` if `x` is greater than `y`; otherwise, evaluates to `false`. |
-| `>=` | Greater than or equal to | `x >= y` | `5 >= 5` | Evaluates to `true` if `x` is greater than or equal to `y`; otherwise, evaluates to `false`. |
-| `<` | Less than | `x < y` | `5 < 5` | Evaluates to `true` if `x` is less than `y`; otherwise, evaluates to `false`. |
-| `<=` | Less than or equal to | `x <= y` | `5 <= 5` | Evaluates to `true` if `x` is less than or equal to `y`; otherwise, evaluates to `false`. |
-
-The operands `x` and `y` in these examples can be any expressions that are comparable. For example, comparing two numeric values with `x == y` is valid, even if `x` and `y` are of different numeric types (e.g., int vs float).
-
-While the operators `>`, `>=`, `<`, and `<=` are primarily intended for comparing numeric values, the equality (`==`) and inequality (`!=`) operators can be applied to any expressions that are comparable for equality or inequality. For example, comparing two booleans (`x == y`) is perfectly valid, and it evaluates to `true` if both `x` and `y` have the same value (either `true` or `false`).
-
-It is also possible to use `==` and `!=` to compare expressions of different types, as long as those types can be converted for comparison. For example, comparing an int to a float using `==` is valid.
-
-Here’s an example program to illustrate relational operators:
+Let's modify the earlier example so that the program does nothing if the user enters a value greater than 10. The main function would look like this:
 
 ```cpp
-// Relational operator examples
-std::cout << (1 == 2) << std::endl;  // Prints 0 (false)
-std::cout << (1 == 1) << std::endl;  // Prints 1 (true)
-std::cout << (1 != 1) << std::endl;  // Prints 0 (false)
-std::cout << (1 != 100) << std::endl; // Prints 1 (true)
-std::cout << (5 > 7) << std::endl;   // Prints 0 (false)
-std::cout << (5 <= 7) << std::endl;  // Prints 1 (true)
+int main() {
+    // Prompt user for a number
+    int number = prompt_for_integer();
+
+    // Check the value of the number
+    if (number < 10) {
+        std::cout << "You entered a number less than 10" << std::endl;
+    } else if (number == 10) {
+        std::cout << "You entered 10!" << std::endl;
+    }
+}
 ```
 
-### Logical Operators
+- If the user enters a number less than `10`, it prints: `"You entered a number less than 10"`.
+- If the user enters exactly `10`, it prints: `"You entered 10!"`.
+- If the user enters a number greater than `10`, the program prints *nothing*, as there is no `else` statement to handle this case.
 
-Just as arithmetic operators are used to perform operations on numeric values to produce numeric results, and relational operators compare values to produce booleans, logical operators are specifically designed to operate on boolean values to produce boolean results. Their purpose is to combine multiple boolean expressions into a single, more complex boolean expression representing operations such as conjunction (AND), disjunction (OR), or negation (NOT). Below is a table summarizing the logical operators in C++:
+What's the difference between ending with an `else if` statement and not ending with an `else` statement?
 
-| Operator | Name | Example | Syntax| Behavior |
-|----------|------|---------|-------|----------|
-| `&&` | Logical AND | `x && y` | Evaluates to `true` if both `x` and `y` are `true`. Performs short-circuiting. |
-| `\|\|` | Logical OR | `x \|\| y` | Evaluates to `true` if either `x` or `y` is `true`. Performs short-circuiting. |
-| `&` | Logical AND | `x & y` | Evaluates to `true` if both `x` and `y` are `true`. Does not perform short-circuiting. |
-| `\|` | Logical OR | `x \| y` | Evaluates to `true` if either `x` or `y` is `true`. Does not perform short-circuiting. |
-| `!` | Negation (NOT) | `!x` | Evaluates to `true` if `x` is `false`, and evaluates to `false` if `x` is `true`. |
+- A chain of conditional logic ending with an `else` statement ensures that **exactly one** sequence of operations will execute.
+- A chain ending with `else if` (*without* a final `else`) ensures that **at most one** sequence of operations will execute, but it is possible that none will.
 
-For the `&&`, `&`, `||`, and `|` operators, the operands can be any expressions that can be converted to boolean values. These operators evaluate the operands separately to produce boolean results before applying the logical operation.
-
-If you want to check whether a variable x is equal to either 1 or 2, the correct boolean expression would be:
+It's important to note that code written outside any if, else if, or else statements is unconditional and will always execute. For example:
 
 ```cpp
-x == 1 || x == 2
+int main() {
+    // Prompt user for a number
+    int number = prompt_for_integer();
+
+    // Check the value of the number
+    if (number < 10) {
+        std::cout << "You entered a number less than 10" << std::endl;
+    } else if (number == 10) {
+        std::cout << "You entered 10!" << std::endl;
+    }
+
+    // Unconditional code
+    std::cout << "Goodbye!" << std::endl;
+}
 ```
 
-A common mistake is writing:
+- If the user enters a number less than `10`, it prints `"You entered a number less than 10"` followed by `"Goodbye!"`.
+- If the user enters exactly `10`, it prints `"You entered 10!"` followed by `"Goodbye!"`.
+- If the user enters a number greater than `10`, it simply prints `"Goodbye!"`.
+
+You can also omit `else if` statements if they are unnecessary. For example:
 
 ```cpp
-x == 1 || 2
+int main() {
+    // Prompt user for a number
+    int number = prompt_for_integer();
+
+    // Check if the number is exactly 10
+    if (number == 10) {
+        std::cout << "You entered 10!" << std::endl;
+    }
+
+    // Unconditional code
+    std::cout << "Goodbye!" << std::endl;
+}
 ```
 
-This is incorrect because `x == 1` is evaluated as a boolean, but `2` is treated as a numeric literal. According to the boolean conversion rules, all non-zero numeric values are treated as `true`. As a result, the expression `x == 1 || 2` simplifies to:
+- If the user enters exactly `10`, it prints `"You entered 10!"` followed by `"Goodbye!"`.
+- For all other inputs, it simply prints: `"Goodbye!"`.
+
+It's also valid to have an `if` statement immediately followed by an `else` statement without any `else if` blocks in between. This creates **two mutually exclusive** operations, where **exactly one** will execute. For example:
 
 ```cpp
-x == 1 || true
+int main() {
+    // Prompt user for a number
+    int number = prompt_for_integer();
+
+    // Check the value of the number
+    if (number < 10) {
+        std::cout << "You entered a number less than 10" << std::endl;
+    } else {
+        std::cout << "You entered 10 or greater!" << std::endl;
+    }
+}
 ```
 
-This is always `true`, regardless of the value of `x`, making it a tautology.
+- If the user enters a number less than `10`, it prints `"You entered a number less than 10"`.
+- If the user enters a number `10` or greater, it prints: `"You entered 10 or greater!"`.
 
-If you want to check whether a variable x is between two values a and b, you would write:
+### If Statements Style
+
+When writing if statements, the **DRY principle** (Don't Repeat Yourself) encourages us to avoid duplicating boundary conditions. By taking advantage of the mutual exclusivity provided by `else if` and `else` semantics, we can write clearer and more concise code.
+
+Here’s an example of a program that demonstrates repeated boundary conditions:
 
 ```cpp
-x >= a && x <= b
+// pass_fail.cpp
+#include <iostream>
+
+/*
+ * Function: prompt_for_grade
+ * Description: Prompts the user for a grade percentage as an integer
+ * Returns (int): Grade percentage entered by the user
+ */
+int prompt_for_grade() {
+    std::cout << "Enter your grade percentage: ";
+    int grade_percentage;
+    std::cin >> grade_percentage;
+    return grade_percentage;
+}
+
+/*
+ * Function: print_pass_or_fail
+ * Description: Prints whether the user passed or failed based on the grade percentage
+ * Parameters:
+ *   grade (int): Grade percentage
+ */
+void print_pass_or_fail(int grade) {
+    if (grade < 60) {
+        std::cout << "You failed!" << std::endl;
+    }
+
+    if (grade >= 60) {
+        std::cout << "You passed!" << std::endl;
+    }
+}
+
+int main() {
+    // Prompt user for grade
+    int grade = prompt_for_grade();
+
+    // Print pass/fail
+    print_pass_or_fail(grade);
+}
 ```
 
-A common mistake is writing:
+- If the grade is less than `60`, the program prints: `"You failed!"`.
+- If the grade is `60` or greater, the program prints: `"You passed!"`.
+
+While this program works correctly, the implementation has stylistic issues:
+
+1. The two `if` statements check mutually exclusive conditions, but they are written as separate, *independent* `if` statements. This could imply (incorrectly) that both conditions might execute, which is not the case.
+2. The program unnecessarily checks the boundary (`grade >= 60`) explicitly, even though it's logically implied by the first condition (`grade < 60` being `false`).
+
+To address one these concerns, the second `if` statement can be replaced with an `else if` statement. This makes it explicitly clear that only one of the conditions will execute:
 
 ```cpp
-a <= x <= b
+/*
+ * Function: print_pass_or_fail
+ * Description: Prints whether the user passed or failed based on the grade percentage
+ * Parameters:
+ *   grade (int): Grade percentage
+ */
+void print_pass_or_fail(int grade) {
+    if (grade < 60) {
+        std::cout << "You failed!" << std::endl;
+    } else if (grade >= 60) {
+        std::cout << "You passed!" << std::endl;
+    }
+}
 ```
 
-This syntax may seem logical in mathematics, but it doesn’t work as expected in C++. The expression `a <= x` is first evaluated as a boolean (`true` or `false`), which is then implicitly converted to an integer (`1` for `true`, `0` for `false`). This integer is then compared to `b`, leading to unintended results.
+By using `else if`, the code now explicitly reflects the mutual exclusivity of the conditions. It's clear that **only one** of the two blocks of code will execute, making the program easier to understand.
 
-The following example demonstrates how logical operators behave in C++:
+Since the conditions `grade < 60` and `grade >= 60` are complementary (i.e., if one is `false`, the other must be `true`), there's no need to explicitly check the second condition. Instead, the `else if` can be replaced with an `else`:
 
 ```cpp
-int x = 0;
-
-std::cout << (x == 1 || 2) << std::endl;       // Prints '1' (true)
-std::cout << (x == 1 || x == 2) << std::endl; // Prints '0' (false)
-std::cout << (x == 0 && x == 1) << std::endl; // Prints '0' (false)
-std::cout << (x == 0 && true) << std::endl;   // Prints '1' (true)
-std::cout << (x == 10000 || true) << std::endl; // Prints '1' (true)
-std::cout << !(x == 10000 || true) << std::endl; // Prints '0' (false)
-std::cout << !(!(x == 10000 || true)) << std::endl; // Prints '1' (true)
-std::cout << (((x < 100) && (x > -100)) || (x == -1)) << std::endl; // Prints '1' (true)
+/*
+ * Function: print_pass_or_fail
+ * Description: Prints whether the user passed or failed based on the grade percentage
+ * Parameters:
+ *   grade (int): Grade percentage
+ */
+void print_pass_or_fail(int grade) {
+    if (grade < 60) {
+        std::cout << "You failed!" << std::endl;
+    } else {
+        std::cout << "You passed!" << std::endl;
+    }
+}
 ```
 
-## If Statements
+Using `else` makes it even clearer that **exactly one** of the two blocks will execute. The program no longer repeats the boundary condition, resulting in cleaner and more efficient code.
+
+The problem with the original program is that it redundantly checked the same boundary twice:
+
+1. It checked if `grade < 60`.
+2. It then checked if `grade >= 60`.
+
+By leveraging mutual exclusivity, you can avoid such repetition, resulting in:
+
+1. Cleaner, more concise code.
+2. Syntax that better aligns with the intended logic, improving readability and maintainability.
+3. Improved performance, as the program doesn't need to evaluate the same condition twice.
+
+### Implied Curly Braces
 
 Coming Soon!
+
+### Nested If Statements
+
+Coming Soon!
+
+## Short Circuiting
+
+Coming Soon!
+
+## Common Mistakes
+
+Coming Soon!
+
+### Incomplete Logical operands
+
+Coming Soon!
+
+### Else without If and Vice Versa
+
+Coming Soon!
+
+### Assignment Instead of Equality (and “Yoda notation”)
+
+Coming Soon!
+
+### Exact Equality for Floating Point Numbers
+
+Coming Soon!
+
