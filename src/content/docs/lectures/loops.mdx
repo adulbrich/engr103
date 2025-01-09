@@ -185,4 +185,150 @@ This works because the function `prompt_for_go_again()` directly provides the va
 
 ## For Loops
 
-Coming Soon!
+While `while` and `do-while` loops are excellent for repetition logic of the form “repeat these operations as long as this condition is satisfied,” they are not ideal for **count-based repetition**. Count-based repetition follows the pattern “repeat these operations exactly N times,” where N is a value that can be easily determined before the loop starts.
+
+A common solution to count-based repetition involves creating a counter variable (typically of type int) that increments during each iteration of the loop body. The loop condition is built around this counter, ensuring that once the counter reaches a certain value, the loop terminates.
+
+Suppose you want to write a program that prints “Hello, World!” exactly 100 times. This is a classic count-based repetition problem. Using a while loop, the solution might look like this:
+
+```cpp
+#include <iostream>
+
+int main() {
+    int counter = 0;
+    while (counter < 100) {
+        std::cout << "Hello, World!" << std::endl;
+        counter++;
+    }
+}
+```
+
+Here’s what happens during execution:
+
+- On the first iteration, counter is `0`, and the condition `0 < 100` is `true`. The program prints `“Hello, World!”` and increments counter to `1`.
+- On the second iteration, counter is `1`, and `1 < 100` is `true`. The program prints `“Hello, World!”` again and increments counter to `2`.
+- This process repeats until counter reaches `100`, at which point the condition `counter < 100` evaluates to `false`, and the loop terminates.
+
+In this example, the loop executes exactly 100 times, as intended. Indeed, the total number of values within `0`, `1`, `2`, ..., `99` is 100.
+
+While the `while` loop works for count-based repetition, it has two key drawbacks:
+
+1. **Risk of Errors**: In a large loop body, the counter variable’s increment operation (`counter++`) can be overlooked, duplicated, or omitted entirely. This could result in:
+    - A loop that executes too few times.
+    - An infinite loop if the counter is never incremented.
+2. **Readability**: If the counter increment is buried deep in a complex loop body, it can be difficult to quickly determine how many times the loop will execute.
+
+Count-based loops are extremely common, so these issues have influenced the design of virtually all high-level imperative programming languages.
+
+C++ provides a `for` loop, a specialized construct for count-based repetition. A `for` loop is designed to consolidate all the logic related to the counter variable into a single location--at the beginning of the loop. This design reduces the risk of errors and improves readability, regardless of the complexity of the loop body.
+
+A `for` loop in C++ is similar to a `while` loop but uses a specialized syntax optimized for count-based repetition. Its structure is as follows:
+
+```cpp
+for (<initialization statement>; <condition>; <post-operation>) {
+    <loop body>
+}
+```
+
+This syntax can seem confusing at first, so here’s a detailed breakdown:
+
+1. The `<initialization statement>` is executed only once, right before the loop starts. It typically initializes a counter variable, which can also be declared within this statement. For example, rewriting the count-based `while` loop from earlier as a `for` loop might use the initialization statement `int counter = 0`.
+2. The `<condition>` determines whether the loop will execute. If the condition evaluates to `true`, the loop body runs; if `false`, the loop terminates. The condition is evaluated before the loop body runs for the first time, making a `for` loop more like a `while` loop than a `do-while` loop. If the condition is initially `false`, the loop will not execute at all. In our earlier example, the condition would be `counter < 100`.
+3. The `<post-operation>` executes immediately after each iteration of the loop body and before re-evaluating the condition. This is often used to increment/decrement the counter variable. For example, the post-operation might be `counter++`. Importantly, when using a for loop, ensure the counter increment occurs in the post-operation and not in the loop body to avoid duplication or errors.
+
+Here’s how the count-based `while` loop example can be rewritten as a `for` loop:
+
+```cpp
+#include <iostream>
+
+int main() {
+    for (int counter = 0; counter < 100; counter++) {
+        std::cout << "Hello, World!" << std::endl;
+    }
+}
+```
+
+One major difference is variable scope. In the `for` loop example above, the counter variable `counter` is declared within the initialization statement, meaning its scope is *limited to the loop itself*. Once the loop finishes, counter is no longer accessible.
+
+For example, the following code will fail to compile because counter is out of scope after the loop:
+
+```cpp
+#include <iostream>
+
+int main() {
+    for (int counter = 0; counter < 100; counter++) {
+        std::cout << "Hello, World!" << std::endl;
+    }
+    std::cout << "The loop terminated when the counter reached: " << counter << std::endl;
+}
+```
+
+To resolve this, declare the counter variable outside the loop if you need to use it afterward:
+
+```cpp
+#include <iostream>
+
+int main() {
+    int counter;
+    for (counter = 0; counter < 100; counter++) {
+        std::cout << "Hello, World!" << std::endl;
+    }
+    std::cout << "The loop terminated when the counter reached: " << counter << std::endl;
+}
+```
+
+When executed, this program prints `“Hello, World!”` 100 times, followed by: `The loop terminated when the counter reached: 100`.
+
+:::caution[Shadowing in `for` Loops?]
+ In C++, variables declared in the initialization statement of a `for` loop cannot be shadowed in the loop body. Attempting to declare a variable with the same name as the loop counter within the loop body will result in a compilation error. For example, the following code will not compile:
+
+ ```cpp
+ // for_shadowing.cpp
+#include <iostream>
+
+int main()
+{
+    for (int counter = 0; counter < 100; counter++)
+    {
+            long counter = 1;
+            std::cout << counter << std::endl;
+    }
+}
+```
+
+```plaintext frame="terminal"
+for_shadowing.cpp:7:18: error: redefinition of 'counter' with a different type: 'long' vs 'int'
+    7 |             long counter = 1;
+      |                  ^
+for_shadowing.cpp:5:14: note: previous definition is here
+    5 |     for (int counter = 0; counter < 100; counter++)
+      |              ^
+1 error generated.
+```
+:::
+
+The counter variable can be used within the loop body to modify the operations performed in each iteration. For example, suppose you want to print all integers from 0 to 99, separated by commas. Here’s how you could do it:
+
+```cpp
+// print_integers.cpp
+#include <iostream>
+
+int main() {
+    for (int counter = 0; counter < 100; counter++) {
+        if (counter > 0) {
+            std::cout << ", ";
+        }
+        std::cout << counter;
+    }
+}
+```
+
+This program prints the numbers 0 to 99 in a single line, separated by commas. The `if` statement ensures that commas are only printed before the second number onward, avoiding a leading comma.
+
+The `<initialization statement>` and `<post-operation>` in a for loop can be any valid C++ statements, not just those involving a counter variable. However, the most common pattern for simple count-based loops includes:
+
+- Initialization: Setting the counter to 0 or N.
+- Condition: Comparing the counter to the target value using a less-than operator `<` or greater-then operator `>`.
+- Post-Operation: Incrementing or decrementing the counter by 1 (`counter++` or `counter--`).
+
+This pattern is widely used because of its simplicity, but variations exist depending on the problem. These will be explored in future discussions.
