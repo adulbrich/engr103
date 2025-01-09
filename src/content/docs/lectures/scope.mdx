@@ -55,12 +55,12 @@ bad_scope.cpp:5:5: error: use of undeclared identifier 'result'
 1. The variable `result` is out of scope for the `sum` function. It was declared in the main function and cannot be accessed outside of it.
 2. The variable `result` is declared below the `sum` function's reference to it. In C++, variables (like functions) must be declared before they are used.
 
-Scope is crucial for **efficient memory management**. When you ask, “How does my computer know when it’s okay to delete memory allocated to a variable?” the answer is almost always scope. Once a variable falls out of scope, it becomes inaccessible, signaling that its memory can safely be reclaimed.
+Scope is crucial for **efficient memory management**. When you ask, “How does my computer know when it's okay to delete memory allocated to a variable?” the answer is almost always scope. Once a variable falls out of scope, it becomes inaccessible, signaling that its memory can safely be reclaimed.
 
-1. A variable’s memory may not be deleted immediately after it falls out of scope, but it is guaranteed to remain allocated until the scope ends.
+1. A variable's memory may not be deleted immediately after it falls out of scope, but it is guaranteed to remain allocated until the scope ends.
 2. If your program temporarily jumps to another scope (e.g., during a function call), variables in the original scope remain in memory. These variables are inaccessible during the jump but become accessible again when the program returns to the original scope.
 
-When a program calls a function, it temporarily jumps to the called function’s scope. After the function finishes, the program resumes at the point immediately following the function call. During this jump, variables from the original scope are not deleted—they simply remain temporarily inaccessible.
+When a program calls a function, it temporarily jumps to the called function's scope. After the function finishes, the program resumes at the point immediately following the function call. During this jump, variables from the original scope are not deleted—they simply remain temporarily inaccessible.
 
 ## Nested Scopes
 
@@ -98,9 +98,9 @@ int main() {
         std::cout << my_cool_value << std::endl; // Prints 7
     }
 
-    // Now, we’ve exited the second nested scope.
+    // Now, we've exited the second nested scope.
     // my_cool_value is no longer accessible here.
-    // This would produce a syntax error if it wasn’t commented out:
+    // This would produce a syntax error if it wasn't commented out:
     // my_cool_value = 8;
     // As would this:
     // std::cout << my_cool_value << std::endl;
@@ -109,4 +109,126 @@ int main() {
 
 ## Shadowing Names
 
-Coming Soon!
+In C++, two variables with the same name cannot be declared in the exact same scope. However, they can be declared in different scopes. This leads to an important concept known as shadowing, which occurs when a variable in a nested (inner) scope has the same name as a variable in an outer scope. Let's explore how this works.
+
+We've already seen an example of variables with the same name in different scopes in the functions lecture:
+
+```cpp
+int weird_sum(int a, int b) {
+    int result = a + b; // Compute sum
+    a = 0;              // Modify parameter a
+    b = 0;              // Modify parameter b
+    return result;      // Return the previously computed sum
+}
+
+int main() {
+    int a = 2;
+    int b = 3;
+
+    std::cout << weird_sum(a, b) << std::endl; // Prints 5
+    std::cout << a << std::endl;               // Prints 2 (NOT 0)
+}
+```
+
+In this example:
+
+- There is a local variable `a` in the `main` function and a parameter `a` in the `weird_sum` function.
+- This is perfectly valid because each variable is bound to its respective scope.
+- When we refer to `a` in `main`, it refers to the local variable in `main`. When we refer to `a` in `weird_sum`, it refers to the parameter in `weird_sum`. The two variables cannot access each other because they exist in separate scopes.
+
+Shadowing occurs when a variable declared in a nested (inner) scope has the same name as a variable declared in an enclosing (outer) scope. In such cases:
+
+- The variable in the inner scope shadows the variable in the outer scope.
+- While the shadowing is in effect, the outer variable becomes inaccessible.
+- Any reference to the variable's name will refer to the most recently declared variable (the one in the inner scope).
+- Even though the names are identical, the two variables are distinct—they have separate memory locations and can hold different values.
+
+Here's an example to illustrate shadowing:
+
+```cpp
+#include <iostream>
+
+int main() {
+
+    int my_integer = 5;
+    std::cout << my_integer << std::endl; // Prints 5
+
+    {
+        // Modify the value of the existing my_integer variable
+        my_integer = 10;
+        std::cout << my_integer << std::endl; // Prints 10
+
+        // Declare a NEW variable with the same name, my_integer
+        // Notice the type specifier 'int'. This creates a NEW variable.
+        // Without the type specifier, we would simply modify the outer variable.
+        int my_integer = 0;
+
+        // The new my_integer now shadows the original one.
+        std::cout << my_integer << std::endl; // Prints 0
+    }
+
+    // The inner my_integer has now fallen out of scope.
+    // The original my_integer is no longer shadowed and becomes accessible again.
+    std::cout << my_integer << std::endl; // Prints 10
+}
+```
+
+1. Outer Variable: The variable `my_integer` is first declared in the outermost scope with an initial value of `5`.
+2. Nested Scope Modification: Within the nested scope, the same `my_integer` is modified, changing its value to `10`.
+3. Shadowing: A *new* variable, also named `my_integer`, is declared in the nested scope with an initial value of `0`. This shadows the outer variable, making the outer `my_integer` temporarily inaccessible.
+4. Falling Out of Scope: When the program exits the nested scope, the inner `my_integer` (the shadowing variable) falls out of scope, and the outer `my_integer` becomes accessible again. Its value remains `10`, as it was last modified before the shadowing occurred.
+
+## Global Scope and Global Variables 
+
+In C++, there is a special scope that exists outside of all curly braces, known as the **global scope**. Variables declared in the global scope are called **global variables**, and they can be accessed from anywhere in the program below their declaration, including inside functions. While this might sound convenient, using global variables is widely considered an **antipattern**--a bad programming practice.
+
+Global variables provide an extremely flexible way for different parts of a program to communicate. However, this flexibility comes with significant downsides:
+
+1. **Unmanageable Interdependence**: Global variables create a web of interdependence across your codebase. Any function or part of your code can modify a global variable, and other parts of your code may depend on its value. This can lead to fragile and error-prone programs:
+    - A small mistake in one function that improperly modifies a global variable can cause errors throughout the entire program.
+    - Debugging these errors can be very challenging since global variables can be modified from virtually anywhere.
+2. **Complicated Function Contracts**: Functions that rely on global variables have implicit preconditions--certain global variables must have specific values for the function to work correctly. This makes functions harder to understand, use, and test:
+    - If you forget to initialize a global variable before calling a function, the compiler typically won't catch the mistake, leading to **logic errors**, which are some of the hardest errors to debug.
+    - Functions with explicit parameters and return values are much safer because the compiler can detect missing arguments or invalid return statements, resulting in **syntax errors** instead of logic errors.
+3. **Thread Safety Issues**: Global variables break thread safety because multiple threads can modify the same global variable simultaneously, leading to unpredictable behavior. While thread safety is beyond the scope of this course, it's an important concept to understand as you progress in programming.
+
+The following program demonstrates why global variables are problematic:
+
+```cpp
+// bad_global_variables.cpp
+// Global variables. Legal, but a very bad idea!
+double first_value;
+double second_value;
+double result;
+
+// No parameters or return values--just uses the global variables.
+// This is a very bad idea!
+void sum() {
+    result = first_value + second_value;
+}
+
+int main() {
+    // Initialize global variables before using them
+    first_value = 2;
+    second_value = 2;
+
+    // Call the sum function, which relies on global variables
+    sum();
+
+    // Print the result global variable
+    std::cout << result << std::endl; // Prints 4
+}
+```
+
+This code is problematic for several reasons:
+
+1. **Implicit Preconditions**: The `sum` function relies on the global variables `first_value` and `second_value` being initialized before it is called. If you forget to assign values to these variables, the program will not produce a syntax error, but a **logic error** instead.
+2. **Undefined Behavior**: If the global variables are used without being initialized, the program could even exhibit **undefined behavior**, which can cause unpredictable results.
+3. **Hard to Debug**: Since the variables are global, it's difficult to trace where and when their values are being modified, making debugging complex and time-consuming.
+
+In contrast, functions that use explicit parameters and return values are much safer. For example:
+
+- Forgetting to supply an argument to a function with required parameters produces a syntax error, which the compiler can catch.
+- Forgetting to return a value from a non-void function also results in a syntax error, making it easier to identify and fix mistakes.
+
+While global variables are generally a bad idea, **global constants** (declared with `const` or `constexpr`) are an exception. Because constants cannot be modified after they are declared, they do not act as a communication channel between functions. Instead, they provide meaningful names for fixed values and are safe to use in most cases.
