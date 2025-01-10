@@ -5,4 +5,227 @@ sidebar:
   order: 18
 ---
 
-Coming Soon!
+import Latex from '../../../components/Latex.astro'
+
+## Classes and Objects
+
+The `std::string` type in C++ is not a primitive data type. Instead, it is a more complex type defined in the `<string>` header file, and it is known as a class.
+
+A **class** is essentially a complex type that encapsulates both **data** and **behavior**. When you create an instance of a class (i.e., a variable of a class type), it is called an **object**. For example, in C++, strings are objects--they include both data (the text) and behavior (functions that act on the text).
+
+When we say an object like a string “has” behavior, it means the object has functions associated with it. These functions, often called **member functions**, are tied to the specific object and operate on its data. This is different from global functions, which are standalone and operate only on the arguments passed to them.
+
+An object is a **composite data type**, meaning it can include multiple pieces of data (called **member variables**) and multiple functions (**member functions**). In contrast, a primitive type (like int or bool) represents only a single value and has no associated behavior.
+
+To access an object's members (variables or functions), you use the **dot operator** (`.`), formally known as the **member access operator**. The syntax is:
+
+```cpp
+<object>.<member>
+```
+
+Here, `<object>` is the name of your object (e.g., a string variable), and `<member>` is the specific member you want to access.
+
+The `std::string` class has a member function called `size()`, which takes no arguments and returns the number of characters in the string. For a string variable named `my_string`, you can call this function as:
+
+```cpp
+my_string.size();
+```
+
+Each object, such as a string, has its own set of functions. For instance, if you have two strings, `my_string_1` and `my_string_2`, calling `my_string_1.size()` operates only on `my_string_1` and returns its length, while `my_string_2.size()` does the same for `my_string_2`. These functions are independent of each other and tied to their respective objects.
+
+Here's an example program that uses `getline()` to read a sentence from the user and then prints the number of characters in the input:
+
+```cpp
+#include <iostream>
+#include <string>
+
+int main() {
+    std::cout << "Enter a sentence: ";
+    std::string sentence;
+    std::getline(std::cin, sentence);
+    std::cout << "The number of characters in your sentence is: "
+              << sentence.size() << std::endl;
+}
+```
+
+This is all you need to know about classes and objects for this course. 
+
+## `std::string::size_type`
+
+The `std::string` class provides many functions beyond `.size()`. Some of these functions, including `.size(),` use or return a special type called `std::string::size_type`.
+
+The notation `std::string::size_type` uses two **scope resolution operators** (`::`). The first indicates the `std` namespace, while the second indicates a specific element within the `std::string` class. This entire construct, `std::string::size_type`, represents a data type, similar to `int`, `double`, or `std::string`.
+
+Unlike `std::string`, `std::string::size_type` is not a class. It is usually an alias for a modified primitive integral type. This type is designed to store large values, such as the maximum possible number of characters in a string (often <Latex formula="2^{64} - 1"/> on modern systems). In contrast, an `int` may not have enough capacity to represent such large values, especially on some platforms.
+
+The primary purpose of `std::string::size_type` is to handle values related to string size, character positions, and substrings. For smaller strings (fewer than <Latex formula="2^{31} - 1"/> characters), you could use an `int`, but it's generally better to use `std::string::size_type` to avoid potential issues like integer overflow and to maintain semantic clarity in your code.
+
+```cpp
+#include <iostream>
+#include <string>
+
+int main() {
+    std::cout << "Enter a sentence: ";
+    std::string sentence;
+    std::getline(std::cin, sentence);
+
+    // Store the length of the string in a variable of type std::string::size_type
+    std::string::size_type length_of_sentence = sentence.size();
+
+    // Print the value of the variable
+    std::cout << "The number of characters in your sentence is: "
+              << length_of_sentence << std::endl;
+}
+```
+Using `std::string::size_typ`e ensures your program can handle extremely large strings if necessary and aligns the syntax with the intent of the code.
+
+## Character Indices and the .at() Function
+
+The `.at()` function is a useful feature of the `std::string` class. It takes a single argument of type `std::string::size_type`, representing the **index** (or position) of a character within the string. This function returns a `char`, which is the character at the specified index.
+
+In C++, strings (and most other sequential containers) are **zero-indexed**. This means:
+
+- The first character of a string is at index 0.
+- The second character is at index 1.
+- The third character is at index 2, and so on.
+
+Consequently, the index of the last character in a string is always equal to the string's size (the number of characters) minus one.
+
+Suppose you have a string variable named `my_string` and want to print its third character. You would use the `.at()` function like this:
+
+```cpp
+std::cout << my_string.at(2) << std::endl;
+```
+
+Here, the argument `2` specifies the third character since indices start at 0. Although the `.at()` function expects a `std::string::size_type` value, providing an `int` literal like `2` works because `int` values are implicitly convertible to `std::string::size_type`. However, converting in the opposite direction (from `std::string::size_type` to `int`) requires caution to avoid integer overflow, as `std::string::size_type` can represent larger values than `int`.
+
+Imagine you want to check if a string contains a specific character and return `true` if it does, or `false` otherwise. While there is a built-in .`find()` function for this purpose (discussed later), let's write our own solution.
+
+To achieve this, we need to:
+
+1. Iterate over each character in the string.
+2. Compare each character to the target character.
+3. Return `true` if a match is found or `false` if the entire string is traversed without finding the character.
+
+A `for` loop is ideal for this task because it naturally iterates over sequences. The loop initializes a counter at 0 (the first index) and increments it after each iteration until it reaches the size of the string. The counter serves as the index for accessing characters.
+
+```cpp
+bool string_contains_character(std::string the_string, char char_to_look_for) {
+    // Loop through each character in the string
+    for (std::string::size_type i = 0; i < the_string.size(); i++) {
+        // Check if the current character matches the target
+        if (the_string.at(i) == char_to_look_for) {
+            return true; // Character found
+        }
+    }
+    return false; // Character not found after traversing the string
+}
+```
+
+The `.at()` function allows not only reading but also modifying a character at a specified index. You can use the assignment operator (`=`) with `.at()` to change a character. For example:
+
+```cpp
+my_string.at(4) = 'E';
+```
+
+This modifies the fifth character of `my_string`, changing it to `'E'`.
+
+Previously, we stated that the assignment operator stores the value on the right-hand side in the variable on the left-hand side. Here, `.at()` returns a **reference** to the character at the given index, which allows the assignment operator to modify the character directly. References, like the second argument of `std::getline()`, enable modifying the original value.
+
+You don't need to fully understand references yet--just know that this behavior works in specific contexts.
+
+If you supply an index that is **out of bounds** (i.e., greater than or equal to the string's length), the `.at()` function will throw an exception. Since we haven't covered exception handling, this will crash your program with a **runtime error**. Avoid such mistakes by ensuring your indices are within bounds.
+
+```cpp
+std::string my_string = "Hello, World!";
+std::cout << my_string.at(0) << std::endl;  // Prints "H"
+std::cout << my_string.at(12) << std::endl; // Prints "!"
+std::cout << my_string.at(13) << std::endl; // Out-of-bounds! Runtime error.
+```
+
+```plaintext frame="terminal"
+H
+!
+libc++abi: terminating due to uncaught exception of type std::out_of_range: basic_string
+```
+
+## Other String Functions
+
+The `.size()` and `.at()` functions are just two of the many functions available in the `std::string` class. Together with others, they provide powerful tools for text processing. Below is a summary of some commonly used string functions and operators, assuming the availability of two string variables, `str` and `str2`, along with other arguments as needed:
+
+| Member Function / Operator | Behavior |
+| -------------------------- | -------- |
+| `str.size()` | Returns the number of characters in `str` as a `std::string::size_type` value. |
+| `str.at(idx)` | `idx` is a `std::string::size_type` argument. Returns a reference to the character (`char` value) at the given index `idx` in `str`. |
+| `str.find(query, start_idx)` | Searches for the string `query` within `str`, starting at index `start_idx` (optional, defaults to 0). Returns the index of the first occurrence of `query` as a `std::string::size_type` value or `std::string::npos` if `query` is not found. |
+| `str.substr(start_idx, n_chars)` | Returns a substring of `str`, starting at index `start_idx` and containing `n_chars` characters. Both arguments are of type `std::string::size_type`. |
+| `str.erase(start_idx, n_chars)` | Removes `n_chars` characters from `str`, starting at index `start_idx`. If `n_chars` is omitted, erases all characters from `start_idx` to the end of the string. |
+| `str + str2` | Returns a new `std::string` object that concatenates `str` and `str2`. The `+=` operator can be used to append `str2` to `str` in place. |
+
+While there are many more string functions and operators, mastering these will allow you to solve most basic text-processing problems.
+
+Here's a program that demonstrates the use of these string functions:
+
+```cpp
+#include <iostream>
+#include <string>
+
+int main() {
+    std::string my_first_string = "The quick brown fox jumps";
+    std::string my_second_string = " over the lazy dog.";
+
+    // Concatenate strings
+    std::string big_string = my_first_string + my_second_string;
+
+    // Prints "The quick brown fox jumps over the lazy dog."
+    std::cout << big_string << std::endl;
+
+    // Prints the size of the string (44)
+    std::cout << big_string.size() << std::endl;
+
+    // Prints the character at index 7 ('c')
+    std::cout << big_string.at(7) << std::endl;
+
+    // Find the position of "fox"
+    std::string::size_type pos = big_string.find("fox");
+    if (pos == std::string::npos) {
+        // This branch WILL NOT execute.
+        std::cout << "Failed to find \"fox\" in big_string" << std::endl;
+    } else {
+        // Prints "16" (the index of "f" in "fox")
+        std::cout << pos << std::endl;
+    }
+
+    // Find the position of "cat" (not present)
+    pos = big_string.find("cat");
+    if (pos == std::string::npos) {
+        // This branch WILL execute.
+        std::cout << "Failed to find \"cat\" in big_string" << std::endl;
+    }
+
+    // Extract and print a substring ("quick")
+    std::cout << big_string.substr(4, 5) << std::endl;
+
+    // Erase "quick " from the string
+    big_string.erase(4, 6);
+
+    // Prints the modified string: "The brown fox jumps over the lazy dog."
+    std::cout << big_string << std::endl;
+
+    return 0;
+}
+```
+
+Below is the output you would see when running the program:
+
+```plaintext frame="terminal"
+The quick brown fox jumps over the lazy dog.
+44
+c
+16
+Failed to find "cat" in big_string
+quick
+The brown fox jumps over the lazy dog.
+```
+
+By using these functions effectively, you can manipulate and analyze strings to handle a variety of text processing tasks.
