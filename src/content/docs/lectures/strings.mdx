@@ -22,9 +22,9 @@ Like other data types, **string values** can be stored in variables. However, in
 ```
 
 
-The `std::string` class is part of the C++ Standard Library, which places it in the `std` namespace. As a result, you need to prefix it with `std::` (e.g., `std::string`). This requirement might feel unusual because, until now, you’ve only worked with primitive, built-in data types that don’t require namespace prefixes.
+The `std::string` class is part of the C++ Standard Library, which places it in the `std` namespace. As a result, you need to prefix it with `std::` (e.g., `std::string`). This requirement might feel unusual because, until now, you've only worked with primitive, built-in data types that don't require namespace prefixes.
 
-Here’s an example of defining a string variable called `my_cool_string` that stores the text “Hello”:
+Here's an example of defining a string variable called `my_cool_string` that stores the text “Hello”:
 
 ```cpp
 #include <string>
@@ -35,7 +35,7 @@ int main() {
 }
 ```
 
-If you are already including the `<iostream>` header file, you don’t need to explicitly include `<string>`, as `<iostream>` indirectly includes it. However, it’s generally a good practice to include `<string>` explicitly for clarity.
+If you are already including the `<iostream>` header file, you don't need to explicitly include `<string>`, as `<iostream>` indirectly includes it. However, it's generally a good practice to include `<string>` explicitly for clarity.
 
 ### Comparing Strings
 
@@ -63,7 +63,7 @@ While there are other methods to check for an empty string, the above approach i
 
 ### Printing Strings
 
-You can print the value of a std::string variable to the terminal using `std::cout`, just as you would with other variables. For example, here’s a “Hello, World!” program that stores the text in a string variable:
+You can print the value of a std::string variable to the terminal using `std::cout`, just as you would with other variables. For example, here's a “Hello, World!” program that stores the text in a string variable:
 
 ```cpp
 #include <iostream>
@@ -80,11 +80,11 @@ int main() {
 
 You can read strings from user input via `std::cin`, but understanding how it interacts with the input buffer is crucial.
 
-When a user types input into the terminal during program execution, all characters they provide are stored in an input buffer. This is a temporary memory area that records the input sequence. When your program reads data using `std::cin`, it retrieves the data from this buffer. As the data is read, it is removed from the buffer (i.e., it’s “moved” into your program’s variables).
+When a user types input into the terminal during program execution, all characters they provide are stored in an input buffer. This is a temporary memory area that records the input sequence. When your program reads data using `std::cin`, it retrieves the data from this buffer. As the data is read, it is removed from the buffer (i.e., it's “moved” into your program's variables).
 
 The `>>` operator processes the input buffer in a specific way when handling text with whitespace (spaces, newlines, tabs, etc.):
 
-1. **Skipping Leading Whitespace**: If the user’s input starts with whitespace, the operator ignores it.
+1. **Skipping Leading Whitespace**: If the user's input starts with whitespace, the operator ignores it.
 2. **Reading Until a Stopping Character**: After skipping leading whitespace, the operator extracts characters one by one until it encounters:
     - A non-viable character for the data type being read.
     - A whitespace character.
@@ -111,7 +111,7 @@ If the user enters `3.5`, the `>>` operator reads the `3` (the part of the input
 
 If the program subsequently reads more input, it will process the leftover `.5` without waiting for new input.
 
-Here’s an extended version of the program:
+Here's an extended version of the program:
 
 ```cpp
 std::cout << "Enter an integer: ";
@@ -176,7 +176,7 @@ If the program attempts to read another string using `std::cin`, it will start w
 
 ## Reading Strings with `std::getline()`
 
-If you want to read an entire sentence or line of text from the user--capturing every character up until they press the Enter key--you’ll need a method other than the `>>` operator. The `>>` operator stops reading at whitespace, as explained previously, making it unsuitable for this purpose. Instead, C++ provides the `std::getline()` function, which is designed specifically for reading entire lines of text.
+If you want to read an entire sentence or line of text from the user--capturing every character up until they press the Enter key--you'll need a method other than the `>>` operator. The `>>` operator stops reading at whitespace, as explained previously, making it unsuitable for this purpose. Instead, C++ provides the `std::getline()` function, which is designed specifically for reading entire lines of text.
 
 The `std::getline()` function is part of the `<iostream>` header file. It takes two arguments:
 
@@ -185,7 +185,7 @@ The `std::getline()` function is part of the `<iostream>` header file. It takes 
 
 When called, `std::getline()` reads all characters from the input buffer up to the first newline character and stores them in the specified string variable.
 
-Here’s an example of how you can use `std::getline()`:
+Here's an example of how you can use `std::getline()`:
 
 ```cpp
 #include <iostream>
@@ -214,7 +214,7 @@ You may notice that the `std::getline(std::cin, sequence_of_characters)` call di
 
 The key lies in how `std::getline()` is designed. Its second parameter is a **reference parameter**, meaning it refers directly to the original argument rather than creating a copy. As a result, any modifications made to the parameter within `std::getline()` affect the original variable.
 
-You don’t need to worry about the technical details for now. Just note that reference parameters allow functions like `std::getline()` to modify their arguments directly. We’ll discuss reference parameters more thoroughly later in the term.
+You don't need to worry about the technical details for now. Just note that reference parameters allow functions like `std::getline()` to modify their arguments directly. We'll discuss reference parameters more thoroughly later in the term.
 
 Be cautious when combining `>>` and `std::getline()` in the same program. These two input mechanisms interact differently with the input buffer, which can cause unexpected behavior.
 
@@ -235,3 +235,4 @@ std::getline(std::cin, text);
 
 In this case, `std::getline()` may capture just the leftover newline, resulting in an *empty* text variable.
 
+{/* TODO: How to handle flushing the buffer for std::cin? */}
