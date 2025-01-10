@@ -205,7 +205,7 @@ int main() {
 }
 ```
 
-Here’s what happens during execution:
+Here's what happens during execution:
 
 - On the first iteration, counter is `0`, and the condition `0 < 100` is `true`. The program prints `“Hello, World!”` and increments counter to `1`.
 - On the second iteration, counter is `1`, and `1 < 100` is `true`. The program prints `“Hello, World!”` again and increments counter to `2`.
@@ -215,7 +215,7 @@ In this example, the loop executes exactly 100 times, as intended. Indeed, the t
 
 While the `while` loop works for count-based repetition, it has two key drawbacks:
 
-1. **Risk of Errors**: In a large loop body, the counter variable’s increment operation (`counter++`) can be overlooked, duplicated, or omitted entirely. This could result in:
+1. **Risk of Errors**: In a large loop body, the counter variable's increment operation (`counter++`) can be overlooked, duplicated, or omitted entirely. This could result in:
     - A loop that executes too few times.
     - An infinite loop if the counter is never incremented.
 2. **Readability**: If the counter increment is buried deep in a complex loop body, it can be difficult to quickly determine how many times the loop will execute.
@@ -232,13 +232,13 @@ for (<initialization statement>; <condition>; <post-operation>) {
 }
 ```
 
-This syntax can seem confusing at first, so here’s a detailed breakdown:
+This syntax can seem confusing at first, so here's a detailed breakdown:
 
 1. The `<initialization statement>` is executed only once, right before the loop starts. It typically initializes a counter variable, which can also be declared within this statement. For example, rewriting the count-based `while` loop from earlier as a `for` loop might use the initialization statement `int counter = 0`.
 2. The `<condition>` determines whether the loop will execute. If the condition evaluates to `true`, the loop body runs; if `false`, the loop terminates. The condition is evaluated before the loop body runs for the first time, making a `for` loop more like a `while` loop than a `do-while` loop. If the condition is initially `false`, the loop will not execute at all. In our earlier example, the condition would be `counter < 100`.
 3. The `<post-operation>` executes immediately after each iteration of the loop body and before re-evaluating the condition. This is often used to increment/decrement the counter variable. For example, the post-operation might be `counter++`. Importantly, when using a for loop, ensure the counter increment occurs in the post-operation and not in the loop body to avoid duplication or errors.
 
-Here’s how the count-based `while` loop example can be rewritten as a `for` loop:
+Here's how the count-based `while` loop example can be rewritten as a `for` loop:
 
 ```cpp
 #include <iostream>
@@ -309,7 +309,7 @@ for_shadowing.cpp:5:14: note: previous definition is here
 ```
 :::
 
-The counter variable can be used within the loop body to modify the operations performed in each iteration. For example, suppose you want to print all integers from 0 to 99, separated by commas. Here’s how you could do it:
+The counter variable can be used within the loop body to modify the operations performed in each iteration. For example, suppose you want to print all integers from 0 to 99, separated by commas. Here's how you could do it:
 
 ```cpp
 // print_integers.cpp
@@ -361,7 +361,7 @@ for (int i = 0; i < n; i++) {
 
 In this code, `n` specifies how many times the loop should execute.
 
-While the above pattern is common, it can be unintuitive in some scenarios. Consider a situation where you need to print all integers from 7 to 54, inclusive. This involves printing 48 numbers, but figuring that out isn’t immediately obvious--you might need to calculate it manually. Once you determine that `n = 48`, you could set up the loop header as follows:
+While the above pattern is common, it can be unintuitive in some scenarios. Consider a situation where you need to print all integers from 7 to 54, inclusive. This involves printing 48 numbers, but figuring that out isn't immediately obvious--you might need to calculate it manually. Once you determine that `n = 48`, you could set up the loop header as follows:
 
 ```cpp
 for (int i = 0; i < 48; i++) {
@@ -372,7 +372,7 @@ for (int i = 0; i < 48; i++) {
 }
 ```
 
-While the above solution works, it’s not entirely intuitive. The loop’s purpose is to print numbers from 7 to 54, yet the counter runs from 0 to 47. In such cases, breaking the common pattern often makes the code cleaner. By directly iterating the counter over the desired range, the logic becomes clearer:
+While the above solution works, it's not entirely intuitive. The loop's purpose is to print numbers from 7 to 54, yet the counter runs from 0 to 47. In such cases, breaking the common pattern often makes the code cleaner. By directly iterating the counter over the desired range, the logic becomes clearer:
 
 ```cpp
 for (int i = 7; i <= 54; i++) {
@@ -396,18 +396,18 @@ for (int i = 54; i >= 7; i -= 2) {
 }
 ```
 
-Here, the counter starts at 54, decrements by 2 after each iteration, and stops when it’s less than 7. The `if` statement ensures commas are placed appropriately.
+Here, the counter starts at 54, decrements by 2 after each iteration, and stops when it's less than 7. The `if` statement ensures commas are placed appropriately.
 
 ## Break and Continue
 
-In C++, two special keywords, `break` and `continue`, are designed for use within loops. While they can technically be used on their own, they are most effective when placed inside an `if` statement *nested* within the loop. Here’s what each does:
+In C++, two special keywords, `break` and `continue`, are designed for use within loops. While they can technically be used on their own, they are most effective when placed inside an `if` statement *nested* within the loop. Here's what each does:
 
 - `break`: Immediately exits the entire loop, skipping any remaining iterations and continuing execution with the code that follows the loop.
 - `continue`: Immediately ends the current iteration of the loop, skipping the remaining code in the loop body and jumping to the next iteration.
 
 If the loop condition becomes `false` during the current iteration, `continue` might behave similarly to `break`, as it also ends the loop. However, if the loop condition or post-operation has side effects, `break` and `continue` will behave differently.
 
-Both statements can simplify handling special cases within loops but should be used sparingly. The primary purpose of choosing among the three types of loops (`for`, `while`, `do-while`) is to clearly define the loop’s logic in the header. Overusing `break` and `continue` can obscure the intended behavior of a loop, **making the code harder to read and maintain**.
+Both statements can simplify handling special cases within loops but should be used sparingly. The primary purpose of choosing among the three types of loops (`for`, `while`, `do-while`) is to clearly define the loop's logic in the header. Overusing `break` and `continue` can obscure the intended behavior of a loop, **making the code harder to read and maintain**.
 
 This `for` loop allows the user to make up to 10 guesses for a “magic number” (777). If the user guesses correctly, the break statement exits the loop early:
 
@@ -484,7 +484,7 @@ for (int i = 0; i < 10; i++) {
 
 Hence, `“Hello”` is printed <Latex formula="5 \times 10 = 50"/>.
 
-Here’s a slightly harder example. How many times will the following program print `“Hello”`, and how many times will it print `“Goodbye”`?
+Here's a slightly harder example. How many times will the following program print `“Hello”`, and how many times will it print `“Goodbye”`?
 
 ```cpp title="Nested Loops Example 2"
 for (int i = 0; i < 10; i++) {
