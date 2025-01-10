@@ -26,8 +26,6 @@ Here's a solution:
 #include <string>
 #include <climits>
 
-using namespace std;
-
 // Calculate sum of digits for a number
 int digitSum(int num) {
     string numStr = to_string(num);
@@ -64,12 +62,12 @@ int main() {
 
     // Calculate and display result
     if (min_num == INT_MAX || max_num == INT_MIN) {
-        cout << "No numbers found with digit sum of 30" << endl;
+        std::cout << "No numbers found with digit sum of 30" << std::endl;
     } else {
-        cout << "Difference between largest and smallest numbers with digit sum 30: " 
-             << max_num - min_num << endl;
-        cout << "Largest: " << max_num << endl;
-        cout << "Smallest: " << min_num << endl;
+        std::cout << "Difference between largest and smallest numbers with digit sum 30: " 
+             << max_num - min_num << std::endl;
+        std::cout << "Largest: " << max_num << std::endl;
+        std::cout << "Smallest: " << min_num << std::endl;
     }
 
     return 0;

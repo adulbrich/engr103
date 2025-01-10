@@ -28,12 +28,11 @@ As with everything in this guide, consistency is key. **Choose a style and stick
 ```c++
 // good_indentation.cpp
 #include <iostream>
-using namespace std;
 
 int main() {
     int number = 5; 
     if (number > 0) {
-        cout << "Positive number" << endl;
+        std::cout << "Positive number" << std::endl;
     }
     return 0;
 }
@@ -42,12 +41,11 @@ int main() {
 ```c++
 // bad_indentation.cpp
 #include <iostream>
-using namespace std;
 
 int main() {
 int number = 5; 
 if (number > 0) {
-cout << "Positive number" << endl; 
+std::cout << "Positive number" << std::endl; 
 }
 return 0; 
 }

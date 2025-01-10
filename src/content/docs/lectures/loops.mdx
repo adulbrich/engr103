@@ -5,6 +5,8 @@ sidebar:
   order: 15
 ---
 
+import Latex from '../../../components/Latex.astro'
+
 You've already learned how to express sequential logic in C++ (a series of operations written as a sequence of lines of code that execute from top to bottom) and conditional logic (using `if`, `else if`, and `else` statements). Now it's time to explore another key type of logic in C++: repetition logic.
 
 **Repetition logic** allows an operation or set of operations to be performed repeatedly as long as a specified condition is met. For example, you might write a program that prints “Hello” ten times, a program that asks the user for 100 numbers and calculates their sum, or a terminal-based chess game that continues until there is a win or a draw. These scenarios all involve executing a set of operations repeatedly until a specific condition is satisfied or no longer valid.
@@ -332,3 +334,277 @@ The `<initialization statement>` and `<post-operation>` in a for loop can be any
 - Post-Operation: Incrementing or decrementing the counter by 1 (`counter++` or `counter--`).
 
 This pattern is widely used because of its simplicity, but variations exist depending on the problem. These will be explored in future discussions.
+
+### Counter Name
+
+Since the primary purpose of a `for` loop is to handle count-based problems, almost every for loop declares or initializes a counter variable in its initialization statement. Because this use case is so common, it has become standard practice to name the counter variable `i`.
+
+In previous examples, we used the name `counter` to explicitly indicate its role. However, over time, `i` has become the most widely recognized name for counter variables. It's so universally understood among programmers that its meaning is immediately clear. While it's generally discouraged to use single-letter or heavily abbreviated variable names, this is a **well-established exception**.
+
+The use of `i` as a counter variable originates from mathematical notation, where `i` is often used to index elements of a vector or rows of a matrix. In programming, for loops are frequently used for similar tasks, such as iterating over elements in strings, arrays, or other data structures. We'll explore these applications in future lectures.
+
+Similarly, in nested loops (see below), it is common to use `i`, `j`, and `k`  as counter variables for the outer, middle, and inner loops, respectively.
+
+### Header tricks
+
+As we've mentioned, the initialization statement and post-operation in a `for` loop header can be any valid C++ statement. In most examples, we follow a common pattern for simple count-based loops:
+
+1. Initialize the counter variable to 0.
+2. Use a less-than operator to compare the counter against the target number of iterations.
+3. Increment the counter by 1 in the post-operation.
+
+```cpp
+for (int i = 0; i < n; i++) {
+    ...
+}
+```
+
+In this code, `n` specifies how many times the loop should execute.
+
+While the above pattern is common, it can be unintuitive in some scenarios. Consider a situation where you need to print all integers from 7 to 54, inclusive. This involves printing 48 numbers, but figuring that out isn’t immediately obvious--you might need to calculate it manually. Once you determine that `n = 48`, you could set up the loop header as follows:
+
+```cpp
+for (int i = 0; i < 48; i++) {
+    if (i > 0) {
+        std::cout << ", ";
+    }
+    std::cout << (i + 7);
+}
+```
+
+While the above solution works, it’s not entirely intuitive. The loop’s purpose is to print numbers from 7 to 54, yet the counter runs from 0 to 47. In such cases, breaking the common pattern often makes the code cleaner. By directly iterating the counter over the desired range, the logic becomes clearer:
+
+```cpp
+for (int i = 7; i <= 54; i++) {
+    if (i > 7) {
+        std::cout << ", ";
+    }
+    std::cout << i;
+}
+```
+
+This approach removes the need for offsetting and directly iterates over the values to be printed, making the code more straightforward and easier to understand.
+
+The flexibility of `for` loops allows for creative variations. For instance, suppose you want to print numbers backward from 54 to 7, skipping every other number (e.g., 54, 52, 50, ..., 8). This requires adjusting the loop header and the comma placement logic:
+
+```cpp
+for (int i = 54; i >= 7; i -= 2) {
+    if (i < 54) {
+        std::cout << ", ";
+    }
+    std::cout << i;
+}
+```
+
+Here, the counter starts at 54, decrements by 2 after each iteration, and stops when it’s less than 7. The `if` statement ensures commas are placed appropriately.
+
+## Break and Continue
+
+In C++, two special keywords, `break` and `continue`, are designed for use within loops. While they can technically be used on their own, they are most effective when placed inside an `if` statement *nested* within the loop. Here’s what each does:
+
+- `break`: Immediately exits the entire loop, skipping any remaining iterations and continuing execution with the code that follows the loop.
+- `continue`: Immediately ends the current iteration of the loop, skipping the remaining code in the loop body and jumping to the next iteration.
+
+If the loop condition becomes `false` during the current iteration, `continue` might behave similarly to `break`, as it also ends the loop. However, if the loop condition or post-operation has side effects, `break` and `continue` will behave differently.
+
+Both statements can simplify handling special cases within loops but should be used sparingly. The primary purpose of choosing among the three types of loops (`for`, `while`, `do-while`) is to clearly define the loop’s logic in the header. Overusing `break` and `continue` can obscure the intended behavior of a loop, **making the code harder to read and maintain**.
+
+This `for` loop allows the user to make up to 10 guesses for a “magic number” (777). If the user guesses correctly, the break statement exits the loop early:
+
+```cpp
+for (int i = 10; i > 0; i--) {
+    std::cout << "You have " << i << " guesses left." << std::endl;
+    std::cout << "Guess the magic number: ";
+    int guess;
+    std::cin >> guess;
+
+    if (guess == 777) {
+        std::cout << "You got it!" << std::endl;
+        // Exit the loop immediately since the user guessed correctly.
+        break;
+    }
+}
+```
+
+If `break` was used outside the `if` statement, it would execute unconditionally, causing the loop to terminate after a single iteration. This would defeat the purpose of the loop, making subsequent code within the loop unreachable (dead code).
+
+In the next example, this `while` loop asks the user for 10 positive integers and calculates their sum. If the user enters a non-positive integer, the continue statement skips the current iteration, prompting the user again without adding the invalid input to the sum or incrementing the counter.
+
+```cpp
+int num_positive_values_entered = 0;
+int sum_of_positive_values = 0;
+
+while (num_positive_values_entered < 10) {
+    std::cout << "Enter a positive integer: ";
+    int value;
+    std::cin >> value;
+
+    if (value <= 0) {
+        std::cout << "I said to enter a POSITIVE integer!" << std::endl;
+        // Skip to the next iteration to prompt the user again.
+        continue;
+    }
+
+    // Add the valid input to the sum and increment the counter.
+    sum_of_positive_values += value;
+    num_positive_values_entered++;
+}
+```
+
+## Nested Loops
+
+Loops in C++ can be nested, meaning one loop can exist inside another. The outer loop is called the nesting loop, and the inner loop is referred to as the nested loop. Nested loops can add complexity but are useful for solving multidimensional problems or handling repeated tasks within other repeated tasks.
+
+By convention:
+
+- The outermost loop often uses `i` as the counter variable name.
+- The next level of nesting typically uses `j`.
+- If a third nested loop exists (which is rare and often discouraged), `k` is used.
+
+Although these conventions are widely recognized, deeply nested loops can become hard to read. In such cases, consider breaking some loops into separate functions and using meaningful parameter names to improve clarity.
+
+If a `break` or `continue` statement is used inside a nested loop, it only applies to the **innermost** loop containing the statement. For example:
+
+- If a `break` is executed in a `for` loop nested inside a `while` loop, only the `for` loop will terminate.
+- The outer `while` loop will continue running, potentially restarting the `for` loop in the next iteration.
+
+How many times do you think the following program will print `“Hello”`?
+
+```cpp title="Nested Loops Example 1"
+for (int i = 0; i < 10; i++) {
+    for (int j = 0; j < 5; j++) {
+        std::cout << "Hello" << std::endl;
+    }
+}
+```
+
+- The outer loop (`i`) runs 10 iterations.
+- For each iteration of the outer loop, the inner loop (`j`) runs 5 iterations.
+- During each iteration of the inner loop, `“Hello”` is printed. 
+
+Hence, `“Hello”` is printed <Latex formula="5 \times 10 = 50"/>.
+
+Here’s a slightly harder example. How many times will the following program print `“Hello”`, and how many times will it print `“Goodbye”`?
+
+```cpp title="Nested Loops Example 2"
+for (int i = 0; i < 10; i++) {
+    for (int j = 0; j < 5; j++) {
+        std::cout << "Hello" << std::endl;
+    }
+    std::cout << "Goodbye" << std::endl;
+}
+```
+
+- The outer loop (`i`) runs 10 iterations.
+- The inner loop (`j`) runs 5 iterations for each iteration of the outer loop.
+- After the inner loop finishes, “Goodbye” is printed once.
+
+Hence, `“Hello”` is printed <Latex formula="5 \times 10 = 50"/> times and `“Goodbye”` is printed once per outer loop iteration, for a total of 10 times.
+
+Here's an even harder example, still using nested for loops:
+
+```cpp title="Variable-Length Inner Loop"
+for (int i = 1; i <= 9; i++) {
+    for (int j = 0; j < i; j++) {
+        std::cout << "Hello" << std::endl;
+    }
+}
+```
+
+- The outer loop (`i`) runs 9 iterations, with `i` taking values from 1 to 9.
+- The inner loop (`j`) runs `i` iterations for each iteration of the outer loop. For example:
+  - When `i = 1`, the inner loop runs 1 iteration.
+  - When `i = 2`, the inner loop runs 2 iterations.
+  - ...
+  - When `i = 9`, the inner loop runs 9 iterations.
+
+Hence, the number of `“Hello”`s printed is the sum of the integers from 1 to 9: <Latex formula="1 + 2 + 3 + \dots + 9 = 45"/>
+
+:::tip[Arithmetic Sequence]
+The sum of an [arithmetic progression](https://en.wikipedia.org/wiki/Arithmetic_progression), i.e. a sequence of numbers such that the difference from any succeeding term to its preceding term remains constant throughout the sequence, like <Latex formula="1, 2, \dots, 9"/>, can be calculated using the formula:
+
+<Latex formula="\frac{\text{First Number} + \text{Last Number}}{2} \times \text{Total Numbers}" inline={false}/>
+
+For <Latex formula="1 + 2 + \dots + 9"/>:
+
+- <Latex formula="\text{First Number} = 1"/>
+- <Latex formula="\text{Last Number} = 9"/>
+- <Latex formula="\text{Total Numbers} = 9"/>
+
+Hence, their sum is equal to:
+
+<Latex formula="\frac{1 + 9}{2} \times 9 = 45"  inline={false}/>
+:::
+
+Let's do one more nested for loop example. What does the following program do? Note that `\t` is a “tab” character, so printing it will print a tab indentation to the terminal. 
+
+```cpp title="Nested Loops Example 3"
+for (int i = 1; i <= 10; i++) {
+    for (int j = 1; j <= 10; j++) {
+        std::cout << (i * j) << "\t";
+    }
+    std::cout << "\n";
+}
+```
+
+- Outer loop (`i`): Runs 10 times, iterating from 1 to 10.
+- Inner loop (`j`): Runs 10 times for each iteration of the outer loop, also iterating from 1 to 10.
+- During each iteration of the inner loop, the product of `i` and `j` is printed, followed by a tab `\t` for alignment.
+- At the end of each outer loop iteration, a newline `\n` moves to the next row. 
+
+:::note[`std::endl` vs. `\n`]
+In C++, `std::endl` is a special stream manipulator that outputs a newline character `\n` and flushes the output buffer. This means that `std::endl` is *slightly* slower than `\n` because it forces the output to be written to the terminal immediately.
+:::
+
+This nested loop prints a <Latex formula="10 \times 10"/> multiplication table:
+
+```plaintext frame="terminal"
+1       2       3       4       5       6       7       8       9       10
+2       4       6       8       10      12      14      16      18      20
+3       6       9       12      15      18      21      24      27      30
+4       8       12      16      20      24      28      32      36      40
+5       10      15      20      25      30      35      40      45      50
+6       12      18      24      30      36      42      48      54      60
+7       14      21      28      35      42      49      56      63      70
+8       16      24      32      40      48      56      64      72      80
+9       18      27      36      45      54      63      72      81      90
+10      20      30      40      50      60      70      80      90      100
+```
+
+Finally, let's do a crude, academic example that pulls a lot of concepts together, including nested loops, `break` and `continue` statements, and scope rules. How many times will the following code print “Hello”?
+
+```cpp title="Nested Loops Example 4"
+int i = 0; 
+while (true) {
+    if (i >= 10) {
+        break; 
+    }
+    for (int i = 0; i < 5; i++) {
+        if (i < 2) {
+            continue; 
+        }
+        if (i >= 4) {
+            break; 
+        }
+        std::cout << "Hello" << std::endl;
+    }
+    i++;
+}
+```
+
+This one is tricky. Let's break it down:
+
+1. The `while` loop should run indefinitely because the condition `true` is always true. However:
+    - Runs until `i >= 10` because of the `break` statement.
+    - Starts with `i = 0` and increments `i` at the end of each iteration.
+    - The while loop executes a total of 10 full iterations (the 11th iteration terminates early due to break).
+2. The `for` loop initializes a separate counter variable (`int i`), which shadows the `while` loop's `i`.
+    - Runs up to `5` iterations for each `while` loop iteration.
+    - Behavior within the for loop:
+      - `continue` skips the first two iterations (`i < 2`).
+      - `break` exits the loop on the 5th iteration (`i >= 4`).
+      - Only the 3rd and 4th iterations of the for loop print `"Hello"`.
+
+The `int i` in the `for` loop is a separate variable from the `i` in the while loop. The while loop's `i` is unaffected by the `for` loop's operations. Once the `for` loop ends, the while loop's `i` is incremented.
+
+To summarize, the `while` loop executes `10` full iterations, and during each iteration, the `for` loop prints "Hello" `2` times (on the 3rd and 4th iterations). Hence, `"Hello"` is printed <Latex formula="10 \times 2 = 20"/> times.
