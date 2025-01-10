@@ -5,4 +5,233 @@ sidebar:
   order: 17
 ---
 
-Coming Soon!
+A **string** is a sequence of characters, and a **string literal** is simply text enclosed in quotation marks `""`. You've encountered string literals many times, even in a basic “Hello, World!” program, where the printed text is enclosed as a string literal:
+
+```cpp
+std::cout << "Hello, World!" << std::endl;
+```
+
+While strings may seem simple, they are actually more complex than they appear. 
+
+## String Basics
+
+Like other data types, **string values** can be stored in variables. However, in C++, strings are not primitive data types; they belong to a more complex type known as a **class**. To use strings, you need to include the appropriate header file. The string data type in C++ is called std::string, and to access it, you must add the following directive at the top of your program:
+
+```cpp
+#include <string>
+```
+
+
+The `std::string` class is part of the C++ Standard Library, which places it in the `std` namespace. As a result, you need to prefix it with `std::` (e.g., `std::string`). This requirement might feel unusual because, until now, you’ve only worked with primitive, built-in data types that don’t require namespace prefixes.
+
+Here’s an example of defining a string variable called `my_cool_string` that stores the text “Hello”:
+
+```cpp
+#include <string>
+
+int main() {
+    std::string my_cool_string = "Hello";
+    return 0;
+}
+```
+
+If you are already including the `<iostream>` header file, you don’t need to explicitly include `<string>`, as `<iostream>` indirectly includes it. However, it’s generally a good practice to include `<string>` explicitly for clarity.
+
+### Comparing Strings
+
+Strings can be compared for **equality** using the `==` operator:
+
+```cpp
+if (some_string == some_other_string) {
+    std::cout << "The two strings are equal!" << std::endl;
+}
+```
+
+The comparison evaluates to `true` only if every character in both strings matches exactly. Comparisons are case-sensitive, so "hello" and "Hello" are considered unequal. Additionally, two strings with different lengths are not equal, even if one is a prefix or substring of the other (e.g., "goodbye" vs. "goodby").
+
+### Empty Strings
+
+A `std::string` variable can hold any sequence of zero or more characters, including no characters. A string with no characters is called an **empty string**. To check if a string is empty, you can compare it directly to an empty string literal:
+
+```cpp
+if (my_cool_string == "") {
+    std::cout << "The string variable is empty!" << std::endl;
+}
+```
+
+While there are other methods to check for an empty string, the above approach is straightforward and effective.
+
+### Printing Strings
+
+You can print the value of a std::string variable to the terminal using `std::cout`, just as you would with other variables. For example, here’s a “Hello, World!” program that stores the text in a string variable:
+
+```cpp
+#include <iostream>
+#include <string>
+
+int main() {
+    std::string greeting = "Hello, World!";
+    std::cout << greeting << std::endl;
+    return 0;
+}
+```
+
+## Reading Strings with `>>`
+
+You can read strings from user input via `std::cin`, but understanding how it interacts with the input buffer is crucial.
+
+When a user types input into the terminal during program execution, all characters they provide are stored in an input buffer. This is a temporary memory area that records the input sequence. When your program reads data using `std::cin`, it retrieves the data from this buffer. As the data is read, it is removed from the buffer (i.e., it’s “moved” into your program’s variables).
+
+The `>>` operator processes the input buffer in a specific way when handling text with whitespace (spaces, newlines, tabs, etc.):
+
+1. **Skipping Leading Whitespace**: If the user’s input starts with whitespace, the operator ignores it.
+2. **Reading Until a Stopping Character**: After skipping leading whitespace, the operator extracts characters one by one until it encounters:
+    - A non-viable character for the data type being read.
+    - A whitespace character.
+
+What constitutes a “non-viable character” depends on the data type. For instance:
+
+  - When reading into an `int` variable, characters like a period (`.`) are non-viable because integers cannot contain decimal points.
+  - When reading into a `std::string`, there are no non-viable characters; however, the operator stops at **whitespace**.
+
+Any characters that remain after the operator stops are left in the input buffer, ready for the next read operation.
+
+Consider this program:
+
+```cpp
+std::cout << "Enter an integer: ";
+int number;
+std::cin >> number;
+```
+
+If the user enters `3.5`, the `>>` operator reads the `3` (the part of the input valid for an `int`) and stops when it encounters the period (`.`), which is non-viable for an `int`. The result is:
+
+- number stores `3`.
+-	The remaining input (`.5`) stays in the input buffer.
+
+If the program subsequently reads more input, it will process the leftover `.5` without waiting for new input.
+
+Here’s an extended version of the program:
+
+```cpp
+std::cout << "Enter an integer: ";
+int number;
+std::cin >> number;
+
+double leftover_data;
+std::cin >> leftover_data;
+
+std::cout << "Number is: " << number << std::endl;
+std::cout << "Leftover data is: " << leftover_data << std::endl;
+```
+
+If the user enters `3.5`:
+
+- number is assigned 3.
+- The leftover .5 is read into leftover_data.
+
+The output will be:
+
+```plaintext frame="terminal"
+Number is: 3
+Leftover data is: 0.5
+```
+
+When reading into a `std::string` variable, there are no non-viable characters, as strings can store any sequence of characters. However, the `>>` operator stops at whitespace, even though strings can store whitespace characters.
+
+Thus, when using `>>` to read a string, only a single “word” is extracted at a time.
+
+Consider this program:
+
+```cpp
+#include <iostream>
+#include <string>
+
+int main() {
+    std::cout << "Enter a sequence of characters: ";
+    std::string sequence_of_characters;
+    std::cin >> sequence_of_characters;
+
+    std::cout << "You entered the following: " 
+              << sequence_of_characters << std::endl;
+
+    return 0;
+}
+```
+
+If the user enters the famous English pangram:
+
+```plaintext frame="terminal"
+the quick brown fox jumps over the lazy dog
+```
+
+The `>>` operator stops at the first space, leaving the rest of the input in the buffer. The program will output:
+
+```plaintext frame="terminal"
+Enter a sequence of characters: the quick brown fox jumps over the lazy dog
+You entered the following: the
+```
+
+If the program attempts to read another string using `std::cin`, it will start where it left off, reading the next word (“quick”) and stopping at the following space.
+
+## Reading Strings with `std::getline()`
+
+If you want to read an entire sentence or line of text from the user--capturing every character up until they press the Enter key--you’ll need a method other than the `>>` operator. The `>>` operator stops reading at whitespace, as explained previously, making it unsuitable for this purpose. Instead, C++ provides the `std::getline()` function, which is designed specifically for reading entire lines of text.
+
+The `std::getline()` function is part of the `<iostream>` header file. It takes two arguments:
+
+1. The stream to read from (e.g., `std::cin`).
+2. The string variable to store the input.
+
+When called, `std::getline()` reads all characters from the input buffer up to the first newline character and stores them in the specified string variable.
+
+Here’s an example of how you can use `std::getline()`:
+
+```cpp
+#include <iostream>
+#include <string>
+
+int main() {
+    std::cout << "Enter a sequence of characters: ";
+    std::string sequence_of_characters;
+    std::getline(std::cin, sequence_of_characters);
+
+    std::cout << "You entered the following: " 
+              << sequence_of_characters << std::endl;
+
+    return 0;
+}
+```
+
+```plaintext frame="terminal"
+Enter a sequence of characters: the quick brown fox jumps over the lazy dog
+You entered the following: the quick brown fox jumps over the lazy dog
+```
+
+Unlike the `>>` operator, `std::getline()` captures the entire line, including spaces.
+
+You may notice that the `std::getline(std::cin, sequence_of_characters)` call directly modifies the value of `sequence_of_characters`. This behavior might seem odd since parameters are usually **copies** of arguments and cannot modify them.
+
+The key lies in how `std::getline()` is designed. Its second parameter is a **reference parameter**, meaning it refers directly to the original argument rather than creating a copy. As a result, any modifications made to the parameter within `std::getline()` affect the original variable.
+
+You don’t need to worry about the technical details for now. Just note that reference parameters allow functions like `std::getline()` to modify their arguments directly. We’ll discuss reference parameters more thoroughly later in the term.
+
+Be cautious when combining `>>` and `std::getline()` in the same program. These two input mechanisms interact differently with the input buffer, which can cause unexpected behavior.
+
+
+- Stream Extraction Operator (`>>`)
+  - Skips leading whitespace (e.g., spaces, tabs, newlines).
+  - Stops at the first trailing whitespace or non-viable character, leaving the rest in the buffer.
+- `std::getline()` Function
+  - Does not skip leading whitespace. It reads all characters, including leading spaces, and stops at the newline character.
+  - Skips the newline character at the end of the line.
+
+If you use `>>` to extract input and then call `std::getline()` afterward, the leftover newline character from the previous input may cause `std::getline()` to read an empty line. For example:
+
+```cpp
+std::cin >> number;
+std::getline(std::cin, text);
+```
+
+In this case, `std::getline()` may capture just the leftover newline, resulting in an *empty* text variable.
+
