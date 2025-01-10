@@ -36,6 +36,7 @@ Each object, such as a string, has its own set of functions. For instance, if yo
 Here's an example program that uses `getline()` to read a sentence from the user and then prints the number of characters in the input:
 
 ```cpp
+// string_size.cpp
 #include <iostream>
 #include <string>
 
@@ -61,6 +62,7 @@ Unlike `std::string`, `std::string::size_type` is not a class. It is usually an 
 The primary purpose of `std::string::size_type` is to handle values related to string size, character positions, and substrings. For smaller strings (fewer than <Latex formula="2^{31} - 1"/> characters), you could use an `int`, but it's generally better to use `std::string::size_type` to avoid potential issues like integer overflow and to maintain semantic clarity in your code.
 
 ```cpp
+// string_size_type.cpp
 #include <iostream>
 #include <string>
 
@@ -110,6 +112,7 @@ To achieve this, we need to:
 A `for` loop is ideal for this task because it naturally iterates over sequences. The loop initializes a counter at 0 (the first index) and increments it after each iteration until it reaches the size of the string. The counter serves as the index for accessing characters.
 
 ```cpp
+// string_contains_character.cpp
 bool string_contains_character(std::string the_string, char char_to_look_for) {
     // Loop through each character in the string
     for (std::string::size_type i = 0; i < the_string.size(); i++) {
@@ -137,6 +140,7 @@ You don't need to fully understand references yet--just know that this behavior 
 If you supply an index that is **out of bounds** (i.e., greater than or equal to the string's length), the `.at()` function will throw an exception. Since we haven't covered exception handling, this will crash your program with a **runtime error**. Avoid such mistakes by ensuring your indices are within bounds.
 
 ```cpp
+// string_out_of_bounds.cpp
 std::string my_string = "Hello, World!";
 std::cout << my_string.at(0) << std::endl;  // Prints "H"
 std::cout << my_string.at(12) << std::endl; // Prints "!"
@@ -167,6 +171,7 @@ While there are many more string functions and operators, mastering these will a
 Here's a program that demonstrates the use of these string functions:
 
 ```cpp
+// string_functions.cpp
 #include <iostream>
 #include <string>
 
