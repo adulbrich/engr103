@@ -5,4 +5,132 @@ sidebar:
   order: 16
 ---
 
-Coming Soon!
+The `char` data type is used to store a single character in C++. A character literal is represented by a single character enclosed in single quotes (e.g., `'A'`). To declare a char-typed variable, you can write:
+
+```cpp
+char myLetter = 'A';
+```
+
+It's important to note that uppercase and lowercase letters are treated as completely different characters. For instance, the boolean expression (`'a' == 'A'`) evaluates to `false`, whereas (`'a' == 'a'`) evaluates to `true`.
+
+## Integral and Non-Integral Types
+
+An **integral type** is a data type that can be converted to and from whole numbers without losing precision. Examples of integral types include:
+
+- `int`: Stores whole numbers directly.
+- `long`: Similar to `int`, but can store larger numbers.
+- `bool`: Even though it represents logical values, it is integral since `false` converts to `0` and `true` converts to `1`.
+
+Integral types differ from **floating-point types**, such as `float` and `double`. If you convert a floating-point value to an integral type (e.g., by casting to int) and then back, the fractional part is truncated, making these types non-integral.
+
+Interestingly, the `char` data type is **also considered integral**. This is because, in binary computers, all data is stored as numbers. A variable's type determines how its binary representation is interpreted. Characters are stored as non-negative whole numbers in memory, and their corresponding character symbols are only displayed when interpreted by a terminal.
+
+## ASCII and Unicode
+
+Characters in C++ are represented as numeric codes according to specific mappings. Two key mappings are:
+
+1. **ASCII**: A 128-character mapping that includes English letters, digits, symbols, and special characters. It is the foundation for many modern character encodings.
+2. **Unicode**: A superset of ASCII that supports characters from multiple languages, encompassing nearly 150,000 symbols.
+
+In C++, a `char` value always occupies exactly one byte (usually 8 bits), allowing for 256 possible values. Since Unicode includes far more characters than this, a `char` in C++ can only represent the 128 characters of ASCII. Multilingual support in C++ requires multi-byte strings or specific encodings like [UTF-8](https://en.wikipedia.org/wiki/UTF-8) or [UTF-16](https://en.wikipedia.org/wiki/UTF-16).
+
+
+## ASCII Table and Numeric Conversion
+
+This is probably sounding pretty abstract. So here's an image of the ASCII table, which provides the ASCII mappings between US English characters and non-negative whole numbers:
+
+![ASCII Table](https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/ASCII-Table-wide.svg/1280px-ASCII-Table-wide.svg.png)
+
+Specifically, pay attention to the “Decimal” and “Char” columns of the above table. These columns provide the mappings. For example, the ASCII numeric representation of capital 'A' is the number 65.
+
+Each character has a direct numeric representation in ASCII. You can convert between char and int using casting. For instance:
+
+```cpp
+std::cout << static_cast<char>(72); 
+std::cout << static_cast<char>(101);
+std::cout << static_cast<char>(108);
+std::cout << static_cast<char>(108);
+std::cout << static_cast<char>(111);
+```
+
+This program prints `“Hello”` by converting integers to their corresponding characters using the ASCII table. However, such manual conversion is unnecessary because C++ automatically handles character-to-ASCII conversions. The same program can be rewritten more simply:
+
+```cpp
+std::cout << 'H';
+std::cout << 'e';
+std::cout << 'l';
+std::cout << 'l';
+std::cout << 'o';
+```
+
+Both programs are functionally identical. As a general rule, avoid manually using ASCII numeric values--prefer character literals instead.
+
+## Helpful ASCII Properties
+
+You don't need to memorize the ASCII table, but some key properties can be useful to remember:
+
+1. The ASCII numeric values for uppercase letters are contiguous (consecutive).
+2. Similarly, the ASCII numeric values for lowercase letters are contiguous.
+3. The ASCII numeric values for digits are also contiguous, starting with '0' (ASCII value 48) and ending with '9' (ASCII value 57).
+4. Uppercase letters have smaller ASCII numeric values than their lowercase counterparts.
+5. A few symbols are positioned between 'Z' (uppercase) and 'a' (lowercase), meaning uppercase and lowercase letters are not directly contiguous in the ASCII table.
+6. The ASCII value of a digit character is not equal to the digit itself. For example, the ASCII value of '0' is 48, not 0.
+
+We can use the contiguous properties of ASCII values to perform operations. For instance, to determine if a user-input character is a lowercase letter, you can use inequality operators (`<`, `>`, etc.) to compare `char` values. Because `char` is an integral type, comparisons are performed on their underlying ASCII numeric values. You can also directly compare `char` values to `int` values, as `char` is coerced into an `int` during such comparisons.
+
+Here's an example program to check if a user-supplied character is a lowercase letter:
+
+```cpp
+// check_lowercase.cpp
+#include <iostream>
+
+char prompt_for_character() {
+    std::cout << "Enter a character: ";
+    char user_input;
+    std::cin >> user_input;
+    return user_input;
+}
+
+int main() {
+    char my_cool_character = prompt_for_character();
+
+    // Check if the character is a lowercase letter
+    if (my_cool_character >= 'a' && my_cool_character <= 'z') {
+        std::cout << "That's a lowercase letter!" << std::endl;
+    }
+}
+```
+
+In the `if` statement, we check if the character lies between `'a'` and `'z'`. This works because the ASCII values for lowercase letters are contiguous, making such comparisons valid. A similar approach can be used for uppercase letters or digits.
+
+Let's solve a slightly more complex problem: converting a lowercase letter to its uppercase equivalent. If the input character is already uppercase or not a letter, it should remain unchanged. Again, we can use the contiguity of ASCII values for this task.
+
+```cpp
+char to_uppercase(char my_cool_character) {
+    // If the character is not a lowercase letter, return it as-is
+    if (my_cool_character < 'a' || my_cool_character > 'z') {
+        return my_cool_character;
+    }
+
+    // Calculate the shift distance between 'a' and 'A'
+    constexpr int shift_distance = 'A' - 'a';
+
+    // Convert the character to uppercase by applying the shift
+    return my_cool_character + shift_distance;
+}
+```
+
+Here's what happens:
+
+1. If the character is not a lowercase letter, it is returned unmodified.
+2. If it is a lowercase letter, we calculate the “shift distance” between `'A'` and `'a'` (a constant value based on their ASCII values).
+3. Adding this shift distance to the lowercase character transforms it into its uppercase equivalent.
+
+## Built-In Functions for Character Operations
+
+While understanding ASCII is helpful, many standard library functions handle character conversions and checks, such as determining if a character is lowercase or converting between cases. For example:
+
+- `std::islower()` checks if a character is lowercase.
+- `std::toupper()` converts a character to uppercase.
+
+These functions simplify tasks and eliminate the need to work directly with ASCII values. However, knowing the underlying principles of the ASCII table provides valuable context and understanding for more advanced operations.
