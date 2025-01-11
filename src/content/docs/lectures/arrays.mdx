@@ -164,7 +164,7 @@ When you run this program, the output will display something like this:
 
 This hexadecimal value represents the array's base address.
 
-### Accessing Individual Elements
+### Accessing and Writing Individual Elements
 
 To work with the actual values stored in an array, you need to access its individual elements. Unlike some programming languages, C++ doesn't provide built-in aggregate operations for arrays. For instance, there are no simple operators to print all elements of an array, add two arrays, or concatenate them. Instead, you manipulate arrays by accessing and modifying their elements individually, often using loops.
 
@@ -255,3 +255,318 @@ Additionally, the meaning of square brackets changes:
 
 - In declarations, square brackets specify the array's size.
 - In element access, square brackets represent the subscript operator, which specifies an index.
+
+### Reading Data into Arrays
+
+The subscript operator (`[]`) takes an index as its operand and provides a reference to the array element at that index. This allows you to both read from and write to individual elements of an array.
+
+Because of this, you can directly read input from `std::cin` and store it in a specific array element using the subscript operator. For example, the following code demonstrates how to populate an array of int elements with user-provided data using the stream extraction operator (`>>`):
+
+```cpp
+// Reading integers into an array
+int array_of_numbers[10];
+for (int i = 0; i < 10; i++) {
+    std::cout << "Enter a number: ";
+    std::cin >> array_of_numbers[i];
+}
+```
+
+Similarly, for an array of `std::string` values, you can use `std::getline()` to read entire lines of input and store them in individual array elements:
+
+```cpp
+// Reading strings into an array using std::getline
+std::string array_of_sentences[5];
+for (int i = 0; i < 5; i++) {
+    std::cout << "Enter a sentence: ";
+    std::getline(std::cin, array_of_sentences[i]);
+}
+```
+
+## Arrays Cannot Be Reassigned
+
+While you can modify individual array elements using the assignment operator (`=`) with the subscript operator (`[]`), you cannot reassign an entire array. For example, the following code would produce a syntax error:
+
+```cpp
+int numbers[100];
+int other_numbers[100];
+numbers = other_numbers; // Syntax error
+```
+
+To understand this restriction, recall that a variable is simply a name that represents a fixed location in memory with a specific size and type. For arrays, the array name (after declaration) specifically refers to the base address of the array—the memory address of the first element in the sequence.
+
+The statement `numbers = other_numbers` would attempt to change the base address of `numbers` to match that of `other_numbers`. However, this would violate the principle that variables represent fixed locations in memory. For `numbers` to reflect the base address of `other_numbers`, the data in `numbers` would need to be moved to a new location. Since this contradicts the immutability of variable memory locations, C++ disallows reassignment of entire arrays.
+
+If you want to copy the contents of one array into another, you must do so by copying each element individually. This can be achieved using a loop or a higher-level mechanism. Here's an example using a loop:
+
+```cpp
+// Copying array elements manually
+for (int i = 0; i < 100; i++) {
+    numbers[i] = other_numbers[i];
+}
+```
+
+By iterating over each element, you can replicate the data from one array to another while adhering to C++'s memory constraints.
+
+## Passing Arrays to Functions
+
+Passing an array to a function is straightforward in C++, but the process involves some unique details worth understanding.
+
+### Declaration and Calling Syntax
+
+To use an array as a function parameter, the syntax for declaring the parameter is similar to that of declaring a local array variable. For example, the following function receives an array of 10 `std::string` elements and prints them:
+
+```cpp
+// Function to print an array of 10 strings
+void print_strings(std::string my_strings[10]) {
+    for (int i = 0; i < 10; i++) {
+        std::cout << my_strings[i] << std::endl;
+    }
+}
+```
+
+You can call this function by providing an array as an argument:
+
+```cpp
+// Main function using print_strings
+int main() {
+    std::string array_of_strings[10];
+
+    // Ask the user for 10 strings
+    for (int i = 0; i < 10; i++) {
+        std::cout << "Enter a sentence: ";
+        std::getline(std::cin, array_of_strings[i]);
+    }
+
+    // Print the strings
+    print_strings(array_of_strings);
+}
+```
+
+The above function works only for arrays of exactly 10 strings because the size is embedded in the parameter declaration. To make the function more flexible, you can omit the size in the parameter declaration by using empty square brackets (`[]`). This syntax is valid only for function parameters, not for local array declarations:
+
+```cpp
+// Function with flexible array size
+void print_strings(std::string my_strings[], int n_strings) {
+    for (int i = 0; i < n_strings; i++) {
+        std::cout << my_strings[i] << std::endl;
+    }
+}
+```
+
+With this approach, the function works with arrays of any size, but you must explicitly pass the array's size as an additional parameter:
+
+```cpp
+// Main function using print_strings with size parameter
+int main() {
+    std::string array_of_strings[10];
+
+    // Ask the user for 10 strings
+    for (int i = 0; i < 10; i++) {
+        std::cout << "Enter a sentence: ";
+        std::getline(std::cin, array_of_strings[i]);
+    }
+
+    // Print the strings along with the array size
+    print_strings(array_of_strings, 10);
+}
+```
+
+This pattern--passing both an array and its size--is common because C++ lacks a built-in way to deduce an array's size from its variable.
+
+### Arrays as Memory Addresses
+
+When passing an array to a function, the array's behavior differs from regular variables. Instead of copying the array, only the base address of the array (the memory address of its first element) is passed. This behavior makes array parameters act like reference parameters.
+
+Consider the function call `print_strings(array_of_strings, 10)`. Here, the base address of `array_of_strings` is passed to the function. Inside the function, pointer arithmetic is used to access elements in the array using the subscript operator (`[]`). 
+
+This means that the function's array parameter `my_strings[]` is not an entire copy of the supplied array argument, but rather a copy of the base address referred to by the supplied array argument.
+
+Remember, when you call a function with non-array variable argument, the argument is fully copied into the parameter, and you end up with two separate variables (the argument and parameter) each with their own
+entirely separate memory and separate data. In such a case, modifying the parameter's data will not effect the argument's data. 
+
+```cpp
+void foo(int x) {
+    x += 1;
+}
+
+int main() {
+    int y = 0;
+    foo(y);
+    std::cout << y << std::endl; // Outputs 0
+}
+```
+
+For arrays, however, only the base address is copied, meaning both the function's parameter and the original array refer to the same memory. This allows functions to modify the array's contents directly.
+
+This means that modifications to the elements of an array parameter do affect the data in the corresponding array argument. In some sense, this means that arrays behave like reference parameters (e.g., the second string parameter in `std::getline()`). Study the below example for a better understanding of how this works:
+
+```cpp
+// array_as_reference.cpp
+void foo(int x[]) {
+    // Print the base address of the array
+    std::cout << x << std::endl;
+
+    // Modify the first element
+    x[0] = 10;
+}
+
+int main() {
+    int y[10];
+    y[0] = 100;
+
+    // Print the base address of y
+    std::cout << y << std::endl;
+
+    foo(y);
+
+    // Print the modified first element of y
+    std::cout << y[0] << std::endl; // Outputs 10
+}
+```
+
+### Returning a Statically Allocated Array
+
+While it's technically possible to return a statically allocated array from a function, it's almost always a bad idea due to the risk of issues like dangling pointers, depending on the allocation context. We'll discuss these pitfalls in more detail during the lecture on references.
+
+Instead of attempting to return an array from a function, a better approach is to have the function receive a statically allocated array as a parameter, as described in the previous section. The function can then modify the array's elements directly. Since arrays in C++ are passed by reference (via their base address), any changes made to the array within the function will be reflected in the original array used as the argument. This effectively achieves the same result as “returning” an array.
+
+## “Resizing” a Statically Allocated Array
+
+Statically allocated arrays cannot be resized after they are declared. However, there is a common trick, especially in C where the STL is unavailable, that allows you to simulate resizing. The idea is straightforward:
+
+1. **Define a Maximum Size**: Choose a “maximum size” for the array, which should reflect the largest number of elements you will ever need to store.
+2. **Declare the Array**: Create an array with this maximum size.
+3. **Use a Size Variable**: Introduce a variable (e.g., an int) to keep track of the number of elements in the array that your program “acknowledges” . Let's call this variable `n`.
+4. **Acknowledge Elements**: Treat any elements beyond index `n - 1` as unused and ignore them in your program logic.
+5. **Add and Remove Elements**: To “add” an element, store it at index `n` then increment `n` by 1. To “remove” an element, decrement `n` by 1. Insertions and deletions at other positions require rearranging elements before adjusting `n`.
+
+Below is an example that uses this strategy to manage an array of integers, allowing the user to input up to 100 integers.
+
+```cpp
+// array_resizing.cpp
+#include <iostream>
+
+int main() {
+    // Array with a maximum capacity of 100 integers
+    int arr[100];
+
+    // Initially, the array acknowledges 0 elements
+    int arr_size = 0;
+
+    // Variable to hold user input for continuing
+    char user_input;
+
+    // Prompt the user for numbers until they choose to stop or the array is full
+    do {
+        std::cout << "Enter a number: ";
+        
+        // Store the number at the next available index
+        std::cin >> arr[arr_size];
+
+        // Increment the size variable to acknowledge the new element
+        arr_size++;
+
+        // Ask if they want to continue, but only if the array isn't full
+        if (arr_size < 100) {
+            std::cout << "Would you like to enter another number? Type Y for yes: ";
+            std::cin >> user_input;
+        }
+
+    } while (user_input == 'Y' && arr_size < 100);
+
+    // Print all acknowledged elements in the array
+    std::cout << "You entered the following numbers:\n";
+    for (int i = 0; i < arr_size; i++) {
+        std::cout << arr[i] << std::endl;
+    }
+
+    return 0;
+}
+```
+
+Here's the explanation:
+
+1. Initial State:
+    - The array `arr` is declared with a fixed size of 100.
+    - The variable `arr_size` starts at 0, meaning no elements are initially acknowledged.
+2. Input Loop:
+    - The program prompts the user to input numbers.
+    - Each number is stored at the index `arr_size`, and the `arr_size` variable is incremented to acknowledge the new element.
+    - The loop stops either when the user chooses to stop (`user_input != 'Y'`) or when the array reaches its maximum size (`arr_size == 100`).
+3. A for loop prints only the acknowledged elements (those with indices from 0 to `arr_size - 1`).
+4. Any elements beyond   remain uninitialized and unused. These elements are safely ignored throughout the program.
+
+The downsides are twofold. First, you must decide on the maximum number of elements the array can hold. If the actual number of elements exceeds this limit, the array cannot accommodate them. Second, if the array doesn't reach its maximum capacity, unused elements waste memory. These elements are uninitialized and serve no purpose.
+
+Dynamically allocated arrays and STL containers (e.g., `std::vector`) eliminate these limitations but involve trade-offs, such as slightly increased complexity or runtime overhead, but they are better suited for scenarios where the array size cannot be predicted in advance.
+
+## Buffer Overflows
+
+When you provide an out-of-range index to a `std::string`'s `.at()` function, an exception is thrown, typically terminating the program (unless you handle the exception, which we haven't covered). But what happens if you pass an out-of-range index to an array's subscript operator (`[]`)?
+
+You might assume it behaves similarly, throwing an exception and terminating the program. Unfortunately, the reality is much worse: passing an out-of-range index to an array subscript operator results in **undefined behavior**. This kind of error, known as a **buffer overflow**, is particularly dangerous, and the C++ standard provides no guarantee about what will happen in such cases.
+
+### Undefined Behavior
+
+When a buffer overflow occurs, the program’s behavior is unpredictable. It might:
+
+- Seem to work correctly.
+- Crash unexpectedly.
+- Corrupt data in memory.
+- Introduce subtle bugs that are difficult to diagnose.
+
+Unlike exceptions, which provide error messages and diagnostics, buffer overflows often fail silently. This lack of immediate feedback makes them difficult to detect and fix.
+
+### Security Risks
+
+The risks associated with buffer overflows go beyond simple program instability. Due to the memory structure of arrays, buffer overflows can pose severe security threats. Let’s revisit how arrays are stored and accessed in memory to understand why.
+
+Remember, arrays are stored **contiguously** in memory, and their name serves as a handle to the base address (the address of the first element). When you use the subscript operator (`[]`), the compiler calculates the memory address of the indexed element by performing pointer arithmetic:
+
+- **Offset Calculation**: The address is calculated by adding an offset to the base address. The offset is determined by multiplying the index by the size of each element in bytes.
+
+For example:
+
+- The element at index 0 is at the base address.
+- The element at index 1 is located at base address + size of one element.
+- The element at index 2 is at base address + 2 * size of one element.
+
+If you supply an out-of-range index, the subscript operator performs the same calculation but computes the address for a memory location outside the array’s bounds.
+
+When an out-of-range index is used, the subscript operator might access memory that belongs to other variables or even parts of the program’s control flow. If the program modifies this memory, it can corrupt unrelated data, leading to unpredictable behavior.
+
+Buffer overflows become even more dangerous when they extend into memory regions used for program control, such as the return address--a memory location that stores the address of the next instruction to execute after a function call. If a buffer overflow modifies the return address:
+
+-	The program might jump to an incorrect memory location after the function ends.
+- It could execute unintended or malicious code.
+
+Skilled attackers can exploit buffer overflows to gain control over a program. For example:
+
+1. **Arbitrary Code Execution (ACE)**: Attackers manipulate a buffer overflow to modify the return address and inject malicious code. The program is coerced into executing this code.
+2. **Remote Code Execution (RCE**): **In networked applications, attackers exploit buffer overflows remotely to execute arbitrary code on the target machine.
+
+:::note[Did You Know?]
+In a fascinating demonstration, [YouTuber SethBling used a buffer overflow in Super Mario World](https://www.youtube.com/watch?v=hB6eY73sLV0&t=21s) to inject custom bytecode into the game while it was running. By manipulating the game’s memory, he transformed it into a fully functional Flappy Bird-like simulator! 
+
+In 2022, a [Remote Code Execution (RCE) exploit was discovered in the Dark Souls game franchise](https://www.theverge.com/2022/1/22/22896785/dark-souls-3-remote-execution-exploit-rce-exploit-online-hack). This exploit allowed attackers to execute arbitrary code on players’ computers through the game’s online features. The [vulnerability](https://github.com/tremwil/ds3-nrssr-rce) forced the developer, FromSoftware, to disable online play across the entire series for nearly a year while patching the issue.
+:::
+
+The simplest way to avoid buffer overflows is to avoid raw arrays in favor of high-level containers, such as those in the Standard Template Library (STL). STL containers, like `std::vector` and `std::array`, provide bounds-checked access through their `.at()` member function. If an out-of-range index is supplied, these functions throw exceptions instead of causing undefined behavior.
+
+:::tip[Tools for Buffer Overflow Detection]
+1. Memory Debugging Tools:
+    - Tools like Valgrind can help catch memory errors at runtime, including buffer overflows.
+    - Limitations: These tools can only detect errors when they occur during program execution.
+2. Static Analysis Tools:
+    - Compiler flags like `-fsanitize=address,undefined` (in `g++`) help identify memory errors during code analysis.
+    - Limitations: These tools cannot guarantee a program is free from buffer overflow vulnerabilities.
+3. Security Audits:
+    - Security experts can perform manual code reviews to identify potential buffer overflow vulnerabilities.
+    - Limitations: Manual audits are time-consuming and may not catch all vulnerabilities.
+:::
+
+This discussion is intended, in part, to emphasize the risks of using raw arrays in C++--whether statically or dynamically allocated--in real-world applications. Unless absolutely necessary and justifiable, you should avoid raw arrays and instead rely on high-level container objects.
+
+If you plan to use C++ beyond an academic setting, take the time to study the STL and learn how to use it effectively. Additionally, familiarize yourself with related topics such as dangling pointers, which can also lead to Arbitrary Code Execution (ACE) exploits, and explore tools like smart pointers and Resource Acquisition Is Initialization (RAII) to manage memory safely.
+
+Finally, if you must use raw arrays, ensure your program rigorously avoids supplying out-of-range indices to the subscript operator. This is essential for maintaining both program stability and security.
