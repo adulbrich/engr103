@@ -8,7 +8,24 @@ npx starlight-to-pdf https://engr103.alexulbrich.com/
 
 ## Parking
 
+- [ ] Use [Internationalization](https://starlight.astro.build/guides/i18n/) to have multiple version of the course for different terms or different languages.
 - [ ] Figure out the CSS for the Latex component. Right now, the containing `<span>` has some padding on the right which looks odd when there's punctuation following the expression.
+
+Here's an example of the change to be made to `astro.config.mjs` to enable different versions:
+
+```js
+defaultLocale: 'root',
+locales: {
+  root: {
+    label: 'C++',
+    lang: 'cpp', 
+  },
+  'py': {
+    label: 'Python',
+    lang: 'py',
+  },
+},
+```
 
 ## 🚀 Project Structure
 

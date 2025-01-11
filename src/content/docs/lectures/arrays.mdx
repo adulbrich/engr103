@@ -5,4 +5,253 @@ sidebar:
   order: 19
 ---
 
-Coming Soon!
+import Latex from '../../../components/Latex.astro'
+
+A string, as you've recently learned, is a sequence or ordered list of zero or more characters. Strings are ideal for representing text, such as words, sentences, or paragraphs.
+
+But what if you need to represent an ordered list of a different data type, such as integers? For example, you might want to store the ages of ten people as a list of ten integers or keep track of the names of a user's top five favorite restaurants in Corvallis, OR, as a list of five strings.
+
+In C++, there are several ways to create lists. The most common and idiomatic approach is to use a container class template from the Standard Template Library (STL), which is part of the C++ standard library. Examples of these class templates include `std::vector`, `std::list`, `std::array`, `std::map`, and many others, each designed for specific use cases.
+
+However, these STL containers are built upon a more fundamental, low-level list data type known as an **array**. Studying arrays provides a deeper understanding of basic list structures, which is why arrays are often introduced before STL containers in programming courses. Learning about arrays now will better prepare you for future programming challenges.
+
+For these reasons, we'll focus on arrays rather than the STL in this discussion. It's important to emphasize that this choice is purely for academic purposes. In real-world C++ applications, the STL is generally the preferred option, except in specific cases--such as when a custom high-performance container is required or when containers need to cross DLL boundaries. In fact, plain C++ arrays can be risky to use due to the potential for buffer overflows (which will be discussed later). If you ever write a C++ application in practice, make sure to follow good programming practices and become familiar with the STL. While you won't be tested on the STL in this course, exploring `std::vector` is a good starting point for learning about it.
+
+Finally, there are two types of arrays in C++: statically allocated arrays (with automatic storage duration) and dynamically allocated arrays (with dynamic storage duration). In this course, we will focus only on statically allocated arrays.
+
+## Declaring Statically Allocated Arrays
+
+In C++, there is no generic “array data type.” Instead, arrays are strictly homogeneous, meaning all elements in an array must be of the same data type, and that data type must be specified when the array is declared.
+
+Since arrays are variables, they must be declared like any other variable. An array represents a fixed location in memory with a specific size and type, all of which are determined during declaration.
+
+It's important to note that arrays, like other variables, have a fixed size. This may seem counterintuitive because arrays represent lists, but their size cannot change once declared--they cannot grow or shrink. This behavior differs from `std::string` variables, which can be reassigned to hold larger or smaller strings as needed. For statically allocated arrays, both the type and size are specified at the time of declaration. Dynamically allocated arrays, however, can change size after declaration.
+
+When declaring a statically allocated array, you must ensure its size is “big enough” to accommodate all the data it will ever need to store, even if it doesn't initially require that much space. If the array is larger than needed, unused elements can remain uninitialized and ignored until required. In practical scenarios, dynamically allocated arrays or STL containers (like `std::vector`) are typically preferred for resizable lists.
+
+### Syntax
+
+The syntax for declaring a statically allocated array in C++ is:
+
+```cpp
+<element data type> <array variable name>[<array size>];
+```
+
+- Replace `<element data type>` with the desired data type of the elements in the array.
+	•	Replace `<array variable name>` with the name you want to give the array.
+- Replace `<array size>` with the number of elements the array should hold.
+
+For example, the following code declares an array named pages containing 200 strings (each representing a page in a book):
+
+```cpp
+std::string pages[200];
+```
+
+### Compile-Time Constants
+
+An essential detail of this syntax is that the size of a statically allocated array must be a compile-time constant. This restriction stems from the definition of “statically allocated”:
+
+- Static means the size is determinable at compile time.
+- Allocation means deciding the total memory required for the array variable.
+
+Since the total memory depends on the array's size, the size must be known at compile time. Consider the following examples:
+
+```cpp
+// array_examples.cpp
+// A valid statically allocated array of 200 strings.
+std::string pages[200];
+
+// A valid statically allocated array of x doubles, where x is a compile-time constant.
+constexpr int x = 5;
+double numbers[x];
+
+// An invalid statically allocated array of n booleans, where n is a runtime variable.
+int n = 12;
+bool my_booleans[n]; // Syntax error
+```
+
+While the third example will compile and run with `g++` by default, it uses a feature called variable-length arrays (VLAs). VLAs allow arrays to have non-constant sizes at compile time, but they are not part of the formal C++ standard. As a result, VLAs are brittle, non-portable, and should generally be avoided in C++ (though they are officially supported in C since C99).
+
+To disable VLA support in `g++`, use the `-Werror=vla` flag during compilation. For instance:
+
+```shell
+g++ -Werror=vla -o my_program my_program.cpp
+```
+
+When applied to the invalid example, the compiler produces the following error:
+
+```plaintext frame="terminal"
+array_examples.cpp:15:22: error: variable length arrays are a C99 feature [-Werror,-Wvla-extension]
+   15 |     bool my_booleans[n]; // Syntax error
+      |                      ^
+array_examples.cpp:15:22: note: read of non-const variable 'n' is not allowed in a constant expression
+array_examples.cpp:14:9: note: declared here
+   14 |     int n = 12;
+      |         ^
+1 error generated.
+```
+
+### Tradeoffs 
+
+Statically allocated arrays have strict limitations: their sizes must be compile-time constants, and they cannot be resized after declaration. However, these restrictions enable compilers to implement them efficiently. If these constraints are problematic, consider using dynamically allocated arrays or STL containers, which are more flexible. They are outside the scope of this course.
+
+## Arrays in Memory
+
+Although we haven't focused much on memory in this course, understanding it is essential when working with arrays.
+
+Every byte of data in your computer is stored at a unique numeric location called a memory address. While memory addresses are simply non-negative integers, they are often expressed in hexadecimal format for readability (e.g., `15` in hexadecimal is written as `0x000F`). Technically, a “byte” is defined as the smallest addressable unit of memory, which on most modern computers corresponds to 8 bits.
+
+Most data types require more than one byte of storage. For instance, on the ENGR servers, an int-typed variable occupies 4 bytes. This means that an int technically spans 4 memory addresses. However, because memory is ordered sequentially, these bytes are treated as a single block with a specific starting point. When we refer to a “variable's memory address,” we're typically talking about the address of the first byte in that block.
+
+### Memory Structure
+
+In C++, an array's memory is **contiguous**. This means that all the elements of the array are stored sequentially in memory. When you allocate an array, it occupies a single continuous block of memory.
+
+For example, suppose you allocate an array of 100 integers, and each integer requires 4 bytes of memory. The array will require a total of 400 bytes of memory. The memory address of the first byte in this block is called the array's base address. If the base address of the array is `0x0004` (byte 4), the memory layout would look like this:
+
+- The first integer starts at `0x0004` (byte 4),
+- The second integer starts at `0x0008` (byte 8),
+- The third integer starts at `0x000C` (byte 12),
+- The fourth integer starts at `0x0010` (byte 16), and so on.
+
+Each integer occupies 4 bytes, and the elements are tightly packed with no wasted space.
+
+### Advantages of Contiguous Memory
+
+This memory structure makes arrays highly memory **efficient**, as they do not waste space between elements. Additionally, arrays support a feature called **direct access** (or **random access**). This means your computer can access any element in the array in constant time, regardless of its position. For example, accessing the millionth element in an array is just as fast as accessing the 10th element.
+
+### How Direct Access Works
+
+The efficiency of direct access is achieved through pointer arithmetic. Suppose the base address of an int array is `0x000F` (byte 15), and you want to access the 17th integer. Since each int occupies 4 bytes, your computer calculates the memory address of the 17th integer by shifting over 16 integers from the base address:
+
+- <Latex formula="16 \times 4 = 64"/> bytes.
+- Adding 64 bytes to the base address (`0x000F`) yields `0x004F` (byte 79).
+
+This calculation determines the exact memory address of the 17th integer. Once the address is known, modern memory hardware enables the computer to retrieve the value in constant time, as RAM (Random Access Memory) is specifically designed to support direct access.
+
+### Practical Implications
+
+While these details are fascinating, you don't need to perform such calculations manually when working with arrays in code. Instead, you interact with arrays using indices, and the compiler handles the conversion from indices to memory addresses using pointer arithmetic. Nonetheless, understanding how arrays are stored and accessed in memory provides valuable context and deepens your understanding of how computers operate.
+
+## Accessing Array Elements
+
+Once you've declared an array variable, you can reference it by name, just like any other variable. However, working with arrays is slightly different from working with other types of variables.
+
+### Names and Base Addresses
+
+After declaring an array, its name acts as a handle to the array's base address—the memory address of the first byte of the array. For example, consider the following code:
+
+```cpp
+// array_doubles.cpp
+#include <iostream>
+
+int main() {
+    // Declare an array of 10 doubles:
+    double my_list_of_numbers[10];
+
+    // Print the array's base address:
+    std::cout << my_list_of_numbers << std::endl;
+
+    return 0;
+}
+```
+
+When you run this program, the output will display something like this:
+
+```plaintext frame="terminal"
+0x16b82af88
+```
+
+This hexadecimal value represents the array's base address.
+
+### Accessing Individual Elements
+
+To work with the actual values stored in an array, you need to access its individual elements. Unlike some programming languages, C++ doesn't provide built-in aggregate operations for arrays. For instance, there are no simple operators to print all elements of an array, add two arrays, or concatenate them. Instead, you manipulate arrays by accessing and modifying their elements individually, often using loops.
+
+Array elements are accessed using their indices. Arrays in C++ are zero-indexed, meaning:
+
+- The first element is at index 0.
+- The second element is at index 1.
+- And so on.
+
+To access an array element at a specific index, use the subscript operator, which consists of square brackets (`[]`). The syntax is:
+
+```cpp
+<array name>[<index>]
+```
+
+This provides a reference to the element at the specified index, allowing you to both read and modify its value.
+
+Here's an example of declaring an array of five doubles and initializing all its elements to zero:
+
+```cpp
+double my_list_of_numbers[5];
+my_list_of_numbers[0] = 0;
+my_list_of_numbers[1] = 0;
+my_list_of_numbers[2] = 0;
+my_list_of_numbers[3] = 0;
+my_list_of_numbers[4] = 0;
+```
+
+To print the value of the third element:
+
+```cpp
+std::cout << my_list_of_numbers[2] << std::endl;
+```
+
+This will output `0` because all elements were initialized to zero.
+
+:::tip[Initialization]
+Don't forget that primitive values must be initialized before you can use them. Otherwise, your program will exhibit undefined behavior. This applies to primitive array elements as well.
+:::
+
+### Using Loops
+
+Manually initializing or accessing each element can become tedious for large arrays. Instead, it's common to use loops, especially for loops, to work with arrays. For example, the following program initializes an array of 100 integers with values from 1 to 100 and prints them:
+
+```cpp
+// array_ints_for.cpp
+#include <iostream>
+
+int main() {
+    int values[100];
+
+    // Initialize the array with values 1 to 100
+    for (int i = 0; i < 100; i++) {
+        values[i] = i + 1;
+    }
+
+    // Print the array values
+    for (int i = 0; i < 100; i++) {
+        std::cout << values[i] << std::endl;
+    }
+
+    return 0;
+}
+```
+
+### Declaration vs. Element Access
+
+It's important to distinguish between array declaration syntax and element access syntax, as they look similar.
+
+When declaring an array, you specify the element type, array name, and size:
+
+```cpp
+std::string my_array[20];
+```
+
+When accessing an array element, you specify the array name and the target index:
+
+```cpp
+my_array[20]; // Accesses the 21st element
+```
+
+The difference lies in the presence of a type specifier:
+
+- If a type specifier (e.g., `std::string`) is included, you're declaring a new array.
+- If there's no type specifier, you're working with an existing array.
+
+Additionally, the meaning of square brackets changes:
+
+- In declarations, square brackets specify the array's size.
+- In element access, square brackets represent the subscript operator, which specifies an index.
