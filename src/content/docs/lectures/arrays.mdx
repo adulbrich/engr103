@@ -508,7 +508,7 @@ You might assume it behaves similarly, throwing an exception and terminating the
 
 ### Undefined Behavior
 
-When a buffer overflow occurs, the program’s behavior is unpredictable. It might:
+When a buffer overflow occurs, the program's behavior is unpredictable. It might:
 
 - Seem to work correctly.
 - Crash unexpectedly.
@@ -519,7 +519,7 @@ Unlike exceptions, which provide error messages and diagnostics, buffer overflow
 
 ### Security Risks
 
-The risks associated with buffer overflows go beyond simple program instability. Due to the memory structure of arrays, buffer overflows can pose severe security threats. Let’s revisit how arrays are stored and accessed in memory to understand why.
+The risks associated with buffer overflows go beyond simple program instability. Due to the memory structure of arrays, buffer overflows can pose severe security threats. Let's revisit how arrays are stored and accessed in memory to understand why.
 
 Remember, arrays are stored **contiguously** in memory, and their name serves as a handle to the base address (the address of the first element). When you use the subscript operator (`[]`), the compiler calculates the memory address of the indexed element by performing pointer arithmetic:
 
@@ -531,9 +531,9 @@ For example:
 - The element at index 1 is located at base address + size of one element.
 - The element at index 2 is at base address + 2 * size of one element.
 
-If you supply an out-of-range index, the subscript operator performs the same calculation but computes the address for a memory location outside the array’s bounds.
+If you supply an out-of-range index, the subscript operator performs the same calculation but computes the address for a memory location outside the array's bounds.
 
-When an out-of-range index is used, the subscript operator might access memory that belongs to other variables or even parts of the program’s control flow. If the program modifies this memory, it can corrupt unrelated data, leading to unpredictable behavior.
+When an out-of-range index is used, the subscript operator might access memory that belongs to other variables or even parts of the program's control flow. If the program modifies this memory, it can corrupt unrelated data, leading to unpredictable behavior.
 
 Buffer overflows become even more dangerous when they extend into memory regions used for program control, such as the return address--a memory location that stores the address of the next instruction to execute after a function call. If a buffer overflow modifies the return address:
 
@@ -546,9 +546,9 @@ Skilled attackers can exploit buffer overflows to gain control over a program. F
 2. **Remote Code Execution (RCE**): **In networked applications, attackers exploit buffer overflows remotely to execute arbitrary code on the target machine.
 
 :::note[Did You Know?]
-In a fascinating demonstration, [YouTuber SethBling used a buffer overflow in Super Mario World](https://www.youtube.com/watch?v=hB6eY73sLV0&t=21s) to inject custom bytecode into the game while it was running. By manipulating the game’s memory, he transformed it into a fully functional Flappy Bird-like simulator! 
+In a fascinating demonstration, [YouTuber SethBling used a buffer overflow in Super Mario World](https://www.youtube.com/watch?v=hB6eY73sLV0&t=21s) to inject custom bytecode into the game while it was running. By manipulating the game's memory, he transformed it into a fully functional Flappy Bird-like simulator! 
 
-In 2022, a [Remote Code Execution (RCE) exploit was discovered in the Dark Souls game franchise](https://www.theverge.com/2022/1/22/22896785/dark-souls-3-remote-execution-exploit-rce-exploit-online-hack). This exploit allowed attackers to execute arbitrary code on players’ computers through the game’s online features. The [vulnerability](https://github.com/tremwil/ds3-nrssr-rce) forced the developer, FromSoftware, to disable online play across the entire series for nearly a year while patching the issue.
+In 2022, a [Remote Code Execution (RCE) exploit was discovered in the Dark Souls game franchise](https://www.theverge.com/2022/1/22/22896785/dark-souls-3-remote-execution-exploit-rce-exploit-online-hack). This exploit allowed attackers to execute arbitrary code on players' computers through the game's online features. The [vulnerability](https://github.com/tremwil/ds3-nrssr-rce) forced the developer, FromSoftware, to disable online play across the entire series for nearly a year while patching the issue.
 :::
 
 The simplest way to avoid buffer overflows is to avoid raw arrays in favor of high-level containers, such as those in the Standard Template Library (STL). STL containers, like `std::vector` and `std::array`, provide bounds-checked access through their `.at()` member function. If an out-of-range index is supplied, these functions throw exceptions instead of causing undefined behavior.
