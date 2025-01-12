@@ -5,4 +5,285 @@ sidebar:
   order: 21
 ---
 
-Coming Soon!
+In programming, the relationship between arguments passed to a function and the parameters defined in the function header is fundamentally a copy operation. When a function is called, its parameters are declared and allocated as independent variables. The values of the provided arguments are copied into the memory allocated for the corresponding parameters. Once this copy operation is complete, the arguments and parameters operate independently--they are separate variables with distinct memory locations.
+
+Here's an example to illustrate this concept:
+
+```cpp
+// scope_example.cpp
+#include <iostream>
+
+void change_value_and_print(int x) {
+    std::cout << x << std::endl; // Prints the value of x
+    x = 1;                       // Modifies the local copy of x
+    std::cout << x << std::endl; // Prints the modified value of x
+}
+
+int main() {
+    int x = 0;
+    std::cout << x << std::endl; // Prints 0
+    change_value_and_print(x);   // Prints 0, followed by 1
+    std::cout << x << std::endl; // Prints 0 (unchanged in main)
+}
+```
+
+Even if an argument and its corresponding parameter share the same name, they are completely independent variables with their own memory. This highlights that names in programming are merely labels.
+
+This behavior is not unique to function parameters and arguments. It reflects the general property of variables in programming: every variable is inherently independent, with its own memory allocation. To emphasize this further, consider the following example:
+
+```cpp
+// variable_independence.cpp
+#include <iostream>
+
+int main() {
+    int x = 0;
+    std::cout << x << std::endl; // Prints 0
+
+    // Create a new variable `y` as a COPY of `x`
+    int y = x;
+    std::cout << y << std::endl; // Prints 0
+
+    // Modify `y`
+    y++;
+    std::cout << y << std::endl; // Prints 1
+
+    // `x` remains unchanged since `y` is just a COPY of `x`
+    std::cout << x << std::endl; // Prints 0
+}
+```
+
+In this example, `y` is created as a copy of `x`. Any changes made to `y` do not affect `x`, as they are independent variables.
+
+What if you want a function to modify its arguments through its parameters? Or, more generally, what if you want two variables to be “linked” so that changes to one are reflected in the other?
+
+Technically, this is not possible directly, as variables are inherently independent. However, this behavior can be simulated through indirection using either pointers or references:
+
+- **Pointers**: Offer more flexibility but come with greater risk, as they are easier to misuse.
+- **References**: Provide a safer and simpler alternative for achieving similar outcomes.
+
+In this course, we'll focus on **references**.
+
+## The Concept of Indirection
+
+Indirection, at its core, is straightforward but can seem unintuitive: instead of creating a variable to store a copy of another variable's value, you create a variable that stores a copy of the other variable's **memory address**.
+
+To recap, a variable is essentially a name referring to a specific memory location, which has a fixed size and type. Memory locations are identified by **addresses**--large non-negative numbers that specify the location of bytes in your computer's memory. If variable `b` stores the memory address of another variable `a`, you can instruct the computer to “go to the location at the address stored in `b` and access its bytes.” This access could mean **reading** (retrieving the value) or **writing** (modifying the value). Essentially, while the instructions operate on `b`, the actual data being manipulated belongs to `a`.
+
+### Indirection with Arrays
+
+You've already encountered indirection when working with arrays. Recall that if a function modifies the elements of an array parameter, it also modifies the corresponding elements in the array argument. This happens because arrays are not copied when passed as arguments. Instead, the name of the array decays into its **base address** (essentially a *pointer*). This base address is then passed into the function's array parameter.
+
+As a result, both the parameter and the argument refer to the same memory location—the base address of the array. When using the subscript operator (`[]`), indirection occurs. The operator instructs the computer to:
+
+1. Access the base address of the array.
+2. Shift by the number of spaces specified by the index.
+3. Access the data at the resulting location.
+
+### Indirection Without Arrays
+
+Indirection isn't limited to arrays. For instance, let's revisit the earlier `change_value_and_print()` function. Suppose we want the function to modify the `x` variable declared in `main()` (the argument) by using the `x` parameter. This is entirely possible if we adjust the parameter's type so that, instead of storing the argument's value, it stores the argument's memory address.
+
+Currently, the function cannot modify the argument because the parameter `x` is of type `int`. An `int` variable can only store integer values, not memory addresses. To enable this behavior, we need to change the parameter's type so it can store the address of an `int`. This can be achieved in two ways:
+
+1. Declaring the parameter as a **pointer** to an `int`.
+2. Declaring the parameter as a **reference** to an `int`.
+
+Both pointers and references are types of variables designed to store memory addresses, enabling indirection. While pointers are more flexible, references are easier to use and less error-prone. For simplicity, we'll focus on references.
+
+## Declaring a Reference Variable
+
+The modification to use a reference is minimal. Normally, to declare a variable `<name>` of type `<type>`, the syntax is:
+
+```cpp
+<type> <name>;
+```
+
+To declare a variable `<name>` as a “*reference to a value of type* `<type>`,” the syntax is:
+
+```cpp
+<type>& <name>;
+```
+
+The ampersand (`&`) between the type specifier and the variable name indicates that the variable doesn't store a value but rather the memory address of an existing value. For example:
+
+```cpp
+int& ref = x; // `ref` is a reference to the integer variable `x`.
+```
+
+You might also encounter the ampersand placed next to the variable name, like this:
+
+```cpp
+<type> &<name>;
+```
+
+Both placements are functionally identical, and the choice is stylistic. The key takeaway is that the ampersand denotes a reference variable, which facilitates indirection by linking to the memory address of an existing variable.
+
+### Restrictions
+
+1. A reference must be **initialized** at the moment of its declaration. When declaring a reference, you must specify the variable whose address it will store.
+  - For Function Parameters: References are automatically initialized with the corresponding argument's address when the function is called.
+  - For Local Variables: References must be explicitly initialized during declaration using the assignment operator. This ensures that a reference can never be “undefined.”
+2. Once a reference is initialized to store the address of a specific variable, it **cannot be reconfigured** (i.e., references are constant) to store the address of another variable. However, this does not mean the underlying variable is immutable. You can still modify the value of the variable the reference points to.
+3. A reference cannot store the address of a literal or temporary value, as it **only applies to variables** (or, more formally, `lvalues`). This restriction makes sense because literals don't have modifiable memory addresses.
+
+### Advantages
+
+We can modify the `change_value_and_print()` function from earlier to use a reference parameter, enabling the function to directly modify the value of the `x` variable declared in `main()`. The only required change is to declare the parameter as a reference to an `int`:
+
+```cpp  
+void change_value_and_print(int& x) {
+    ...
+}
+```
+
+This small change effectively “links” the *parameter* `x` with the *argument* `x`. One of the key benefits of references is their simplicity. To convert a variable into a reference, you only need to adjust its declared type by adding an ampersand (`&`). You don't need to modify the function body or the way the function is called.
+
+If we were to use a pointer instead, additional syntax changes would be necessary for both the function definition and how the argument is passed. With references, no such changes are needed beyond declaring the parameter as a reference.
+
+Once a reference is initialized, its syntax for usage is identical to that of the variable it references. While this makes references convenient, it can also be confusing. Here's an example that demonstrates the behavior of references:
+
+```cpp
+// reference_example.cpp
+#include <iostream>
+
+void change_value_and_print(int& x) {
+    std::cout << x << std::endl;
+
+    // This line appears to assign 1 to `x`, but in reality, it modifies
+    // the value of the variable whose address `x` references (from main()).
+    x = 1;
+
+    std::cout << x << std::endl;
+}
+
+int main() {
+    int x = 0;
+    std::cout << x << std::endl; // Prints 0
+
+    // The reference parameter `x` now refers to the local variable `x` in main().
+    change_value_and_print(x);   // Prints 0, followed by 1
+    std::cout << x << std::endl; // Prints 1 (x in main() was modified)
+}
+```
+
+Once a reference is initialized, using the assignment operator doesn't modify the reference itself. Instead, it modifies the value of the variable the reference points to.
+
+```cpp
+int a = 10;
+int& ref = a; // `ref` references `a`
+ref = 20;     // Changes the value of `a` to 20
+```
+
+Any operation on a reference--whether it's reading a value (e.g., printing) or writing to it (e.g., assignment)--actually operates on the underlying variable.
+
+You can think of references as permanent **aliases** to preexisting variables. Once configured, any interaction with the reference directly affects the original variable.
+
+## References Outside Function Parameters
+
+References aren't limited to function parameters and arguments--you can also use them as local variables to store the address of another existing variable. While this isn't commonly needed, it's worth understanding how this works. For instance, you can modify the earlier example to “link” two variables, x and y, by making y a reference to x instead of a copy:
+
+```cpp
+// local_reference.cpp
+#include <iostream>
+
+int main() {
+    int x = 0;
+    std::cout << x << std::endl; // Prints 0
+
+    // Create `y` as a reference to `x`
+    int& y = x;
+
+    // Print the value of the variable referenced by `y` (i.e., `x`)
+    std::cout << y << std::endl; // Prints 0
+
+    // Increment the value of the variable referenced by `y` (i.e., `x`)
+    y++;
+
+    // Print the value of the variable referenced by `y` (i.e., `x`)
+    std::cout << y << std::endl; // Prints 1
+
+    // Print the value of `x`
+    std::cout << x << std::endl; // Prints 1
+}
+```
+
+The only modification to this program is the addition of the ampersand (`&`) in the declaration of `y`. The initialization and usage of `y` remain unchanged throughout the program. When `y` is declared as a reference to `x`, any operation performed on `y` directly affects `x`, as they are essentially the same variable under different names.
+
+However, in this specific example, using a reference is redundant because you could simply use `x` directly. As a result, *references as local variables are rarely used in practice*. They are much more commonly employed as function parameters. There are rare cases where using local references can simplify complex implementations, but these situations are uncommon and beyond the scope of most discussions.
+
+References can also be copied into other references. If `y` is a reference to `x`, and `z` is declared as a reference initialized with `y`, then `z` also becomes a reference to `x`. For example:
+
+```cpp
+std::string x;
+std::string& y = x;
+std::string& z = y;
+
+z = "Hello";
+std::cout << x << std::endl; // Prints "Hello"
+```
+
+## References and Literals
+
+References cannot store the address of a literal or a temporary value. Attempting to do so results in a syntax error. For instance, the following code is invalid:
+
+```cpp
+int& x = 100; // Syntax error
+```
+
+Technically, there is an exception: you can bind a `const` reference to an `rvalue` (such as a literal). However, this is beyond the scope of this discussion and not relevant to most introductory programming courses.
+
+## Returning References from Functions
+
+You might wonder, “Can a function return a reference?” The technical answer is **yes**, but it comes with significant risks. If not handled carefully, returning a reference can lead to a dangerous bug known as a dangling reference (or “use after free”). This issue is similar in consequence to a buffer overflow.
+
+Consider the following program:
+
+```cpp
+// dangling_reference.cpp
+#include <iostream>
+
+int& foo() {
+    int x = 0;
+
+    // Return a reference to the local variable `x`
+    return x;
+}
+
+int main() {
+    // Call `foo()` and store the returned reference in `y`
+    int& y = foo();
+
+    // Modify the value of the variable referenced by `y`
+    y = 1;
+
+    // Attempt to print the value
+    std::cout << y << std::endl;
+}
+```
+
+1. Inside `foo()`: The function declares a local variable, `x`, and returns a reference to it (int& indicates the return type is a reference).
+2. In `main()`: The reference returned by `foo()` is assigned to a new reference, `y`. As a result, `y` stores the memory address of `x`.
+3. The Problem: When `foo()` finishes execution, the local variable `x` goes out of scope, and its memory is deallocated. At this point, `y` becomes a dangling reference because it points to the memory of a variable that no longer exists. Any attempt to access or modify `y` results in **undefined behavior**.
+
+When a variable's memory is deallocated, it becomes available for reuse by the program. The memory previously occupied by `x` could be allocated for something entirely unrelated, such as storing another variable or even a return address.
+
+In this example, assigning `1` to `y` (`y = 1`) might inadvertently overwrite unrelated data stored in the recycled memory. This can corrupt program behavior and even open vulnerabilities for arbitrary code execution (ACE) or remote code execution (RCE) exploits.
+
+While dangling references officially lead to undefined behavior, the most common result in practice is corrupt memory access. This behavior mirrors the consequences of a buffer overflow.
+
+While it's easy to avoid returning references to local variables, dangling references (and pointers) can arise in more complex scenarios. These include cases where references or pointers “escape the call stack” in unintended ways. Tracking and preventing such issues is often much harder than avoiding buffer overflows, requiring rigorous coding practices and careful attention to object lifetimes.
+
+## Memory Errors and Their Consequences
+
+You've now encountered two critical memory errors—buffer overflows and dangling references—both of which can lead to severe issues, such as remote code execution (RCE) exploits.
+
+Some programming languages provide built-in memory safety mechanisms to eliminate these risks entirely. However, these safeguards come at a cost:
+
+1. **Runtime Performance**: Languages like Python, Java, and C# achieve memory safety by employing runtime checks and garbage collection, which can impact performance.
+2. **Syntactic Complexity and Strict Constraints**: Languages like Rust enforce memory safety through strict compile-time rules and additional syntactic requirements. These constraints can feel overly cautious or restrictive to developers.
+
+C and C++ prioritize **performance** and **developer control** over memory management. They maintain relatively simple syntax and impose fewer constraints on the programmer, allowing for maximum efficiency and flexibility. However, this approach leaves the burden of memory safety on the developer, making these languages prone to issues like buffer overflows and dangling references. As a result, these memory safety concerns are unlikely to disappear from C and C++ in the near future.
+
+:::note[Did You Know?]
+Recently, the [U.S. government criticized C++ for its inherent memory safety risks](hhttps://safecpp.org/draft.html). In response, the C++ standards committee has announced plans to introduce opt-in memory safety mechanisms in future versions of the language. These optional features aim to provide developers with tools to enhance memory safety without compromising the core principles of performance and control that define C++.
+:::
