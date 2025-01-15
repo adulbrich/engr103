@@ -180,7 +180,7 @@ To access an array element at a specific index, use the subscript operator, whic
 <array name>[<index>]
 ```
 
-This provides a reference to the element at the specified index, allowing you to both read and modify its value.
+This provides direct access to the element at the specified index, allowing you to both read and modify its value.
 
 Here's an example of declaring an array of five doubles and initializing all its elements to zero:
 
@@ -258,7 +258,7 @@ Additionally, the meaning of square brackets changes:
 
 ### Reading Data into Arrays
 
-The subscript operator (`[]`) takes an index as its operand and provides a reference to the array element at that index. This allows you to both read from and write to individual elements of an array.
+The subscript operator (`[]`) takes an index as its operand and provides direct access to the array element at that index. This allows you to both read from and write to individual elements of an array.
 
 Because of this, you can directly read input from `std::cin` and store it in a specific array element using the subscript operator. For example, the following code demonstrates how to populate an array of int elements with user-provided data using the stream extraction operator (`>>`):
 
@@ -392,7 +392,7 @@ This pattern--passing both an array and its size--is common because C++ lacks a 
 
 ### Arrays as Memory Addresses
 
-When passing an array to a function, the array's behavior differs from regular variables. Instead of copying the array, only the base address of the array (the memory address of its first element) is passed. This behavior makes array parameters act like reference parameters.
+When passing an array to a function, the array's behavior differs from regular variables. Instead of copying the array, only the base address of the array (the memory address of its first element) is passed. This behavior makes array parameters act *like* reference parameters.
 
 Consider the function call `print_strings(array_of_strings, 10)`. Here, the base address of `array_of_strings` is passed to the function. Inside the function, pointer arithmetic is used to access elements in the array using the subscript operator (`[]`). 
 
@@ -441,11 +441,15 @@ int main() {
 }
 ```
 
+:::note[Passing Arrays to Functions]
+In reality, arrays are passed as pointers to the first element. This is why you can use pointer arithmetic to access array elements in functions. Pointers are outside the scope of this course, but understanding them is essential for advanced C++ programming.
+:::
+
 ### Returning a Statically Allocated Array
 
 While it's technically possible to return a statically allocated array from a function, it's almost always a bad idea due to the risk of issues like dangling pointers, depending on the allocation context. We'll discuss these pitfalls in more detail during the lecture on references.
 
-Instead of attempting to return an array from a function, a better approach is to have the function receive a statically allocated array as a parameter, as described in the previous section. The function can then modify the array's elements directly. Since arrays in C++ are passed by reference (via their base address), any changes made to the array within the function will be reflected in the original array used as the argument. This effectively achieves the same result as “returning” an array.
+Instead of attempting to return an array from a function, a better approach is to have the function receive a statically allocated array as a parameter, as described in the previous section. The function can then modify the array's elements directly. Since arrays in C++ are via their base address, any changes made to the array within the function will be reflected in the original array used as the argument. This effectively achieves the same result as “returning” an array.
 
 ## “Resizing” a Statically Allocated Array
 
