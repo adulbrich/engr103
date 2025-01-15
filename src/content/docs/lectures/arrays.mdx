@@ -282,7 +282,7 @@ for (int i = 0; i < 5; i++) {
 }
 ```
 
-## Arrays Assignment vs Initialization
+## Arrays Assignment and Initialization
 
 While you can modify individual array elements using the assignment operator (`=`) with the subscript operator (`[]`), you cannot assign or reassign an entire array. For example, the following code snippet would produce a syntax error:
 
@@ -323,6 +323,14 @@ arr = {1, 2, 3, 4, 5}; // Syntax error
 ```
 
 When you declare an array, `arr` is not a modifiable `lvalue`--it represents a fixed block of memory, and its address cannot be changed or reassigned.
+
+Lastly, what happens when you partly initialize an array? For example, consider the following code:
+
+```cpp  
+int arr[5] = {1, 2};
+```
+
+What would happen if you try accessing the uninitialized elements of `arr`? The answer is that the uninitialized elements of partially initialized arrays are **automatically initialized** to zero (for scalar types), `\0` (for characters), or an empty string (for strings). This is a feature of C++ that ensures all elements of an array are initialized, even if you provide only a partial initializer list. Global or static arrays are zero-initialized by default.
 
 ## Passing Arrays to Functions
 
@@ -515,7 +523,7 @@ Here's the explanation:
     - Each number is stored at the index `arr_size`, and the `arr_size` variable is incremented to acknowledge the new element.
     - The loop stops either when the user chooses to stop (`user_input != 'Y'`) or when the array reaches its maximum size (`arr_size == 100`).
 3. A for loop prints only the acknowledged elements (those with indices from 0 to `arr_size - 1`).
-4. Any elements beyond   remain uninitialized and unused. These elements are safely ignored throughout the program.
+4. Any elements beyond remain uninitialized and unused. These elements are safely ignored throughout the program.
 
 The downsides are twofold. First, you must decide on the maximum number of elements the array can hold. If the actual number of elements exceeds this limit, the array cannot accommodate them. Second, if the array doesn't reach its maximum capacity, unused elements waste memory. These elements are uninitialized and serve no purpose.
 

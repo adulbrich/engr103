@@ -28,14 +28,18 @@ This line contains several expressions. Let's focus on three key ones:
     - Type: A kind of stream, for now, think of it as a tool for printing (specifically, `std::ostream`).
     - Value: The stream pointing to the terminal, enabling output to the console.
 2. `"Hello, World!"`: a sequence of characters known as a string literal.
-    - Type: A string (sequence of characters).
-    - Value: The specific string "Hello, World!".
+    - Type: A string literal (sequence of characters).
+    - Value: The specific string literal "Hello, World!".
 3. `std::endl`: a predefined command that tells the terminal to move the cursor to the next line.
     - Type: For now, think of it as a special sequence of characters.
     - Value: Represents the end of a line.
 
 :::note
-Technically, `std::endl` is a [manipulator](https://en.cppreference.com/w/cpp/io/manip/endl), not a sequence of characters. It instructs the output stream to insert a newline character and flush the stream.
+The reality is a little less straightforward. 
+
+For example,technically, `std::endl` is a [manipulator](https://en.cppreference.com/w/cpp/io/manip/endl), not a sequence of characters. It instructs the output stream to insert a newline character and flushes the stream. 
+
+If we consider the whole `std::cout << "Hello, World!" << std::endl;` expression, including the `<<` operators, is of type `std::ostream&` (a reference to an output stream) and the value is the stream object itself. This is outside the scope of this class.
 :::
 
 Note that these expressions are combined using the `<<` operator to produce the desired output (which is also an expression). We'll discuss operators a little later.
