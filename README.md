@@ -1,9 +1,17 @@
 # ENGR 103: Engineering Computation and Algorithmic Thinking
 
-To generate the documentation in PDF format, use:
+## PDFs
+
+To generate the documentation in PDF format, use [starlight-to-pdf](https://github.com/Linkerin/starlight-to-pdf):
 
 ```bash
-npx starlight-to-pdf https://engr103.alexulbrich.com/
+npx starlight-to-pdf https://engr103.alexulbrich.com/ --footer ./footer.html --header ./header.html --filename engr103 --no-contents --margins '2cm 1cm 2cm 1cm'
+```
+
+Here's an example to output the PDF of one lecture and stopping at the next one and excluding it (because I cannot find how to print to PDF only one webpage):
+
+```bash
+npx starlight-to-pdf https://engr103.alexulbrich.com/lectures/expressions --last /lectures/operators --exclude /lectures/operators --footer ./footer.html --header ./header.html --filename lecture-notes-expressions --no-contents --margins '2cm 1cm 2cm 1cm'
 ```
 
 ## Parking
