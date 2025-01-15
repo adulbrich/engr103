@@ -282,9 +282,9 @@ for (int i = 0; i < 5; i++) {
 }
 ```
 
-## Arrays Cannot Be Reassigned
+## Arrays Assignment vs Initialization
 
-While you can modify individual array elements using the assignment operator (`=`) with the subscript operator (`[]`), you cannot reassign an entire array. For example, the following code would produce a syntax error:
+While you can modify individual array elements using the assignment operator (`=`) with the subscript operator (`[]`), you cannot assign or reassign an entire array. For example, the following code snippet would produce a syntax error:
 
 ```cpp
 int numbers[100];
@@ -306,6 +306,23 @@ for (int i = 0; i < 100; i++) {
 ```
 
 By iterating over each element, you can replicate the data from one array to another while adhering to C++'s memory constraints.
+
+When you **declare** an array, you can initialize its elements directly using an initializer list. This list is enclosed in curly braces (`{}`) and contains the initial values for each element, separated by commas. The initializer list is placed after the array name and size during declaration.
+
+```cpp
+int arr[5] = {1, 2, 3, 4, 5};
+```
+
+This is part of the array's construction process and does not involve reassigning an existing array. The initializer list is a convenient way to set the initial values of an array when it is first declared.
+
+An invalid but common mistake is to attempt to use the assignment operator (`=`) to initialize an array after declaration. This is not allowed in C++:
+
+```cpp
+int arr[5];
+arr = {1, 2, 3, 4, 5}; // Syntax error
+```
+
+When you declare an array, `arr` is not a modifiable `lvalue`--it represents a fixed block of memory, and its address cannot be changed or reassigned.
 
 ## Passing Arrays to Functions
 
