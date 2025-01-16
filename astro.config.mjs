@@ -14,6 +14,17 @@ export default defineConfig({
       social: {
         github: "https://github.com/adulbrich/engr103",
       },
+      head: [
+        {
+          tag: "script",
+          attrs: {
+            src: "/knowledge/js/script.outbound-links.js",
+            "data-api": "/knowledge/api/event",
+            "data-domain": "engr103.alexulbrich.com",
+            defer: true,
+          },
+        },
+      ],
       sidebar: [
         {
           label: "Overview",
