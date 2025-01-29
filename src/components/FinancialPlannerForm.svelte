@@ -1,37 +1,44 @@
 <script>
-  let present_value;
+  let present_value = 1000;
   let annual_interest_rate = 7;
   let number_of_periods = 10;
-  let recurring_payments;
-  let future_value;
+  let recurring_payments = 100;
+  let future_value = 10000;
   let payment_type = "start";
   let annual_inflation_rate = 0;
-  let compounding_period = "year";
+  let compounding_period = "year"; // "year" or "month"
 
+  $: rate_factor = compounding_period === "month" ? 1 / 12 : 1;
+  $: period_factor = compounding_period === "month" ? 12 : 1;
   $: real_annual_interest_rate =
-    (1 + annual_interest_rate / 100) / (1 + annual_inflation_rate / 100) - 1;
+      ((1 + annual_interest_rate / 100) / (1 + annual_inflation_rate / 100) -
+        1) *
+      rate_factor;
+  $: periods_adjusted = number_of_periods * period_factor;
 
   $: extra_period =
     payment_type === "start" ? 1 + real_annual_interest_rate : 1;
+
   $: fv =
-    present_value * (1 + real_annual_interest_rate) ** number_of_periods +
+    present_value * (1 + real_annual_interest_rate) ** periods_adjusted +
     (recurring_payments *
       extra_period *
-      ((1 + real_annual_interest_rate) ** number_of_periods - 1)) /
+      ((1 + real_annual_interest_rate) ** periods_adjusted - 1)) /
       real_annual_interest_rate;
+
   $: pmt =
     (future_value -
-      present_value * (1 + real_annual_interest_rate) ** number_of_periods) /
+      present_value * (1 + real_annual_interest_rate) ** periods_adjusted) /
     ((extra_period *
-      ((1 + real_annual_interest_rate) ** number_of_periods - 1)) /
+      ((1 + real_annual_interest_rate) ** periods_adjusted - 1)) /
       real_annual_interest_rate);
   $: pv =
     (future_value -
       (recurring_payments *
         extra_period *
-        ((1 + real_annual_interest_rate) ** number_of_periods - 1)) /
+        ((1 + real_annual_interest_rate) ** periods_adjusted - 1)) /
         real_annual_interest_rate) /
-    (1 + real_annual_interest_rate) ** number_of_periods;
+    (1 + real_annual_interest_rate) ** periods_adjusted;
 
   $: fv_currency = new Intl.NumberFormat(`en-US`, {
     currency: `USD`,
@@ -100,6 +107,32 @@
             </label>
           </div></label
         >
+      </div>
+
+      <div class="mt-4 space-y-2">
+        <label class="block text-sm font-medium text-gray-700"
+          >Compounding Period
+          <div class="mt-1 space-x-4">
+            <label class="inline-flex items-center">
+              <input
+                type="radio"
+                bind:group={compounding_period}
+                value="year"
+                class="form-radio text-blue-600"
+              />
+              <span class="ml-2">Yearly</span>
+            </label>
+            <label class="inline-flex items-center">
+              <input
+                type="radio"
+                bind:group={compounding_period}
+                value="month"
+                class="form-radio text-blue-600"
+              />
+              <span class="ml-2">Monthly</span>
+            </label>
+          </div>
+        </label>
       </div>
 
       <div>
