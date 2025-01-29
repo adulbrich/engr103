@@ -74,6 +74,7 @@ Nested scopes follow the same rules as any other scope:
 The following example demonstrates how nested scopes work in practice:
 
 ```cpp
+// nested_scope.cpp
 #include <iostream>
 
 int main() {
@@ -114,6 +115,9 @@ In C++, two variables with the same name cannot be declared in the exact same sc
 We've already seen an example of variables with the same name in different scopes in the functions lecture:
 
 ```cpp
+// weird_sum.cpp
+#include <iostream>
+
 int weird_sum(int a, int b) {
     int result = a + b; // Compute sum
     a = 0;              // Modify parameter a
@@ -146,6 +150,7 @@ Shadowing occurs when a variable declared in a nested (inner) scope has the same
 Here's an example to illustrate shadowing:
 
 ```cpp
+// shadowing.cpp
 #include <iostream>
 
 int main() {
