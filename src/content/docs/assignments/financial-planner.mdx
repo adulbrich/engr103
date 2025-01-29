@@ -6,6 +6,7 @@ sidebar:
 ---
 
 import Latex from '../../../components/Latex.astro'
+import FinancialPlannerForm from '../../../components/FinancialPlannerForm.svelte'
 
 This assignment will introduce you to financial formulas commonly used in personal finance, business, and investment scenarios. You will write a C++ program that calculates **future value (FV)**, **present value (PV)**, or **regular payments (PMT)** based on user input. These calculations are essential for understanding the value of money over time and making informed financial decisions.
 
@@ -135,15 +136,6 @@ The provided template code includes a file named `planner.cpp`, which is mostly 
 
 You need to validate user input and manage errors as described in the program requirements. If the user enters invalid input, print an error message to the terminal and terminate the program immediately.
 
-### Testing
-
-You can use the following links to test your program with different scenarios:
-
-- [Future Value Calculation](https://www.calculator.net/future-value-calculator.html)
-- [Present Value Calculation](https://www.calculator.net/present-value-calculator.html)
-- [Recurring Payments Calculation](https://www.calculator.net/investment-calculator.html?ctype=contributeamount)
-
-
 ## Extra Credit Opportunities
 
 There are three optional tasks of varying difficulties that you can complete for extra credit.
@@ -208,3 +200,15 @@ The Newton-Raphson formula iteratively updates <Latex formula="r"/> as:
 2. Edge Cases: Handle cases where <Latex formula="PMT = 0"/> (i.e., no regular payments) or <Latex formula="r = 0"/> (no interest).
 
 This method is widely used in financial software and is a practical approach to computing interest rates in real-world scenarios. */}
+
+## Simulator
+
+Here's a small interactive simulator to test your program. You can input values for each scenario and see the expected output. The compounding period is set to yearly.
+
+<FinancialPlannerForm client:load />
+
+Alternatively, you can use the following links to test your program with different scenarios:
+
+- [Future Value Calculation](https://www.calculator.net/future-value-calculator.html)
+- [Present Value Calculation](https://www.calculator.net/present-value-calculator.html)
+- [Recurring Payments Calculation](https://www.calculator.net/investment-calculator.html?ctype=contributeamount)
