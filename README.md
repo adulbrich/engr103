@@ -19,6 +19,7 @@ chmod +x ./pdf/generate-lecture-notes.sh
 
 ## Parking
 
+- [ ] Use the `print:` pseudo-class in Tailwind to see if we can enable/disable things in the PDF (such as the flowcharts or simulators).
 - [ ] Use [Internationalization](https://starlight.astro.build/guides/i18n/) to have multiple version of the course for different terms or different languages.
 - [ ] Change the icon for the language dropdown (code instead of translation)
 - [ ] Figure out the CSS for the Latex component. Right now, the containing `<span>` has some padding on the right which looks odd when there's punctuation following the expression.
