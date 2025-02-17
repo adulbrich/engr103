@@ -337,15 +337,15 @@ This pattern is widely used because of its simplicity, but variations exist depe
 
 ### Counter Name
 
-Since the primary purpose of a `for` loop is to handle count-based problems, almost every for loop declares or initializes a counter variable in its initialization statement. Because this use case is so common, it has become standard practice to name the counter variable `i`.
+Since the primary purpose of a `for` loop is to handle count-based problems, almost every `for` loop declares or initializes a counter variable in its initialization statement. Because this use case is so common, it has become standard practice to name the counter variable `i`.
 
 In previous examples, we used the name `counter` to explicitly indicate its role. However, over time, `i` has become the most widely recognized name for counter variables. It's so universally understood among programmers that its meaning is immediately clear. While it's generally discouraged to use single-letter or heavily abbreviated variable names, this is a **well-established exception**.
 
-The use of `i` as a counter variable originates from mathematical notation, where `i` is often used to index elements of a vector or rows of a matrix. In programming, for loops are frequently used for similar tasks, such as iterating over elements in strings, arrays, or other data structures. We'll explore these applications in future lectures.
+The use of `i` as a counter variable originates from mathematical notation, where `i` is often used to index elements of a vector or rows of a matrix. In programming, `for` loops are frequently used for similar tasks, such as iterating over elements in strings, arrays, or other data structures. We'll explore these applications in future lectures.
 
 Similarly, in nested loops (see below), it is common to use `i`, `j`, and `k`  as counter variables for the outer, middle, and inner loops, respectively.
 
-### Header tricks
+### Header Tricks
 
 As we've mentioned, the initialization statement and post-operation in a `for` loop header can be any valid C++ statement. In most examples, we follow a common pattern for simple count-based loops:
 
@@ -412,6 +412,7 @@ Both statements can simplify handling special cases within loops but should be u
 This `for` loop allows the user to make up to 10 guesses for a “magic number” (777). If the user guesses correctly, the break statement exits the loop early:
 
 ```cpp
+// guess_number_for.cpp
 for (int i = 10; i > 0; i--) {
     std::cout << "You have " << i << " guesses left." << std::endl;
     std::cout << "Guess the magic number: ";
@@ -431,6 +432,7 @@ If `break` was used outside the `if` statement, it would execute unconditionally
 In the next example, this `while` loop asks the user for 10 positive integers and calculates their sum. If the user enters a non-positive integer, the continue statement skips the current iteration, prompting the user again without adding the invalid input to the sum or incrementing the counter.
 
 ```cpp
+// while_continue_integers.cpp
 int num_positive_values_entered = 0;
 int sum_of_positive_values = 0;
 
@@ -471,6 +473,7 @@ If a `break` or `continue` statement is used inside a nested loop, it only appli
 How many times do you think the following program will print `“Hello”`?
 
 ```cpp title="Nested Loops Example 1"
+// nested_loop_1.cpp
 for (int i = 0; i < 10; i++) {
     for (int j = 0; j < 5; j++) {
         std::cout << "Hello" << std::endl;
@@ -487,6 +490,7 @@ Hence, `“Hello”` is printed <Latex formula="5 \times 10 = 50"/>.
 Here's a slightly harder example. How many times will the following program print `“Hello”`, and how many times will it print `“Goodbye”`?
 
 ```cpp title="Nested Loops Example 2"
+// nested_loop_2.cpp
 for (int i = 0; i < 10; i++) {
     for (int j = 0; j < 5; j++) {
         std::cout << "Hello" << std::endl;
@@ -504,6 +508,7 @@ Hence, `“Hello”` is printed <Latex formula="5 \times 10 = 50"/> times and `�
 Here's an even harder example, still using nested for loops:
 
 ```cpp title="Variable-Length Inner Loop"
+// nested_loop_variable.cpp
 for (int i = 1; i <= 9; i++) {
     for (int j = 0; j < i; j++) {
         std::cout << "Hello" << std::endl;
@@ -539,6 +544,7 @@ Hence, their sum is equal to:
 Let's do one more nested for loop example. What does the following program do? Note that `\t` is a “tab” character, so printing it will print a tab indentation to the terminal. 
 
 ```cpp title="Nested Loops Example 3"
+// nested_loop_3.cpp
 for (int i = 1; i <= 10; i++) {
     for (int j = 1; j <= 10; j++) {
         std::cout << (i * j) << "\t";
@@ -574,6 +580,7 @@ This nested loop prints a <Latex formula="10 \times 10"/> multiplication table:
 Finally, let's do a crude, academic example that pulls a lot of concepts together, including nested loops, `break` and `continue` statements, and scope rules. How many times will the following code print “Hello”?
 
 ```cpp title="Nested Loops Example 4"
+// nested_loop_4.cpp
 int i = 0; 
 while (true) {
     if (i >= 10) {
