@@ -15,18 +15,18 @@ While strings may seem simple, they are actually more complex than they appear.
 
 ## String Basics
 
-Like other data types, **string values** can be stored in variables. However, in C++, strings are not primitive data types; they belong to a more complex type known as a **class**. To use strings, you need to include the appropriate header file. The string data type in C++ is called std::string, and to access it, you must add the following directive at the top of your program:
+Like other data types, **string values** can be stored in variables. However, in C++, strings are not primitive data types; they belong to a more complex type known as a **class**. To use strings, you need to include the appropriate header file. The string data type in C++ is called `std::string`, and to access it, you must add the following directive at the top of your program:
 
 ```cpp
 #include <string>
 ```
-
 
 The `std::string` class is part of the C++ Standard Library, which places it in the `std` namespace. As a result, you need to prefix it with `std::` (e.g., `std::string`). This requirement might feel unusual because, until now, you've only worked with primitive, built-in data types that don't require namespace prefixes.
 
 Here's an example of defining a string variable called `my_cool_string` that stores the text “Hello”:
 
 ```cpp
+// string_basics.cpp
 #include <string>
 
 int main() {
@@ -63,7 +63,7 @@ While there are other methods to check for an empty string, the above approach i
 
 ### Printing Strings
 
-You can print the value of a std::string variable to the terminal using `std::cout`, just as you would with other variables. For example, here's a “Hello, World!” program that stores the text in a string variable:
+You can print the value of a `std::string` variable to the terminal using `std::cout`, just as you would with other variables. For example, here's a “Hello, World!” program that stores the text in a string variable:
 
 ```cpp
 #include <iostream>
@@ -114,6 +114,7 @@ If the program subsequently reads more input, it will process the leftover `.5` 
 Here's an extended version of the program:
 
 ```cpp
+// leftover_data.cpp
 std::cout << "Enter an integer: ";
 int number;
 std::cin >> number;
@@ -144,6 +145,7 @@ Thus, when using `>>` to read a string, only a single “word” is extracted at
 Consider this program:
 
 ```cpp
+// leftover_data_string.cpp
 #include <iostream>
 #include <string>
 
@@ -188,6 +190,7 @@ When called, `std::getline()` reads all characters from the input buffer up to t
 Here's an example of how you can use `std::getline()`:
 
 ```cpp
+// getline_example.cpp
 #include <iostream>
 #include <string>
 
@@ -229,6 +232,7 @@ Be cautious when combining `>>` and `std::getline()` in the same program. These 
 If you use `>>` to extract input and then call `std::getline()` afterward, the leftover newline character from the previous input may cause `std::getline()` to read an empty line. For example:
 
 ```cpp
+// cin_getline_risk.cpp
 std::cin >> number;
 std::getline(std::cin, text);
 ```
