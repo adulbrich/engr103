@@ -122,7 +122,7 @@ This memory structure makes arrays highly memory **efficient**, as they do not w
 
 ### How Direct Access Works
 
-The efficiency of direct access is achieved through pointer arithmetic. Suppose the base address of an int array is `0x000F` (byte 15), and you want to access the 17th integer. Since each int occupies 4 bytes, your computer calculates the memory address of the 17th integer by shifting over 16 integers from the base address:
+The efficiency of direct access is achieved through pointer arithmetic. Suppose the base address of an `int` array is `0x000F` (byte 15), and you want to access the 17th integer. Since each int occupies 4 bytes, your computer calculates the memory address of the 17th integer by shifting over 16 integers from the base address:
 
 - <Latex formula="16 \times 4 = 64"/> bytes.
 - Adding 64 bytes to the base address (`0x000F`) yields `0x004F` (byte 79).
@@ -163,6 +163,14 @@ When you run this program, the output will display something like this:
 ```
 
 This hexadecimal value represents the array's base address.
+
+:::note[Arrays of Characters]
+When you pass an array of double (or most other types) to `std::cout`, the array name `my_list_of_numbers` decays to a pointer to its first element (i.e., `&my_list_of_numbers[0]`). This is a fundamental rule in C and C++: array names in most contexts decay to pointers to their base address. So, `std::cout` prints the memory address of the first element as a hexadecimal value.
+
+For `char my_list_of_characters[10];`, the same array-to-pointer decay happens: `my_list_of_characters` becomes `&my_list_of_characters[0]`, a `char*`. However, `std::cout` has a special **overload** for `char*`. Instead of printing the address, it assumes a `char*` points to a null-terminated *string* and tries to print the contents of the memory as a string, starting at that address and continuing until it hits a `\0` (null terminator). If your char array is uninitialized or doesn't explicitly contain a null terminator, you'll get garbage output or undefined behavior because `std::cout` will keep reading memory beyond your array until it finds a `\0` or crashes.
+
+Try it in your code to see the difference! Pointers are not covered in this course, so don't worry too much about this explanation.
+:::
 
 ### Accessing and Writing Individual Elements
 
