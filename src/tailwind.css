@@ -11,7 +11,7 @@ https://tailwindcss.com/docs/adding-custom-styles#using-css-and-layer
     @apply gap-4;
 }
 
-.sl-link-button {
+.actions > a {
     @apply rounded-lg;
 }
 
