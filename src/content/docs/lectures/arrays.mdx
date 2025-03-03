@@ -530,7 +530,7 @@ Here's the explanation:
     - The program prompts the user to input numbers.
     - Each number is stored at the index `arr_size`, and the `arr_size` variable is incremented to acknowledge the new element.
     - The loop stops either when the user chooses to stop (`user_input != 'Y'`) or when the array reaches its maximum size (`arr_size == 100`).
-3. A for loop prints only the acknowledged elements (those with indices from 0 to `arr_size - 1`).
+3. A `for` loop prints only the acknowledged elements (those with indices from `0` to `arr_size - 1`).
 4. Any elements beyond remain uninitialized and unused. These elements are safely ignored throughout the program.
 
 The downsides are twofold. First, you must decide on the maximum number of elements the array can hold. If the actual number of elements exceeds this limit, the array cannot accommodate them. Second, if the array doesn't reach its maximum capacity, unused elements waste memory. These elements are uninitialized and serve no purpose.
@@ -580,7 +580,7 @@ Buffer overflows become even more dangerous when they extend into memory regions
 Skilled attackers can exploit buffer overflows to gain control over a program. For example:
 
 1. **Arbitrary Code Execution (ACE)**: Attackers manipulate a buffer overflow to modify the return address and inject malicious code. The program is coerced into executing this code.
-2. **Remote Code Execution (RCE**): **In networked applications, attackers exploit buffer overflows remotely to execute arbitrary code on the target machine.
+2. **Remote Code Execution (RCE**):** In networked applications, attackers exploit buffer overflows remotely to execute arbitrary code on the target machine.
 
 :::note[Did You Know?]
 In a fascinating demonstration, [YouTuber SethBling used a buffer overflow in Super Mario World](https://www.youtube.com/watch?v=hB6eY73sLV0&t=21s) to inject custom bytecode into the game while it was running. By manipulating the game's memory, he transformed it into a fully functional Flappy Bird-like simulator! 

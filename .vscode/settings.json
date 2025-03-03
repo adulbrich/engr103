@@ -3,4 +3,7 @@
       "editor.wordWrap": "bounded",
       "editor.wordWrapColumn": 75
     },
+    "files.associations": {
+      "iostream": "cpp"
+    },
   }
