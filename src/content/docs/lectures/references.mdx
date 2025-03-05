@@ -121,10 +121,10 @@ Both placements are functionally identical, and the choice is stylistic. The key
 ### Restrictions
 
 1. A reference must be **initialized** at the moment of its declaration. When declaring a reference, you must specify the variable whose address it will store.
-  - For Function Parameters: References are automatically initialized with the corresponding argument's address when the function is called.
-  - For Local Variables: References must be explicitly initialized during declaration using the assignment operator. This ensures that a reference can never be “undefined.”
+    - For Function Parameters: References are automatically initialized with the corresponding argument's address when the function is called.
+    - For Local Variables: References must be explicitly initialized during declaration using the assignment operator. This ensures that a reference can never be “undefined.”
 2. Once a reference is initialized to store the address of a specific variable, it **cannot be reconfigured** (i.e., references are constant) to store the address of another variable. However, this does not mean the underlying variable is immutable. You can still modify the value of the variable the reference points to.
-3. A reference cannot store the address of a literal or temporary value, as it **only applies to variables** (or, more formally, `lvalues`). This restriction makes sense because literals don't have modifiable memory addresses.
+3. A reference cannot store the address of a literal or temporary value, as it **only applies to variables** (or, more precisely, `lvalues`). This restriction makes sense because literals don't have modifiable memory addresses.
 
 ### Advantages
 
@@ -224,13 +224,43 @@ std::cout << x << std::endl; // Prints "Hello"
 
 ## References and Literals
 
-References cannot store the address of a literal or a temporary value. Attempting to do so results in a syntax error. For instance, the following code is invalid:
+References cannot store the address of a literal or a temporary value (i.e., `rvalue`). Attempting to do so results in a syntax error. For instance, the following code is invalid:
 
 ```cpp
 int& x = 100; // Syntax error
 ```
 
-Technically, there is an exception: you can bind a `const` reference to an `rvalue` (such as a literal). However, this is beyond the scope of this discussion and not relevant to most introductory programming courses.
+Technically, there is an exception: you can bind a `const` reference to an `rvalue`. However, this is beyond the scope of this discussion and not relevant to most introductory programming courses.
+
+## Constant References
+
+In C++, you can declare a reference as `const`, which means the reference cannot be used to modify the underlying variable. This is useful when you want to pass a variable to a function by reference but don't want the function to modify the variable. Let's revisit the `change_value_and_print()` function and modify it to accept a `const` reference:
+
+```cpp
+#include <iostream>
+
+void print(const int& x) {
+    // x = 1; // this won't work because x is a const reference
+    std::cout << x << std::endl;
+}
+
+int main() {
+    int x = 0;
+    std::cout << x << std::endl; // Prints 0
+    print(x);   // Prints 0
+}
+```
+
+You can use the same `const` trick while passing arrays to functions. While arrays are not technically references, it will achieve a similar outcome. For instance, let's revisit the `print_strings()` function that prints the elements of an array. We can use the `const` keyword to ensure the function doesn't modify the array (i.e., the elements are read-only):
+
+```cpp  
+void print_strings(const std::string my_strings[], int n_strings) {
+    for (int i = 0; i < n_strings; i++) {
+        std::cout << my_strings[i] << std::endl;
+    }
+    // my_strings[0] = "Hello"; // this won't work because my_strings is a const reference
+}
+```
 
 ## Returning References from Functions
 
@@ -261,7 +291,7 @@ int main() {
 }
 ```
 
-1. Inside `foo()`: The function declares a local variable, `x`, and returns a reference to it (int& indicates the return type is a reference).
+1. Inside `foo()`: The function declares a local variable, `x`, and returns a reference to it (`int&` indicates the return type is a reference).
 2. In `main()`: The reference returned by `foo()` is assigned to a new reference, `y`. As a result, `y` stores the memory address of `x`.
 3. The Problem: When `foo()` finishes execution, the local variable `x` goes out of scope, and its memory is deallocated. At this point, `y` becomes a dangling reference because it points to the memory of a variable that no longer exists. Any attempt to access or modify `y` results in **undefined behavior**.
 

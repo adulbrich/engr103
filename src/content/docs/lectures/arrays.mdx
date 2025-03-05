@@ -330,7 +330,19 @@ int arr[5];
 arr = {1, 2, 3, 4, 5}; // Syntax error
 ```
 
-When you declare an array, `arr` is not a modifiable `lvalue`--it represents a fixed block of memory, and its address cannot be changed or reassigned.
+When you declare an array, `arr` is not a modifiable `lvalue`--it represents a fixed block of memory, and its address cannot be changed or reassigned. 
+
+:::note[What is an `lvalue`?]
+You might have heard the term `lvalue` in this class, but it was not explained in details. Let's change that!
+
+Originally, the term `lvalue` comes from the C language, where it refers to an expression that can appear on the *left* side of an assignment. In C++, the term has evolved to mean an expression that refers to a memory location and can be assigned a value.
+
+An `lvalue` is said non-modifiable if it cannot be assigned a new value. For example, a constant variable is an `lvalue`, but it is non-modifiable because you can't assign a new value to it.
+
+Conversely, an `rvalue` is an expression that represents a temporary value or a literal that does not have a persistent, identifiable memory location. For example, a literal value like `5` is an `rvalue` because you can't assign a new value to `5`. Originally, `rvalue` stood for *right* value, but this distinction is less relevant in modern C++.
+
+[Learn more about expression value categories.](https://learn.microsoft.com/en-us/cpp/cpp/lvalues-and-rvalues-visual-cpp)
+:::
 
 Lastly, what happens when you partly initialize an array? For example, consider the following code:
 
