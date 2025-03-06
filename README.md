@@ -17,6 +17,13 @@ chmod +x ./pdf/generate-lecture-notes.sh
 ./pdf/generate-lecture-notes.sh
 ```
 
+To generate slides from `marp`, use:
+
+```bash
+cd slides
+npx @marp-team/marp-cli@latest web-graphics.md --pdf --allow-local-files
+```
+
 ## Parking
 
 - [ ] Use the `print:` pseudo-class in Tailwind to see if we can enable/disable things in the PDF (such as the flowcharts or simulators).

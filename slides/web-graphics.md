@@ -123,14 +123,26 @@ And change the HTML in the `<body>`.
 ```
 
 ---
+<!-- _class: reference -->
 
-# Web Infrastructure
+# A Simplified View of the Web
+
+![width:800px](web-app-architecture-scheme.jpeg)
+<p><a href="https://www.intellectsoft.net/blog/wp-content/uploads/web-app-architecture-scheme.jpeg">Source</a></p>
 
 ---
 
+# CPU and Clock Speed
+
+The **Central Processing Unit (CPU)** is the chip in your computer that executes instructions to run programs.
+
+The **clock speed** measures the number of cycles your CPU executes per second, measured in GHz (gigahertz) -- billions operations per second.
+
+The relationship between clock speed and power consumption is not linear as it depends on the voltage, i.e., ...
+
 ---
 
-# CPU / GPU
+# GPU
 
 ---
 
