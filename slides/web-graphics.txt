@@ -1,0 +1,86 @@
+
+
+---
+
+
+
+---
+
+
+
+---
+
+There are also a lot of common "backend" languages such as PHP, Python, Node.js, Ruby, Java, Go, etc. Pretty much any languages can be use for the backend, even C and C++!
+
+---
+
+DOCTYPE is preamble, lang and charset are attributes, head is container for non-visible things, body is container for all user visible things, meta is for metadata elements that cannot be represented by other tags like style, title, script, or link
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+The relationship between power, frequency, and voltage depends on the architecture.
+
+Example: An Intel Core i9-13900K has 8 performance cores, each capable of running a full program independently with deep instruction pipelines.
+
+Analogy: A skilled chef who can cook an entire gourmet meal alone—versatile but limited to one dish at a time.
+
+---
+
+We might be able to parallelize `for` loops for example, but not anything conditional.
+
+---
+
+Example: An NVIDIA RTX 4090 has 16,384 CUDA cores, but each one is a tiny ALU, not a full processor—collectively, they churn through teraflops of parallel compute.
+
+Analogy: A fast-food worker flipping burgers—each does one simple task, but thousands together can serve a crowd instantly.
+
+---
+
+Applications: browser, game, modeling tool, using C++, Python, ...
+
+Graphics Engine: Unreal, Unity, Godot, ...
+
+Graphics API: DirectX, Vulkan, Metal, OpenGL, WebGL
+
+Driver: Vendor-specific, i.e., NVIDIA, AMD, Intel, ...
+
+OS and Compositor: Windows Display Driver Model, Wayland, X11, ...
+
+---
+
+"WDDM" stands for Windows Display Driver Model and "DWM" stands for Desktop Window Manager.
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
