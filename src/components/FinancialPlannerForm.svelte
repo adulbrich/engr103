@@ -56,23 +56,23 @@
   let activeTab = "future"; // Options: 'future', 'payments', 'present'
 </script>
 
-<div class="w-full max-w-2xl mx-auto p-4 pt-0 mt-4 rounded border">
+<div class="w-full max-w-2xl mx-auto p-4 pt-0 mt-4 rounded border print:hidden dark:bg-black dark:text-white">
   <!-- Tab Navigation -->
-  <div class="flex w-full border-b mb-4">
+  <div class="flex w-full border-b border-white dark:border-black mb-4">
     <button
-      class={`flex-1 px-4 py-2 mt-4 text-center ${activeTab === "future" ? "border-b-2 border-blue-500 text-blue-600" : "text-gray-600"}`}
+      class={`flex-1 px-4 py-2 mt-4 text-center bg-stone-100 dark:bg-stone-800 ${activeTab === "future" ? "border-b-2 border-orange-500 text-orange-500" : ""}`}
       on:click={() => (activeTab = "future")}
     >
       Future Value
     </button>
     <button
-      class={`flex-1 px-4 py-2 mt-4 text-center ${activeTab === "payments" ? "border-b-2 border-blue-500 text-blue-600" : "text-gray-600"}`}
+      class={`flex-1 px-4 py-2 mt-4 text-center bg-stone-100 dark:bg-stone-800 ${activeTab === "payments" ? "border-b-2 border-orange-500 text-orange-600" : ""}`}
       on:click={() => (activeTab = "payments")}
     >
       Recurring Payments
     </button>
     <button
-      class={`flex-1 px-4 py-2 mt-4 text-center ${activeTab === "present" ? "border-b-2 border-blue-500 text-blue-600" : "text-gray-600"}`}
+      class={`flex-1 px-4 py-2 mt-4 text-center bg-stone-100 dark:bg-stone-800 ${activeTab === "present" ? "border-b-2 border-orange-500 text-orange-600" : ""}`}
       on:click={() => (activeTab = "present")}
     >
       Present Value
@@ -84,7 +84,7 @@
     <!-- Common Inputs -->
     <div class="grid grid-cols-1 gap-4">
       <div>
-        <label class="block text-sm font-medium text-gray-700"
+        <label class="block text-sm font-medium"
           >Payment Timing
           <div class="mt-1 space-x-4">
             <label class="inline-flex items-center">
@@ -110,7 +110,7 @@
       </div>
 
       <div class="mt-4 space-y-2">
-        <label class="block text-sm font-medium text-gray-700"
+        <label class="block text-sm font-medium"
           >Compounding Period
           <div class="mt-1 space-x-4">
             <label class="inline-flex items-center">
@@ -118,7 +118,7 @@
                 type="radio"
                 bind:group={compounding_period}
                 value="year"
-                class="form-radio text-blue-600"
+                class="form-radio"
               />
               <span class="ml-2">Yearly</span>
             </label>
@@ -127,7 +127,7 @@
                 type="radio"
                 bind:group={compounding_period}
                 value="month"
-                class="form-radio text-blue-600"
+                class="form-radio"
               />
               <span class="ml-2">Monthly</span>
             </label>
@@ -136,12 +136,12 @@
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700"
+        <label class="block text-sm font-medium"
           >Annual Return Rate (%)
           <input
             type="number"
             bind:value={annual_interest_rate}
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            class="mt-1 block w-full rounded-md border-stone-300 shadow-sm focus-visible:outline-orange-500"
             min="0"
             max="100"
             step="0.5"
@@ -150,12 +150,12 @@
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700"
+        <label class="block text-sm font-medium"
           >Annual Inflation Rate (%) - Optional
           <input
             type="number"
             bind:value={annual_inflation_rate}
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            class="mt-1 block w-full rounded-md border-stone-300 shadow-sm focus-visible:outline-orange-500"
             min="0"
             max="100"
             step="0.5"
@@ -164,12 +164,12 @@
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700"
+        <label class="block text-sm font-medium"
           >Number of Periods
           <input
             type="number"
             bind:value={number_of_periods}
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            class="mt-1 block w-full rounded-md border-stone-300 shadow-sm focus-visible:outline-orange-500"
           /></label
         >
       </div>
@@ -178,27 +178,27 @@
     {#if activeTab === "future"}
       <div class="space-y-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700"
+          <label class="block text-sm font-medium"
             >Present Value
             <input
               type="number"
               bind:value={present_value}
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              class="mt-1 block w-full rounded-md border-stone-300 shadow-sm focus-visible:outline-orange-500"
             /></label
           >
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700"
+          <label class="block text-sm font-medium"
             >Periodic Deposits (per period)
             <input
               type="number"
               bind:value={recurring_payments}
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              class="mt-1 block w-full rounded-md border-stone-300 shadow-sm focus-visible:outline-orange-500"
             /></label
           >
         </div>
         {#if fv}
-          <div class="p-4 bg-gray-50 rounded-md">
+          <div class="p-4 bg-stone-100 dark:bg-stone-800 rounded-md">
             <p class="font-medium">Future Value: {fv_currency}</p>
           </div>
         {/if}
@@ -206,27 +206,27 @@
     {:else if activeTab === "payments"}
       <div class="space-y-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700"
+          <label class="block text-sm font-medium"
             >Present Value
             <input
               type="number"
               bind:value={present_value}
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              class="mt-1 block w-full rounded-md border-stone-300 shadow-sm focus-visible:outline-orange-500"
             /></label
           >
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700"
+          <label class="block text-sm font-medium"
             >Future Value
             <input
               type="number"
               bind:value={future_value}
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              class="mt-1 block w-full rounded-md border-stone-300 shadow-sm focus-visible:outline-orange-500"
             /></label
           >
         </div>
         {#if pmt}
-          <div class="p-4 bg-gray-50 rounded-md">
+          <div class="p-4 bg-stone-100 dark:bg-stone-800 rounded-md">
             <p class="font-medium">Required Payment: {pmt_currency}</p>
           </div>
         {/if}
@@ -234,27 +234,27 @@
     {:else}
       <div class="space-y-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700"
+          <label class="block text-sm font-medium"
             >Future Value
             <input
               type="number"
               bind:value={future_value}
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              class="mt-1 block w-full rounded-md border-stone-300 shadow-sm focus-visible:outline-orange-500"
             /></label
           >
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700"
+          <label class="block text-sm font-medium"
             >Monthly Payment
             <input
               type="number"
               bind:value={recurring_payments}
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              class="mt-1 block w-full rounded-md border-stone-300 shadow-sm focus-visible:outline-orange-500"
             /></label
           >
         </div>
         {#if pv}
-          <div class="p-4 bg-gray-50 rounded-md">
+          <div class="p-4 bg-stone-100 dark:bg-stone-800 rounded-md">
             <p class="font-medium">Present Value: {pv_currency}</p>
           </div>
         {/if}

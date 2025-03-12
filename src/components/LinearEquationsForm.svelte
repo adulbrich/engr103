@@ -61,7 +61,7 @@
   }
 </script>
 
-<div class="flex flex-col gap-4">
+<div class="flex flex-col gap-4 print:hidden">
   <div class="w-72 sm:w-96 rounded border p-4 space-y-4 mx-auto my-4">
     <h3 class="text-xl">Problem 1 Simulator</h3>
     <div>
@@ -107,7 +107,7 @@
     {#if problemOneError}
       <p class="text-red-600">{problemOneError}</p>
     {:else}
-      <div class="rounded p-4 bg-gray-100">
+      <div class="rounded p-4 bg-stone-50 dark:bg-stone-800">
         Number of products needed (N): {N}
       </div>
     {/if}
@@ -208,7 +208,7 @@
           />
         </div>
       </div>
-      <div class="w-48 rounded p-4 bg-gray-100 mx-auto flex flex-col">
+      <div class="w-48 rounded p-4 bg-stone-50 dark:bg-stone-800 mx-auto flex flex-col">
         {#if problemTwoError}
           <p class="text-red-600">{problemTwoError}</p>
         {:else}
