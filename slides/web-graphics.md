@@ -186,7 +186,7 @@ Increase the number of cores but have them run at a **lower** frequency and *opt
 
 ![width:800px](apple-m1.jpg)
 
-<!-- Example: An NVIDIA RTX 4090 has 16,384 CUDA cores, but each one is a tiny ALU, not a full processor—collectively, they churn through teraflops of parallel compute. -->
+<!-- Example: An NVIDIA RTX 4090 has 16,384 CUDA cores, but each one is a tiny ALU (Arithmetic Logic Unit), not a full processor—collectively, they churn through teraflops of parallel compute. -->
 <!-- Analogy: A fast-food worker flipping burgers—each does one simple task, but thousands together can serve a crowd instantly. -->
 
 ---

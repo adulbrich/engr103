@@ -26,6 +26,10 @@ npx @marp-team/marp-cli@latest web-graphics.md --pdf --allow-local-files
 
 ## Parking
 
+- [ ] Add something about DEBUGGING (e.g., with `std::cout` in a loop)
+- [ ] Add visual explanations of memory allocation and references
+- [ ] Refactor assignment 3 (clearer instructions OR smaller assignment)
+- [ ] Provide larger code examples/programs the students can play with
 - [ ] Use the `print:` pseudo-class in Tailwind to see if we can enable/disable things in the PDF (such as the flowcharts or simulators).
 - [ ] Use [Internationalization](https://starlight.astro.build/guides/i18n/) to have multiple version of the course for different terms or different languages.
 - [ ] Change the icon for the language dropdown (code instead of translation)
