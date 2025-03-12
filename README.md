@@ -10,11 +10,12 @@ Here's the command to generate one large PDF.
 npx starlight-to-pdf https://engr103.alexulbrich.com/ --footer ./footer.html --header ./header.html --filename engr103 --no-contents --margins '2cm 1cm 2cm 1cm'
 ```
 
-To generate lecture notes in separate files (one per page), use the corresponding bash script:
+To generate lecture notes in separate files (one per page), use the corresponding bash script (also for practicalities, assignments):
 
 ```bash
-chmod +x ./pdf/generate-lecture-notes.sh
-./pdf/generate-lecture-notes.sh
+cd pdf
+chmod +x ./generate-lecture-notes.sh
+./generate-lecture-notes.sh
 ```
 
 To generate slides from `marp`, use:

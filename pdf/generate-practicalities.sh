@@ -2,6 +2,7 @@
 
 # Define array of lecture topics
 practicalities=(
+    "debugging"
     "demos"
     "polya"
     "style"
