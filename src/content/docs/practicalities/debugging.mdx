@@ -1,0 +1,109 @@
+---
+title: Debugging C++ Code
+description: Learn how to debug C++ code effectively. This guide covers common debugging techniques, tools, and best practices to help you identify and fix errors in your programs.
+---
+
+Debugging is an essential skill for any programmer. It involves identifying and fixing errors or bugs in your code. This guide will introduce you to common debugging techniques, tools, and best practices for debugging C++ code.
+
+Here are common types of errors you might encounter while programming:
+
+1. **Syntax Errors**: Mistakes in the code that violate the rules of the C++ language. These are usually caught by the compiler.
+2. **Runtime Errors**: Errors that occur while the program is running, such as division by zero or accessing invalid memory.
+3. **Logical Errors**: Errors in the logic of the program that produce incorrect results. These are often the hardest to identify and fix.
+
+In the following section, let's look at some common debugging techniques and tools you can use to debug your C++ code effectively.
+
+## Print Statements
+
+One of the simplest ways to debug your code is by adding print statements to check the values of variables at different points in your program.
+
+```cpp
+// my_program.cpp
+#include <iostream>
+
+int main() {
+    int a = 5;
+    int b = 0;
+    std::cout << "a: " << a << ", b: " << b << std::endl;
+    int c = a / b; // This will cause a runtime error
+    std::cout << "c: " << c << std::endl;
+    return 0;
+}
+```
+
+Use it when something unexpected happens in your program, and you want to see the values of variables at that point. Don't forget to remove these print statements once you've identified and fixed the bug. You could add a comment where you put the print statement to remind yourself to remove it later.
+
+## Using a Debugger
+
+A debugger is a powerful tool that allows you to step through your code, inspect variables, and control the execution flow. Common debuggers for C++ include GDB (GNU Debugger) and the built-in debugger in IDEs like Visual Studio Code.
+
+Here's an example using GDB (available on the ENGR servers).
+
+First compile your code with the `-g` flag to include debugging information:
+
+```shell
+g++ -g -o run my_program.cpp
+```
+
+Then run GDB with your compiled program:
+
+```shell
+gdb ./run
+```
+
+This will open an interactive GDB session.
+
+Finally, set breakpoints, run the program, and inspect variables:
+
+```shell
+(gdb) break main
+(gdb) run
+(gdb) print a
+(gdb) next
+```
+
+## Analyzing Core Dumps
+
+A core dump is a file that captures the memory of a program at a specific point in time, usually when the **program crashes**. You can analyze core dumps using GDB to understand what caused the crash.
+
+First, enable core dumps:
+
+```shell
+ulimit -c unlimited
+```
+
+Then run your program. If it crashes, it will create a `core` file that you can analyze with:
+
+```shell
+gdb ./run core
+```
+
+I could not find the `core` file generated on the ENGR servers (it normally is located in the directory where the program is run or other default directories, but the ENGR servers are shared so I'm not sure what's going on).
+
+## Static Code Analysis
+
+Static code analysis tools analyze your code without executing it. They can help identify potential issues such as memory leaks, buffer overflows, and other vulnerabilities. Common tools include `cppcheck` and Clang Static Analyzer, but VS Code extensions can also provide insights.
+
+On the ENGR servers, `clang` is installed and so is its static analyzer. You can run:
+
+```shell
+clang++ --analyze -Xanalyzer -analyzer-output=text my_program.cpp
+```
+
+Alternatively, you can run `scan-build` (which comes with `clang`):
+
+```shell
+scan-build g++ my_program.cpp -o run
+```
+
+This latest command will create an HTML report, which is less practical in the terminal. 
+
+For those using VS Code, extensions such as C/C++ and C++ Intellisense can provide real-time feedback on your code. You will see squiggly lines under potential issues, and you can hover over them to see more details.
+
+## Best Practices for Debugging
+
+1. **Understand the Problem**: Before you start debugging, make sure you understand the problem and can reproduce it consistently.
+2. **Isolate the Issue**: Try to isolate the part of the code that is causing the problem. This can make it easier to identify the root cause.
+3. **Use Version Control**: Use version control systems like Git to keep track of changes in your code. This allows you to revert to a previous state if needed.
+4. **Write Test Cases**: Writing test cases can help you catch bugs early and ensure that your code behaves as expected.
+5. **Stay Calm and Patient**: Debugging can be frustrating, but staying calm and patient will help you think more clearly and find solutions more effectively.
