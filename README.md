@@ -27,8 +27,10 @@ npx @marp-team/marp-cli@latest web-graphics.md --pdf --allow-local-files
 
 ## Parking
 
+- [ ] Remove latex files: https://stackoverflow.com/questions/2004024/how-to-permanently-delete-a-file-stored-in-git
 - [ ] Add visual explanations of memory allocation and references
 - [ ] Refactor assignment 3 (clearer instructions OR smaller assignment) -- feedback is that it's more complicated than other assignments
+- [ ] Mention using `getline()` in dictionary assignment instead of `cin`
 - [ ] Provide larger code examples/programs the students can play with
 - [ ] Use [Internationalization](https://starlight.astro.build/guides/i18n/) to have multiple version of the course for different terms or different languages.
 - [ ] Change the icon for the language dropdown (code instead of translation)
