@@ -27,6 +27,8 @@ npx @marp-team/marp-cli@latest web-graphics.md --pdf --allow-local-files
 
 ## Parking
 
+- [ ] Add learning objectives to each lecture, optionally studios and assignments as well
+- [ ] Improve the "secondary" learning outcomes for the class (to be more programming specific)
 - [ ] Remove latex files: https://stackoverflow.com/questions/2004024/how-to-permanently-delete-a-file-stored-in-git
 - [ ] Add visual explanations of memory allocation and references
 - [ ] Refactor assignment 3 (clearer instructions OR smaller assignment) -- feedback is that it's more complicated than other assignments
@@ -95,3 +97,7 @@ This project uses `bun` instead of `npm`.
 - [KaTeX: The fastest math typesetting library for the web.](https://katex.org/) -- LaTeX component
 - [Adding Mermaid diagrams to Astro MDX](https://xkonti.tech/blog/astro-mermaid-mdx/) -- Mermaid component
 - [Mermaid User Guide](https://mermaid.js.org/intro/getting-started.html) -- Mermaid component
+
+## Acknowledgments
+
+The original content for the first iteration of this handbook (C++) was provided by Alexander Guyer under CC-BY. This includes lectures notes, studios, assignments, practicalities, and other content. The ENGR 103 course was originally developed by Jennifer Parham-Mocello and Natasha Mallette. They developed the contents in their capacity of faculty at Oregon State University.
