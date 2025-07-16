@@ -1,0 +1,186 @@
+---
+title: "Python Basics: Hello, World!"
+description: Get started with Python programming by writing your first "Hello, World!" program. This guide covers the basics of programming languages, translators, error handling, and the Python execution pipeline.
+sidebar:
+  order: 3
+---
+
+## Languages and Programming
+
+Languages are fundamental to human communication, enabling us to convey ideas, emotions, and instructions. In the realm of computing, languages serve a similar purpose, allowing us to communicate with machines and instruct them to perform specific tasks. Understanding the basic concepts of languages is crucial for anyone delving into the field of computer science and programming.
+
+To grasp the essence of programming languages, it's important to understand the following key concepts:
+
+1. **Sentence**: A sequence of symbols with semantic interpretation (meaning). In both spoken and programming languages, sentences convey complete thoughts or instructions.
+2. **Syntax**: Rules that dictate how symbols can form sentences. Syntax ensures that sentences are structured correctly, much like grammar rules in spoken languages.
+3. **Semantics**: describe how a sentence should be interpreted. They provide meaning to sentences, ensuring that they convey the intended message.
+4. **Grammar**: Combination of syntax and semantics, describing valid sentences and their meanings. Grammar provides a framework for constructing meaningful and correct sentences.
+5. **Language**: A set of valid sentences derived from a grammar. In computing, a language is a system of communication used to write programs that a computer can execute.
+
+These principles apply to both spoken languages and programming languages. A **programming language** is used to express instructions for a computer to interpret and execute. Just as we use different spoken languages for various contexts and purposes, there are numerous programming languages, each with its own strengths and applications.
+
+In this course, we use **Python**, a versatile language popular in software engineering, data science, web development, and automation.
+
+:::note[The Story of Python]
+In the late 1980s, Guido van Rossum, a Dutch programmer, started working on a new scripting language as a hobby project during the Christmas holidays. He wanted a language that was easy to read and write, yet powerful enough for serious software development. Drawing inspiration from ABC (a teaching language), he created Python, naming it after the British comedy group Monty Python.
+
+Python was first released in 1991. Its simple, readable syntax and dynamic typing made it accessible to beginners and professionals alike. Over the years, Python has grown into one of the most popular programming languages in the world, powering everything from web applications and scientific computing to artificial intelligence and automation.
+
+Major updates like Python 2 and Python 3 have introduced new features and improvements, while maintaining the language's core philosophy: code readability and simplicity.
+:::
+
+A set of instructions written in a programming language is called a program or software application. Programs power almost everything on a computer—from browsers (e.g., Chrome, Firefox) and tools (e.g., Notepad, Microsoft Word) to entire operating systems (e.g., Windows, macOS, Linux).
+
+{/* TODO: change for python */}
+:::note[Did You Know?]
+The visual effects in Pixar movies, like Toy Story and Finding Nemo, were powered by software written in C++. And many popular video games, like The Sims and Counter-Strike, use C++ for their graphics and physics engines. C++ has shaped industries and powered some of the most iconic creations in entertainment.
+:::
+
+We will focus on terminal-based programs processing textual inputs and outputs. These programs are fundamental to understanding how computers interpret and execute instructions, providing a solid foundation for more advanced topics in computer science.
+
+## Translators
+
+In the realm of computing, humans write programs in **high-level** programming languages that are easier to understand and use. However, computers can only execute instructions written in their native machine language, which consists of binary code. To bridge this gap, we use translator programs that convert high-level language code into machine language.
+
+### Machine Language
+
+Computers understand only their machine language, which is a **low-level** language consisting of binary operation codes specific to a processor. Machine language is difficult for humans to read and write due to its complexity and lack of abstraction.
+
+It would be very difficult to write meaningful software using such a primitive language. To make matters worse, different processors (computers) have different machine languages, so your program wouldn't even be portable (e.g., it might only run on one very specific style of CPU).
+
+### Translator Programs
+
+**Translator programs** are essential tools that convert high-level programming languages into machine language. There are two main types of translators:
+
+1. **Interpreters**: Interpreters translate and execute instructions line-by-line, on-the-fly. This means that the program is read, translated, and executed simultaneously. Interpreters are useful for scripting languages and development environments where immediate feedback is beneficial, such as [Python](https://www.python.org/), JavaScript, [Ruby](https://www.ruby-lang.org/en/), Shell, or [Perl](https://www.perl.org/).
+2. **Compilers**: Compilers translate entire programs into machine language before execution. The source code is converted into an executable file, which can then be run independently of the source code. Compilers are typically used for languages that require high performance and efficiency, such as C++, [Go](https://go.dev/), [Rust](https://www.rust-lang.org/), [Swift](https://www.swift.org/), or [Zig](https://ziglang.org/).
+
+:::note[Hybrid Approaches?]
+The reality is a little less clear-cut. Most programming languages tend to lean toward one translation style or another, but any kind of translator
+can be built for any programming language. In particular, you can have a hybrid approach where a program is first compiled into an intermediate form (bytecode) and then interpreted in a runtime environment or virtual machine. This is the approach taken by languages like Java (with the Java Virtual Machine), C#, Python (with the CPython implementation), and even JavaScript. This allows high portability across platforms, while still providing some of the performance benefits of compilation. Hybrid translators are more complex and a bit slower than pure compilers.
+:::
+
+In this course, we'll use the **Python interpreter** to execute Python code. This approach allows us to quickly write and run programs without a separate compilation step.
+
+### Tradeoffs
+
+Each type of translator has its own advantages and disadvantages:
+
+- **Interpreted Programs**: Easier to debug and test since they provide immediate feedback. However, they tend to be slower because the translation happens at runtime.
+- **Compiled Programs**: Generally faster and more efficient since the translation is done beforehand. However, they can be less portable because the compiled code is specific to a particular machine architecture.
+
+Understanding the role of translators is crucial for programmers, as it influences the choice of programming languages and development tools based on the requirements of the project.
+
+## Errors
+
+Errors are an inevitable part of programming. Understanding the different types of errors and how to handle them is crucial for developing robust and reliable software. Errors can be broadly categorized into three types: syntax errors, runtime errors, and logic errors.
+
+### Syntax Errors
+
+These errors occur when the code violates the syntax rules of the programming language. Syntax errors are typically caught by static analysis tools such as interpreters or linters before the program is run. They prevent the program from executing, meaning the code cannot be run until the errors are fixed.
+
+**Example:** Missing a colon at the end of a function definition in Python.
+
+Use interpreter error messages to identify and correct syntax mistakes.
+
+### Runtime Errors
+
+These errors occur while the program is running and can cause the program to crash or behave unexpectedly. Runtime errors are detected during the execution of the program. They can cause the program to terminate unexpectedly or produce incorrect results.
+
+**Example:** Division by zero or accessing a list out of bounds.
+
+Implement error handling mechanisms such as try-except blocks to gracefully handle runtime exceptions.
+
+### Logic Errors
+
+These errors occur when the program's logic is flawed, leading to incorrect results. Logic errors are the hardest to detect because the program runs without crashing but produces incorrect or unintended results. They can lead to subtle bugs that are difficult to trace and fix.
+
+**Example:** Using the wrong formula to calculate a value.
+
+Use debugging tools and techniques such as breakpoints and step-by-step execution to trace and fix logical flaws in the code.
+
+## Python Execution Pipeline
+
+To write a Python program, you start by creating a file with a `.py` extension, such as `hello.py`. This file contains your source code, which you can edit using a text editor (e.g., vim). For example:
+
+```python
+// hello.py
+print("Hello, World!")
+```
+
+This is a valid Python program. Unlike compiled languages, Python code is executed directly by the interpreter—there is no separate compilation step required.
+
+:::note[How Python Runs Your Code]
+When you run a Python program, the interpreter reads your source code, parses it, and translates it into an intermediate form called bytecode. This bytecode is then executed by the Python virtual machine (PVM). You don't need to manage these steps manually; running `python hello.py` takes care of everything.
+:::
+
+To run your program, type the following command in the terminal:
+
+```bash
+python hello.py
+```
+
+This will print `Hello, World!` to the terminal.
+
+### Updating Your Program
+
+If you update your source code (e.g., changing the output to `I love coding!!!`), you simply run the program again after saving your file—there is no need to rebuild or recompile:
+
+```python
+print("I love coding!!!")
+```
+
+When you run `python hello.py` again, the output will reflect your changes immediately.
+
+Your **source code** is the starting point for your program, and it is executed directly by the interpreter. There is no separate executable file generated.
+
+## Dissecting Our “Hello, World!” Program
+
+Let's break down the key components of our original Python program:
+
+```python
+// hello.py
+print("Hello, World!")
+```
+
+- `print` is a built-in Python function that outputs text to the terminal.
+- `"Hello, World!"` is a string enclosed in double quotes, representing the text to output. Strings are sequences of characters. Omitting the quotes means treating the text as code, which would result in a syntax error.
+- Parentheses `()` are required in Python 3 to call the function.
+- Each call to `print` automatically adds a line break at the end, so each output appears on a new line.
+
+Multiple print statements can be used to output several lines:
+
+```python
+// hello.py
+print("I love coding!!!")
+print("I love coding!!!")
+```
+
+This produces:
+
+```
+I love coding!!!
+I love coding!!!
+```
+
+By default, each `print` statement ends with a newline character, so each output appears on a new line.
+
+If you want to print multiple items on the same line, you can use the `end` parameter:
+
+```python
+// hello.py
+print("I love coding!!!", end="")
+print("I love coding!!!")
+```
+
+This produces:
+
+```
+I love coding!!!I love coding!!!
+```
+
+We'll discuss function parameters and arguments in more detail later.
+
+{/* :::note[No `main` Function Required]
+In Python, you don't need to define a special `main` function for simple scripts. The code at the top level of your file is executed directly. For larger programs, you might use a `main()` function and the `if __name__ == "__main__":` idiom, but it's not required for basic scripts.
+::: */}
