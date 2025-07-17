@@ -5,6 +5,8 @@ sidebar:
   order: 2
 ---
 
+Discover the basics of Git, a powerful version control system. This guide covers configuring Git, creating and cloning repositories, staging and committing changes, and synchronizing with remote repositories like GitHub.
+
 Imagine you've been working on a large program for weeks. You've completed 90% of the work, and everything seems to function properly. Only a few small changes remain. You make those changes, and… uh oh! Suddenly, everything breaks. With the deadline looming, you're left scrambling with nothing to deliver.
 
 This scenario highlights how delicate code can be, especially if it isn't written robustly. To avoid such setbacks, it's essential to save frequent snapshots (backups) of both working and non-working versions of your code. This is where Version Control Systems (VCS) come in, and the most popular VCS is Git.
@@ -74,11 +76,11 @@ By following these steps, you'll be ready to use Git to manage your projects eff
 Suppose I've just cloned a repository containing a single file, `main.py`, with the following Python source code:
 
 ```python
-// main.py
+# main.py
 print("Hello, World!")
 ```
 
-If I haven't modified this file or added any new files to the repository since cloning, running the command git status will produce output similar to this: 
+If I haven't modified this file or added any new files to the repository since cloning, running the command `git status` will produce output similar to this: 
 
 ![git status clean](./terminal-git-status-up-to-date.png)
 
@@ -88,17 +90,16 @@ There are a few important details to understand from this output:
 2. `“Your branch is up to date with ‘origin/main’”`: This means your local repository is synchronized with the remote repository on GitHub. In other words, you haven't created any new commits locally that need to be pushed back to GitHub.
 3. `“Nothing to commit”`: This indicates that no changes have been made to any files in your repository since the last commit, so there's nothing to save in a new commit. In fact, Git won't let you create a new commit unless changes have been made and staged.
 
-Now, suppose we modify `main.py` by removing the closing parenthesis, as shown below:
+Now, suppose we modify `main.py` by adding an exclamation mark to the output string, as shown below:
 
 ```diff lang="python"
-// main.py
+# main.py
 - print("Hello, World!")
-+ print("Hello, World!"
++ print("Hello, World!!")
 ```
 
 Running `git status` again will produce a different output: 
 
-{/* TODO: update image */}
 ![git status modified](./terminal-git-status-modified.png)
 
 Notice the line under `“Changes not staged for commit”`. Git lists `main.py` here, indicating that this file has been modified since the last commit.
@@ -117,7 +118,7 @@ git add <file1> <file2> ... <fileN>
 
 You can also stage entire directories or even the entire repository. For instance, to stage every file in the repository, you can simply stage the root directory.
 
-Let's say we want to commit the changes made to `main.py` (with the closing parenthesis removed). First, we stage the file using:
+Let's say we want to commit the changes made to `main.py` (with the exclamation mark added). First, we stage the file using:
 
 ```bash
 git add main.py
@@ -125,8 +126,7 @@ git add main.py
 
 Running `git status` again after staging will show a different output: 
 
-{/* TODO: update image */}
-![git status stagged](./terminal-git-status-staged.png)
+![git status staged](./terminal-git-status-staged.png)
 
 The output will now indicate that `main.py` is staged and ready to be included in the next commit. This step is crucial for ensuring the latest versions of files are saved properly in your repository.
 
@@ -141,17 +141,16 @@ Replace `<commit_message>` with a brief description of the changes. Commit messa
 For example, if I wanted to commit the changes to `main.py`, I might use:
 
 ```bash
-git commit -m "Remove closing parenthesis from print statement"
+git commit -m "Add exclamation mark to print statement"
 ```
 
-After running this command, executing git status will produce the following: 
+After running this command, executing `git status` will produce the following: 
 
-{/* TODO: update image */}
 ![git status committed](./terminal-git-status-committed.png)
 
-Notice that there are no more modified or staged files—all changes have been committed. However, the output will say, `“Your branch is ahead of ‘origin/main’ by 1 commit.”` This means the new commit exists in your local repository but hasn't been synced with the remote GitHub repository yet. If you visit your GitHub repo at this point, it will still show the outdated version of `main.py` with the closing parenthesis.
+Notice that there are no more modified or staged files—all changes have been committed. However, the output will say, `“Your branch is ahead of ‘origin/main’ by 1 commit.”` This means the new commit exists in your local repository but hasn't been synced with the remote GitHub repository yet. If you visit your GitHub repo at this point, it will still show the outdated version of `main.py` without the exclamation mark.
 
-To synchronize your local commits with the remote repository, use the git push command:
+To synchronize your local commits with the remote repository, use the `git push` command:
 
 ```bash
 git push
@@ -159,7 +158,7 @@ git push
 
 If your local repo was created by cloning a remote repo, this command should work immediately. However, if your local repo was created with `git init`, you might need to configure the remote connection first. Additionally, pushing changes requires proper permissions, which you'll set up in Studio 2 using SSH keys.
 
-Once you run `git push`, executing `git status` again will confirm that the local and remote repositories are now synchronized. If you refresh your GitHub repository page, you'll see that `main.py` has been updated, and the closing parenthesis is gone.
+Once you run `git push`, executing `git status` again will confirm that the local and remote repositories are now synchronized. If you refresh your GitHub repository page, you'll see that `main.py` has been updated, and the exclamation mark is present.
 
 To view the history of commits in your repository, use:
 
@@ -169,14 +168,13 @@ git log
 
 This will display each commit in reverse chronological order, showing the commit's hash (a unique identifier), author, timestamp, and commit message. For example:
 
-{/* TODO: update image */}
 ![git log](./terminal-git-log.png)
 
 :::note
 If the output of `git log` looks strange, there might be a problem with output colorizing. You can disable colors by running `git log --no-color` or to make it default behavior `git config --global color.ui false`.
 :::
 
-In this case, there are three commits. The first one (with the message “Initial commit”) was created when the repository was initialized and the second one when the first version of `main.py` was added. The third one reflects the recent removal of the closing parenthesis.
+In this case, there are three commits. The first one (with the message “Initial commit”) was created when the repository was initialized and the second one when the first version of `main.py` was added. The third one reflects the recent addition of the exclamation mark.
 
 If a file in your repository has been modified but not yet staged, you can use `git diff` to view the changes since the last commit:
 
@@ -184,18 +182,17 @@ If a file in your repository has been modified but not yet staged, you can use `
 git diff <file>
 ```
 
-For example, if I re-add the closing parenthesis to `main.py` and then run:
+For example, if I modify `main.py` again to add another exclamation mark and then run:
 
 ```bash
 git diff main.py
 ``` 
 
-The output will highlight changes, showing removed lines in red (prefixed with a `-`) and added lines in green (prefixed with a `+`). In this case, the only change would be the addition of the closing parenthesis.
+The output will highlight changes, showing removed lines in red (prefixed with a `-`) and added lines in green (prefixed with a `+`). In this case, the only change would be the addition of another exclamation mark.
 
-{/* TODO: update image */}
 ![git diff](./terminal-git-diff.png)
 
-If I stage and commit the changes to `main.py`, running git log will now show four commits.
+If I stage and commit the changes to `main.py`, running `git log` will now show four commits.
 
 Git offers many other commands to manage your repository. One key feature of version control is the ability to revert to previous versions of your work. For this, you can use:
 

@@ -9,35 +9,35 @@ sidebar:
 You don't have to use the development tools discussed below for this class. Feel free to use whatever tools you'd like. However, maintaining a working development environment is your responsibility. The TAs and I can only offer guidance when you're using tools that we're familiar with, so it's recommended that you stick with the below tools unless you're already familiar with other ones that will accomplish the same tasks.
 :::
 
+
+Setting up a robust development environment is a critical first step for programming in Python. This guide provides a comprehensive walkthrough to configure your tools for writing, editing, and running Python code efficiently. You'll learn how to use a terminal to interact with your computer, connect to the Oregon State University (OSU) ENGR servers, navigate the file system, and edit files using `vim`. The objective is to equip you with a reliable setup for coding in Python, whether you're working on your local machine or the ENGR servers. While the tools outlined here are recommended for consistency and support in this course, you're welcome to use alternative tools if you're confident in their configuration. However, the teaching staff can offer the most effective assistance when you use the tools described below, as these are the ones we're familiar with.
+
 ## Terminals
 
-A terminal is a program that lets us interface with our computer via textual commands that get interpreted by another internal program called a shell. All of the software we write in this class will be text-based.
+A terminal is a text-based interface that enables you to interact with your computer by typing commands, which are processed by an internal program called a shell. In this course, all Python programs will be text-based, meaning they won't generate graphical interfaces like windows or tabs. Instead, you'll execute your Python scripts by entering commands in a terminal, and their output will appear as text in the same terminal. Proficiency in using a terminal is essential for writing, running, and managing Python code, particularly when working on remote servers like the ENGR servers at OSU.
 
-That means that our programs will not create windows or tabs with graphical user interfaces. Instead, we will run our programs by issuing textual commands in a terminal, and they will output responses through text in the terminal as well. Indeed, it's difficult to write, build, and run basic software without some sort of terminal.
-
-Luckily, all modern operating systems come with one or more terminals installed. Follow the instructions below based on your operating system to become acquainted with your terminal.
+Every modern operating system includes at least one terminal application. The following sections detail how to access and configure a terminal based on your operating system, preparing you to issue commands and work with Python effectively.
 
 ### Accessing and Configuring Your Terminal
 
-#### Windows: Powershell or Windows Terminal
+#### Windows: PowerShell or Windows Terminal
 
-Windows actually offers a few terminals / shells. The oldest one is the Command shell (CMD). Most people consider it to be obsolete, so I don't recommend using it. The Command shell was superseded by Powershell--lots of people use this one.
+Windows offers several terminal options, but the legacy Command Prompt (CMD) is outdated and not recommended. PowerShell is a modern, widely used terminal suitable for this course. To open PowerShell, search for “PowerShell” in the Windows Start menu. A window will appear with a text cursor, ready for you to type commands and press Enter to execute them. You'll explore essential commands later in this guide.
 
-To access Powershell, simply search for “Powershell” in the Windows start menu. When you start it, a window should appear with a text cursor. You can now begin issuing textual commands to your computer by typing them and pressing enter. We'll learn about some commands shortly.
-
-When you open Powershell for the first time, it will default to a certain configuration that most people don't like, so you may want to do some reconfiguration. If you right click on the window's menu bar (the top of the window) and click “Properties”, you can configure your terminal to your liking (e.g., background colors, font colors, font sizes, etc).
+When you first launch PowerShell, its default appearance (e.g., font size, colors) may not be optimal. To customize it, right-click the title bar at the top of the PowerShell window and select “Properties.” You can adjust settings like background color, font size, and text color to create a more comfortable environment for coding in Python. Taking time to configure these settings early enhances your terminal experience.
 
 #### macOS: Terminal
 
-Mac comes with a terminal by default. It's simply called “Terminal”, and you can find it by typing “Terminal” into the Mac Spotlight search (the magnifying glass at the topright corner of your screen). When you open your Mac Terminal for the first time, it will default to a certain configuration that most people don't like, so you may want to do some reconfiguration. In the menu bar, navigate to **Terminal → Preferences**, then navigate to the **Profiles** tab. From here, you can add new terminal profiles and modify existing ones. A profile is basically just a configuration of terminal settings. For most cases, it's sufficient to just modify the default profile (e.g., “Basic”). You can change default font sizes, colors, etc.
+On macOS, the default terminal application is simply called “Terminal.” You can access it by typing “Terminal” into the Spotlight search (the magnifying glass in the top-right corner of your screen). Upon opening Terminal, you'll see a text-based interface with default settings that you may wish to adjust for better usability. To customize Terminal, navigate to **Terminal → Preferences** and select the **Profiles** tab. A profile defines a set of terminal settings, such as font size, colors, and background. You can modify the default profile (e.g., “Basic”) or create a new one to suit your preferences. These adjustments ensure the terminal is visually clear and comfortable for extended coding sessions.
 
 #### UNIX/Linux
 
-If you're running a UNIX/Linux OS other than macOS (e.g., Ubuntu, FreeBSD, etc), then you probably already know what a terminal is. Most *nix terminals are extremely similar since the default shell is configured at a user level, so use whatever terminal you want.
+If you're using a UNIX or Linux distribution other than macOS (e.g., Ubuntu, Fedora, or Debian), you're likely familiar with terminals. Most Linux distributions provide terminals like GNOME Terminal, Konsole, or xterm, and the default shell (e.g., Bash or Zsh) is configured at the user level. You can use any terminal you prefer, as they all function similarly for issuing commands and running Python scripts. If you're new to Linux, the default terminal provided by your distribution is sufficient for this course.
 
 :::tip[Some Other Terminal Programs]
 In no specific order:
 
+- [Ghostty](https://ghostty.org/)
 - [Alacritty](https://alacritty.org/)
 - [iTerm2](https://iterm2.com/)
 - [Hyper](https://hyper.is/)
@@ -48,327 +48,162 @@ In no specific order:
 Consider a cross-shell prompt, such as [Starship](https://starship.rs/), [Oh My Posh](https://ohmyposh.dev/), or [Powerline](https://github.com/powerline/powerline) to make your shell environment look good across platforms.
 :::
 
+
 ## ENGR Servers
 
-A terminal is similar to file explorers like **Windows File Explorer** or **Mac Finder**, but entirely text-based. By typing commands into the terminal and pressing Enter, you can navigate the file system, view, edit, and even execute files (if they're executable). While a terminal can perform everything a graphical file explorer can, it also offers functionality that file explorers can't. This makes terminals indispensable for tasks requiring fine-grained control over your computer, such as software development.
+A terminal functions as a text-based equivalent of graphical file explorers like Windows File Explorer or macOS Finder. By typing commands and pressing Enter, you can navigate directories, create or edit files, and execute Python scripts. Unlike graphical explorers, terminals provide advanced functionality critical for software development, such as precise control over file operations and the ability to run scripts efficiently. In this course, you'll primarily use a terminal to interact with remote computers—specifically, the ENGR servers located in the Kelley Engineering Center at OSU. These servers are powerful Linux machines designed for computational tasks, providing a standardized environment for running Python code.
 
-In this course, we'll be working a bit differently. Instead of using the terminal to control your own computer, you'll primarily use it to interact with a remote computer. Specifically, we'll be using powerful machines located in the Kelley Engineering Center's server room at Oregon State University (OSU). These are referred to as the ENGR servers.
+The ENGR servers lack physical monitors, keyboards, or mice, and access to the server room is restricted to authorized personnel. Instead, you'll connect to these servers remotely using your computer's terminal. By issuing a single command, your terminal establishes a secure connection over the internet, granting access to a remote shell on the ENGR servers. This allows you to control the servers as if you were physically present, running commands and managing files directly on the remote system.
 
-The ENGR servers don't have physical monitors, mice, or keyboards attached, and access to the server room is restricted to authorized faculty and staff. So, how will we use these servers?
+To access the ENGR servers, you need an ENGR account. If you don't have one, visit the [CoE TEACH](https://teach.engr.oregonstate.edu/teach.php) website, click “Create a new account,” and follow the instructions to set up your account. Once your account is active and you have an internet connection, you can connect to the servers using the following command in your terminal, replacing `<ONID>` with your ONID username (e.g., `ulbrical`):
 
-To control the ENGR servers, you'll use a remote connection via your computer's terminal. By issuing a single command, your computer will connect to the ENGR servers over the internet, giving you access to a remote shell. This allows you to type commands into your local terminal to control the ENGR servers, as if you were using them directly.
-
-Accessing the ENGR servers requires authentication. If you don’t already have an ENGR account, you’ll need to create one:
-
-1. Visit the [CoE TEACH](https://teach.engr.oregonstate.edu/teach.php) website.
-2. Click **“Create a new account”**
-3. Follow the on-screen instructions to create your ENGR account.
-
-Once your account is created and you have internet access, you’ll be ready to connect to and work on the ENGR servers.
-
-To do this, type the following command into your terminal and press enter, substituting `<ONID>` with your ONID username (e.g., mine is `ulbrical`):
-
-```sh
+```bash
 ssh <ONID>@access.engr.oregonstate.edu
 ```
 
-`ssh` stands for **Secure Shell**, a cryptographic network protocol that allows you to securely connect to and control a remote computer. It uses predefined user accounts and permissions to authenticate and manage access.
+The `ssh` command uses the Secure Shell protocol to establish a secure connection to the ENGR servers. When you run this command, you'll be prompted to enter your ONID password (the same one used for OSU services like Canvas or Outlook). For security, your password won't appear as you type—this is expected behavior. After entering your password, you'll need to authenticate via Duo two-factor authentication. If you have multiple Duo devices, select the appropriate one by typing its number, then approve the Duo push notification on your device.
 
-When you connect to the ENGR servers using ssh, your terminal will prompt you for a password. If this doesn't happen, it may indicate an issue with your internet connection or that the ENGR servers are temporarily unavailable.
+Upon successful authentication, your terminal will display a welcome message, indicating you're logged into the ENGR servers, which run a Linux operating system. From this point, all commands you type will be executed on the remote server, interpreted as Linux shell commands. The default shell configuration on the ENGR servers is suitable for this course, but you can customize it via the TEACH platform if desired.
 
-1. Type your ONID password (the same one you use for OSU services like Canvas and Outlook) and press Enter. Your password will not appear as you type--it's invisible for security reasons. This is expected.
-2. After entering your password, you'll be prompted to verify your login using Duo.
-  - If you have multiple Duo devices, the terminal will ask you to select which device to use. Type the corresponding number and press Enter.
-  - Approve the Duo push notification on your device.
+When working on the ENGR servers, all file operations (e.g., creating, editing, or deleting files) occur on the remote server, not your local computer. Files you create won't appear in your local file explorer unless you transfer them using tools like SFTP (Secure File Transfer Protocol) or SCP (Secure Copy Protocol). For example, a Python script saved on the ENGR servers remains there until you explicitly transfer it to your local machine. If you need to transfer files, you can find tutorials online for SFTP or SCP, but this course focuses on working directly on the servers.
 
-Once authenticated, you should see a screen indicating that you are now logged into the ENGR servers.
-
-![A terminal logged into the ENGR servers](./terminal-engr-servers.png)
-
-The ENGR servers run **Linux**, so any commands you type into the terminal will now be interpreted as **Linux shell commands**. You can customize your shell settings on the TEACH platform if needed, but the default configuration will work fine for this course.
-
-Now that you’re logged in, your terminal is controlling the ENGR servers, not your personal computer. This means:
-
-- **File Operations Are Remote**: Any files you create, edit, or manage will exist on the ENGR servers and not on your local computer. These files will not appear in tools like Windows File Explorer or Mac Finder unless you transfer them.
-- **Transferring Files**: To move files between your local computer and the ENGR servers, you'll need to use a file transfer protocol such as **SFTP** (Secure File Transfer Protocol) or **SCP** (Secure Copy Protocol). If you're interested, you can look up tutorials for these tools.
-
-:::note[Terminology: Local vs. Remote]
-
-**Local** refers to actions or files on your own computer. **Remote** refers to actions or files on the ENGR servers (or any server you're connected to). Understanding this distinction will be essential as we work on the ENGR servers throughout the course.
-:::
+To clarify terminology: “local” refers to your personal computer, while “remote” refers to the ENGR servers. Understanding this distinction is crucial, as you'll be managing files and running Python scripts on the remote servers throughout the course.
 
 ## The Prompt
 
-The prompt is essentially a marker for where you can type commands. It appears every time the shell is ready to accept input. A simple example of a default prompt might look like this:
+The prompt is the text marker in your terminal that indicates where you can type commands, appearing whenever the shell is ready for input. On the ENGR servers, a typical prompt might look like this:
 
-```sh
-user@hostname:~$
+```bash
+user@hostname:~$ 
 ```
 
-### Components
+The prompt provides contextual information to help you navigate your environment. It typically includes your username (e.g., your ONID), the hostname of the server, and the current working directory (e.g., `~` for your home directory). The `$` symbol indicates you're logged in as a regular user, while a `#` would indicate elevated (root) privileges, which you won't need for this course. 
 
-The prompt typically provides useful contextual information. Here's a breakdown of common elements.
+The ENGR servers prompt is customized and will show the **hostname**, **current working directory**, and the **command history number**. For example:
 
-- Username (`user`): indicates the user currently logged into the system.
-- Hostname (`hostname`): shows the name of the computer or server you're connected to, it's helpful in identifying the machine when working on multiple systems.
-- Current Working Directory: shows the directory you're currently in, `~` means it's your `/home` directory, but it can be specific, e.g. `/var/log`.
-- Shell Account Type: `$` means you're' a normal user, while `#` indicates elevated permissions (superuser/root).
+```bash
+flip2 ~ 501$
+```
 
-### Interactive Features
-
-- Tab Completion
-- Command History
-- Aliases
+The shell offers interactive features to enhance your workflow. Tab completion allows you to press the Tab key to auto-complete commands, file names, or directories, reducing typing errors. Command history lets you access previously entered commands using the up and down arrow keys, making it easy to reuse or modify commands. You can also create aliases—shortcuts for longer commands—by configuring your shell, though this is optional for beginners.
 
 ## Shell Commands
 
-Now that our terminal is connected to the ENGR servers, we should learn how to use it. To summarize, here is a table briefly describing some important Linux shell commands:
-
-| Command | Description |
-| ------- | ----------- |
-| `ssh <connection_string>` | Connects to the SSH server specified by the connection string. You already used this command locally (from your computer) to connect to the ENGR servers. |
-| `pwd` | Prints the working directory. |
-| `ls <path>` | Lists the files and directories within directory located at the specified path. Lists the files and directories within the working directory if `<path>` is omitted. |
-| `mkdir <path>` | Creates a new directory at the specified path. |
-| `cd <path>` | Navigates to the directory at the specified path, making it the new working directory. Navigates one level up in the directory tree if `<path>` is omitted or is `..`. |
-| `clear` | Clears the text on-screen in the terminal. |
-| `cp <path1> <path2>` | Copies the file located at the specified `<path1>` to the location specified by `<path2>`. `cp -r <path1> <path2>` can be used to copy an entire directory and all of its contents.|
-| `mv <path1> <path2>` | Moves the file or directory located at the specified `<path1>` to the location specified by `<path2>`. This can also be used to rename files/directories. If the specified `<path2>` already exists and is itself a directory, this will move the file/directory located at the specified `<path1>` into the directory located at the specified `<path2>`. |
-| `rm <path>` | Removes (deletes) the file located at the specified path. To remove an entire non-empty directory, use `rm -r <path>`. To remove an empty directory, you can also use `rmdir <path>`. |
-| `cat <path1> <path2> ... <pathN>` | Concatenates the contents of the files at all of the specified paths in the order provided and prints the concatenated content to the terminal. Note that this is also used for just printing the contents of a single file. |
-| `vim <path>` | Opens the file at the specified path in the vim text editor (see next section). |
-
-### Basic Structure
-
-```sh
-command [options] [arguments]
-```
-
-#### `command`
-
-The name of the program or script or utility that you want to execute.
-
-Example: `ls` the command to list directory contents.
-
-#### `options` (flags)
-
-Options modify the behavior of the command. They are usually optional.
-
-They often start with a `-` (single dash) for short options or `--` (double dash) for long options.
-
-Example: `ls -l --color`, where `-l` enables long-format listing and `--color` highlights file types and permissions with colors (default is always).
-
-You can also combine short options such as `ls -lsh`, where `-s` prints the allocated size of each file, in blocks, and `-h` makes things human-readable (when combined with `-s`).
-
-#### `arguments`
-
-Inputs to the command, such as file names, directories, or specific data to operate on.
-
-Example:
-
-```sh
-cat myfile.txt
-``` 
-
-where `myfile.txt` is the argument to the `cat` command, which concatenates file(s) to the standard output.
-
-Commands can accept multiple arguments:
-
-```sh
-cp file1.txt file2.txt destination/
-```
-
-where `file1.txt` and `file2.txt` are source files, and `destination/` is the target directory.
-
-#### Combining `options` and `arguments`
-
-Options and arguments can be combined in various ways, depending on the command syntax.
-
-```sh
-tar -czf archive.tar.gz file1 file2
-```
-
-where `-czf` is a combination of options for creating (c), compressing (z), and specifying a file (f), `archive.tar.gz` is the argument specifying the output file, and `file1` and `file2` are the files to archive.
-
-### Using the Shell
-
-A terminal can be thought of as a text-based version of a file explorer. At any given time, your terminal (or shell) operates within a specific folder, referred to as a **directory**. The directory you are currently working in is called the **working directory**.
-
-To see your current working directory, use the following command:
+With your terminal connected to the ENGR servers, you need to master Linux shell commands to navigate and manage files effectively. These commands enable you to explore directories, create and manipulate files, and execute Python scripts. A terminal operates within a specific directory, called the **working directory**, analogous to the folder open in a graphical file explorer. To check your current working directory, use:
 
 ```bash
 pwd
 ```
 
-`pwd` stands for “print working directory,” which means it will display your current directory in the terminal. For example:
+The `pwd` command (print working directory) displays the full path of your current directory, such as `/nfs/stak/users/<ONID>`. Upon logging into the ENGR servers, your working directory defaults to your home directory, a user-specific space tied to your ONID username.
 
-```bash
-/nfs/stak/users/ulbrical
-```
-
-After logging into the ENGR servers, your working directory will default to your **home directory**. This directory is specific to your account, and its path will include your ONID username.
-
-To view the files and directories within your working directory, use:
+To list the files and directories in your working directory, use:
 
 ```bash
 ls
 ```
 
-`ls` stands for “list.” Its output might include color-coded items.
+The `ls` command displays/**list**s the contents of the current directory, often with color-coding to distinguish files from directories. 
 
-A path specifies the location of a file or directory. Paths use a path separator (`/` on Linux systems) to separate directories. For example:
+To navigate/**change** to a different **directory**, use:
 
-```text
-A/B/C.jpg
+```bash
+cd <path>
 ```
 
-This path represents a file `C.jpg` inside directory `B`, which is inside directory `A`.
+For example, `cd python_code` moves you into a directory named `python_code` within the current directory. To return to your home directory, run `cd` or `cd ~`. To move up one directory level, use `cd ..`. 
 
-We distinguish between two types of paths:
+Paths can be **absolute** (starting from the root, e.g., `/nfs/stak/users/<ONID>/python_code`) or **relative** (relative to the current directory, e.g., `python_code`). 
 
-- **Absolute Paths**: Start from the root directory (`/`) and specify the full path to a file or directory. For example:
+Special shortcuts include:
 
-```text
-/nfs/stak/users/<ONID>/A/B/C.jpg
-```
+-  `.` (current directory), 
+- `..` (parent directory), and 
+- `~` (home directory).
 
-- **Relative Paths**: Start from the current working directory and specify the path relative to it. For example:
-
-```text
-A/B/C.jpg
-```
-
-We also have some special path shortcuts:
-
-- `.` refers to the current directory.
-- `..` refers to the parent directory.
-- `~` represents your home directory. For example, `~/A` is equivalent to `/nfs/stak/users/<ONID>/A`.
-
-To create a new directory, use:
+To **create**/**make** a new **directory**, use:
 
 ```bash
 mkdir <path>
 ```
 
-For example
+For example, `mkdir python_code` creates a directory named `python_code`. To create nested directories, add the `-p` flag: `mkdir -p python_code/project1` creates both `python_code` and `project1` if they don't exist.
 
-```bash
-mkdir A
-```
-
-This creates a directory named `A` in the current working directory. If you want to create a directory along with its parent directories, use the `-p` flag:
-
-```bash
-mkdir -p A/B/C
-```
-
-This command creates `A`, `B`, and `C` if they don't already exist.
-
-To move to a different directory, use:
-
-```bash
-cd <path>
-```
-For example:
-
-```bash
-cd A
-```
-This sets your working directory to A. You can return to your home directory by running either of the following:
-
-```bash
-cd
-cd ..
-```
-
-To clean up your terminal screen, use:
-
-```bash
-clear
-```
-
-This command behaves differently depending on the terminal:
-
-- Some terminals scroll down to clear the screen.
-- Others erase the entire presentation buffer, preventing you from scrolling back up.
-
-Experiment with your terminal to understand how it behaves.
-
-To copy a file, use:
+To **copy** a file, use:
 
 ```bash
 cp <source_path> <destination_path>
 ```
-For example:
 
-```bash
-cp file1.txt file2.txt
-```
+For example, `cp script.py script_backup.py` creates a copy of `script.py`. To copy a directory and its contents, add the `-r` flag: `cp -r python_code python_code_backup`.
 
-This copies `file1.txt` to `file2.txt`. To copy an entire directory, add the `-r` flag (recursive):
-
-```bash
-cp -r dir1 dir2
-```
-
-To move a file or directory, use:
+To **move** or **rename** a file or directory, use:
 
 ```bash
 mv <source_path> <destination_path>
 ```
 
-For example:
+For example, `mv script.py new_script.py` renames the file, while `mv script.py python_code/` moves it into the `python_code` directory.
 
-```bash
-mv file1.txt dir1/
-```
-
-This moves `file1.txt` into `dir1/`. You can also use `mv` to rename files:
-
-```bash
-mv old_name.txt new_name.txt
-```
-
-This renames the file from `old_name.txt` to `new_name.txt`.
-
-To delete a file, use:
+To **delete**/**remove** a file, use:
 
 ```bash
 rm <path>
 ```
 
-For example:
+For example, `rm script.py` deletes `script.py`. To delete a directory and its contents, use `rm -r python_code`. Be cautious with `rm`, as deleted files cannot be recovered easily.
+
+To view a file's contents without editing it, use:
 
 ```bash
-rm file1.txt
+cat <path>
 ```
 
-To remove a directory and all its contents, use the `-r` flag:
+For example, `cat script.py` displays the contents of `script.py`. You can also concatenate multiple files: `cat file1.py file2.py` prints their contents in sequence.
+
+To run a Python script, use:
 
 ```bash
-rm -r dir1
+python <script_path>
 ```
 
-Most shell commands require a path as an argument. For example, to list the contents of a specific directory, use:
+For example, `python script.py` executes `script.py` using the Python interpreter on the ENGR servers. Unlike C++ programs, which require compilation, Python scripts are interpreted directly, making this command the primary way to run your code.
 
-```bash
-ls <path>
+These commands—`pwd`, `ls`, `cd`, `mkdir`, `cp`, `mv`, `rm`, `cat`, and `python`—form the foundation of terminal-based file management. By mastering them, you can navigate the file system, manage your Python scripts, and execute your programs efficiently on the ENGR servers.
+
+## Anatomy of a Terminal Command
+
+When you type a command in the terminal, it follows a specific structure. Understanding this structure helps you write effective commands and utilize options and arguments correctly. A typical command format looks like this:
+
+```sh
+command [options] [arguments]
 ```
-This command displays the contents of the directory at `<path>`. Similarly, paths are used with commands like `cp`, `mv`, and `rm` to specify files or directories to operate on.
 
-By mastering these basic commands, you can effectively navigate and manage files within the terminal:
+- **`command`**: The main command you want to execute, such as `ls`, `cd`, or `python`.
+- **`options`**: Flags that modify the command's behavior, usually prefixed with a hyphen (e.g., `-l`, `-r`). Options are optional and can be combined (e.g., `-lr`).
+- **`arguments`**: Additional information required by the command, such as file names or paths. Arguments specify what the command should operate on, like a specific file or directory.
 
-- Use `pwd`, `ls`, and `cd` to explore directories.
-- Use `mkdir`, `cp`, `mv`, and `rm` to create, copy, move, or delete files and directories.
--	Understand the difference between relative and absolute paths to work efficiently in the terminal.
+The brackets (`[ ]`) indicate that options and arguments are optional. You can run a command with just the command name, or you can include one or more options and arguments as needed.
 
-### Additional Concepts
+You can consult the manual pages for any command by typing `man <command>` in the terminal. For example, `man ls` displays the manual for the `ls` command, explaining its options and usage. You can exit the manual by pressing `q`.
+
+Let's revisit the `ls` command as an example:
+
+```sh
+ls -l /path/to/directory
+```
+
+- **`ls`** is the command to list directory contents.
+- **`-l`** is an option that tells `ls` to display detailed information about each file, such as permissions, owner, size, and modification date.
+- **`/path/to/directory`** is an argument specifying the directory to list. If omitted, `ls` defaults to the current directory.
+
+## Advanced Shell Concepts
 
 In the previous section, we covered essential file and directory management commands to help you navigate and manipulate your system. Now, let's explore more advanced terminal concepts that enhance the power and flexibility of the command line: pipes, redirection, subcommands, environment variables, and command order and logic.
 
 These concepts allow you to chain commands, manage output and input efficiently, and work with complex logic in the shell. Let's dive in.
 
-#### Pipes
+### Pipes
 
 A pipe connects the output of one command directly to the input of another, enabling you to chain commands together to perform complex tasks efficiently. The pipe operator (`|`) makes it easy to process data without creating intermediate files.
 
@@ -382,7 +217,7 @@ ls | grep "example"
 
 Pipes are powerful for combining commands to handle streams of text, like filtering log files, processing data, or chaining utilities.
 
-#### Redirection
+### Redirection
 
 Redirection allows you to control where a command's output goes or where it takes input from. This is particularly useful for saving output to files or providing input to commands.
 
@@ -408,7 +243,7 @@ Here, the `wc -l` command counts the lines in `input.txt`.
 
 Redirection enables you to store results, feed data into commands, or even create complex workflows with minimal effort.
 
-#### Environment Variables
+### Environment Variables
 
 Environment variables are dynamic values stored in the shell's environment that can influence how commands and programs operate. They're often used to store system-wide configurations or user-specific settings.
 
@@ -432,7 +267,7 @@ echo $MY_VAR
 
 Environment variables are invaluable for customizing your shell, managing system settings, and scripting.
 
-#### Command Order and Logic
+### Command Order and Logic
 
 The shell allows you to execute commands in specific orders and combine them using **logical operators** for advanced control. This lets you define conditions for when commands should run.
 
@@ -455,7 +290,7 @@ echo "First" ; echo "Second"
 ```
 These operators provide fine-grained control over the flow of commands, enabling you to automate and script tasks with precision.
 
-#### Subshell
+### Subshell
 
 A subshell is a separate child process created by the shell to execute commands. It inherits the environment of the parent shell but operates independently. When a subshell runs a command or a group of commands, changes made in the subshell (like variable assignments or directory changes) do not affect the parent shell.
 
@@ -467,119 +302,68 @@ A subshell is a separate child process created by the shell to execute commands.
 - Here, the subshell changes to `/tmp` and lists its contents.
 - The parent shell remains in its original directory after the subshell completes.
 
-#### Command Substitution
+### Command Substitution
 
 Command substitution is a way to capture the output of a command and use it in another command. This is achieved using the `$()` syntax, making it a crucial tool for dynamic command generation and scripting. When using `$()`, the shell spawns a subshell to execute the command inside the `$()` and replaces the substitution with the command's output.
 
 ```bash
 echo "Today is $(date)"
+echo "Current directory: $(pwd)"
 ```
 
 ## Text Editor: vim
 
-By now, you should have a solid understanding of how to navigate a file system in the terminal. The next step is learning how to create and edit text-based files directly in the terminal. To do this, we'll use a terminal-based text editor--a program that runs within the terminal instead of a separate window (like Notepad or Microsoft Word). On the ENGR servers, you have access to editors like vim, nano, and emacs. For this course, we'll focus on vim.
+To write and edit Python code on the ENGR servers, you'll use a terminal-based text editor. While editors like `nano` and `emacs` are available, this course focuses on `vim`, a powerful editor that runs directly in the terminal. Unlike graphical editors, `vim` relies on text-based commands, making it ideal for remote server work where graphical interfaces aren't available.
 
-{/* TODO: some vim history */}
-
-To open a file in vim, use the following command:
+To open or create a Python file in `vim`, use:
 
 ```bash
 vim <path>
 ```
 
-This opens the file at the specified path. If the file doesn't exist, vim will create it. For instance, to create a file named `hello.txt` in your current directory, you would run:
+For example, `vim script.py` opens `script.py` for editing. If the file doesn't exist, `vim` creates it. Upon opening, `vim` starts in **normal mode**, where you issue commands like saving or quitting. To write code, switch to **insert mode** by pressing `i`. You can then type Python code, such as:
 
-```bash
-vim hello.txt
+```python
+print("Hello, world!")
 ```
-
-Vim is similar to editors like Notepad or Word, but it's entirely terminal-based, so there are no visible menu buttons. For example, after opening `hello.txt`, your terminal might look something like this: 
-
-![vim new file](./vim-new-file.png)
-
-Your screen might differ slightly (e.g., it might not show line numbers), but the general interface will be similar. Note that any menu-like elements belong to your terminal, not vim itself. Actions like saving, quitting, and copying text in vim are done via text-based commands.
-
-Vim operates in several **modes**, and understanding these is key to using it effectively. By default, vim starts in **normal mode**, which is used for issuing commands (e.g., saving a file, quitting vim, copying, pasting). If you want to write text into a file, you need to switch to **insert mode**":
-
-- Press the `i` key to switch to insert mode.
-- You can now start typing into the file. For example, write the text `Hello, world!` into `hello.txt`: 
-  
-![vim insert mode](./vim-insert-mode.png)
 
 :::tip
 Vim hotkeys and commands are case-sensitive. For example, `i` (lowercase) and `I` (uppercase) both switch to insert mode, but other commands may differ. Ensure caps lock is off to avoid errors.
 :::
 
-Saving a file and quitting vim requires issuing commands in normal mode. Since you cannot issue commands in insert mode, you must first switch back to normal mode:
+To save and exit, return to normal mode by pressing `Esc`, then type `:wq` and press Enter. This writes/saves the file and quits `vim`. Other useful `vim` commands include:
 
-1. Press the Esc key to exit insert mode and return to normal mode.
-2. To issue a command, type a colon `:`. The colon will appear at the bottom-left of the screen.
-3. Follow the colon with the desired vim command. 
+- `:w` to save without quitting.
+- `:q` to quit without saving (use `:q!` to force quit without saving changes).
+- `:set nu` to display line numbers, useful for debugging Python code.
+- `:set mouse=a` to enable mouse support (disabled by default).
+- `:syntax on` to enable syntax highlighting (usually enabled by default, but may need to be enabled in certain circumstances), improving code readability.
 
-| Command | Description |
-| ------- | ----------- |
-| `w`  | Write (save) the file |
-| `q` | Quit vim (without saving) | 
-| `wq` | Write (save) the file and quit | 
-| `set mouse=a` | Enable the mouse in vim (it's disabled by default) | 
-| `set nu` | Display line numbers | 
-| `syntax on` | Enable syntax highlighting (usually enabled by default, but may need to be enabled in certain circumstances) | 
-| `colorscheme <colorscheme>` | Set the syntax highlighting colorscheme. Writing `:colorscheme` and pressing tab should cycle you through the available options. | 
-
-{/* TODO insert table */}
-
-To save and quit the file, use the `:wq` command:
-
-```bash
-:wq
-```
-
-![vim wq](./vim-wq.png)
-
-After pressing **Enter**, you'll return to your regular SSH session.
-
-You can customize vim by creating a file named `.vimrc` in your home directory. Open it in vim:
+You can customize `vim` by creating a `.vimrc` file in your home directory:
 
 ```bash
 vim ~/.vimrc
 ```
 
-Add vim commands (without colons) to configure default settings. For instance:
+Add settings like:
 
-- Enable line numbers.
-- Allow mouse usage.
-
-Each command should go on its own line.
-
-![vimrc](./vimrc.png)
-
-To confirm that a file was saved, run the following command in the correct directory:
-
-```bash
-ls
+```vim
+set nu
+set mouse=a
+syntax on
+set tabstop=4
+set shiftwidth=4
+set expandtab
 ```
 
-This will show `hello.txt` in your working directory. 
+These settings enable line numbers, mouse support, syntax highlighting, and configure indentation to follow Python's standard four-space convention. Save the file with `:wq`. To verify its creation, use `ls -a ~` to list hidden files, including `.vimrc`.
 
-To show hidden files (like `.vimrc`), use the `-a` flag:
-
-```bash
-ls -a ~
-```
-
-You can use the `cat` command to view the contents of a file. Originally designed to concatenate files, `cat` also works for a single file, printing its contents to the terminal. For example:
+To check a file's contents without editing, use:
 
 ```bash
-cat hello.txt
+cat script.py
 ```
 
-This will display the text you wrote in `hello.txt`. If you want to view the contents of a file without opening it in an editor, `cat` is a quick and easy way to do so.
+This displays `script.py`'s contents, such as the `print("Hello, world!")` line. The `cat` command is useful for quick checks or concatenating multiple files.
 
-The cat command can also concatenate multiple files. For example:
-
-```bash
-cat file1.txt file2.txt file3.txt
-```
-This will combine the contents of `file1.txt`, `file2.txt`, and `file3.txt` in order, displaying the result in the terminal.
-
-By following these steps, you've learned how to create, edit, save, and view text-based files directly in the terminal. With vim and cat, you're equipped to efficiently manage text files on the ENGR servers.
+By mastering `vim` and these shell commands, you're equipped to create, edit, and run Python code efficiently on the ENGR servers, aligning with the course's expectations for a terminal-based development environment.

@@ -1,45 +1,46 @@
 ---
 title: Introduction
-description: "Welcome to ENGR 103: Engineering Computation and Algorithmic Thinking. This course introduces fundamental programming concepts using Python, covering topics like development environment setup, Git, Python basics, comments, expressions, constants, functions, scope, booleans, if statements, loops, characters, strings, lists, and references."
+description: "Welcome to ENGR 103: Engineering Computation and Algorithmic Thinking. This course introduces fundamental programming concepts using Python, covering topics like development environment setup on ENGR servers, Git and GitHub, Python basics, comments, expressions, variables, functions, scope, booleans, conditionals, loops, lists, dictionaries, file I/O, and engineering-focused libraries like NumPy and Matplotlib."
 sidebar:
   order: 0
 ---
 
-Welcome to the lecture notes for ENGR 103: Engineering Computation and Algorithmic Thinking. This course is designed to introduce you to the fundamental concepts of programming and computational thinking using Python. Below is an overview of the topics we will cover throughout the course.
 
-Programming has become an essential skill across all engineering disciplines:
+Welcome to the lecture notes for ENGR 103: Engineering Computation and Algorithmic Thinking. This course is designed to equip you with the fundamental skills of programming and computational thinking using Python, a versatile and widely-used language in engineering and beyond. You will learn to write, test, and manage code using Vim as your editor, Git and GitHub for version control, and the ENGR servers as your development environment. The course emphasizes problem-solving through Polya's four-step process (Understand, Devise, Carry Out, Review), enabling you to tackle engineering challenges with code. Below, we outline the topics you'll explore, designed to build a strong foundation for applying programming across various engineering disciplines.
 
-- **Mechanical engineers** use programming to simulate mechanical systems, analyze stress patterns in materials, and automate CAD processes that would be tedious to perform manually. When designing a new vehicle component, an engineer might write code to test how it responds to different forces before creating a physical prototype.
-- **Environmental engineers** apply programming to model ecosystem behaviors, analyze large climate datasets, and simulate pollution dispersion patterns. For example, code might be written to predict how contaminants move through groundwater based on soil properties and rainfall patterns.
-- **Chemical engineers** leverage programming to simulate reactions, optimize manufacturing processes, and analyze spectroscopic data. When designing a new pharmaceutical production line, programming helps engineers find the most efficient temperature and pressure conditions.
-- **Electrical engineers** use code to design circuits, process signals, and develop control systems. Programming microcontrollers enables engineers to create smart devices that respond to their environment in predetermined ways.
-- **Nuclear engineers** write programs to model radiation shielding, simulate reactor conditions, or analyze the decay patterns of radioactive materials. This allows testing of safety systems without exposure to actual radiation.
-- **Architectural engineers** apply programming to structural analysis, energy modeling, and parametric design. When designing a skyscraper, engineers might write code to calculate how wind forces affect the building at different heights.
-- **Robotics engineers** program movement paths, process sensor data, and create decision-making algorithms. Without programming, autonomous robots would simply be static mechanical parts.
-- **Biomedical engineers** use code to analyze medical imaging, model physiological systems, and process bioelectric signals from medical devices. A program might help identify patterns in brain activity data that correlate with specific neurological conditions.
+Programming is an indispensable tool for engineers, enabling automation, analysis, and simulation across diverse fields:
+
+- **Mechanical engineers** use programming to simulate mechanical systems, analyze stress distributions, and automate CAD workflows. For instance, a Python script might calculate how a bridge component withstands dynamic loads, saving time before physical prototyping.
+- **Environmental engineers** leverage programming to model ecosystems, process climate datasets, or simulate pollutant dispersion. A Python program could predict contaminant spread in rivers based on flow rates and terrain data, using libraries like NumPy for calculations.
+- **Chemical engineers** apply programming to optimize reaction conditions, simulate chemical processes, or analyze spectroscopic data. Python might be used to determine optimal parameters for a reactor, visualized with Matplotlib plots.
+- **Electrical engineers** write code to design circuits, process signals, or program microcontrollers for smart devices. Python scripts can analyze sensor data or simulate control system responses, streamlining development.
+- **Nuclear engineers** use programming to model radiation shielding, simulate reactor behavior, or analyze decay patterns. Python enables safe testing of safety protocols through simulation, avoiding real-world risks.
+- **Architectural engineers** employ programming for structural analysis, energy modeling, and parametric design. A Python script could compute wind loads on a skyscraper, with results plotted for clarity.
+- **Robotics engineers** rely on programming to control robot movements, process sensor inputs, and implement decision-making algorithms. Python's simplicity makes it ideal for prototyping autonomous systems.
+- **Biomedical engineers** use code to analyze medical imaging, model physiological systems, or process bioelectric signals. A Python program might identify patterns in heart rate data, aiding diagnosis.
 - And many others!
 
-As you progress through this course, you'll develop foundational programming skills that can be applied to these fields and many more. The ability to write code that solves engineering problems is increasingly valuable across all disciplines.
+Throughout this course, you'll develop practical programming skills using Python, Vim, Git/GitHub, and the ENGR servers. These skills will empower you to solve real-world engineering problems, from automating calculations to visualizing data. Python's clear syntax and powerful libraries, like NumPy for numerical computations and Matplotlib for plotting, make it an ideal choice for engineering applications. By the end, you'll be able to write modular, well-documented code, manage projects with version control, and execute programs on a server-based environment, preparing you for both academic and industry challenges.
 
 ## Lecture Topics
 
-- **Development Environment**: Learn how to set up and configure your development environment, including terminals and the ENGR servers.
-- **Git**: Understand the basics of version control using Git, including how to create and manage repositories.
-- **Python Basics**: Get introduced to the basic syntax and structure of Python programs.
-- **Comments**: Understand the importance of code documentation and how to write effective comments.
-- **Expressions, Operators, and Variables**: Explore how to write expressions, use operators, and declare variables in Python.
-- **Constants**: Learn about runtime constants and their importance in programming.
-- **Type Casting**: Learn how to convert data from one type to another using type casting.
-- **Shorthand Operators**: Learn about shorthand operators and how they can simplify your code.
-- **Functions**: Learn how to define and use functions to organize and modularize your code.
-- **Scope**: Understand the concept of scope and how it affects variable accessibility and lifetime.
-- **Booleans**: Learn about boolean logic and how to use boolean values in your programs.
-- **If Statements**: Explore conditional logic and how to use if statements to control the flow of your program.
-- **Loops**: Understand repetition logic and how to use loops to perform repetitive tasks.
-- **Characters**: Understand the character data type and how to work with individual characters.
-- **Strings**: Explore the string data type and how to work with text in Python.
-- **String Functions**: Learn about various functions available for manipulating strings.
-- **Lists**: Learn about lists and how to use them to store and manipulate collections of data.
-- **References**: Understand the concept of references and how to use them in Python.
+- **Development Environment**: Learn to configure your development environment on the ENGR servers, including accessing terminals, verifying Python 3 installation, and using Vim for editing code.
+- **Git and GitHub**: Master version control with Git, including creating repositories, committing changes, and pushing code to GitHub for assignment submission and collaboration.
+- **Python Basics**: Get introduced to Python's syntax and structure, including writing and running simple scripts like “Hello, World!” on the ENGR servers.
+- **Comments**: Understand the importance of documenting code with Python's comment syntax (`#`) to enhance readability and maintainability.
+- **Expressions, Operators, and Variables**: Explore how to write expressions, use operators (e.g., `+`, `-`, `*`, `/`), and work with Python's dynamically-typed variables.
+- **Constants**: Learn about defining constants in Python (e.g., using naming conventions like `PI = 3.14159`) and their role in reliable programming.
+- **Type Conversion**: Understand how to convert data types in Python (e.g., `int()`, `float()`, `str()`) for flexible data handling.
+- **Shorthand Operators**: Explore Python's shorthand operators (e.g., `+=`, `-=`) to write concise, efficient code.
+- **Functions**: Learn to define and call functions in Python to modularize code, using parameters and return statements for engineering calculations.
+- **Scope**: Understand variable scope in Python, including global and local variables, and how it affects code organization.
+- **Booleans**: Learn about boolean logic (`True`, `False`, `and`, `or`, `not`) and its use in decision-making.
+- **Conditionals**: Explore conditional logic with `if`, `elif`, and `else` statements to control program flow based on engineering conditions.
+- **Loops**: Master repetition with `for` and `while` loops, including Python's list comprehensions for efficient data processing.
+- **Lists**: Learn about Python lists as a flexible replacement for arrays, ideal for storing and manipulating engineering data.
+- **Dictionaries**: Understand dictionaries for key-value data storage, useful for organizing complex datasets like material properties.
+- **File I/O**: Explore reading and writing files (e.g., CSV files) in Python to store and retrieve engineering data.
+- **Exception Handling**: Learn to use `try`/`except` blocks to handle errors gracefully, such as invalid user inputs in calculations.
+- **NumPy and Matplotlib**: Get introduced to NumPy for numerical computations and Matplotlib for visualizing engineering data, such as plotting stress curves or mortgage payment trends.
 
-We hope you find these lecture notes helpful as you progress through the course. Happy coding!
+We hope these lecture notes guide you effectively through ENGR 103. By using Python on the ENGR servers, editing with Vim, and managing code with Git/GitHub, you'll gain hands-on experience that mirrors professional engineering workflows. Happy coding!
