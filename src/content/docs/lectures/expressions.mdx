@@ -1,155 +1,124 @@
 ---
 title: "Expressions"
-description: "Understand expressions in C++ and how they represent data. This guide covers types, values, memory allocation, primitive data types, and the binary system, providing a solid foundation for programming."
+description: "Understand expressions in Python and how they represent data. This guide covers types, values, memory allocation, built-in data types, and the binary system, providing a solid foundation for programming."
 sidebar:
   order: 5
 ---
 
-{/* https://stackoverflow.com/questions/7479946/whats-an-expression-and-expression-statement-in-c */}
+import Latex from '../../../components/Latex.astro'
 
-Programs are essentially sequences of instructions that operate on data. To write a program, it is essential to represent data, define operations that transform the data, and allocate storage for intermediate data during execution.
+Programs are fundamentally sequences of instructions that manipulate data. To create a program, we must represent data, define operations to transform it, and manage storage for intermediate data during execution. In Python, an **expression** is any sequence of literals, variables, operators, or function calls that evaluates to a single value. The process of computing this value is called **evaluation**, and the value produced is referred to as the **result** of the expression.
 
-In general programming, an **expression** is a non-empty sequence of literals, variables, operators, and function calls that calculates a value. The process of executing an expression is called **evaluation**, and the resulting value produced is called the **result** of the expression (also sometimes called the **return value**).
+In Python, expressions are the building blocks of data manipulation. Every expression has a **value** (the data it produces) and a **type** (the kind of data, such as an integer or string). Python is dynamically typed, meaning the type of an expression is determined at runtime and does not need to be explicitly declared, unlike in statically typed languages like C++. Expressions can represent simple values, such as numbers or strings, or more complex objects, like lists or custom objects. Let's explore an example using Python's version of the “Hello, World!” program:
 
-In C++, expressions represent data. An expression is a piece of code that has both a type and a value:
-
-- The **type** indicates the kind of data the expression represents.
-- The **value** is the actual data.
-
-Expressions in C++ can range from simple entities like numbers, characters, or boolean values, to complex objects like students, cars, or files. Let's examine an example from a “Hello, World!” program:
-
-```cpp
-std::cout << "Hello, World!" << std::endl;
+```python
+print("Hello, World!")
 ```
 
-This line contains several expressions. Let's focus on three key ones:
+This line contains a key expression: the function call `print("Hello, World!")`. Let's break it down:
 
-1. `std::cout`: a built-in C++ entity used to display information in the terminal (console)
-    - Type: A kind of stream, for now, think of it as a tool for printing (specifically, `std::ostream`).
-    - Value: The stream pointing to the terminal, enabling output to the console.
-2. `"Hello, World!"`: a sequence of characters known as a string literal.
-    - Type: A string literal (sequence of characters).
-    - Value: The specific string literal "Hello, World!".
-3. `std::endl`: a predefined command that tells the terminal to move the cursor to the next line.
-    - Type: For now, think of it as a special sequence of characters.
-    - Value: Represents the end of a line.
+1. `"Hello, World!"`: A string literal, which is a sequence of characters.
+   - **Type**: `str` (Python's string type).
+   - **Value**: The sequence of characters `"Hello, World!"`.
+2. `print(...)`: A built-in Python function that outputs data to the console.
+   - **Type**: The `print` function itself is a built-in function object, but the expression `print("Hello, World!")` evaluates to `None` (Python's null equivalent).
+   - **Value**: The `print` function outputs the string to the console and returns `None`.
 
 :::note
-The reality is a little less straightforward. 
-
-For example,technically, `std::endl` is a [manipulator](https://en.cppreference.com/w/cpp/io/manip/endl), not a sequence of characters. It instructs the output stream to insert a newline character and flushes the stream. 
-
-If we consider the whole `std::cout << "Hello, World!" << std::endl;` expression, including the `<<` operators, is of type `std::ostream&` (a reference to an output stream) and the value is the stream object itself. This is outside the scope of this class.
+In Python, the `print` function automatically appends a newline character (`\n`) to the output unless configured otherwise (e.g., using the `end` parameter). This differs from C++, where `std::endl` explicitly adds a newline and flushes the output stream. For simplicity, we treat the newline as part of the output behavior here.
 :::
 
-Note that these expressions are combined using the `<<` operator to produce the desired output (which is also an expression). We'll discuss operators a little later.
+The `print("Hello, World!")` expression combines the string literal with the `print` function to produce console output. Unlike C++, Python does not use operators like `<<` for output; instead, it relies on functions like `print`.
 
 ## Memory
 
-All expressions in a program have both types and values. For a computer to work with these values, it must represent them internally. Modern digital computers rely on the binary numeric system to store and process data. In fact, all data in a computer program is ultimately stored in numeric form.
-
-Expressions have types and values, which must be stored internally by the computer. Modern computers use the binary numeric system for data representation, storing everything in numeric form.
+Expressions in Python have types and values, which must be stored in memory for the computer to process. Modern computers use the **binary numeric system** to represent all data internally. Every piece of data in a Python program, whether a number, string, or complex object, is ultimately stored as a sequence of binary digits (bits).
 
 ### Binary and Decimal Systems
 
-The binary system operates similarly to the decimal system (the system humans use for math and counting), but with one key difference: the base.
-
-- Decimal System (Base 10): Each symbol (or “digit”) can take one of 10 possible values: `{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}`. By combining these symbols into sequences (e.g., 123), we can represent any value, no matter how large or precise.
-- Binary System (Base 2): Each symbol (called a “bit”) can take only one of two possible values: `{0, 1}`. Just like in decimal, combining these bits into sequences allows the representation of any value.
+The binary system is analogous to the decimal system used in everyday mathematics, but it differs in its **base**. The decimal system (base 10) uses ten digits `{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}` to represent numbers by combining them into sequences (e.g., 123). The binary system (base 2) uses only two digits `{0, 1}`, called **bits**, to represent numbers. By combining bits into sequences, binary can represent any value, just as decimal can.
 
 If you're wondering how two symbols can represent arbitrarily large values, consider this.
 
 A **tally mark system** (a unary numeric system with only one symbol) can represent any value by simply adding more marks. Similarly, having two symbols in binary provides even more flexibility to represent larger numbers with shorter sequences.
 
-For example:
+To illustrate, consider how numbers are represented in binary compared to decimal:
 
-- `0` (binary)  = `0` (decimal)
-- `1` (binary)  = `1` (decimal)
-- `10` (binary) = `2` (decimal)
-- `11` (binary) = `3` (decimal)
-- `100` (binary) = `4` (decimal)
-- `101` (binary) = `5` (decimal)
-- `110` (binary) = `6` (decimal)
-- `111` (binary) = `7` (decimal)
-- `1000` (binary) = `8` (decimal)
-- `1001` (binary) = `9` (decimal)
+- `0` (binary) = $0$ (decimal)
+- `1` (binary) = $1$ (decimal)
+- `10` (binary) = $2$ (decimal)
+- `11` (binary) = $3$ (decimal)
+- `100` (binary) = $4$ (decimal)
+- `101` (binary) = $5$ (decimal)
+- `110` (binary) = $6$ (decimal)
+- `111` (binary) = $7$ (decimal)
+- `1000` (binary) = $8$ (decimal)
+- `1001` (binary) = $9$ (decimal)
 
-Numbers are represented in binary using place values:
+In the decimal system, place values are powers of 10 (1's, 10's, 100's, etc.). In binary, place values are powers of 2 (1's, 2's, 4's, 8's, etc.). To convert a binary number to decimal, multiply each bit by <Latex formula="2^n"/>, where <Latex formula="n"/> is the bit's position (starting from 0 on the right), and sum the results. For example, the binary number `10010` is calculated as:
 
-- Decimal places: 1's, 10's, 100's, ...
-- Binary places: 1's, 2's, 4's, 8's, ...
+<Latex formula="1 \cdot 2^4 + 0 \cdot 2^3 + 0 \cdot 2^2 + 1 \cdot 2^1 + 0 \cdot 2^0 = 16 + 0 + 0 + 2 + 0 = 18" inline = {false}/>
 
-To convert a binary number to a decimal number, multiply each bit by 2 raised to the power of its position, starting from 0 on the right. Add the results to get the decimal equivalent. For example, the binary number `10010` equals `18` in decimal because it has:
-
-- A `1` in the 16's place or fourth position (2 raised to the power of 4)
--	A `1` in the 2's place or first position (2 raised to the power of 1)
+Thus, `10010` in binary equals `18` in decimal.
 
 ### Bytes and Storage
 
-All data in a computer is stored as bytes, where a **byte** consists of **8 bits**. Even complex data types like streams and strings are stored as sequences of bytes. 
+All data in a computer is stored as **bytes**, where a byte consists of **8 bits**. Even complex data types, such as strings or objects, are represented as sequences of bytes. For example, Python uses the **UTF-8** encoding (an extension of ASCII) to represent characters as numbers. The character `'A'` is encoded as the decimal value 65, which in binary is `01000001`. This allows computers to store and process textual data as binary.
 
-For example, the [ASCII table](https://en.wikipedia.org/wiki/ASCII) maps characters to numeric values, allowing characters to be represented in binary. The letter 'A' is represented by the number 65 in ASCII, which is stored in binary as 01000001. This allows computers to encode and process characters as binary data.
+Data storage occurs in two primary forms:
 
-Data can be stored in:
+1. **Disk Storage**: Includes hard drives, SSDs, or USB drives, where data is stored persistently (it remains when the computer is off). Disk storage is designed for large capacity but is slower than other forms.
+2. **Random Access Memory (RAM)**: Used for temporary storage during program execution, RAM is much faster but volatile (data is lost when the computer is powered off).
 
-- **Disk Storage**: Includes devices like hard drives, SSDs, USB drives, and floppy disks. This is where permanent files are stored. Disk storage has two key characteristics, which makes then slower:
-    - **Persistence**: Data remains intact even when the computer is turned off.
-    - **Large Capacity**: Designed to store large amounts of data, such as files, videos, and programs.
-- **Random Access Memory (RAM)**: Much faster than disk storage but is volatile, meaning data is lost when the computer is turned off. It is used for temporary storage of data and instructions that the CPU needs while running a program.
+Python manages memory automatically through its **garbage collector**, which contrasts with C++'s manual memory management for certain types. However, the underlying binary representation remains the same.
 
 ## Expression Types
 
-The type of an expression determines:
+The type of an expression in Python determines how its value is interpreted and how much memory it requires. Python's dynamic typing means that types are inferred at runtime, but the type still governs:
 
-1. Storage requirements: how many bytes the data occupies in memory.
-2. Interpretation rules: how the stored bytes are interpreted (e.g., as numbers, characters, etc.).
+1. **Storage requirements**: The number of bytes needed to store the value.
+2. **Interpretation rules**: How the bytes are interpreted (e.g., as an integer, string, or boolean).
 
-## Primitive Data Types
+## Built-in Data Types
 
-The types of expressions we've encountered so far have been somewhat complex, such as entire streams or sequences of characters. In this lecture, we will focus on simpler types of expressions--those that are built directly into the C++ language. These are known as primitive data types.
+Python's equivalent to C++'s primitive data types are its **built-in types**, which are simpler and more flexible due to Python's dynamic typing. For this lecture, we focus on the most fundamental built-in types:
 
-### Common Primitive Data Types in C++
-
-C++ provides a variety of primitive data types, but for this course, we will concentrate on the most commonly used ones:
-- `int`: Represents whole numbers, also known as integers (e.g., 42, -7).
-- `float`: Stands for “floating-point number” and is used to represent non-whole numbers. A float can also represent whole numbers but is primarily designed for decimals (e.g., 3.14).
--	`double`: Short for “double-precision floating-point number,” it offers greater precision than float.
-- `bool`: Stands for “boolean” and represents truth values--true or false.
-- `char`: Represents a single character, such as 'a', 'A', '!', or even a digit like '1'. It is important to note that the character '1' is different from the integer 1.
-
-There are other primitive types in C++ that we'll discuss later in the course. Additionally, we care about strings, but strings are not technically primitive data types in C++.
+- `int`: Represents whole numbers (e.g., `42`, `-7`). Unlike C++, Python's `int` has no fixed size limit; it can grow arbitrarily large, constrained only by available memory.
+- `float`: Represents floating-point numbers, including decimals (e.g., `3.14`). Python's `float` is equivalent to C++'s `double`, using 8 bytes for double-precision.
+- `bool`: Represents truth values, `True` or `False`.
+- `str`: Represents sequences of characters (e.g., `"Hello"`). In Python, strings are a built-in type, unlike C++, where strings are not primitive.
+- `bytes`: Represents sequences of bytes, often used for raw binary data or encoded text (e.g., `b"Hello"`).
 
 ### Integral and Floating-Point Types
 
-- **Integral** types: These include any type that represents whole numbers, such as `int` and even `char`.
-- **Floating-point** types: These include types that represent numbers with a decimal point, such as `float` and `double`.
+- **Integral types**: Include `int` and, in some contexts, `bytes`. These represent whole numbers or raw byte sequences.
+- **Floating-point types**: Include `float`, which handles numbers with decimal points.
 
-### Memory Allocation for Primitive Types
+### Memory Allocation for Built-in Types
 
-Primitive data types have fixed sizes in memory, but the exact size can vary depending on the system and compiler. The C++ language standard provides some flexibility, allowing sizes to vary between systems, but there are common patterns:
+Unlike C++, where primitive types have compiler-dependent sizes, Python's built-in types have implementation-specific memory characteristics, managed by the Python interpreter (typically CPython). Common patterns include:
 
-- `int`: Typically requires 4 bytes, which means it can represent values ranging from -2,147,483,648 (-2^31) to 2,147,483,647 (2^31 - 1). While this range is sufficient in most cases, larger types like long int and long long int are available for situations that require larger numbers.
-- `char`: Always requires 1 byte, as mandated by the C++ standard. It is the only primitive type with a fixed size specified by the standard.
-- `float`: Typically requires 4 bytes. This allows for the representation of decimal values but with less precision compared to `double`.
-- `double`: Typically requires 8 bytes, which is twice the size of a float. This allows it to store larger values and more precise decimals.
-- `bool`: Usually requires 1 byte, but this can vary depending on the system.
+- `int`: Variable size, as Python's integers can grow arbitrarily large. A small integer (e.g., `42`) typically uses around 28 bytes in CPython due to object overhead, but this grows with larger numbers.
+- `float`: Uses 8 bytes for double-precision floating-point numbers, similar to C++'s `double`.
+- `bool`: Typically uses 28 bytes in CPython (due to object overhead), despite representing only `True` or `False`.
+- `str`: Each character in a string uses 1–4 bytes, depending on the Unicode encoding (UTF-8 is default). For example, `"A"` uses 1 byte for the character plus object overhead.
+- `bytes`: Each byte uses exactly 1 byte, plus object overhead.
 
-:::note[Typically?]
-The term "typically" is used because the C++ standard does not mandate exact sizes for most primitive data types, except for `char`. Instead, it specifies minimum ranges that these types must support, allowing some flexibility in their implementation. The actual size can vary depending on the system architecture and compiler implementation.
+:::note
+Python's memory usage includes **object overhead** because every value is an object with metadata (e.g., type and reference count). This contrasts with C++, where primitive types have minimal overhead but fixed sizes. For example, a C++ `int` is typically 4 bytes, while a Python `int` includes additional bytes for flexibility.
 :::
 
-C++ expressions of the same type may share the *same binary representation* but are interpreted differently. For example, the integer 65 and the character 'A' may have the same binary representation (1000001) but are interpreted differently based on their types. 
+Expressions of different types may share the same binary representation but are interpreted differently. For example, the integer `65` and the string `"A"` both correspond to the binary `01000001` in memory (since `65` is the ASCII/UTF-8 code for `'A'`), but Python interprets them based on their type (`int` vs. `str`).
 
 ## Literals
 
-A literal is a hard-coded expression representing a value in a program. Examples include:
-- `5`: An int literal.
-- `5.1`: A double literal (non-whole decimal numbers default to double).
-- `5.1f`: A float literal (suffixing a number with `f` specifies float).
-- `'A'`: A char literal (single characters must use single quotes).
-- `true` / `false`: The only valid bool literals.
-- `"Hello"`: A string literal (strings use double quotes).
+A **literal** is a hard-coded value in a program. Python supports several types of literals, which directly correspond to its built-in types:
 
-By default, C++ treats all non-whole decimal literals as double, not float. This is because double provides higher precision, which is often desirable when working with decimal numbers.
+- `5`: An `int` literal.
+- `5.1`: A `float` literal (all decimal numbers in Python are `float`).
+- `True` / `False`: `bool` literals.
+- `'A'`: A single-character `str` literal (Python uses single or double quotes for strings).
+- `"Hello"`: A `str` literal.
+- `b"Hello"`: A `bytes` literal (prefixing with `b` specifies a byte sequence).
 
-Although strings are not primitive types in C++, they can still be constructed using literals.
+Unlike C++, Python does not distinguish between `float` and `double` literals; all decimal literals are `float` (double-precision). Strings in Python are more straightforward, as both single and double quotes are equivalent (e.g., `'Hello'` and `"Hello"` are identical).

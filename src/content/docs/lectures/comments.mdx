@@ -1,94 +1,109 @@
 ---
 title: "Comments"
-description: "Discover the importance of code comments in C++ for effective documentation. This guide covers single-line and multi-line comments, best practices, and how to write self-documenting code."
+description: "Discover the importance of code comments in Python for effective documentation. This guide covers single-line and multi-line comments, best practices, and how to write self-documenting code."
 sidebar:
   order: 4
 ---
 
-As your C++ programs grow in complexity, documenting your code effectively becomes crucial. Documentation refers to any records or notes that help you or others interpret your code more easily.
+{/* TODO: explain what self-documenting means, i.e., style guide + link to course style guide */}
 
-Ideally, your goal should be to write **self-documenting code**—code that is so clear and well-organized that it serves as its own documentation. However, achieving perfectly self-documenting code is often unrealistic. Even if your code appears self-explanatory, expecting others to interpret it directly from the source is impractical. Therefore, supplementing your code with dedicated documentation is essential.
+As your Python programs grow in complexity, documenting your code effectively becomes essential. Documentation refers to any notes or records that make your code easier to understand for yourself and others. The goal is to write **self-documenting code**—code that is so clear and well-structured that it serves as its own documentation. However, achieving perfectly self-documenting code is often impractical. Even if your code seems clear to you, expecting others to interpret it solely from the source is unrealistic. Therefore, supplementing your code with dedicated documentation is critical.
 
-The easiest way to document your code is through **code comments**. A comment is text included within your source code that does not execute as part of the program. Instead, it serves to clarify the code for human readers.
+The simplest way to document your code is through **code comments**. A comment is text embedded in your source code that is not executed by the Python interpreter. Instead, it provides explanations for human readers, clarifying the purpose and logic of the code.
 
-In C++, there are two types of comments: single-line comments and multi-line comments.
+In Python, there are two primary types of comments: single-line comments and multi-line comments.
 
 ## Single-Line Comments
 
-To create a single-line comment, use two consecutive forward slashes `//`. Any text following the slashes on the same line will be treated as a comment and ignored by the compiler. For example:
+To create a single-line comment in Python, use the hash symbol `#`. Any text following the hash on the same line is treated as a comment and ignored by the interpreter. For example:
 
-```cpp
-// single_line_commment.cpp
-#include <iostream>
-#include <cmath>
+```python
+# single_line_comment.py
+import math
 
-int main() {
-    double pi = 3.14159265;
+def main():
+    pi = 3.14159265
 
-    // Prompt the user for the radius of the circle
-    double radius;
-    std::cout << "What is the radius of the circle?" << std::endl;
-    std::cin >> radius;
+    # Prompt the user for the radius of the circle
+    radius = float(input("What is the radius of the circle? "))
 
-    // Compute and print the area
-    double area = pi * pow(radius, 2);
-    std::cout << "The area is: " << area << std::endl;
-}
+    # Compute and print the area
+    area = pi * math.pow(radius, 2)
+    print(f"The area is: {area}")
+
+if __name__ == "__main__":
+    main()
 ```
 
-Single-line comments apply only to the remainder of their respective line. If you need to write longer comments spanning multiple lines, using single-line comments can become cumbersome, as each line must begin with `//`:
+Single-line comments apply only to the remainder of the line where they appear. If you need to write comments that span multiple lines, using single-line comments can become tedious, as each line must start with `#`:
 
-```cpp title="Cumbersome Single-Line Comments"
-// This is the first line of a comment
-// This is the second line of the same comment
-// And so on...
+```python title="Cumbersome Single-Line Comments"
+# This is the first line of a comment
+# This is the second line of the same comment
+# And so on...
 ```
 
 ## Multi-Line Comments
 
-For longer comments, you can use multi-line comments. These start with `/*` and end with `*/`. Everything between these markers is considered part of the comment, allowing you to span multiple lines without repeatedly adding `//`:
+For longer comments, Python uses triple quotes (either `"""` or `'''`) to create multi-line comments. Everything between the opening and closing triple quotes is considered part of the comment, allowing you to write explanations that span multiple lines without repeatedly adding `#`:
 
-```cpp title="Multi-Line Comment Example"
-/* This is a multi-line comment.
-   It spans several lines.
-   Use this format for long notes or explanations. */
+```python title="Multi-Line Comment Example"
+"""This is a multi-line comment.
+It spans several lines.
+Use this format for long notes or explanations."""
+```
+
+Although Python does not have a distinct multi-line comment syntax like C++'s `/* */`, triple-quoted strings are commonly used for this purpose, especially for module-level or function-level documentation (often called **docstrings**). For example, you might use a docstring to document a function:
+
+```python
+def calculate_area(radius):
+    """Calculate the area of a circle given its radius.
+    
+    Args:
+        radius (float): The radius of the circle.
+    
+    Returns:
+        float: The area of the circle.
+    """
+    return math.pi * radius ** 2
 ```
 
 ## Why Documentation Matters
 
-Code comments are critical for ensuring your code is understandable, both to others and to your future self. For this course, you are expected to adhere to style guidelines that emphasize clear documentation through frequent, meaningful comments.
+Code comments are vital for ensuring your code is understandable, both to others and to your future self. For this course, you are expected to follow style guidelines that emphasize clear documentation through frequent, meaningful comments.
 
-It can be tempting to think documentation isn't important when working alone, but nearly all meaningful software is developed collaboratively. Without proper documentation, your colleagues will struggle to understand your code. Even you might have difficulty understanding your own work after some time. In team environments, thorough documentation is often a strict requirement. Neglecting it could result in your code being rejected during peer reviews.
+It might seem unnecessary to document code when working alone, but most significant software projects involve collaboration. Without proper documentation, your teammates will struggle to understand your code. Even for solo projects, you may find it difficult to recall the purpose of your code after some time. In professional team settings, thorough documentation is often a strict requirement, and poorly documented code may be rejected during peer reviews.
 
-In addition to aiding others, comments can also help you. Writing comments forces you to think about your code more critically. It can reveal logical errors, inconsistencies, or areas where your code could be improved. Comments can also serve as a roadmap for future development, helping you remember your thought process when you revisit the code later.
+Beyond aiding others, comments benefit you directly. Writing comments encourages you to think critically about your code, which can help uncover logical errors, inconsistencies, or opportunities for improvement. Comments also serve as a roadmap for future development, reminding you of your thought process when you revisit the code later.
 
 ## Writing Comments During the Design Phase
 
-A practical strategy for ensuring good documentation is to write comments as part of your design process, even before writing the actual code. This approach helps you outline the structure of your program and organize your thoughts. For instance:
+A practical approach to effective documentation is to write comments as part of your design process, even before writing the actual code. This strategy helps you outline the structure of your program and clarify your intentions. For instance:
 
-```cpp title="Commenting During Design"
-// design_comments.cpp
-#include <iostream>
-#include <cmath>
+```python title="Commenting During Design"
+# design_comments.py
+import math
 
-int main() {
-    // TODO: Prompt the user for the radius of the circle
+def main():
+    # TODO: Prompt the user for the radius of the circle
 
-    // TODO: Compute and print the area
-}
+    # TODO: Compute and print the area
+
+if __name__ == "__main__":
+    main()
 ```
 
-By adding comments like `// TODO:`, you create placeholders for future code. These comments serve as reminders of what needs to be implemented and help you focus on one task at a time. Once you've completed a task, you can replace the `TODO` comment with the actual code.
+By using comments like `# TODO:`, you create placeholders for tasks that need to be implemented. These comments act as reminders and help you focus on one task at a time. As you complete each task, you can replace the `TODO` comment with the corresponding code.
 
 ## Commenting Best Practices
 
-When writing comments, consider the following best practices:
+When writing comments, adhere to the following best practices:
 
-1. **Keep comments concise**: Avoid writing lengthy paragraphs to explain a few lines of code. Overly complex code that requires extensive explanation is often a sign that it needs to be refactored.
+1. **Keep comments concise**: Avoid lengthy explanations for simple code. If a few lines of code require extensive comments, it may indicate that the code needs refactoring for clarity.
 2. **Focus on clarity**: Write comments that are clear and relevant, providing just enough context to make the code understandable.
-3. **Document for collaboration**: Always assume others will read your code. Even solo projects can benefit from good documentation, especially when revisiting the code after a long time.
-4. **Update comments**: As you modify your code, remember to update the comments accordingly. Outdated comments can be misleading and cause confusion.
-5. **Use comments to explain why, not what**: Comments should explain the rationale behind your code, not what the code does. The code itself should be self-explanatory.
-6. **Avoid redundant comments**: Don't write comments that merely restate the code. Comments should add value by providing insights that aren't immediately obvious from the code itself.
+3. **Document for collaboration**: Assume others will read your code. Even solo projects benefit from good documentation, especially when revisiting code after a long period.
+4. **Update comments**: As you modify your code, ensure your comments remain accurate. Outdated comments can be misleading and cause confusion.
+5. **Use comments to explain why, not what**: Comments should explain the reasoning behind your code, not restate what the code does. The code itself should be self-explanatory.
+6. **Avoid redundant comments**: Do not write comments that merely repeat the code. Comments should provide insights that are not immediately obvious from the code itself.
 
-By consistently documenting your code with meaningful comments, you'll improve not only your own workflow but also your ability to work effectively in team environments.
+By consistently documenting your code with meaningful comments, you will enhance your workflow and improve your ability to collaborate effectively in team environments.
