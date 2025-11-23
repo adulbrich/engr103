@@ -16,11 +16,8 @@ Conditional logic in programming is often represented in the following structure
 3. ... (repeat as necessary)
 4. **Else**, none of the conditions being satisfied/true, **then** execute a *default* sequence of operations.
 
-import Mermaid from "../../../components/Mermaid.astro";
-
 Here's a flowchart to help visualize the steps:
 
-<Mermaid title="">
 ```mermaid
 graph TD
     A{IF Condition A} -->|True| B[THEN Sequence of operations A]
@@ -30,7 +27,6 @@ graph TD
     E -->|True| F[THEN Sequence of operations C]
     E -->|False| G[ELSE Default sequence of operations]
 ```
-</Mermaid>
 
 This chain of “**if…else if…else**” logic ensures that *only one* sequence of operations is executed, creating a *mutually* exclusive set of actions. You can include as many **else if** conditions as necessary--or omit them entirely if not needed.
 

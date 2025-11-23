@@ -2,20 +2,27 @@
 import { defineConfig } from "astro/config";
 import sitemap from "@astrojs/sitemap";
 import starlight from "@astrojs/starlight";
-import tailwind from "@astrojs/tailwind";
-
+import tailwindcss from "@tailwindcss/vite";
+import mermaid from 'astro-mermaid';
 import svelte from "@astrojs/svelte";
 
 // https://astro.build/config
 export default defineConfig({
+  vite: {
+    plugins: [tailwindcss()],
+  },
   site: "https://engr103.alexulbrich.com",
   integrations: [
+    mermaid({
+      theme: 'dark',
+      autoTheme: true
+    }),
     sitemap(),
     starlight({
       title: "ENGR 103 Engineering Computation and Algorithmic Thinking",
-      social: {
-        github: "https://github.com/adulbrich/engr103",
-      },
+      social: [
+        { icon: "github", label: "GitHub", href: "https://github.com/adulbrich/engr103" },
+      ],
       lastUpdated: true,
       head: [
         {
@@ -54,9 +61,8 @@ export default defineConfig({
           autogenerate: { directory: "about" },
         },
       ],
-      customCss: ["./src/tailwind.css"],
+      customCss: ["./src/styles/global.css"],
     }),
-    tailwind({ applyBaseStyles: false }),
     svelte(),
   ],
 });

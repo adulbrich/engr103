@@ -58,7 +58,7 @@ locales: {
 
 Inside of your Astro + Starlight project, you'll see the following folders and files:
 
-```
+```text
 .
 ├── public/
 ├── src/
@@ -95,7 +95,6 @@ This project uses `bun` instead of `npm`.
 - [Svelte](https://svelte.dev/docs/svelte/overview) -- for reactive components
 - [How to create an Astro LaTeX component](https://danidiaztech.com/create-astro-latex-component/) -- LaTeX component
 - [KaTeX: The fastest math typesetting library for the web.](https://katex.org/) -- LaTeX component
-- [Adding Mermaid diagrams to Astro MDX](https://xkonti.tech/blog/astro-mermaid-mdx/) -- Mermaid component
 - [Mermaid User Guide](https://mermaid.js.org/intro/getting-started.html) -- Mermaid component
 
 ## Acknowledgments
