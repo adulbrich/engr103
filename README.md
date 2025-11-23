@@ -1,5 +1,18 @@
 # ENGR 103: Engineering Computation and Algorithmic Thinking
 
+This repository contains the source code for the ENGR103 website.
+
+## Instructor Checklist
+
+Every term:
+
+- [ ] Update the version of this repository if making changes (`package.json`)
+- [ ] Add TAs to Canvas
+- [ ] Create team **Bookings** page for assignment demo and set up slots (**not working**, investigate alternatives?)
+- [ ] Update Bookings link in Canvas
+- [ ] Create **GitHub Classroom** class and add TAs
+- [ ] Update GitHub Classroom link in Canvas
+
 ## PDFs
 
 To generate the documentation in PDF format, use [starlight-to-pdf](https://github.com/Linkerin/starlight-to-pdf).
