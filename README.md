@@ -23,12 +23,13 @@ Here's the command to generate one large PDF.
 npx starlight-to-pdf https://engr103.alexulbrich.com/ --footer ./footer.html --header ./header.html --filename engr103 --no-contents --margins '2cm 1cm 2cm 1cm'
 ```
 
-To generate lecture notes in separate files (one per page), use the corresponding bash script (also for practicalities, assignments):
+To generate lecture notes in separate files (one per page), use the corresponding bash script (also for practicalities, assignments).
+
+The `scripts/generate-pdfs.sh` helper is written to resolve paths relative to the repository, so you can run it from anywhere in your filesystem — it will still find the helper node scripts and write output to `./pdf/`.
 
 ```bash
-cd pdf
-chmod +x ./generate-lecture-notes.sh
-./generate-lecture-notes.sh
+# from anywhere inside or outside the repo
+./scripts/generate-pdfs.sh
 ```
 
 To generate slides from `marp`, use:

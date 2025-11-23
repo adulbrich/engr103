@@ -1,35 +1,46 @@
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 
 // TODO: move the lists in the bash script and call this script with arguments
 
 async function combinePDFs() {
-  const lectureTopics = [
-    "introduction",
-    "git-and-github",
-    "testing-fundamentals",
-    "unit-testing",
-    "test-driven-development",
-    "ui-integration-testing",
-    "test-doubles",
-    "end-to-end-testing",
-    "git-and-github-collaboration",
-    "ci-cd",
-    "coverage",
-    "maintainability",
-    "reliability-testing",
-  ];
+  // Support passing lists via CLI flags so we don't duplicate content lists in multiple scripts.
+  // Flags accepted (comma-separated values):
+  // --lectures, --studios, --assignments, --practicalities
 
-  const assignments = [
-    "git-and-github",
-    "unit-tests",
-    "integration-tests",
-    "end-to-end-tests",
-    "project",
-  ];
+  function parseCsvFlag(name) {
+    const arg = process.argv.find((a) => a.startsWith(`--${name}=`));
+    if (!arg) return null;
+    const val = arg.split("=")[1] || "";
+    return val
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }
 
-  const practicalities = ["peer-evaluation"];
+  // Read lists from CLI or fall back to empty arrays. Passing values is strongly encouraged
+  // to avoid duplicated lists across scripts.
+  const lectureTopics = parseCsvFlag("lectures") || [];
+  const studios = parseCsvFlag("studios") || [];
+  const assignments = parseCsvFlag("assignments") || [];
+  const practicalities = parseCsvFlag("practicalities") || [];
+
+  // Resolve script location and repository root so we reliably operate on the
+  // `pdf/` and `pdf/temp` folders inside the repository regardless of the
+  // current working directory.
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+  const REPO_ROOT = path.resolve(__dirname, "..");
+  const PDF_DIR = path.join(REPO_ROOT, "pdf");
+  const TMP_DIR = path.join(PDF_DIR, "temp");
+
+  console.log("Combine: using the following lists:");
+  console.log("  lectures:   ", lectureTopics.length ? lectureTopics.join(", ") : "(none)");
+  console.log("  studios:    ", studios.length ? studios.join(", ") : "(none)");
+  console.log("  assignments:", assignments.length ? assignments.join(", ") : "(none)");
+  console.log("  practicalities:", practicalities.length ? practicalities.join(", ") : "(none)");
 
   // Create new PDF document
   const mergedPdf = await PDFDocument.create();
@@ -64,15 +75,23 @@ async function combinePDFs() {
   // Add lecture notes
   for (const topic of lectureTopics) {
     await addPDFSection(
-      `./temp/lecture-notes-${topic}.pdf`,
+      path.join(TMP_DIR, `lecture-notes-${topic}.pdf`),
       `Lecture: ${topic.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}`
+    );
+  }
+
+  // Add studio PDFs
+  for (const topic of studios) {
+    await addPDFSection(
+      path.join(TMP_DIR, `studio-${topic}.pdf`),
+      `Studio: ${topic.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}`
     );
   }
 
   // Add assignments
   for (const topic of assignments) {
     await addPDFSection(
-      `./temp/assignment-${topic}.pdf`,
+      path.join(TMP_DIR, `assignment-${topic}.pdf`),
       `Assignment: ${topic.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}`
     );
   }
@@ -80,7 +99,7 @@ async function combinePDFs() {
   // Add practicalities
   for (const topic of practicalities) {
     await addPDFSection(
-      `./temp/practicalities-${topic}.pdf`,
+      path.join(TMP_DIR, `practicalities-${topic}.pdf`),
       `Practicalities: ${topic.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}`
     );
   }
@@ -135,11 +154,17 @@ async function combinePDFs() {
     });
   });
 
-  // Save the merged PDF
-  const pdfBytes = await mergedPdf.save();
-  fs.writeFileSync("engr103-complete-course-materials.pdf", pdfBytes);
+  // Save the merged PDF into the repository `pdf/` folder so the result is
+  // colocated with the other generated PDFs regardless of working directory.
+  const outPath = path.join(PDF_DIR, "engr103-complete-course-materials.pdf");
 
-  console.log(`\nCombined PDF created: engr103-complete-course-materials.pdf`);
+  // Ensure output directory exists
+  fs.mkdirSync(PDF_DIR, { recursive: true });
+
+  const pdfBytes = await mergedPdf.save();
+  fs.writeFileSync(outPath, pdfBytes);
+
+  console.log(`\nCombined PDF created: ${outPath}`);
   console.log(`Total pages: ${totalPages}`);
 }
 
