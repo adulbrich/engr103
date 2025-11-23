@@ -58,13 +58,13 @@ The ENGR servers don't have physical monitors, mice, or keyboards attached, and 
 
 To control the ENGR servers, you'll use a remote connection via your computer's terminal. By issuing a single command, your computer will connect to the ENGR servers over the internet, giving you access to a remote shell. This allows you to type commands into your local terminal to control the ENGR servers, as if you were using them directly.
 
-Accessing the ENGR servers requires authentication. If you don’t already have an ENGR account, you’ll need to create one:
+Accessing the ENGR servers requires authentication. If you don't already have an ENGR account, you'll need to create one:
 
 1. Visit the [CoE TEACH](https://teach.engr.oregonstate.edu/teach.php) website.
 2. Click **“Create a new account”**
 3. Follow the on-screen instructions to create your ENGR account.
 
-Once your account is created and you have internet access, you’ll be ready to connect to and work on the ENGR servers.
+Once your account is created and you have internet access, you'll be ready to connect to and work on the ENGR servers.
 
 To do this, type the following command into your terminal and press enter, substituting `<ONID>` with your ONID username (e.g., mine is `ulbrical`):
 
@@ -83,11 +83,45 @@ When you connect to the ENGR servers using ssh, your terminal will prompt you fo
 
 Once authenticated, you should see a screen indicating that you are now logged into the ENGR servers.
 
-![A terminal logged into the ENGR servers](./terminal-engr-servers.png)
+```text title="ulbrical@flip4:~" frame="terminal"
+===================================================================
+You Are Accessing an Oregon State University System
+Unauthorized Access Prohibited
+Use Constitutes a Consent to Monitoring
+Users have No Expectation of Privacy
+===================================================================
+
+(ulbrical@access.engr.oregonstate.edu) Password:
+(ulbrical@access.engr.oregonstate.edu) Duo two-factor login for ulbrical
+
+Enter a passcode or select one of the following options:
+
+  1. Duo Push to XXX-XXX-2321
+
+Passcode or option (1-1): 1 
+Success. Logging you in...
+Success. Logging you in...
+===================================================================
+
+Beginning Friday 12 July 2019 at 500pm, two-factor Duo authentication will be required on the following College of Engineering linux SSH servers:
+
+    access.engr.oregonstate.edu
+    flip.engr.oregonstate.edu
+    nome.eecs.oregonstate.edu
+
+Students can sign up for two-factor Duo at:
+    https://beav.es/duo
+
+-------------------------------------------------------------------
+If you have any problems with this machine, please mail support@engr.orst.edu
+===================================================================
+Last login: Wed Dec 6 14:13:38 2023 from 10.197.135.26
+flip4 ~ 49$
+```
 
 The ENGR servers run **Linux**, so any commands you type into the terminal will now be interpreted as **Linux shell commands**. You can customize your shell settings on the TEACH platform if needed, but the default configuration will work fine for this course.
 
-Now that you’re logged in, your terminal is controlling the ENGR servers, not your personal computer. This means:
+Now that you're logged in, your terminal is controlling the ENGR servers, not your personal computer. This means:
 
 - **File Operations Are Remote**: Any files you create, edit, or manage will exist on the ENGR servers and not on your local computer. These files will not appear in tools like Windows File Explorer or Mac Finder unless you transfer them.
 - **Transferring Files**: To move files between your local computer and the ENGR servers, you'll need to use a file transfer protocol such as **SFTP** (Secure File Transfer Protocol) or **SCP** (Secure Copy Protocol). If you're interested, you can look up tutorials for these tools.
@@ -495,7 +529,15 @@ vim hello.txt
 
 Vim is similar to editors like Notepad or Word, but it's entirely terminal-based, so there are no visible menu buttons. For example, after opening `hello.txt`, your terminal might look something like this: 
 
-![vim new file](./vim-new-file.png)
+```text title="vim hello.txt" frame="terminal"
+█
+~
+~
+~
+~
+~
+"hello.txt" [New File]                                          0,0-1   All
+```
 
 Your screen might differ slightly (e.g., it might not show line numbers), but the general interface will be similar. Note that any menu-like elements belong to your terminal, not vim itself. Actions like saving, quitting, and copying text in vim are done via text-based commands.
 
@@ -503,8 +545,16 @@ Vim operates in several **modes**, and understanding these is key to using it ef
 
 - Press the `i` key to switch to insert mode.
 - You can now start typing into the file. For example, write the text `Hello, world!` into `hello.txt`: 
-  
-![vim insert mode](./vim-insert-mode.png)
+
+```text title="vim insert mode" frame="terminal"
+Hello, World!█
+~
+~
+~
+~
+~
+-- INSERT --                                                     1,14   All
+```
 
 :::tip
 Vim hotkeys and commands are case-sensitive. For example, `i` (lowercase) and `I` (uppercase) both switch to insert mode, but other commands may differ. Ensure caps lock is off to avoid errors.
@@ -530,11 +580,15 @@ Saving a file and quitting vim requires issuing commands in normal mode. Since y
 
 To save and quit the file, use the `:wq` command:
 
-```bash
-:wq
+```text title="vim save and quit" frame="terminal"
+Hello, World!
+~
+~
+~
+~
+~
+:wq█
 ```
-
-![vim wq](./vim-wq.png)
 
 After pressing **Enter**, you'll return to your regular SSH session.
 
@@ -551,7 +605,16 @@ Add vim commands (without colons) to configure default settings. For instance:
 
 Each command should go on its own line.
 
-![vimrc](./vimrc.png)
+```text title="vimrc" frame="terminal"
+  1 set mouse=A
+  2 set nu█
+~
+~
+~
+~
+~
+"~/.vimrc" 2L, 19B                                               2,7   All
+```
 
 To confirm that a file was saved, run the following command in the correct directory:
 
