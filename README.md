@@ -15,21 +15,12 @@ Every term:
 
 ## PDFs
 
-To generate the documentation in PDF format, use [starlight-to-pdf](https://github.com/Linkerin/starlight-to-pdf).
-
-Here's the command to generate one large PDF.
+The `scripts/generate-pdfs.sh` helper will retrieve and generate individual PDFs for all lectures, studios, assignments, and practicalities. It will then generate a combined version of all files. To run it, use:
 
 ```bash
-npx starlight-to-pdf https://engr103.alexulbrich.com/ --footer ./footer.html --header ./header.html --filename engr103 --no-contents --margins '2cm 1cm 2cm 1cm'
-```
-
-To generate lecture notes in separate files (one per page), use the corresponding bash script (also for practicalities, assignments).
-
-The `scripts/generate-pdfs.sh` helper is written to resolve paths relative to the repository, so you can run it from anywhere in your filesystem — it will still find the helper node scripts and write output to `./pdf/`.
-
-```bash
-# from anywhere inside or outside the repo
-./scripts/generate-pdfs.sh
+cd scripts
+chmod +x ./generate-pdfs.sh
+./generate-pdfs.sh
 ```
 
 To generate slides from `marp`, use:
@@ -39,8 +30,9 @@ cd slides
 npx @marp-team/marp-cli@latest web-graphics.md --pdf --allow-local-files
 ```
 
-## Parking
+## To Dos
 
+- [ ] Remove any images and replace them with actual code blocks or tables or diagrams
 - [ ] Add learning objectives to each lecture, optionally studios and assignments as well
 - [ ] Improve the "secondary" learning outcomes for the class (to be more programming specific)
 - [ ] Remove latex files: https://stackoverflow.com/questions/2004024/how-to-permanently-delete-a-file-stored-in-git
@@ -48,6 +40,9 @@ npx @marp-team/marp-cli@latest web-graphics.md --pdf --allow-local-files
 - [ ] Refactor assignment 3 (clearer instructions OR smaller assignment) -- feedback is that it's more complicated than other assignments
 - [ ] Mention using `getline()` in dictionary assignment instead of `cin`
 - [ ] Provide larger code examples/programs the students can play with
+
+### If making multiple versions (C++, Python, etc)
+
 - [ ] Use [Internationalization](https://starlight.astro.build/guides/i18n/) to have multiple version of the course for different terms or different languages.
 - [ ] Change the icon for the language dropdown (code instead of translation)
 - [ ] Figure out the CSS for the Latex component. Right now, the containing `<span>` has some padding on the right which looks odd when there's punctuation following the expression.

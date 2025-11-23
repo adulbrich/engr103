@@ -3,8 +3,6 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 
-// TODO: move the lists in the bash script and call this script with arguments
-
 async function combinePDFs() {
   // Support passing lists via CLI flags so we don't duplicate content lists in multiple scripts.
   // Flags accepted (comma-separated values):
@@ -50,6 +48,68 @@ async function combinePDFs() {
   mergedPdf.setAuthor("Alex Ulbrich");
   mergedPdf.setSubject("Engineering Computation and Algorithmic Thinking");
   mergedPdf.setCreationDate(new Date());
+
+  // --- Title / cover page ---
+  // Create a title page at the beginning of the PDF so the combined output
+  // always starts with a nicely formatted cover. We use a default page size
+  // (US Letter) so the cover is well-proportioned even if the merged PDFs
+  // later use other sizes.
+  const COVER_WIDTH = 612; // 8.5in * 72
+  const COVER_HEIGHT = 792; // 11in * 72
+
+  // Add a single cover page and draw the main text centered
+  const coverPage = mergedPdf.addPage([COVER_WIDTH, COVER_HEIGHT]);
+  const coverFont = await mergedPdf.embedFont(StandardFonts.HelveticaBold);
+  const coverSubFont = await mergedPdf.embedFont(StandardFonts.Helvetica);
+
+  const titleText = "ENGR 103 — Complete Course Materials";
+  const subtitleText = "Engineering Computation and Algorithmic Thinking";
+  const authorText = "Alex Ulbrich";
+  const generatedDate = `Generated: ${new Date().toLocaleDateString()}`;
+
+  // Large title centered vertically
+  const titleSize = 28;
+  const subtitleSize = 14;
+  const authorSize = 12;
+
+  const titleWidth = coverFont.widthOfTextAtSize(titleText, titleSize);
+  const subtitleWidth = coverSubFont.widthOfTextAtSize(subtitleText, subtitleSize);
+  const authorWidth = coverSubFont.widthOfTextAtSize(authorText, authorSize);
+
+  coverPage.drawText(titleText, {
+    x: (COVER_WIDTH - titleWidth) / 2,
+    y: COVER_HEIGHT - 260,
+    size: titleSize,
+    font: coverFont,
+    color: rgb(0.05, 0.18, 0.4),
+  });
+
+  coverPage.drawText(subtitleText, {
+    x: (COVER_WIDTH - subtitleWidth) / 2,
+    y: COVER_HEIGHT - 300,
+    size: subtitleSize,
+    font: coverSubFont,
+    color: rgb(0.15, 0.15, 0.15),
+  });
+
+  coverPage.drawText(authorText, {
+    x: (COVER_WIDTH - authorWidth) / 2,
+    y: COVER_HEIGHT - 340,
+    size: authorSize,
+    font: coverSubFont,
+    color: rgb(0.15, 0.15, 0.15),
+  });
+
+  // small date near the bottom of the cover page
+  const dateSize = 10;
+  const dateWidth = coverSubFont.widthOfTextAtSize(generatedDate, dateSize);
+  coverPage.drawText(generatedDate, {
+    x: (COVER_WIDTH - dateWidth) / 2,
+    y: 60,
+    size: dateSize,
+    font: coverSubFont,
+    color: rgb(0.25, 0.25, 0.25),
+  });
 
   // Function to add PDF with section header
   async function addPDFSection(filename, sectionTitle) {
@@ -108,8 +168,14 @@ async function combinePDFs() {
   const pages = mergedPdf.getPages();
   const font = await mergedPdf.embedFont(StandardFonts.Helvetica);
   const totalPages = pages.length;
+  // Content pages exclude the cover (first page). Page numbers shown to users
+  // should start at 1 for the first content page. When there are no content
+  // pages (only the cover), contentPageCount will be 0.
+  const contentPageCount = Math.max(totalPages - 1, 0);
 
   pages.forEach((page, index) => {
+    // Skip header/footer on the cover page (index 0)
+    if (index === 0) return;
     const { width, height } = page.getSize();
 
     // Header
@@ -143,7 +209,9 @@ async function combinePDFs() {
       }
     );
 
-    const pageText = `Page ${index + 1} of ${totalPages}`;
+    // For the content pages we want numbering starting at 1 and not include
+    // the cover in the human-visible count.
+    const pageText = `Page ${index} of ${contentPageCount}`;
     const pageTextWidth = font.widthOfTextAtSize(pageText, 10);
     page.drawText(pageText, {
       x: width - pageTextWidth - 40,
