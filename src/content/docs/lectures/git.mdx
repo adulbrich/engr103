@@ -81,9 +81,14 @@ int main() {
 }
 ```
 
-If I haven't modified this file or added any new files to the repository since cloning, running the command git status will produce output similar to this: 
+If I haven't modified this file or added any new files to the repository since cloning, running the command `git status` will produce output similar to this: 
 
-![git status clean](./terminal-git-status-up-to-date.png)
+```text title="git status" frame="terminal"
+On branch main
+Your branch is up to date with 'origin/main'. 
+
+nothing to commit, working tree clean
+```
 
 There are a few important details to understand from this output:
 
@@ -104,7 +109,17 @@ Now, suppose we modify `main.cpp` by removing the semicolon after `std::endl`, a
 
 Running `git status` again will produce a different output: 
 
-![git status modified](./terminal-git-status-modified.png)
+```text title="git status" frame="terminal"
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore file>..." to discard changes in working directory)
+        modified: main.cpp
+
+no changes added to commit (use "git add" and/or "git commit -a")
+```
 
 Notice the line under `“Changes not staged for commit”`. Git lists `main.cpp` here, indicating that this file has been modified since the last commit.
 
@@ -130,7 +145,14 @@ git add main.cpp
 
 Running `git status` again after staging will show a different output: 
 
-![git status stagged](./terminal-git-status-staged.png)
+```text title="git status" frame="terminal"
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes to be committed:
+  (use "git restore -staged <file>..." to unstage)
+        modified: main. cpp
+```
 
 The output will now indicate that `main.cpp` is staged and ready to be included in the next commit. This step is crucial for ensuring the latest versions of files are saved properly in your repository.
 
@@ -150,7 +172,13 @@ git commit -m "Remove semicolon after std::endl"
 
 After running this command, executing git status will produce the following: 
 
-![git status committed](./terminal-git-status-committed.png)
+```text title="git status" frame="terminal"
+On branch main
+Your branch is ahead of 'origin/main' by 1 commit. 
+  (use "git push" to publish your local commits)
+
+nothing to commit, working tree clean
+```
 
 Notice that there are no more modified or staged files—all changes have been committed. However, the output will say, `“Your branch is ahead of ‘origin/main’ by 1 commit.”` This means the new commit exists in your local repository but hasn't been synced with the remote GitHub repository yet. If you visit your GitHub repo at this point, it will still show the outdated version of main.cpp with the semicolon.
 
@@ -172,7 +200,25 @@ git log
 
 This will display each commit in reverse chronological order, showing the commit's hash (a unique identifier), author, timestamp, and commit message. For example:
 
-![git log](./terminal-git-log.png)
+```text title="git log" frame="terminal"
+commit 130725a6befde506775aa4610245b286a02ead4f (HEAD - main, origin/main, origin/HEAD)
+Author: Alexander Ulbrich <adulbrich@users.noreply.github.com>
+Date:   Thu Dec 19 15:28:13 2024 -0800
+
+    Remove semicolon after std::endl
+
+commit 7c611b02d9e1b63b6df4cd45e5ea564f71e7a722
+Author: Alex Ulbrich <adulbrich@users.noreply.github.com>
+Date:   Thu Dec 19 15:22:38 2024 -0800
+
+    Create main. cpp
+
+commit 9e6fba2790876d34a89a2c004928cba3ad2fa52e
+Author: Alex Ulbrich <adulbrich@users.noreply.github.com>
+Date:   Thu Dec 19 15:15:10 2024 -0800
+
+    Initial commit
+```
 
 :::note
 If the output of `git log` looks strange, there might be a problem with output colorizing. You can disable colors by running `git log --no-color` or to make it default behavior `git config --global color.ui false`.
@@ -194,7 +240,18 @@ git diff main.cpp
 
 The output will highlight changes, showing removed lines in red (prefixed with a `-`) and added lines in green (prefixed with a `+`). In this case, the only change would be the addition of the semicolon.
 
-![git diff](./terminal-git-diff.png)
+```text title="git diff main.cpp" frame="terminal"
+diff -git a/main.cpp b/main.cpp
+index a58acd3..9b79668 100644
+--- a/main.cpp
++++ b/main. cpp 
+@@ -1,4 +1,4 @@
+ #include <iostream>
+ int main () {
+-  std::cout << "Hello, World!" << std::endl
++  std::cout << "Hello, World!" << std::endl;
+ }
+```
 
 If I stage and commit the changes to `main.cpp`, running git log will now show four commits.
 
