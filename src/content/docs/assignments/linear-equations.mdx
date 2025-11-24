@@ -5,12 +5,6 @@ sidebar:
     order: 2
 ---
 
-{/* TODO: use \begin{gather} and \begin{gather*} to have numbered equations in the document */}
-
-{/* TODO: make LaTeX warp because it overflows on mobile */}
-
-{/* TODO: make clearer which equations to use */}
-
 import Latex from '../../../components/Latex.astro'
 import LinearEquationsForm from '../../../components/LinearEquationsForm.svelte'
 
@@ -44,11 +38,11 @@ Instead of solving this math problem repeatedly, you decide to write a simple pr
 
 To break even, we need to solve for <Latex formula="N"/> such that <Latex formula="c_t = r_t"/>. Substituting the definitions of <Latex formula="c_t"/> and <Latex formula="r_t"/> into this equation, we get:
 
-<Latex formula="c_pN + b = r_pN" inline={false}/>
+<Latex formula="c_pN + b = r_pN" inline={false} numbered label="(1)"/>
 
 Using algebra, we can solve for <Latex formula="N"/>:
 
-<Latex formula="N = \frac{b}{r_p - c_p}" inline={false}/>
+<Latex formula="N = \frac{b}{r_p - c_p}" inline={false} numbered label="(2)"/>
 
 This is the only equation you'll need for the assignment.
 
@@ -108,7 +102,12 @@ The same approach applies to calculate the final proportions of phosphorus and p
 
 This gives us the following system of linear equations to solve:
 
-<Latex formula="M_1n_1 + M_2n_2 + M_3n_3 = M_1p_1 + M_2p_2 + M_3p_3 \\ M_1n_1 + M_2n_2 + M_3n_3 = M_1k_1 + M_2k_2 + M_3k_3 \\ M_1 + M_2 + M_3 = 1" inline={false}/>
+<Latex
+  formula="M_1n_1 + M_2n_2 + M_3n_3 = M_1p_1 + M_2p_2 + M_3p_3 \\ M_1n_1 + M_2n_2 + M_3n_3 = M_1k_1 + M_2k_2 + M_3k_3 \\ M_1 + M_2 + M_3 = 1"
+  inline={false}
+  numbered
+  label="(3)"
+/>
 
 In this system:
 
@@ -117,7 +116,7 @@ In this system:
 
 Since there are three equations and three variables, the system is solvable. Let's start by rearranging the third equation to express <Latex formula="M_3"/> in terms of <Latex formula="M_1"/> and <Latex formula="M_2"/>:
 
-<Latex formula="M_3 = 1 - M_1 - M_2" inline={false}/>
+<Latex formula="M_3 = 1 - M_1 - M_2" inline={false} numbered label="(4)"/>
 
 Next, substitute <Latex formula="M_3"/> into the first two equations:
 
@@ -129,13 +128,23 @@ Simplify by distributing <Latex formula="(1 - M_1 - M_2)"/> and refactoring term
 
 Now, we're left with two equations and two variables. Let's solve the first equation for <Latex formula="M_2"/> in terms of <Latex formula="M_1"/>. After some algebra, we get:
 
-<Latex formula="M_2 = \frac{p_3 - n_3 - M_1(n_1 - n_3 + p_3 - p_1)}{n_2 - n_3 + p_3 - p_2}" inline={false}/>
+<Latex
+  formula="M_2 = \frac{p_3 - n_3 - M_1(n_1 - n_3 + p_3 - p_1)}{n_2 - n_3 + p_3 - p_2}"
+  inline={false}
+  numbered
+  label="(5)"
+/>
 
 Next, substitute this expression for <Latex formula="M_2"/> into the second equation and solve for <Latex formula="M_1"/>. After simplifying, the result is:
 
-<Latex formula="M_1 = \frac{k_3 - n_3 + (n_3 - n_2 + k_2 - k_3) \cdot \frac{p_3 - n_3}{n_2 - n_3 + p_3 - p_2}}{k_3 - n_3 + n_1 - k_1 + (n_3 - n_2 + k_2 - k_3) \cdot \frac{n_1 - n_3 + p_3 - p_1}{n_2 - n_3 + p_3 - p_2}}" inline={false}/>
+<Latex
+  formula="M_1 = \frac{k_3 - n_3 + (n_3 - n_2 + k_2 - k_3) \cdot \frac{p_3 - n_3}{n_2 - n_3 + p_3 - p_2}}{k_3 - n_3 + n_1 - k_1 + (n_3 - n_2 + k_2 - k_3) \cdot \frac{n_1 - n_3 + p_3 - p_1}{n_2 - n_3 + p_3 - p_2}}"
+  inline={false}
+  numbered
+  label="(6)"
+/>
 
-At this point, <Latex formula="M_1"/> can be calculated by substituting all the known constants into the equation. Once you've found <Latex formula="M_1"/>, use it in the earlier equation for <Latex formula="M_2"/> to calculate its value. Finally, substitute the values of <Latex formula="M_1"/> and <Latex formula="M_2"/> into the equation for <Latex formula="M_3"/> to complete the solution.
+At this point, <Latex formula="M_1"/> can be calculated by substituting all the known constants into **equation (6)**. Once you've found <Latex formula="M_1"/>, use it in **equation (5)** to calculate <Latex formula="M_2"/>. Finally, substitute the values of <Latex formula="M_1"/> and <Latex formula="M_2"/> into **equation (4)** to compute <Latex formula="M_3"/>.
 
 ### The Submission
 
@@ -174,7 +183,7 @@ When the ingredients are well-differentiated in this way, the program should com
 
 :::tip[Test Case]
 Use the following input values to verify your program:
-<Latex formula="n_1 = 0.07, n_2 = 0.03, n_3 = 0.05, \\ p_1 = 0.01, p_2 = 0.09, p_3 = 0.04, \\ k_1 = 0.02, k_2 = 0.02, k_3 = 0.12" inline={false}/>
+<Latex formula="n_1 = 0.07, n_2 = 0.03, n_3 = 0.05, \\ p_1 = 0.01, p_2 = 0.09, p_3 = 0.04, \\ k_1 = 0.02, k_2 = 0.02, k_3 = 0.12"/>
 The correct output should be approximately:
 <Latex formula="M_1 \approx 0.330645, M_2 \approx 0.379032, M_3 \approx 0.290323" inline={false}/>
 If your program produces different results for these inputs, there is likely a logic error in your implementation.

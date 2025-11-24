@@ -14,7 +14,7 @@
     }
   }
 
-  $: N = r_p > c_p ? Math.ceil((b / (r_p - c_p))) : 0;
+  $: N = r_p > c_p ? Math.ceil(b / (r_p - c_p)) : 0;
 
   // Problem 2
   let n1 = 0.07;
@@ -62,7 +62,7 @@
 </script>
 
 <div class="flex flex-col gap-4 print:hidden">
-  <div class="w-72 sm:w-96 rounded border p-4 space-y-4 mx-auto my-4">
+  <div class="w-full sm:w-96 rounded border p-4 space-y-4 mx-auto my-4">
     <h3 class="text-xl">Problem 1 Simulator</h3>
     <div>
       <label class="font-bold text-sm" for="b"
@@ -113,102 +113,110 @@
     {/if}
   </div>
 
-  <div class="w-72 sm:w-96 rounded border p-4 space-y-4 mx-auto my-4">
+  <div class="w-full sm:w-96 rounded border p-4 space-y-4 mx-auto my-4">
     <h3 class="text-xl">Problem 2 Simulator</h3>
-    <div class="flex flex-row gap-4">
+    <div class="flex flex-col items-center">
       <div class="flex flex-col justify-between items-center">
-        <div class="flex flex-col w-24">
-          <label class="font-bold text-sm" for="n1">n1</label>
-          <input
-            class="border rounded p-2"
-            type="number"
-            id="n1"
-            bind:value={n1}
-            step="0.01"
-          />
+        <div class="flex flex-row gap-2 items-end">
+          <div class="flex flex-col w-24">
+            <label class="font-bold text-sm" for="n1">n1</label>
+            <input
+              class="border rounded p-2"
+              type="number"
+              id="n1"
+              bind:value={n1}
+              step="0.01"
+            />
+          </div>
+          <div class="flex flex-col w-24">
+            <label class="font-bold text-sm" for="n2">n2</label>
+            <input
+              class="border rounded p-2"
+              type="number"
+              id="n2"
+              bind:value={n2}
+              step="0.01"
+            />
+          </div>
+          <div class="flex flex-col w-24">
+            <label class="font-bold text-sm" for="n3">n3</label>
+            <input
+              class="border rounded p-2"
+              type="number"
+              id="n3"
+              bind:value={n3}
+              step="0.01"
+            />
+          </div>
         </div>
-        <div class="flex flex-col w-24">
-          <label class="font-bold text-sm" for="n2">n2</label>
-          <input
-            class="border rounded p-2"
-            type="number"
-            id="n2"
-            bind:value={n2}
-            step="0.01"
-          />
+        <div class="flex flex-row gap-2 items-end">
+          <div class="flex flex-col w-24">
+            <label class="font-bold text-sm" for="p1">p1</label>
+            <input
+              class="border rounded p-2"
+              type="number"
+              id="p1"
+              bind:value={p1}
+              step="0.01"
+            />
+          </div>
+          <div class="flex flex-col w-24">
+            <label class="font-bold text-sm" for="p2">p2</label>
+            <input
+              class="border rounded p-2"
+              type="number"
+              id="p2"
+              bind:value={p2}
+              step="0.01"
+            />
+          </div>
+          <div class="flex flex-col w-24">
+            <label class="font-bold text-sm" for="p3">p3</label>
+            <input
+              class="border rounded p-2"
+              type="number"
+              id="p3"
+              bind:value={p3}
+              step="0.01"
+            />
+          </div>
         </div>
-        <div class="flex flex-col w-24">
-          <label class="font-bold text-sm" for="n3">n3</label>
-          <input
-            class="border rounded p-2"
-            type="number"
-            id="n3"
-            bind:value={n3}
-            step="0.01"
-          />
-        </div>
-        <div class="flex flex-col w-24">
-          <label class="font-bold text-sm" for="p1">p1</label>
-          <input
-            class="border rounded p-2"
-            type="number"
-            id="p1"
-            bind:value={p1}
-            step="0.01"
-          />
-        </div>
-        <div class="flex flex-col w-24">
-          <label class="font-bold text-sm" for="p2">p2</label>
-          <input
-            class="border rounded p-2"
-            type="number"
-            id="p2"
-            bind:value={p2}
-            step="0.01"
-          />
-        </div>
-        <div class="flex flex-col w-24">
-          <label class="font-bold text-sm" for="p3">p3</label>
-          <input
-            class="border rounded p-2"
-            type="number"
-            id="p3"
-            bind:value={p3}
-            step="0.01"
-          />
-        </div>
-        <div class="flex flex-col w-24">
-          <label class="font-bold text-sm" for="k1">k1</label>
-          <input
-            class="border rounded p-2"
-            type="number"
-            id="k1"
-            bind:value={k1}
-            step="0.01"
-          />
-        </div>
-        <div class="flex flex-col w-24">
-          <label class="font-bold text-sm" for="k2">k2</label>
-          <input
-            class="border rounded p-2"
-            type="number"
-            id="k2"
-            bind:value={k2}
-            step="0.01"
-          />
-        </div>
-        <div class="flex flex-col w-24">
-          <label class="font-bold text-sm m-0" for="k3">k3</label>
-          <input
-            class="border rounded p-2"
-            type="number"
-            id="k3"
-            bind:value={k3}
-            step="0.01"
-          />
+        <div class="flex flex-row gap-2 items-end">
+          <div class="flex flex-col w-24">
+            <label class="font-bold text-sm" for="k1">k1</label>
+            <input
+              class="border rounded p-2"
+              type="number"
+              id="k1"
+              bind:value={k1}
+              step="0.01"
+            />
+          </div>
+          <div class="flex flex-col w-24">
+            <label class="font-bold text-sm" for="k2">k2</label>
+            <input
+              class="border rounded p-2"
+              type="number"
+              id="k2"
+              bind:value={k2}
+              step="0.01"
+            />
+          </div>
+          <div class="flex flex-col w-24">
+            <label class="font-bold text-sm m-0" for="k3">k3</label>
+            <input
+              class="border rounded p-2"
+              type="number"
+              id="k3"
+              bind:value={k3}
+              step="0.01"
+            />
+          </div>
         </div>
       </div>
-      <div class="w-48 rounded p-4 bg-gray-50 dark:bg-gray-800 mx-auto flex flex-col">
+      <div
+        class="w-48 rounded p-4 bg-gray-50 dark:bg-gray-800 mx-auto flex flex-col"
+      >
         {#if problemTwoError}
           <p class="text-red-600">{problemTwoError}</p>
         {:else}
