@@ -162,19 +162,25 @@ Use a loop to perform the multiplication required to compute the factorial for e
 
 Imagine a unit circle (a circle with a radius of 1) inscribed within a square. The setup looks like this:
 
-<div style="display:flex;justify-content:center;margin:1rem 0">
-  <svg width="360" height="360" viewBox="-1.1 -1.1 2.2 2.2" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Unit circle inscribed in a square">
-    <rect x="-1" y="-1" width="2" height="2" fill="#f6f8fa" stroke="#333" stroke-width="0.02"/>
-    <circle cx="0" cy="0" r="1" fill="rgba(66,135,245,0.12)" stroke="#426fb5" stroke-width="0.02"/>
-    <line x1="-1" y1="0" x2="1" y2="0" stroke="#666" stroke-width="0.01" stroke-dasharray="0.02,0.02"/>
-    <line x1="0" y1="-1" x2="0" y2="1" stroke="#666" stroke-width="0.01" stroke-dasharray="0.02,0.02"/>
+<div class="flex justify-center my-4">
+  <svg width="360" height="360" viewBox="-1.1 -1.1 2.2 2.2" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Unit circle inscribed in a square" class="w-[360px] h-[360px]">
+    <rect x="-1" y="-1" width="2" height="2"
+      class="fill-gray-100 dark:fill-gray-900 stroke-gray-700 dark:stroke-gray-200"
+      stroke-width="0.02"/>
+    <circle cx="0" cy="0" r="1"
+      class="fill-accent-100 dark:fill-accent-900 stroke-accent-600 dark:stroke-accent-200"
+      stroke-width="0.02"/>
+    <line x1="-1" y1="0" x2="1" y2="0"
+      class="stroke-gray-500 dark:stroke-gray-400" stroke-width="0.01" stroke-dasharray="0.02,0.02"/>
+    <line x1="0" y1="-1" x2="0" y2="1"
+      class="stroke-gray-500 dark:stroke-gray-400" stroke-width="0.01" stroke-dasharray="0.02,0.02"/>
     <defs>
       <marker id="arrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
-        <path d="M0,0 L6,3 L0,6 z" fill="#c33"/>
+        <path d="M0,0 L6,3 L0,6 z" class="fill-red-600 dark:fill-red-400"/>
       </marker>
     </defs>
-    <line x1="0" y1="0" x2=".99" y2="0" stroke="#c33" stroke-width="0.02" marker-end="url(#arrow)"/>
-    <text x="0.5" y="-0.08" font-size="0.10" fill="#c33" text-anchor="middle">r = 1</text>
+    <line x1="0" y1="0" x2=".99" y2="0" class="stroke-red-600 dark:stroke-red-400" stroke-width="0.02" marker-end="url(#arrow)"/>
+    <text x="0.5" y="-0.08" font-size="0.10" class="fill-red-600 dark:fill-red-400" text-anchor="middle">r = 1</text>
   </svg>
 </div>
 
