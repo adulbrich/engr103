@@ -32,12 +32,16 @@ npx @marp-team/marp-cli@latest web-graphics.md --pdf --allow-local-files
 
 ## To Dos
 
-- [ ] Remove any images and replace them with actual code blocks or tables or diagrams
+- [ ] Add an AI critique element in each code assignment (to have students reflect on AI-generated/improved code)
+  - option 1: ask the AI to generate the solution and have students critique
+  - option 2: ask the AI to review code and propose improvements, then have students critique
+  - is the AI doinbg well with styling?
+  - Identify at least two things you like about the AI’s solution (e.g., readability, variable names, use of constants)
+  - Identify at least two potential problems (e.g., assumes unrealistic inputs, poor variable names, no comments, confusing logic)
+  - let students choose the option that best benefits their learning style
 - [ ] Add learning objectives to each lecture, optionally studios and assignments as well
 - [ ] Improve the "secondary" learning outcomes for the class (to be more programming specific)
-- [ ] Remove latex files: https://stackoverflow.com/questions/2004024/how-to-permanently-delete-a-file-stored-in-git
 - [ ] Add visual explanations of memory allocation and references
-- [ ] Refactor assignment 3 (clearer instructions OR smaller assignment) -- feedback is that it's more complicated than other assignments
 - [ ] Mention using `getline()` in dictionary assignment instead of `cin`
 - [ ] Provide larger code examples/programs the students can play with
 
