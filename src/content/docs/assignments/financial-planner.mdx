@@ -11,7 +11,9 @@ import Latex from '../../../components/Latex.astro'
 import FinancialPlannerForm from '../../../components/FinancialPlannerForm.svelte'
 import AssignmentRequirements from '../../../components/AssignmentRequirements.astro'
 
-This assignment will introduce you to financial formulas commonly used in personal finance, business, and investment scenarios. You will write a C++ program that calculates **future value (FV)**, **present value (PV)**, or **regular payments (PMT)** based on user input. These calculations are essential for understanding the value of money over time and making informed financial decisions.
+This assignment will introduce you to financial formulas commonly used in personal finance, business, and investment scenarios. You will choose and implement one of three C++ programs that calculates either **future value (FV)**, **present value (PV)**, or **regular payments (PMT)**. Students should implement only one of these calculations (not all three).
+
+At program start, your program should print a clear message telling the user which calculation it will perform (for example: `This program will calculate future value`). Then prompt the user only for the inputs required by that chosen calculation. These calculations are essential for understanding the value of money over time and making informed financial decisions.
 
 1. **Future Value (FV)**: Used to calculate how much an investment or savings will grow to after a certain number of periods, considering regular payments and interest. Example: “How much will my retirement savings grow to after 30 years if I save $500 per month?”
 2. **Present Value (PV)**: Used to determine the current value of a future sum of money or cash flows, discounted at a specific interest rate. Example: “What is the current worth of receiving $10,000 five years from now?”
@@ -44,15 +46,15 @@ When we incorporate regular payments (PMT) into the future value (FV) and presen
 
 When regular, fixed payments <Latex formula="PMT"/> are made into an account that earns interest, the future value formula becomes:
 
-<Latex formula="FV = PV \cdot (1 + r)^n + PMT \cdot (1 + r) \cdot \frac{(1+ r)^n - 1}{r}" inline = {false} />
+<Latex formula="FV = PV \cdot (1 + r)^n + PMT \cdot (1 + r) \cdot \frac{(1+ r)^n - 1}{r}" inline = {false} numbered label="(1)"/>
 
-For the keen-eyed, you may notice the extra <Latex formula="(1 + r)"/>  in the formula. This is because the payment is made at the beginning of each period, so it earns interest for one additional period compared to the principal. **You should leave that out if the payment is made at the end of each period. This also applies to the equation below.**
+For the keen-eyed, you may notice the extra <Latex formula="(1 + r)"/>  in the formula. This is because the payment is made at the beginning of each period, so it earns interest for one additional period compared to the principal. **You should leave that out if the payment is made at the end of each period. This also applies to the equations below.**
 
 You can shuffle the above equations to calculate recurring payments <Latex formula="PMT"/> or the present value <Latex formula="PV"/>:
 
-<Latex formula="PMT = \frac{FV - PV \cdot (1 + r)^n }{(1 + r) \cdot \frac{(1 + r)^n - 1}{r}}" inline = {false} />
+<Latex formula="PMT = \frac{FV - PV \cdot (1 + r)^n }{(1 + r) \cdot \frac{(1 + r)^n - 1}{r}}" inline = {false} numbered label="(2)"/>
 
-<Latex formula="PV = \frac{FV - PMT \cdot (1+r) \cdot \frac{(1 + r)^n - 1}{r}}{(1 + r)^n}" inline = {false} />
+<Latex formula="PV = \frac{FV - PMT \cdot (1+r) \cdot \frac{(1 + r)^n - 1}{r}}{(1 + r)^n}" inline = {false} numbered label="(3)"/>
 
 :::caution[Adjustments for Compounding]
 When interest is compounded more frequently than annually, you need to adjust the rate and number of periods accordingly.
@@ -84,56 +86,65 @@ You can use these equations to value a business based on its future cash flows. 
 
 ## The Program
 
-When the program runs, prompt the user to choose between three options:
+This assignment requires you to implement one of the following three program variants. Your program should begin by printing which variant it implements (for example: `This program will calculate recurring payments`). Then prompt the user only for the inputs required by that variant and perform the calculation described.
 
 1. **Future Value Calculation**: The program calculates how much the user's current savings will grow over a specified number of years with or without regular contributions. Alternatively, it can calculate the future value of a specific item with an expected annual inflation rate. The program will display the future value of the investment or the cost of the item after the specified number of years. 
 2. **Present Value Calculation**: The program calculates the current value of a future sum of money, discounted at a specific interest rate. The program will display the present value of the future sum.
-3. **Recurring Payments Calculation**: The program calculates the monthly savings required to reach a desired future value over a specified number of years for a given rate of return. It can take into account current savings.
-
-If the user selects an invalid option, display an error message and terminate the program immediately.
+3. **Recurring Payments Calculation**: The program calculates the periodic savings required to reach a desired future value over a specified number of years for a given rate of return. It can take into account current savings.
 
 ### Option 1: Future Value Calculation
 
 The user must provide the following inputs:
 
-- **Current amount**: Initial amount of money (USD). If the user enters a negative value, print an error to the terminal and terminate the program immediately.
-- **Annual return rate**: Expected annual rate as a percentage (e.g., 5 for 5%, must be positive). If the user enters a negative value, notify the user that negative values aren't allowed and override their entry with a default of 5%.
-- **Number of periods (years)**: The number of years the investment will grow (strictly positive) or when the purchase is expected to be made. If the user enters a negative value, print an error to the terminal and terminate the program immediately.
-- **Recurring payment**: The amount added to savings each period (USD). If the user enters a negative value, notify the user that negative values aren't allowed and override their entry with a default of 0.
-- **When are payments made**: The user can choose between payments made at the beginning or end of each period. Ask only if recurring payments are not zero. If the user enters an invalid option, notify the user that the input is invalid and override their entry with the default option.
+| Name | Description | Values | Invalid Values |
+|---|---|---:|---|
+| Current amount | Initial amount of money (USD) to invest/save | Positive | Negative → print error and terminate immediately |
+| Annual return rate | Expected annual rate as a percentage (e.g., 5 for 5%) | Positive | Negative → notify and override with default 5% |
+| Number of periods (years) | Number of years the investment will grow | Strictly positive | Zero or negative → print error and terminate immediately |
+| Recurring payment (PMT) | Amount added to savings each period (USD) | Positive | Negative → notify and override with default 0 |
+| When are payments made | Timing of periodic payments: beginning or end of period | `beginning` or `end` (case-insensitive) | Invalid → notify and override with default (`end`) |
 
-The output will be the future value of the investment or item, formatted as currency.
+You can use **equation (1)** from above to calculate the future value.
+
+The output will be the future value of the investment or item, formatted as currency, i.e., `$12,345.67`.
 
 ### Option 2: Present Value Calculation
 
-The user provides the following inputs:
+The user must provide the following inputs:
 
-- **Future amount**: The future sum of money (USD). If the user enters a negative value, print an error to the terminal and terminate the program immediately.
-- **Annual return rate**: Expected annual rate as a percentage (e.g., 5 for 5%, must be positive). If the user enters a negative value, notify the user that negative values aren't allowed and override their entry with a default of 5%.
-- **Number of periods (years)**: The number of years until the future amount is received (strictly positive). If the user enters a negative value, print an error to the terminal and terminate the program immediately.
-- **Recurring payment**: The amount added to savings each period (USD). If the user enters a negative value, notify the user that negative values aren't allowed and override their entry with a default of 0.
-- **When are payments made**: The user can choose between payments made at the beginning or end of each period. Ask only if recurring payments are not zero. If the user enters an invalid option, notify the user that the input is invalid and override their entry with the default option.
+| Name | Description | Values | Invalid Values |
+|---|---|---:|---|
+| Future amount | The future sum to be received (USD) | Positive | Negative → print error and terminate immediately |
+| Annual return rate | Expected annual discount/return rate as a percentage | Positive | Negative → notify and override with default 5% |
+| Number of periods (years) | Years until the future amount is received | Strictly positive | Zero or negative → print error and terminate immediately |
+| Recurring payment (PMT) | Periodic contribution or withdrawal amount (USD) | Positive | Negative → notify and override with default 0 |
+| When are payments made | Timing of periodic payments: beginning or end of period | `beginning` or `end` (case-insensitive) | Invalid → notify and override with default (`end`) |
 
-The output will be the present value of the future sum, formatted as currency.
+You can use **equation (3)** from above to calculate the present value.
+
+The output will be the present value of the future sum, formatted as currency, i.e., `$12,345.67`.
 
 ### Option 3: Recurring Payments Calculation
 
-The user provides the following inputs:
+The user must provide the following inputs:
 
-- **Current savings**: Initial amount of money (USD). If the user enters a negative value, print an error to the terminal and terminate the program immediately.
-- **Future value goal**: The target savings amount after the specified period (USD). If the user enters a negative value, print an error to the terminal and terminate the program immediately.
-- **Annual return rate**: Expected annual rate of return as a percentage (e.g., 5 for 5%, must be positive). If the user enters a negative value, notify the user that negative values aren't allowed and override their entry with a default of 5%.
-- **Number of periods (years)**: The number of years to save (strictly positive). If the user enters a value that is equal to zero or less, print an error to the terminal and terminate the program immediately.
-- **When are payments made**: The user can choose between payments made at the beginning or end of each period. Ask only if recurring payments are not zero. If the user enters an invalid option, notify the user that the input is invalid and override their entry with the default option.
-{/* - **Inflation rate**: Annual inflation rate as a percentage (e.g., 2 for 2%, must be non-negative). If the user enters a negative value, notify the user that negative values aren't allowed and override their entry with a default of 2%. */}
+| Name | Description | Values | Invalid Values |
+|---|---|---:|---|
+| Current savings | Initial amount of money already saved (USD) | Positive | Negative → print error and terminate immediately |
+| Future value goal | Target amount to reach after specified period (USD) | Positive | Negative or `≤ Current savings` → print error and terminate immediately |
+| Annual return rate | Expected annual rate of return as a percentage | Positive | Negative → notify and override with default 5% |
+| Number of periods (years) | Number of years to save | Strictly positive | Zero or negative → print error and terminate immediately |
+| When are payments made | Timing of periodic payments: beginning or end of period | `beginning` or `end` (case-insensitive) | Invalid → notify and override with default (`end`) |
 
 Ensure future value goal is greater than current savings.
 
-The output will be the required recurring payments needed to reach the future value goal, formatted as currency.
+You can use **equation (2)** from above to calculate the required recurring payments.
+
+The output will be the required recurring payments needed to reach the future value goal, formatted as currency, i.e., `$12,345.67`.
 
 ### Additional Details
 
-Even though the formula is very flexible, make sure to validate inputs as described above, and handle errors or defaults gracefully. For example, what happens if the user inputs a return rate of zero or if the user wants to save for 0 years?
+Even though the formula is very flexible, make sure to validate inputs as described above, and handle errors or defaults gracefully. **For example, what happens if the user inputs a return rate of zero?**
 
 Your code should rigorously adhere to all of the course's C++ style guidelines. That includes breaking it up into several modularized functions each with a single responsibility.
 
@@ -168,9 +179,9 @@ This adjustment is critical for scenarios where inflation significantly impacts 
 
 Allow the user to specify the compounding period (e.g., monthly, quarterly, annually) for the interest rate. Adjust the calculations accordingly. You can choose the periods supported, but it must be more than one period.
 
-### Interactive Mode
+### Implement All Options
 
-Implement an interactive mode where the user can perform multiple calculations without restarting the program. After each calculation, the user should be prompted to choose another calculation or exit the program.
+Implement all three calculation variants (Future Value, Present Value, and Recurring Payments) in a **single program** and let the user choose which calculation to perform at program start. The program should announce which calculation it will perform and then prompt for the inputs required by that choice.
 
 {/* ### Calculate the Interest Rate
 
