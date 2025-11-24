@@ -107,7 +107,7 @@
     {#if problemOneError}
       <p class="text-red-600">{problemOneError}</p>
     {:else}
-      <div class="rounded p-4 bg-stone-50 dark:bg-stone-800">
+      <div class="rounded p-4 bg-gray-50 dark:bg-gray-800">
         Number of products needed (N): {N}
       </div>
     {/if}
@@ -208,7 +208,7 @@
           />
         </div>
       </div>
-      <div class="w-48 rounded p-4 bg-stone-50 dark:bg-stone-800 mx-auto flex flex-col">
+      <div class="w-48 rounded p-4 bg-gray-50 dark:bg-gray-800 mx-auto flex flex-col">
         {#if problemTwoError}
           <p class="text-red-600">{problemTwoError}</p>
         {:else}

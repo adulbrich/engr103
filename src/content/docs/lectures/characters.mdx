@@ -5,6 +5,9 @@ sidebar:
   order: 16
 ---
 
+import AsciiTable from '../../../components/AsciiTable.astro'
+
+
 The `char` data type is used to store a single character in C++. A character literal is represented by a single character enclosed in single quotes (e.g., `'A'`). To declare a char-typed variable, you can write:
 
 ```cpp
@@ -39,7 +42,9 @@ In C++, a `char` value always occupies exactly one byte (usually 8 bits), allowi
 
 This is probably sounding pretty abstract. So here's an image of the ASCII table, which provides the ASCII mappings between US English characters and non-negative whole numbers:
 
-![ASCII Table](https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/ASCII-Table-wide.svg/1280px-ASCII-Table-wide.svg.png)
+<AsciiTable />
+
+{/* ![ASCII Table](https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/ASCII-Table-wide.svg/1280px-ASCII-Table-wide.svg.png) */}
 
 Specifically, pay attention to the “Decimal” and “Char” columns of the above table. These columns provide the mappings. For example, the ASCII numeric representation of capital 'A' is the number 65.
 

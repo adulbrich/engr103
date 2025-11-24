@@ -60,19 +60,19 @@
   <!-- Tab Navigation -->
   <div class="flex w-full border-b border-white dark:border-black mb-4">
     <button
-      class={`flex-1 px-4 py-2 mt-4 text-center bg-stone-100 dark:bg-stone-800 ${activeTab === "future" ? "border-b-2 border-orange-500 text-orange-500" : ""}`}
+      class={`flex-1 px-4 py-2 mt-4 text-center bg-gray-100 dark:bg-gray-800 ${activeTab === "future" ? "border-b-2 border-accent-600 text-accent-600" : ""}`}
       on:click={() => (activeTab = "future")}
     >
       Future Value
     </button>
     <button
-      class={`flex-1 px-4 py-2 mt-4 text-center bg-stone-100 dark:bg-stone-800 ${activeTab === "payments" ? "border-b-2 border-orange-500 text-orange-600" : ""}`}
+      class={`flex-1 px-4 py-2 mt-4 text-center bg-gray-100 dark:bg-gray-800 ${activeTab === "payments" ? "border-b-2 border-accent-600 text-accent-600" : ""}`}
       on:click={() => (activeTab = "payments")}
     >
       Recurring Payments
     </button>
     <button
-      class={`flex-1 px-4 py-2 mt-4 text-center bg-stone-100 dark:bg-stone-800 ${activeTab === "present" ? "border-b-2 border-orange-500 text-orange-600" : ""}`}
+      class={`flex-1 px-4 py-2 mt-4 text-center bg-gray-100 dark:bg-gray-800 ${activeTab === "present" ? "border-b-2 border-accent-600 text-accent-600" : ""}`}
       on:click={() => (activeTab = "present")}
     >
       Present Value
@@ -141,7 +141,7 @@
           <input
             type="number"
             bind:value={annual_interest_rate}
-            class="mt-1 block w-full rounded-md border-stone-300 shadow-sm focus-visible:outline-orange-500"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus-visible:outline-accent-600"
             min="0"
             max="100"
             step="0.5"
@@ -155,7 +155,7 @@
           <input
             type="number"
             bind:value={annual_inflation_rate}
-            class="mt-1 block w-full rounded-md border-stone-300 shadow-sm focus-visible:outline-orange-500"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus-visible:outline-accent-600"
             min="0"
             max="100"
             step="0.5"
@@ -169,7 +169,7 @@
           <input
             type="number"
             bind:value={number_of_periods}
-            class="mt-1 block w-full rounded-md border-stone-300 shadow-sm focus-visible:outline-orange-500"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus-visible:outline-accent-600"
           /></label
         >
       </div>
@@ -183,7 +183,7 @@
             <input
               type="number"
               bind:value={present_value}
-              class="mt-1 block w-full rounded-md border-stone-300 shadow-sm focus-visible:outline-orange-500"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus-visible:outline-accent-600"
             /></label
           >
         </div>
@@ -193,12 +193,12 @@
             <input
               type="number"
               bind:value={recurring_payments}
-              class="mt-1 block w-full rounded-md border-stone-300 shadow-sm focus-visible:outline-orange-500"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus-visible:outline-accent-600"
             /></label
           >
         </div>
         {#if fv}
-          <div class="p-4 bg-stone-100 dark:bg-stone-800 rounded-md">
+          <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-md">
             <p class="font-medium">Future Value: {fv_currency}</p>
           </div>
         {/if}
@@ -211,7 +211,7 @@
             <input
               type="number"
               bind:value={present_value}
-              class="mt-1 block w-full rounded-md border-stone-300 shadow-sm focus-visible:outline-orange-500"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus-visible:outline-accent-600"
             /></label
           >
         </div>
@@ -221,12 +221,12 @@
             <input
               type="number"
               bind:value={future_value}
-              class="mt-1 block w-full rounded-md border-stone-300 shadow-sm focus-visible:outline-orange-500"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus-visible:outline-accent-600"
             /></label
           >
         </div>
         {#if pmt}
-          <div class="p-4 bg-stone-100 dark:bg-stone-800 rounded-md">
+          <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-md">
             <p class="font-medium">Required Payment: {pmt_currency}</p>
           </div>
         {/if}
@@ -239,7 +239,7 @@
             <input
               type="number"
               bind:value={future_value}
-              class="mt-1 block w-full rounded-md border-stone-300 shadow-sm focus-visible:outline-orange-500"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus-visible:outline-accent-600"
             /></label
           >
         </div>
@@ -249,12 +249,12 @@
             <input
               type="number"
               bind:value={recurring_payments}
-              class="mt-1 block w-full rounded-md border-stone-300 shadow-sm focus-visible:outline-orange-500"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus-visible:outline-accent-600"
             /></label
           >
         </div>
         {#if pv}
-          <div class="p-4 bg-stone-100 dark:bg-stone-800 rounded-md">
+          <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-md">
             <p class="font-medium">Present Value: {pv_currency}</p>
           </div>
         {/if}
