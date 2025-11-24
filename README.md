@@ -42,6 +42,13 @@ npx @marp-team/marp-cli@latest web-graphics.md --pdf --allow-local-files
 - [ ] Add learning objectives to each lecture, optionally studios and assignments as well
 - [ ] Improve the "secondary" learning outcomes for the class (to be more programming specific)
 - [ ] Add visual explanations of memory allocation and references
+- [ ] Make the dev env lecture notes much simpler and add information about using other IDEs/editors
+  - make additional concepts of the shell clearly optional
+- [ ] Add visual explanations for the C++ basics
+  - what constitutes a computer (incl. hardware components relevant to programming), ties in with memory later
+  - diagram to show how tranlsators work (compiler, linker, loader)
+  - diagram to show build pipeline for C++
+- [ ] Add visual explanations for git
 - [ ] Mention using `getline()` in dictionary assignment instead of `cin`
 - [ ] Provide larger code examples/programs the students can play with
 
