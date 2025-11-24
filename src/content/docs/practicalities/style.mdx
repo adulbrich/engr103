@@ -243,15 +243,126 @@ What exactly constitutes a responsibility is hard to say, but if you can think o
 
 A good rule of thumb is to avoid writing functions longer than 15 lines of code. Functions that exceed this length often violate the Single Responsibility Principle (SRP). However, this is just a guideline. It is entirely possible to have a function with more than 15 lines that still adheres to the SRP, just as a shorter function may fail to comply with it. Ultimately, it is the SRP—not the number of lines—that truly matters, and your code style will be evaluated based on how well you adhere to this principle.
 
-In alignment with the SRP, you should generally avoid writing non-void functions that also produce direct side effects. If a function needs to generate side effects (e.g., interacting with the terminal, files, or network), it is often better for the function to have a void return type. This is because side effects are another form of output, much like a return value. When a function both returns a value and generates side effects, it risks taking on too many responsibilities. Functions with multiple output channels (e.g., return values and side effects) are also harder to understand and can confuse other developers.
+In alignment with the SRP, you should generally avoid writing non-void functions that also produce direct side effects. If a function needs to **generate side effects** (e.g., interacting with the terminal, files, or network), it is often better for the function to have a **void return type**. This is because side effects are another form of output, much like a return value. *When a function both returns a value and generates side effects, it risks taking on too many responsibilities.* Functions with multiple output channels (e.g., return values and side effects) are also harder to understand and can confuse other developers.
 
-That said, this, too, is only a guideline—the SRP is still the priority. Some side effects may reflect inputs rather than outputs, or they may naturally align with the function's single responsibility. A classic example is the use of `std::cin`, which produces an observable side effect by interfacing with the terminal (an external context). However, in this case, the side effect serves the single responsibility of collecting user input. For this reason, it is perfectly appropriate—and often encouraged—to write a function that prompts the user with `std::cout`, retrieves their input via `std::cin`, and returns the collected value. Such a function adheres to the SRP despite producing both a return value and side effects.
+That said, this, too, is only a guideline: the SRP is still the priority. Some side effects may reflect inputs rather than outputs, or they may naturally align with the function's single responsibility. A classic example is the use of `std::cin`, which produces an observable side effect by interfacing with the terminal (an external context). However, in this case, the side effect serves the single responsibility of collecting user input. For this reason, it is perfectly appropriate (and often encouraged) to write a function that prompts the user with `std::cout`, retrieves their input via `std::cin`, and returns the collected value. **Such a function adheres to the SRP despite producing both a return value and side effects.**
 
 On the other hand, if your program needs to prompt the user for input, perform complex computations on the input, and then print the final result, you should separate these tasks into distinct functions. For instance, the function performing and returning the computations should be independent of the functions that handle user prompting and result printing. These are clearly separate responsibilities and should be treated as such.
 
-Lastly, avoid daisy-chaining functions. Daisy-chaining happens when responsibilities are divided into functions based primarily on procedural order rather than logical semantics. This results in a “deep” function call graph, where each function performs one step and calls the next function, and so on, until the final function is reached. Instead, aim to separate responsibilities semantically, not procedurally.
+Lastly, **avoid daisy-chaining functions**. Daisy-chaining happens when responsibilities are divided into functions based primarily on procedural order rather than logical semantics. This results in a “deep” function call graph, where each function performs one step and calls the next function, and so on, until the final function is reached.
 
-Start by writing low-level functions that perform small, isolated, and modular tasks. These functions generally should not call other functions. Once you have these low-level building blocks, you can move on to writing higher-level functions. High-level functions call multiple low-level functions to perform more abstract operations. This approach results in a “wide” function call graph with better modularity and clearer separation of responsibilities. It also makes your code easier to read, test, and maintain.
+```c++
+// bad_daisy_chaining.cpp
+#include <iostream>
+#include <string>
+
+void writeResult(const std::string &out) {
+    std::cout << out << '\n';
+}
+
+void formatOutput(int value) {
+    std::string out = std::string("Result: ") + std::to_string(value);
+    writeResult(out);
+}
+
+int multiplyByTwo(int n) {
+    int result = n * 2;
+    formatOutput(result);
+    return result;
+}
+
+int normalizeNegativeToZero(int x) {
+    int n = x < 0 ? 0 : x;
+    return multiplyByTwo(n);
+}
+
+int stringToInteger(const std::string &s) {
+    int v = std::stoi(s);
+    return normalizeNegativeToZero(v);
+}
+
+void readInput() {
+    std::string token;
+    std::cin >> token;
+    stringToInteger(token);
+}
+
+int main() {
+    readInput();
+    return 0;
+}
+```
+
+```mermaid
+flowchart TB
+  Main[main] -->|calls| A[readInput]
+  A -->|calls| B[stringToInteger]
+  B --> C[normalizeNegativeToZero]
+  C --> D[multiplyByTwo]
+  D --> E[formatOutput]
+  E --> F[writeResult]
+```
+
+Instead, aim to **separate responsibilities semantically**, not procedurally.
+
+Start by writing low-level functions that perform small, isolated, and modular tasks. These functions generally should not call other functions. Once you have these low-level building blocks, you can move on to writing higher-level functions. High-level functions call multiple low-level functions to perform more abstract operations. This approach results in a “wide” function call graph with better modularity and **clearer separation of responsibilities**. It also makes your code easier to read, test, and maintain.
+
+```c++
+// good_semantic_decomposition.cpp
+#include <iostream>
+#include <string>
+
+int stringToInteger(const std::string &s) {
+    return std::stoi(s);
+}
+
+int normalizeNegativeToZero(int x) {
+    return x < 0 ? 0 : x;
+}
+
+int multiplyByTwo(int n) {
+    return n * 2;
+}
+
+std::string formatResult(int value) {
+    return std::string("Result: ") + std::to_string(value);
+}
+
+void processRequest() {
+    std::string token;
+    std::cin >> token;
+
+    int parsed = stringToInteger(token);
+    int normalized = normalizeNegativeToZero(parsed);
+    int computed = multiplyByTwo(normalized);
+
+    std::cout << formatResult(computed) << '\n';
+}
+
+int main() {
+    processRequest();
+    return 0;
+}
+```
+
+```mermaid
+flowchart LR
+  subgraph LowLevel [Low level building blocks]
+    P[stringToInteger]
+    N[normalizeNegativeToZero]
+    C[multiplyByTwo]
+    F[formatResult]
+  end
+
+  H[processRequest]
+  Main[main]
+
+  Main -->|calls| H
+  H -->|calls| P
+  H --> N
+  H --> C
+  H --> F
+```
 
 By adhering to these principles, your code will be easier to understand and follow, ensuring better collaboration and maintainability.
 
@@ -309,3 +420,22 @@ The DRY principle does not always apply. You'll learn later that when testing yo
 Testing is outside the scope of this course, but it's important to keep in mind that the DRY principle is not always the best choice.
 :::
 
+## AI Instructions
+
+Use the prompt below to guide AI code generation according to this style guide.
+
+```md
+Rewrite or reformat this C++ code according to the following rules:
+
+- Use spaces (not tabs) with consistent 2- or 4-space indentation.
+- Use K&R brace style: `{` on the same line, `}` aligned on its own line.
+- Add whitespace around operators and after commas; separate logical sections with blank lines.
+- Keep lines under 80 characters; wrap long expressions at operators; split long strings.
+- Use camelCase or snake_case for variables/functions and PascalCase for classes; all names must be descriptive.
+- Add a file-level header comment and function-level block comments for complex functions; keep inline comments minimal and meaningful.
+- Do not use global variables except for constants.
+- Ensure each function has a single responsibility, is reasonably short, and avoids unnecessary side effects.
+- Avoid daisy-chained functions; prefer semantic decomposition.
+- Remove repeated code and simplify conditionals where possible.
+- Do not “over-compress” code; prioritize readability and maintainability.
+```
