@@ -32,13 +32,7 @@ npx @marp-team/marp-cli@latest web-graphics.md --pdf --allow-local-files
 
 ## To Dos
 
-- [ ] Add an AI critique element in each code assignment (to have students reflect on AI-generated/improved code)
-  - option 1: ask the AI to generate the solution and have students critique
-  - option 2: ask the AI to review code and propose improvements, then have students critique
-  - is the AI doinbg well with styling?
-  - Identify at least two things you like about the AI’s solution (e.g., readability, variable names, use of constants)
-  - Identify at least two potential problems (e.g., assumes unrealistic inputs, poor variable names, no comments, confusing logic)
-  - let students choose the option that best benefits their learning style
+- [ ] Update rubrics for assignments to account for the potential design changes and for the AI critique component
 - [ ] Add learning objectives to each lecture, optionally studios and assignments as well
 - [ ] Improve the "secondary" learning outcomes for the class (to be more programming specific)
 - [ ] Add visual explanations of memory allocation and references
