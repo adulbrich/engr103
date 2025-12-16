@@ -32,6 +32,10 @@ npx @marp-team/marp-cli@latest web-graphics.md --pdf --allow-local-files
 
 ## To Dos
 
+- [ ] Fix "FIX" comments
+- [ ] Fix "IMPROVE" comments
+- [ ] Create a Question? component that uses details/summary for better UX (ie in studio to challenge students)
+- [ ] Add AI guidelines to syllabus
 - [ ] Update rubrics for assignments to account for the potential design changes and for the AI critique component
 - [ ] Add learning objectives to each lecture, optionally studios and assignments as well
 - [ ] Improve the "secondary" learning outcomes for the class (to be more programming specific)
@@ -75,8 +79,11 @@ Inside of your Astro + Starlight project, you'll see the following folders and f
 ```text
 .
 ├── public/
+├── scripts/
+├── slides/
 ├── src/
 │   ├── assets/
+│   ├── components/
 │   ├── content/
 │   │   ├── docs/
 │   │   └── config.ts
@@ -86,6 +93,14 @@ Inside of your Astro + Starlight project, you'll see the following folders and f
 ├── tailwind.config.mjs
 └── tsconfig.json
 ```
+
+Important directories and files include:
+
+- `scripts/`: helper scripts for generating PDFs, etc.
+- `slides/`: slide decks for lectures in Marp Markdown format
+- `src/content/docs/`: all lecture notes, studios, assignments, practicalities, and other documentation, in `mdx` format
+- `src/components/`: reusable components for assignments and lectures, inlcuding a Latex component, and reactive Svelte components for assignments
+- `astro.config.mjs`: Astro configuration file, update sidebar entries here
 
 ## 🧞 Commands
 

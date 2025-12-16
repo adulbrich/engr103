@@ -5,6 +5,7 @@ import starlight from "@astrojs/starlight";
 import tailwindcss from "@tailwindcss/vite";
 import mermaid from 'astro-mermaid';
 import svelte from "@astrojs/svelte";
+import starlightPageActions from 'starlight-page-actions'
 
 // https://astro.build/config
 export default defineConfig({
@@ -19,6 +20,11 @@ export default defineConfig({
     }),
     sitemap(),
     starlight({
+      plugins: [
+        starlightPageActions({
+          baseUrl: "https://engr103.alexulbrich.com",
+        })
+      ],
       title: "ENGR 103 Engineering Computation and Algorithmic Thinking",
       social: [
         { icon: "github", label: "GitHub", href: "https://github.com/adulbrich/engr103" },
