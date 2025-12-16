@@ -6,6 +6,7 @@ This repository contains the source code for the ENGR103 website.
 
 Every term:
 
+- [ ] Test all studios and assignments on the ENGR servers
 - [ ] Update the version of this repository if making changes (`package.json`)
 - [ ] Add TAs to Canvas
 - [ ] Create team **Bookings** page for assignment demo and set up slots (**not working**, investigate alternatives?)
@@ -122,6 +123,8 @@ This project uses `bun` instead of `npm`.
 - [Starlight Getting Started](https://starlight.astro.build/getting-started/) -- Astro template
 - [TailwindCSS](https://tailwindcss.com/) -- for styling
 - [Svelte](https://svelte.dev/docs/svelte/overview) -- for reactive components
+- [Starlight Page Actions](https://github.com/dlcastillop/starlight-page-actions), or alternatively [Starlight Contextual Menu](https://github.com/corsfix/starlight-contextual-menu)
+- [Starlight Links Validator](https://github.com/HiDeoo/starlight-links-validator)
 - [How to create an Astro LaTeX component](https://danidiaztech.com/create-astro-latex-component/) -- LaTeX component
 - [KaTeX: The fastest math typesetting library for the web.](https://katex.org/) -- LaTeX component
 - [Mermaid User Guide](https://mermaid.js.org/intro/getting-started.html) -- Mermaid component

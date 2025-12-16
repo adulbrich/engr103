@@ -53,11 +53,11 @@ Use the `std::stod()` function from the `<string>` header to convert a `std::str
 
 Example: `std::stod("3.14")` returns the double value 3.14.
 
-The starter code includes a helper function, `is_number()`. This function takes a `std::string` argument and returns `true` if the string represents a valid numeric value that can be converted using `std::stod()`. Use this function to check if the user's input is a valid numeric value as part of verifying whether the input is a valid arithmetic expression.
+The starter code includes a helper function, `is_number()`. This function takes a `std::string` argument and returns `true` if the string represents a valid numeric value that can be converted using `std::stod()`. Because `std::stod()` throws an exception and crashes the program when it encounters invalid input, checking strings with `is_number()` first is essential. While advanced students might explore `try-catch` blocks for exception handling, using `is_number()` is the expected approach for this assignment.
 :::
 
 :::tip[Storing Computed Values]
-Use an array to keep track of the history of computed results and print them at the end of the program.	Since the number of expressions the user will compute is unknown, allocate a statically sized array large enough to store up to 100 values. Maintain an `int` variable to track the number of expressions computed, incrementing it after each calculation.
+Use an array to keep track of the history of computed results and print them at the end of the program. Since the number of expressions the user will compute is unknown, allocate a statically sized array large enough to store up to 100 values. Maintain an `int` variable to track the number of expressions computed, incrementing it after each calculation.
 :::
 
 ### Valid Arithmetic Expression Criteria
@@ -144,7 +144,7 @@ You may also assume that the user will not attempt to divide by zero. For exampl
 3 + 7 / 0
 ```
 
-How your program behaves in such cases is up to you. If it crashes with a floating-point exception (e.g., division by zero), that is considered acceptable.
+How your program behaves in such cases is up to you. Since the calculator uses `double` values, division by zero will typically result in `inf` (infinity) or `-inf` rather than crashing the program. This behavior is considered acceptable.
 
 ### Critique an AI-Generated Output
 
