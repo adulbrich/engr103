@@ -10,7 +10,7 @@ import AssignmentAICritique from '../../../components/AssignmentAICritique.astro
 
 For this assignment, you will build a simple terminal interface for a dictionary API using the [Free Dictionary API](https://dictionaryapi.dev/).
 
-You don't need to know anything about APIs or how to use them. Your GiHub Classroom repository will automatically include some starter code. This starter code contains libraries and functions that will handle communication with the API for you. Your task is to call these functions appropriately.
+You don't need to know anything about APIs or how to use them. Your GitHub Classroom repository will automatically include some starter code. This starter code contains libraries and functions that will handle communication with the API for you. Your task is to call these functions appropriately.
 
 There are commented-out examples in the provided skeleton `main()` function to guide you. Additionally, the starter code includes a file called `README.md` with more implementation tips. The contents of `README.md` will be displayed on your repository's main page.
 
@@ -41,7 +41,7 @@ Many of these tasks are similar to operations you've already performed with prim
 
 In C++, strings are not a primitive data type (i.e., they are not built into the language). Instead, they are a complex data type provided by the standard library, implemented as a class.
 
-To use strings in your program, you need to include the `<string>` header at the top of your code. Alternatively, other header files like `<iostream>` also include the `<string>` library indirectly.
+To use strings in your program, you need to include the `<string>` header at the top of your code. While some compilers might allow you to skip this if another header like `<iostream>` is included, relying on such indirect inclusion is non-standard. You should always explicitly `#include <string>` when working with strings.
 
 Once included, you can use the string data type as `std::string`, similar to how you use `int`, `double`, or `bool`. Since `std::string` is part of the standard namespace, it must be prefixed with `std::`.
 
@@ -66,7 +66,7 @@ You can also:
 
 ### Reading Strings from User Input
 
-You can use `std::cin` to read strings from the user. However, note that the `>>` operator only reads one word at a time. If the user inputs multiple words separated by spaces, only the first word is stored, and the remaining input stays in the buffer. For this assignment, reading a single word is sufficient.
+You can use `std::cin` to read strings from the user. However, note that the `>>` operator only reads one word at a time. If the user inputs multiple words separated by spaces, only the first word is stored, and the remaining input stays in the buffer. This can cause unexpected behavior, such as the menu looping multiple times as it processes the leftover words. For this assignment, reading a single word is sufficient, but if you want to handle multi-word input or avoid these issues, consider using [`std::getline()`](/lectures/strings#reading-strings-with-stdgetline).
 
 ```cpp
 #include <string>
@@ -153,15 +153,15 @@ Complete the program (`main.cpp`) in the provided starter code to perform the fo
 The exact design of the program's interface is up to you. Here are two possible approaches:
 
 1. **Option-Based Input** asks the user to enter a number to select an option, such as:
-    - "Type 1 to look up a definition.”
-    - "Type 2 to look up an audio URL.”
-    - "Type 3 to look up a pronunciation.”
-    - "Type 4 to exit.”
+    - "Type 1 to look up a definition."
+    - "Type 2 to look up an audio URL."
+    - "Type 3 to look up a pronunciation."
+    - "Type 4 to exit."
 2. **Word-Based Input** asks the user to type a word representing their choice, such as:
-    - "Type 'definition' to look up a definition.”
-    - "Type 'audio' to look up an audio URL.”
-    - "Type 'pronunciation' to look up a pronunciation.”
-    - "Type 'exit' to quit the program.”
+    - "Type 'definition' to look up a definition."
+    - "Type 'audio' to look up an audio URL."
+    - "Type 'pronunciation' to look up a pronunciation."
+    - "Type 'exit' to quit the program."
 
 ### Error Handling
 

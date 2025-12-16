@@ -24,7 +24,7 @@ Don't forget to attend your assignment demo, which you should have already sched
 
 ## The Math
 
-The future value <Latex formula="FV"/> and present value <Latex formula="PV"/> equation is a cornerstone concept in finance and economics that helps calculate how the value of money changes over time, accounting for interest or discount rates. These equations use the concept of the time value of money, which states that a dollar today is worth more than a dollar in the future due to its earning potential.
+The future value <Latex formula="FV"/> and present value <Latex formula="PV"/> equations are cornerstone concepts in finance and economics that help calculate how the value of money changes over time, accounting for interest or discount rates. These equations use the concept of the time value of money, which states that a dollar today is worth more than a dollar in the future due to its earning potential.
 
 The future value is the amount an investment made today will grow to after earning interest over a specified period:
 
@@ -41,45 +41,42 @@ We can also calculate the present value of a future amount of money, which is th
 
 When we incorporate regular payments (PMT) into the future value (FV) and present value (PV) equations, it allows us to calculate the value of money when periodic cash flows (like loan payments, savings contributions, or withdrawals) are involved. This is commonly used for loans, annuities, and retirement planning.
 
-When regular, fixed payments <Latex formula="PMT"/> are made into an account that earns interest, the future value formula becomes:
+When regular, fixed payments <Latex formula="PMT"/> are made into an account that earns interest, the future value formula depends on when the payments are made. By rearranging the terms, we can also solve for the recurring payment <Latex formula="PMT"/> or the present value <Latex formula="PV"/>.
 
-<Latex formula="FV = PV \cdot (1 + r)^n + PMT \cdot (1 + r) \cdot \frac{(1+ r)^n - 1}{r}" inline = {false} numbered label="(1)"/>
+**Case A: Payments at the Beginning of Each Period (Annuity Due)**
 
-For the keen-eyed, you may notice the extra <Latex formula="(1 + r)"/>  in the formula. This is because the payment is made at the beginning of each period, so it earns interest for one additional period compared to the principal. **You should leave that out if the payment is made at the end of each period. This also applies to the equations below.**
+<Latex formula="FV = PV \cdot (1 + r)^n + PMT \cdot (1 + r) \cdot \frac{(1+ r)^n - 1}{r}" inline = {false} numbered label="(1a)"/>
 
-You can shuffle the above equations to calculate recurring payments <Latex formula="PMT"/> or the present value <Latex formula="PV"/>:
+<Latex formula="PMT = \frac{FV - PV \cdot (1 + r)^n }{(1 + r) \cdot \frac{(1 + r)^n - 1}{r}}" inline = {false} numbered label="(2a)"/>
 
-<Latex formula="PMT = \frac{FV - PV \cdot (1 + r)^n }{(1 + r) \cdot \frac{(1 + r)^n - 1}{r}}" inline = {false} numbered label="(2)"/>
+<Latex formula="PV = \frac{FV - PMT \cdot (1+r) \cdot \frac{(1 + r)^n - 1}{r}}{(1 + r)^n}" inline = {false} numbered label="(3a)"/>
 
-<Latex formula="PV = \frac{FV - PMT \cdot (1+r) \cdot \frac{(1 + r)^n - 1}{r}}{(1 + r)^n}" inline = {false} numbered label="(3)"/>
+**Case B: Payments at the End of Each Period (Ordinary Annuity)**
+
+This is the default behavior if not specified. Note that the <Latex formula="(1 + r)"/> term associated with the payment is removed.
+
+<Latex formula="FV = PV \cdot (1 + r)^n + PMT \cdot \frac{(1+ r)^n - 1}{r}" inline = {false} numbered label="(1b)"/>
+
+<Latex formula="PMT = \frac{FV - PV \cdot (1 + r)^n }{\frac{(1 + r)^n - 1}{r}}" inline = {false} numbered label="(2b)"/>
+
+<Latex formula="PV = \frac{FV - PMT \cdot \frac{(1 + r)^n - 1}{r}}{(1 + r)^n}" inline = {false} numbered label="(3b)"/>
 
 :::caution[Adjustments for Compounding]
 When interest is compounded more frequently than annually, you need to adjust the rate and number of periods accordingly.
 
 For this assignment, you can decide the period you want to use (e.g., monthly, yearly, or else). This will influence the rates, number of periods, and periodic amounts.
 
-For example, if you want to save every month but to plan on a yearly basis, <Latex formula="n"/> should be the number of years times 12, and <Latex formula="r"/> should be the return rate per month. If you only have it per year, divide it by 12.
+For example, if you want to save every month but plan on a yearly basis, <Latex formula="n"/> should be the number of years times 12, and <Latex formula="r"/> should be the return rate per month. If you only have it per year, divide it by 12.
 :::
 
 ## Use Cases
 
 Here are some use cases where these equations can be applied.
 
-### Retirement Savings
-
-You can use these equations to calculate how much you need to save each month to reach a specific retirement goal. For example, if you want to retire in 30 years with $1,000,000, and you expect a 7% annual return on your investments (adjusted for inflation), you can calculate the monthly savings needed to reach that goal.
-
-### Loan Payments
-
-You can use these equations to calculate the monthly payment needed to pay off a loan. For example, if you take out a $100,000 loan at 5% interest for 30 years, you can calculate the monthly payment needed to pay off the loan.
-
-### Inflation Prediction
-
-You can use these equations to predict the future value of an item based on its current price and expected inflation rate. For example, if an item costs $1,000 today and the inflation rate is 2% per year, you can calculate how much the item will cost in 10 years.
-
-### Business Valuation
-
-You can use these equations to value a business based on its future cash flows. For example, if a business is expected to generate $1,000,000 in cash flow each year for the next 10 years, you can calculate the present value of those cash flows to determine the value of the business.
+- **Retirement Savings**: You can use these equations to calculate how much you need to save each month to reach a specific retirement goal. For example, if you want to retire in 30 years with $1,000,000, and you expect a 7% annual return on your investments (adjusted for inflation), you can calculate the monthly savings needed to reach that goal.
+- **Loan Payments**: You can use these equations to calculate the monthly payment needed to pay off a loan. For example, if you take out a $100,000 loan at 5% interest for 30 years, you can calculate the monthly payment needed to pay off the loan.
+- **Inflation Prediction**: You can use these equations to predict the future value of an item based on its current price and expected inflation rate. For example, if an item costs $1,000 today and the inflation rate is 2% per year, you can calculate how much the item will cost in 10 years.
+- **Business Valuation**: You can use these equations to value a business based on its future cash flows. For example, if a business is expected to generate $1,000,000 in cash flow each year for the next 10 years, you can calculate the present value of those cash flows to determine the value of the business.
 
 ## The Program
 
@@ -222,7 +219,7 @@ This method is widely used in financial software and is a practical approach to 
 
 ## Simulator
 
-Here's a small interactive simulator to test your program. You can input values for each scenario and see the expected output. This simulator includes the extra-credit options for inflation adjustment and compounding periods. Leave the inflation rate at 0% with an yearly compounding period to match the base requirements.
+Here's a small interactive simulator to test your program. You can input values for each scenario and see the expected output. This simulator includes the extra-credit options for inflation adjustment and compounding periods. Leave the inflation rate at 0% with a yearly compounding period to match the base requirements.
 
 <FinancialPlannerForm client:load />
 <div class="print:block hidden italic">The simulator is not printed to PDF. Consult the handbook to see it.</div>
