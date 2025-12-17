@@ -17,19 +17,20 @@ Write a program that prompts the user for 5 integers and prints the mode (i.e., 
 
 int main() {
     // Request 5 integers from the user and store them in an array
-    int arr[5];
-    for (int i = 0; i < 5; i++) {
+    const int SIZE = 5;
+    int arr[SIZE];
+    for (int i = 0; i < SIZE; i++) {
         std::cout << "Enter integer #" << (i + 1) << ": ";
         std::cin >> arr[i];
     }
 
     // Compute the mode
     int max_count = 0;
-    int running_mode;
-    for (int i = 0; i < 5; i++) {
+    int running_mode = 0;
+    for (int i = 0; i < SIZE; i++) {
         // Count how many times arr[i] appears in the array
         int count = 0;
-        for (int j = 0; j < 5; j++) {
+        for (int j = 0; j < SIZE; j++) {
             if (arr[j] == arr[i]) {
                 count++;
             }
@@ -50,7 +51,7 @@ int main() {
 
 ## Problem 1
 
-Write a program that prompts the user for 5 words, then prints them back to the terminal in reverse order. Error handling is not required; the program may assume the user will enter exactly 5 words, one at a time. Use the stream extraction operator `>>` to read each word.
+Write a program that prompts the user for 5 words, then prints them back to the terminal in reverse order. Note that "words" here implies strings separated by whitespace, so "hello," counts as one word including the comma. Error handling is not required; the program may assume the user will enter exactly 5 words, one at a time. Use the stream extraction operator `>>` to read each word.
 
 Your program must use a statically allocated (regular) C++ array in a meaningful way.
 
@@ -68,7 +69,7 @@ In reverse: outside quickly cats chase dogs
 
 Write a program that prompts the user for 10 numbers (represented as doubles) and calculates the sample standard deviation of those numbers. 
 
-The program must use a statically allocated C++ array in a meaningful way.
+The program must use a statically allocated C++ array in a meaningful way. You should use a constant for the number of elements (e.g., `const int N = 10;`) to make the code more readable and adaptable.
 
 The sample standard deviation <Latex formula="S"/> can be computed as:
 
@@ -91,6 +92,8 @@ In other words:
 5. Take the square root of the variance to calculate the sample standard deviation <Latex formula="S"/>.
 6. Print the result to the terminal.
 
+{/* TODO: add a simulator at the bottom like for assignments in addition to this link */}
+
 You can verify your solution using [this website](https://www.calculator.net/standard-deviation-calculator.html). Be sure to check the “sample” option (not “population”).
 
 ```text title="Example Output"
@@ -109,5 +112,5 @@ Standard deviation: 3.02765
 ```
 
 :::tip[Finished Early?]
-The [last assignment](../../assignments/calculator) is one of the most challenging assignments of the term. If you finish this studio early, consider spending some extra time working on its design and/or code. This is optional but highly recommended.
+The [last assignment](/assignments/calculator/) is one of the most challenging assignments of the term. If you finish this studio early, consider spending some extra time working on its design and/or code. This is optional but highly recommended.
 :::
