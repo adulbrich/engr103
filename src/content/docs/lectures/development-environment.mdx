@@ -29,7 +29,7 @@ When you open Powershell for the first time, it will default to a certain config
 
 #### macOS: Terminal
 
-Mac comes with a terminal by default. It's simply called “Terminal”, and you can find it by typing “Terminal” into the Mac Spotlight search (the magnifying glass at the topright corner of your screen). When you open your Mac Terminal for the first time, it will default to a certain configuration that most people don't like, so you may want to do some reconfiguration. In the menu bar, navigate to **Terminal → Preferences**, then navigate to the **Profiles** tab. From here, you can add new terminal profiles and modify existing ones. A profile is basically just a configuration of terminal settings. For most cases, it's sufficient to just modify the default profile (e.g., “Basic”). You can change default font sizes, colors, etc.
+Mac comes with a terminal by default. It's simply called “Terminal”, and you can find it by typing “Terminal” into the Mac Spotlight search (the magnifying glass at the top-right corner of your screen). When you open your Mac Terminal for the first time, it will default to a certain configuration that most people don't like, so you may want to do some reconfiguration. In the menu bar, navigate to **Terminal → Preferences**, then navigate to the **Profiles** tab. From here, you can add new terminal profiles and modify existing ones. A profile is basically just a configuration of terminal settings. For most cases, it's sufficient to just modify the default profile (e.g., “Basic”). You can change default font sizes, colors, etc.
 
 #### UNIX/Linux
 
@@ -513,7 +513,7 @@ echo "Today is $(date)"
 
 By now, you should have a solid understanding of how to navigate a file system in the terminal. The next step is learning how to create and edit text-based files directly in the terminal. To do this, we'll use a terminal-based text editor--a program that runs within the terminal instead of a separate window (like Notepad or Microsoft Word). On the ENGR servers, you have access to editors like vim, nano, and emacs. For this course, we'll focus on vim.
 
-{/* TODO: some vim history */}
+{/* IMPROVE: While we focus on vim, `nano` is a much simpler editor for beginners. You might want to mention it as an alternative if students find vim too difficult. */}
 
 To open a file in vim, use the following command:
 
@@ -541,7 +541,7 @@ Vim is similar to editors like Notepad or Word, but it's entirely terminal-based
 
 Your screen might differ slightly (e.g., it might not show line numbers), but the general interface will be similar. Note that any menu-like elements belong to your terminal, not vim itself. Actions like saving, quitting, and copying text in vim are done via text-based commands.
 
-Vim operates in several **modes**, and understanding these is key to using it effectively. By default, vim starts in **normal mode**, which is used for issuing commands (e.g., saving a file, quitting vim, copying, pasting). If you want to write text into a file, you need to switch to **insert mode**":
+Vim operates in several **modes**, and understanding these is key to using it effectively. By default, vim starts in **normal mode**, which is used for issuing commands (e.g., saving a file, quitting vim, copying, pasting). If you want to write text into a file, you need to switch to **insert mode**:
 
 - Press the `i` key to switch to insert mode.
 - You can now start typing into the file. For example, write the text `Hello, world!` into `hello.txt`: 
@@ -575,8 +575,6 @@ Saving a file and quitting vim requires issuing commands in normal mode. Since y
 | `set nu` | Display line numbers | 
 | `syntax on` | Enable syntax highlighting (usually enabled by default, but may need to be enabled in certain circumstances) | 
 | `colorscheme <colorscheme>` | Set the syntax highlighting colorscheme. Writing `:colorscheme` and pressing tab should cycle you through the available options. | 
-
-{/* TODO insert table */}
 
 To save and quit the file, use the `:wq` command:
 
