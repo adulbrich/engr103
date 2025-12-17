@@ -38,7 +38,7 @@ The syntax for declaring a statically allocated array in C++ is:
 ```
 
 - Replace `<element data type>` with the desired data type of the elements in the array.
-	•	Replace `<array variable name>` with the name you want to give the array.
+- Replace `<array variable name>` with the name you want to give the array.
 - Replace `<array size>` with the number of elements the array should hold.
 
 For example, the following code declares an array named pages containing 200 strings (each representing a page in a book):
@@ -164,10 +164,19 @@ When you run this program, the output will display something like this:
 
 This hexadecimal value represents the array's base address.
 
-:::note[Arrays of Characters]
-When you pass an array of double (or most other types) to `std::cout`, the array name `my_list_of_numbers` decays to a pointer to its first element (i.e., `&my_list_of_numbers[0]`). This is a fundamental rule in C and C++: array names in most contexts decay to pointers to their base address. So, `std::cout` prints the memory address of the first element as a hexadecimal value.
+:::note[Array Decay and Character Arrays]
+You might wonder why `std::cout` prints a memory address for the array above. This happens because of a mechanism called **decay**.
 
-For `char my_list_of_characters[10];`, the same array-to-pointer decay happens: `my_list_of_characters` becomes `&my_list_of_characters[0]`, a `char*`. However, `std::cout` has a special **overload** for `char*`. Instead of printing the address, it assumes a `char*` points to a null-terminated *string* and tries to print the contents of the memory as a string, starting at that address and continuing until it hits a `\0` (null terminator). If your char array is uninitialized or doesn't explicitly contain a null terminator, you'll get garbage output or undefined behavior because `std::cout` will keep reading memory beyond your array until it finds a `\0` or crashes.
+"Decay" describes how an array loses its type information (like its size) and converts into a pointer to its first element (e.g., `&my_list_of_numbers[0]`) when used in most expressions. So, `std::cout` receives a memory address and prints it.
+
+However, `char` arrays behave differently with `std::cout`. Even though they also decay to a pointer (`char*`), `std::cout` has a special rule for `char*`: it assumes the pointer points to a **C-string** (text) and prints characters until it finds a null terminator (`\0`).
+
+```cpp
+char name[5] = {'B', 'o', 'b', '\0'};
+std::cout << name << std::endl; // Prints "Bob", not an address
+```
+
+If your `char` array is missing the `\0` terminator, `std::cout` will keep reading past the end of the array until it finds a zero byte in memory, often printing garbage characters or crashing.
 
 Try it in your code to see the difference! Pointers are not covered in this course, so don't worry too much about this explanation.
 :::
@@ -215,7 +224,7 @@ Don't forget that primitive values must be initialized before you can use them. 
 
 ### Using Loops
 
-Manually initializing or accessing each element can become tedious for large arrays. Instead, it's common to use loops, especially for loops, to work with arrays. For example, the following program initializes an array of 100 integers with values from 1 to 100 and prints them:
+Manually initializing or accessing each element can become tedious for large arrays. Instead, it's common to use loops, especially `for` loops, to work with arrays. For example, the following program initializes an array of 100 integers with values from 1 to 100 and prints them:
 
 ```cpp
 // array_ints_for.cpp
@@ -337,7 +346,7 @@ You might have heard the term `lvalue` in this class, but it was not explained i
 
 Originally, the term `lvalue` comes from the C language, where it refers to an expression that can appear on the *left* side of an assignment. In C++, the term has evolved to mean an expression that refers to a memory location and can be assigned a value.
 
-An `lvalue` is said non-modifiable if it cannot be assigned a new value. For example, a constant variable is an `lvalue`, but it is non-modifiable because you can't assign a new value to it.
+An `lvalue` is said to be non-modifiable if it cannot be assigned a new value. For example, a constant variable is an `lvalue`, but it is non-modifiable because you can't assign a new value to it.
 
 Conversely, an `rvalue` is an expression that represents a temporary value or a literal that does not have a persistent, identifiable memory location. For example, a literal value like `5` is an `rvalue` because you can't assign a new value to `5`. Originally, `rvalue` stood for *right* value, but this distinction is less relevant in modern C++.
 
@@ -387,7 +396,21 @@ int main() {
 }
 ```
 
-The above function works only for arrays of exactly 10 strings because the size is embedded in the parameter declaration. To make the function more flexible, you can omit the size in the parameter declaration by using empty square brackets (`[]`). This syntax is valid only for function parameters, not for local array declarations:
+It is important to note that the `[10]` in the function parameter `void print_strings(std::string my_strings[10])` is **ignored by the compiler**. In C++, array parameters decay to pointers. This means the function will accept an array of *any* size, not just 10.
+
+This can be dangerous. If you pass an array of size 5 to this function, the code will compile, but the loop inside `print_strings` will still try to access indices 0 through 9. Accessing indices 5 through 9 results in undefined behavior (a buffer overflow).
+
+```cpp
+// array_parameter_decay.cpp
+int main() {
+    std::string small_list[3] = {"one", "two", "three"};
+
+    // This COMPILES, but causes a buffer overflow at runtime!
+    print_strings(small_list); 
+    return 0;
+}
+```
+To write a function that safely handles arrays of different sizes, you should omit the size in the brackets (`[]`) and pass the size as a separate argument. Note that the `[]` syntax is valid only for function parameters, not for local variable declarations.
 
 ```cpp
 // Function with flexible array size
@@ -427,7 +450,7 @@ Consider the function call `print_strings(array_of_strings, 10)`. Here, the base
 This means that the function's array parameter `my_strings[]` is not an entire copy of the supplied array argument, but rather a copy of the base address referred to by the supplied array argument.
 
 Remember, when you call a function with non-array variable argument, the argument is fully copied into the parameter, and you end up with two separate variables (the argument and parameter) each with their own
-entirely separate memory and separate data. In such a case, modifying the parameter's data will not effect the argument's data. 
+entirely separate memory and separate data. In such a case, modifying the parameter's data will not affect the argument's data. 
 
 ```cpp
 void foo(int x) {
@@ -485,7 +508,7 @@ Statically allocated arrays cannot be resized after they are declared. However, 
 
 1. **Define a Maximum Size**: Choose a “maximum size” for the array, which should reflect the largest number of elements you will ever need to store.
 2. **Declare the Array**: Create an array with this maximum size.
-3. **Use a Size Variable**: Introduce a variable (e.g., an int) to keep track of the number of elements in the array that your program “acknowledges” . Let's call this variable `n`.
+3. **Use a Size Variable**: Introduce a variable (e.g., an int) to keep track of the number of elements in the array that your program “acknowledges”. Let's call this variable `n`.
 4. **Acknowledge Elements**: Treat any elements beyond index `n - 1` as unused and ignore them in your program logic.
 5. **Add and Remove Elements**: To “add” an element, store it at index `n` then increment `n` by 1. To “remove” an element, decrement `n` by 1. Insertions and deletions at other positions require rearranging elements before adjusting `n`.
 

@@ -46,6 +46,8 @@ Using algebra, we can solve for <Latex formula="N"/>:
 
 This is the only equation you'll need for the assignment.
 
+If <Latex formula="r_p \le c_p"/>, the denominator in equation (2) will be zero or negative. This corresponds to a scenario where you lose money or make no profit on each device, making it impossible to cover the base cost <Latex formula="b"/>. In this case, the formula would result in a division by zero (crash) or a negative number of devices (impossible). While you are not required to validate inputs for this assignment, being aware of such edge cases is good programming practice.
+
 However, this equation might give you a floating-point number for <Latex formula="N"/> (e.g., it might determine that you need to manufacture and sell <Latex formula="N = 3.5"/> devices to break even). Since it's not possible to sell a fraction of a device, you must round your answer up to the nearest integer to ensure you at least break even. You can use the `ceil()` function from the `<cmath>` header file to do this (refer to studio 3 for more details).
 
 ### The Submission
@@ -143,6 +145,8 @@ Next, substitute this expression for <Latex formula="M_2"/> into the second equa
   numbered
   label="(6)"
 />
+
+These equations are complex and prone to typos. To make your code more readable and easier to debug, we strongly suggest calculating the numerator and denominator (and even smaller sub-expressions) as separate variables.
 
 At this point, <Latex formula="M_1"/> can be calculated by substituting all the known constants into **equation (6)**. Once you've found <Latex formula="M_1"/>, use it in **equation (5)** to calculate <Latex formula="M_2"/>. Finally, substitute the values of <Latex formula="M_1"/> and <Latex formula="M_2"/> into **equation (4)** to compute <Latex formula="M_3"/>.
 

@@ -51,6 +51,35 @@ std::cout << false << std::endl; // Prints 0
 std::cout << static_cast<bool>(-0.000001) << std::endl; // Prints 1
 ```
 
+:::tip[Printing "true" and "false"]
+By default, `std::cout` prints booleans as `1` and `0`. If you prefer to see `true` and `false` in your output (which is often easier for debugging), you can use the `std::boolalpha` manipulator:
+
+```cpp
+// boolalpha_example.cpp
+#include <iostream>
+
+int main() {
+    bool isReady = true;
+    bool hasError = false;
+
+    std::cout << "Default behavior (numeric):\n";
+    std::cout << "isReady: " << isReady << std::endl;    // Prints 1
+    std::cout << "hasError: " << hasError << std::endl;  // Prints 0
+
+    std::cout << "\nAfter std::boolalpha (textual):\n";
+    std::cout << std::boolalpha;  // Enable textual output
+    std::cout << "isReady: " << isReady << std::endl;    // Prints true
+    std::cout << "hasError: " << hasError << std::endl;  // Prints false
+
+    std::cout << "\nTurn it off with std::noboolalpha:\n";
+    std::cout << std::noboolalpha;  // Back to numeric
+    std::cout << "isReady: " << isReady << std::endl;    // Prints 1 again
+
+    return 0;
+}
+```
+:::
+
 ## Relational Operators
 
 Often, you'll want to compare the values of two expressions to produce a boolean result. For example, you may want a boolean to evaluate to true if two expressions have equal values. To compare values and produce booleans in C++, you can use **relational operators**.
@@ -72,6 +101,36 @@ While the operators `>`, `>=`, `<`, and `<=` are primarily intended for comparin
 
 It is also possible to use `==` and `!=` to compare expressions of different types, as long as those types can be converted for comparison. For example, comparing an int to a float using `==` is valid.
 
+:::caution[Floating-Point Comparisons]
+Be extremely careful when using `==` to compare floating-point numbers (`float` or `double`). Due to how computers store these numbers, small precision errors can occur.
+
+Computers store numbers in binary (base-2), while we typically use decimal (base-10). Just as the fraction 1/3 cannot be written perfectly in decimal (it becomes 0.3333...), some numbers like 0.1 cannot be written perfectly in binary. They end up being stored as a very close approximation, but not the exact value.
+
+When you do math with these approximations, tiny errors can accumulate.
+
+```cpp
+// floating_point_precision.cpp
+#include <iostream>
+#include <iomanip>
+
+int main() {
+  double a = 0.1;
+  double b = 0.2;
+  double sum = a + b;
+
+  std::cout << std::setprecision(20) << sum << std::endl;
+}
+```
+
+```text
+0.30000000000000004441
+```
+
+Instead of checking if `a == b`, it is safer to check if the difference between them is very small (less than a tiny number called epsilon):
+`std::abs(a - b) < 0.00001`
+:::
+
+
 Here's an example program to illustrate relational operators:
 
 ```cpp
@@ -88,13 +147,53 @@ std::cout << (5 <= 7) << std::endl;   // Prints 1 (true)
 
 Just as arithmetic operators are used to perform operations on numeric values to produce numeric results, and relational operators compare values to produce booleans, logical operators are specifically designed to operate on boolean values to produce boolean results. Their purpose is to combine multiple boolean expressions into a single, more complex boolean expression representing operations such as conjunction (AND), disjunction (OR), or negation (NOT). Below is a table summarizing the logical operators in C++:
 
-| Operator | Name | Example | Syntax| Behavior |
-|----------|------|---------|-------|----------|
+| Operator | Name | Example | Syntax | Behavior |
+|----------|------|---------|--------|----------|
 | `&&` | Logical AND | `x && y` | Evaluates to `true` if both `x` and `y` are `true`. Performs short-circuiting. |
 | `\|\|` | Logical OR | `x \|\| y` | Evaluates to `true` if either `x` or `y` is `true`. Performs short-circuiting. |
-| `&` | Logical AND | `x & y` | Evaluates to `true` if both `x` and `y` are `true`. Does not perform short-circuiting. |
-| `\|` | Logical OR | `x \| y` | Evaluates to `true` if either `x` or `y` is `true`. Does not perform short-circuiting. |
+| `&` | Bitwise AND | `x & y` | Evaluates to `true` if both `x` and `y` are `true`. Does not perform short-circuiting. |
+| `\|` | Bitwise OR | `x \| y` | Evaluates to `true` if either `x` or `y` is `true`. Does not perform short-circuiting. |
 | `!` | Negation (NOT) | `!x` | Evaluates to `true` if `x` is `false`, and evaluates to `false` if `x` is `true`. |
+
+:::caution[Bitwise vs. Logical Operators]
+You might encounter the single-character operators `&` (Bitwise AND) and `|` (Bitwise OR). While they look similar to logical operators, they work differently.
+
+Bitwise operators perform operations on the individual bits (1s and 0s) of integer types. 
+
+```cpp
+// bitwise_operators.cpp
+#include <iostream>
+#include <bitset>  // For nice binary output
+
+int main() {
+    int a = 5;  // Binary: 0101
+    int b = 3;  // Binary: 0011
+
+    std::cout << "a = " << a << " (binary: " << std::bitset<8>(a) << ")" << std::endl;
+    std::cout << "b = " << b << " (binary: " << std::bitset<8>(b) << ")" << std::endl;
+
+    std::cout << "Bitwise AND (a & b): " << (a & b)
+              << " (binary: " << std::bitset<8>(a & b) << ")" << std::endl;
+
+    std::cout << "Bitwise OR (a | b): " << (a | b)
+              << " (binary: " << std::bitset<8>(a | b) << ")" << std::endl;
+
+    return 0;
+}
+```
+
+```text
+a = 5 (binary: 00000101)
+b = 3 (binary: 00000011)
+
+Bitwise AND (a & b): 1 (binary: 00000001)
+Bitwise OR (a | b): 7 (binary: 00000111)
+```
+
+While they *can* be used with booleans (since `true` is `1` and `false` is `0`), they do **not** perform short-circuiting. Both sides are always evaluated. This can cause crashes if the second part of the condition relies on the first part being true or if you are not evaluating simple boolean expressions.
+
+For this course, and for most conditional logic in C++, you should stick to the logical operators (`&&` and `||`).
+:::
 
 For the `&&`, `&`, `||`, and `|` operators, the operands can be any expressions that can be converted to boolean values. These operators evaluate the operands separately to produce boolean results before applying the logical operation.
 
