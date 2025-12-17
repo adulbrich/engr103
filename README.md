@@ -10,16 +10,25 @@ This coming term:
 - [ ] Update the professional development assignments
 - [ ] Update the end-of-term survey link
 - [ ] Fix the MCQ in the assignment 3 design (question 3)
+- [ ] Create slide deck for intro lecture
+- [ ] Add the Canvas assignments + rubrics to GitHub
 
 Every term:
 
-- [ ] Test all studios and assignments on the ENGR servers
+- [ ] Update **Due Dates** in Canvas
+- [ ] Update **Due Times** for quizzes and exams
+- [ ] Update **Course Schedule** in Canvas
+- [ ] Update **Syllabus** in Canvas
 - [ ] Update the version of this repository if making changes (`package.json`)
 - [ ] Add TAs to Canvas
 - [ ] Create team **Bookings** page for assignment demo and set up slots (**not working**, investigate alternatives?)
-- [ ] Update Bookings link in Canvas
-- [ ] Create **GitHub Classroom** class and add TAs
+- [ ] Update sections in Canvas
+- [ ] Update **TA Names** in Canvas
+- [ ] Update **Office Hours** in Canvas
+- [ ] Update **Booking Links** in Canvas
+- [ ] Create **GitHub Classroom** class, add TAs, add assignments
 - [ ] Update GitHub Classroom **links** in Canvas (assignments)
+- [ ] Test all studios and assignments on the ENGR servers
 
 ## PDFs
 

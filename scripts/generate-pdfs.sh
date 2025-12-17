@@ -20,6 +20,7 @@ BASE="https://engr103.alexulbrich.com"
 
 # Lecture topics
 lectures=(
+    "introduction"
     "development-environment"
     "git"
     "cpp-basics"
@@ -40,7 +41,7 @@ lectures=(
     "string-functions"
     "arrays"
     "references"
-    "error-handling"
+    "error-handling" # not used
 )
 
 # Studios
