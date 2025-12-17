@@ -4,6 +4,13 @@ This repository contains the source code for the ENGR103 website.
 
 ## Instructor Checklist
 
+This coming term:
+
+- [ ] Update the rubrics for assignment for the AI-critique component
+- [ ] Update the professional development assignments
+- [ ] Update the end-of-term survey link
+- [ ] Fix the MCQ in the assignment 3 design (question 3)
+
 Every term:
 
 - [ ] Test all studios and assignments on the ENGR servers
@@ -12,7 +19,7 @@ Every term:
 - [ ] Create team **Bookings** page for assignment demo and set up slots (**not working**, investigate alternatives?)
 - [ ] Update Bookings link in Canvas
 - [ ] Create **GitHub Classroom** class and add TAs
-- [ ] Update GitHub Classroom link in Canvas
+- [ ] Update GitHub Classroom **links** in Canvas (assignments)
 
 ## PDFs
 
