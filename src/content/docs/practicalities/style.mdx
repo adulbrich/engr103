@@ -19,7 +19,7 @@ Use only spaces, and indent 2 or 4 spaces at a time.
 
 Avoid using tabs to ensure consistent formatting across editors. You should set your editor to emit spaces when you hit the tab key.
 
-We also recommend the K&R style for brackets, where the opening bracket is on the same line as the function declaration or control structure, and the closing bracket is on its own line, aligned vertically.
+We also recommend the One True Brace Style for brackets. For function declaration, the opening and closing brackets are on their own line, aligned vertically. Inside a function, a statement block's opening bracket is on the same line as the control statement, and the closing bracket is on its own line, aligned vertically with the control statement.
 
 As with everything in this guide, consistency is key. **Choose a style and stick with it.**
 
@@ -27,7 +27,8 @@ As with everything in this guide, consistency is key. **Choose a style and stick
 // good_indentation.cpp
 #include <iostream>
 
-int main() {
+int main() 
+{
     int number = 5; 
     if (number > 0) {
         std::cout << "Positive number" << std::endl;
@@ -96,7 +97,7 @@ int main() {
         radius * radius * radius;
 }
 ```
-Alternatively, you could use `pow(radius, 3)` from the `<cmath>` library.
+Alternatively, you could use `pow(radius, 3)` from the `<cmath>` library. Note that direct multiplication is often more efficient for small integer powers.
 
 ```c++
 // bad_line_length.cpp
@@ -150,7 +151,7 @@ class rectangle {
 };
 ```
 
-To be fair, the C++ standard library uses **snake_case** for variables and functions which leads many developers to follow the same convention.
+To be fair, the C++ standard library uses **snake_case** for variables and functions, which leads many developers to follow the same convention.
 
 
 ## Code Comments

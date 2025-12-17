@@ -89,7 +89,7 @@ There are no decisions to make in this program, just sequential steps.
 
 ## Advanced Problem: Test Score Average
 
-**Problem Statement:** Write a program that continuously ask the user for `n` test scores. These test scores should range from 0 to 100, and your program needs to check that the scores supplied are valid numbers before moving forward. This may include making sure the user doesn't enter a letter or string of letters.
+**Problem Statement:** Write a program that continuously asks the user for `n` test scores. These test scores should range from 0 to 100, and your program needs to check that the scores supplied are valid numbers before moving forward. This may include making sure the user doesn't enter a letter or string of letters.
 
 - Ask the user for the **number** of test scores.
 - Repeatedly, ask the user for the test scores.
@@ -107,7 +107,7 @@ These scores need to be between 0 and 100, as well as valid real numbers. If the
 
 - `n` is an unsigned whole number.
 - Test scores can be unsigned real numbers, instead of just integers.
-- Errors in the user input does not count against the `n` numbers to enter.
+- Errors in the user input do not count against the `n` numbers to enter.
 - The average is calculated by summing the `n` valid test scores and dividing by `n` (i.e., it's the mean).
 
 #### Functional Requirement(s)
@@ -167,8 +167,9 @@ While (n <= 0) or (n not an integer)
     Prompt user for n
     Read n from user
 Declare sum as a real number
+Set sum to 0
 Declare count as an integer
-Set count to 1
+Set count to 0
 While count < n
     Declare testScore as a real number
     Prompt user for testScore

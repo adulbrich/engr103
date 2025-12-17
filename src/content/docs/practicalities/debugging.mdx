@@ -31,6 +31,8 @@ int main() {
 }
 ```
 
+{/* IMPROVE: Explain that output buffers might not flush on crash, so using std::cerr or std::endl is important for debugging crashes. */}
+
 Use it when something unexpected happens in your program, and you want to see the values of variables at that point. Don't forget to remove these print statements once you've identified and fixed the bug. You could add a comment where you put the print statement to remind yourself to remove it later.
 
 ## Using a Debugger
@@ -62,6 +64,14 @@ Finally, set breakpoints, run the program, and inspect variables:
 (gdb) next
 ```
 
+To exit GDB, use the `quit` command:
+
+```shell
+(gdb) quit
+```
+
+{/* IMPROVE: Mention 'step' vs 'next'. */}
+
 ## Analyzing Core Dumps
 
 A core dump is a file that captures the memory of a program at a specific point in time, usually when the **program crashes**. You can analyze core dumps using GDB to understand what caused the crash.
@@ -78,7 +88,8 @@ Then run your program. If it crashes, it will create a `core` file that you can 
 gdb ./run core
 ```
 
-I could not find the `core` file generated on the ENGR servers (it normally is located in the directory where the program is run or other default directories, but the ENGR servers are shared so I'm not sure what's going on).
+{/* I could not find the `core` file generated on the ENGR servers (it normally is located in the directory where the program is run or other default directories, but the ENGR servers are shared so I'm not sure what's going on). */}
+{/* FIX: Verify if core dumps are actually disabled or redirected on the specific course infrastructure. */}
 
 ## Static Code Analysis
 
