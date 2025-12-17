@@ -5,6 +5,18 @@ sidebar:
   order: 1
 ---
 
+The first step in our journey to programming proficiency is to set up the tools you need to write, compile, run, and manage (C++) programs/code. This collection of tools is called a **Development Environment**.
+
+For this course, our development environment consists of:
+
+1.  A **Terminal**: To interact with the computer using text commands.
+2.  **ssh**: a program to connect to the ENGR servers at OSU.
+3.  **vim**: a text editor to write your code.
+4.  **git**: a version control system to manage your code (we'll cover this in the [Git lecture](/lectures/git/)).
+5.  **g++**: a compiler to turn your C++ code into a running program (we'll cover this in the [C++ Basics lecture](/lectures/cpp-basics/)).
+
+Don't worry if these terms are new to you. We will walk through each one step-by-step.
+
 :::caution
 You don't have to use the development tools discussed below for this class. Feel free to use whatever tools you'd like. However, maintaining a working development environment is your responsibility. The TAs and I can only offer guidance when you're using tools that we're familiar with, so it's recommended that you stick with the below tools unless you're already familiar with other ones that will accomplish the same tasks.
 :::
@@ -35,7 +47,7 @@ Mac comes with a terminal by default. It's simply called “Terminal”, and you
 
 If you're running a UNIX/Linux OS other than macOS (e.g., Ubuntu, FreeBSD, etc), then you probably already know what a terminal is. Most *nix terminals are extremely similar since the default shell is configured at a user level, so use whatever terminal you want.
 
-:::tip[Some Other Terminal Programs]
+:::note[Alternative Terminals]
 In no specific order:
 
 - [Alacritty](https://alacritty.org/)
@@ -44,6 +56,7 @@ In no specific order:
 - [Warp](https://www.warp.dev/)
 - [Terminus](https://termius.com/)
 - [Tabby](https://tabby.sh/)
+- [Ghostty](https://www.ghostty.dev/)
 
 Consider a cross-shell prompt, such as [Starship](https://starship.rs/), [Oh My Posh](https://ohmyposh.dev/), or [Powerline](https://github.com/powerline/powerline) to make your shell environment look good across platforms.
 :::
@@ -400,7 +413,9 @@ By mastering these basic commands, you can effectively navigate and manage files
 
 In the previous section, we covered essential file and directory management commands to help you navigate and manipulate your system. Now, let's explore more advanced terminal concepts that enhance the power and flexibility of the command line: pipes, redirection, subcommands, environment variables, and command order and logic.
 
-These concepts allow you to chain commands, manage output and input efficiently, and work with complex logic in the shell. Let's dive in.
+These concepts allow you to chain commands, manage output and input efficiently, and work with complex logic in the shell. 
+
+**This section is not necessary for completing assignments in this course**, but understanding these concepts will significantly enhance your command-line proficiency and enable you to perform more complex tasks with ease.
 
 #### Pipes
 
@@ -511,9 +526,8 @@ echo "Today is $(date)"
 
 ## Text Editor: vim
 
-By now, you should have a solid understanding of how to navigate a file system in the terminal. The next step is learning how to create and edit text-based files directly in the terminal. To do this, we'll use a terminal-based text editor--a program that runs within the terminal instead of a separate window (like Notepad or Microsoft Word). On the ENGR servers, you have access to editors like vim, nano, and emacs. For this course, we'll focus on vim.
+By now, you should have a solid understanding of how to navigate a file system in the terminal. The next step is learning how to create and edit text-based files directly in the terminal. To do this, we'll use a terminal-based text editor--a program that runs within the terminal instead of a separate window (like Notepad or Microsoft Word). On the ENGR servers, you have access to editors like vim, nano, and emacs. For this course, we'll focus on **vim**.
 
-{/* IMPROVE: While we focus on vim, `nano` is a much simpler editor for beginners. You might want to mention it as an alternative if students find vim too difficult. */}
 
 To open a file in vim, use the following command:
 
@@ -556,7 +570,7 @@ Hello, World!█
 -- INSERT --                                                     1,14   All
 ```
 
-:::tip
+:::tip[Case-Sensitivity]
 Vim hotkeys and commands are case-sensitive. For example, `i` (lowercase) and `I` (uppercase) both switch to insert mode, but other commands may differ. Ensure caps lock is off to avoid errors.
 :::
 
@@ -644,3 +658,27 @@ cat file1.txt file2.txt file3.txt
 This will combine the contents of `file1.txt`, `file2.txt`, and `file3.txt` in order, displaying the result in the terminal.
 
 By following these steps, you've learned how to create, edit, save, and view text-based files directly in the terminal. With vim and cat, you're equipped to efficiently manage text files on the ENGR servers.
+
+## Integrated Development Environments (IDEs)
+
+While this course focuses on using terminal-based tools like `vim` for text editing and `g++` for compiling C++ code, you might find it beneficial to use an Integrated Development Environment (IDE) for a more user-friendly experience. IDEs provide a graphical interface that combines code editing, building, and debugging features in one application.
+
+Many modern IDEs can streamline your workflow by integrating the tools we've discussed:
+
+- **Integrated Terminal**: You can open a terminal directly inside the IDE to run commands.
+- **Remote Development**: Some IDEs (like VS Code) allow you to connect to the ENGR servers via SSH, letting you edit remote files using the IDE's interface.
+- **Version Control**: Built-in Git support allows you to stage, commit, and push changes without leaving the editor.
+- **Intelligent Code Completion**: Features like IntelliSense help you write code faster and with fewer errors.
+
+Some popular IDEs for C++ development include:
+
+- [Visual Studio Code](https://code.visualstudio.com/): A lightweight, extensible code editor. It is highly recommended if you want to try an IDE, especially for its **Remote - SSH** extension which works seamlessly with the ENGR servers.
+- [CLion](https://www.jetbrains.com/clion/): A powerful, full-featured C++ IDE by JetBrains.
+- [Zed](https://zed.dev/): A high-performance, multiplayer code editor.
+- [Eclipse CDT](https://www.eclipse.org/cdt/): A classic open-source IDE.
+
+:::caution[Self-Support Only]
+**We do not provide support for setting up or troubleshooting IDEs.**
+
+The teaching staff is trained to help you with the standard terminal-based environment (ssh, vim, git, g++). If you choose to use an IDE, you are responsible for its configuration and maintenance. Regardless of the tool you use, you must ensure your code compiles and runs correctly on the ENGR servers using `g++`.
+:::
