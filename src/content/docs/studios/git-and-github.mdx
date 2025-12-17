@@ -47,6 +47,7 @@ In the previous studio, you generated an SSH key pair to authenticate your lapto
     ```bash
     ssh-keygen -t rsa -b 4096
     ```
+    {/* IMPROVE: Consider recommending Ed25519 keys (ssh-keygen -t ed25519) as they are more modern and secure than RSA. */}
 
     Follow the on-screen instructions. Pay attention to where the keys are stored (default location is recommended).
 
@@ -62,6 +63,7 @@ In the previous studio, you generated an SSH key pair to authenticate your lapto
     ```bash
     cat id_rsa.pub
     ```
+    {/* IMPROVE: If using Ed25519, the file will be `id_ed25519.pub`. Also, `cat ~/.ssh/id_rsa.pub` works from any directory. */}
     The output should begin with ssh-rsa. Highlight the contents and copy it to your clipboard.
 
 4. **Add the Public Key to GitHub**
@@ -70,7 +72,7 @@ In the previous studio, you generated an SSH key pair to authenticate your lapto
     
     Fill in the details:
 
-	    - **Title**: Enter a name for the key (e.g., “ENGR SERVERS).
+	    - **Title**: Enter a name for the key (e.g., "ENGR SERVERS").
 	    - **Key type**: Ensure it is set to “Authentication Key.”
 	    - **Key**: Paste the public SSH key copied earlier into this box.
 	  
@@ -81,7 +83,7 @@ Your ENGR user account is now authenticated with your GitHub account via SSH!
 
 ## Clone Your GitHub Repository to a Local Mirror on the ENGR Servers
 
-Follow these steps to clone your Studio 2 GitHub repository to the ENGR servers. Before starting, review the [Git section](../../lectures/development-environment/#git) in the Development Environment lecture notes.
+Follow these steps to clone your Studio 2 GitHub repository to the ENGR servers. Before starting, review the [Git lecture notes](/lectures/git/).
 
 <Steps>
 
@@ -162,7 +164,6 @@ The process you followed mirrors the steps you'll use for future programming ass
 4. Stage, commit, and push your work to GitHub.
 
 :::tip[Commit and Push Frequently]
-
 It's highly recommended to create new commits regularly and push them to GitHub as you work. This practice allows you to easily recover previous versions of your code if needed.
 
 Each commit should focus on a single, small change and have a concise message (no longer than a single sentence). This makes your commit history clear and easy to navigate.

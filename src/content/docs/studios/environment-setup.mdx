@@ -10,7 +10,7 @@ import { Steps } from '@astrojs/starlight/components';
 In this studio, you will:
 
 1. Create an OSU CoE account if you don't already have one.
-2. Setup and familiarize yourself with your development environment.
+2. Set up and familiarize yourself with your development environment.
 3. Create a simple “Hello, World!” application in C++.
 4. Learn how to build and execute that application.
 5. Generate SSH keys to authenticate your computer with the ENGR servers and bypass Duo authentication.
@@ -55,7 +55,7 @@ In this course, we'll rely on `ssh` to connect to and work with the ENGR servers
 
 Your terminal should now be connected to the ENGR servers. From this point on, any commands you run will be executed directly on the ENGR servers.
 
-Review the [Linux shell commands](../../lectures/development-environment/#shell-commands) section of the Development Environment lecture notes. Use the commands from the lecture notes to complete the following tasks:
+Review the [Linux shell commands](/lectures/development-environment/#shell-commands) section of the Development Environment lecture notes. Use the commands from the lecture notes to complete the following tasks:
 
 1. Create a directory to store your ENGR 103 work.
 2. Inside that directory, create another directory specifically for your studio work.
@@ -74,7 +74,7 @@ vim main.cpp
 
 The `.cpp` file extension stands for C++.
 
-Review the [text editors](../../lectures/development-environment/#text-editor-vim) section of the Development Environment lecture notes. Use vim to write the following code to the file:
+Review the [text editors](/lectures/development-environment/#text-editor-vim) section of the Development Environment lecture notes. Use vim to write the following code to the file:
 
 ```cpp 
 // main.cpp
@@ -144,6 +144,7 @@ You've completed most of this studio, but there's one final step to make future 
     ```bash
     ssh-keygen -t rsa -b 4096
     ```
+    {/* IMPROVE: Consider recommending Ed25519 keys (ssh-keygen -t ed25519) as they are more modern and secure than RSA. */}
     Follow the on-screen instructions. You'll be asked where to store your SSH keys. Take note of the storage location--you'll need this information for the next step. Press **Enter** to save them in the default location (recommended).
 
     Next, you'll be prompted to create an SSH key password. While using a password is optional, it's recommended for added security. Keep in mind:
@@ -154,6 +155,7 @@ You've completed most of this studio, but there's one final step to make future 
 3. In a file explorer (e.g., Windows File Explorer or Mac Finder), navigate to the directory where your SSH keys are stored. By default, the  generated keys are named `id_rsa` and `id_rsa.pub`. 
 
     Open the one ending in `.pub` using your text editor of choice (e.g., Notepad). The contents of the file should begin with “ssh-rsa”. Highlight the entire contents of the file and copy it to your clipboard.
+    {/* IMPROVE: For macOS/Linux users, suggest using `cat ~/.ssh/id_rsa.pub` (or the appropriate path) in the terminal to display the key, which is often faster than navigating the file explorer. */}
 
 4. Open your original terminal session where you're still connected to the ENGR servers. Run the following commands to create and configure the permissions on a `~/.ssh` folder:
 

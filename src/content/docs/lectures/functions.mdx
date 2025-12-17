@@ -7,7 +7,7 @@ sidebar:
 
 import Latex from '../../../components/Latex.astro'
 
-{/* TODO: default value for parameters? */}
+{/* IMPROVE: Consider adding a section on default parameter values. */}
 
 In C++, a function is a reusable block of code that simplifies repetitive computations in your program. By creating functions, you avoid reinventing the wheel each time you need a specific computation. You've already used functions like `main`, `pow`, `sqrt`, and `abs`. In this lecture, you'll learn how to create your own functions to better organize and modularize your code.
 
@@ -81,7 +81,7 @@ double first_value, double second_value
 In the case study, the sum function has two parameters:
 
 - `first_value` of type double
--	`second_value` of type double
+- `second_value` of type double
 
 Parameter names should be meaningful and provide context. For instance, instead of vague names like `distance` or `time`, use descriptive names like `double feet` and `int milliseconds`, which also convey units. This approach improves readability and comprehension.
 
@@ -418,7 +418,7 @@ void print_money(double dollars) {
 
 ## Good Function Design
 
-Implementing functions that work correctly is one thing, but designing good **function contracts** is a separate and essential skill. Below are two fundamental principles of function design that you should adopt. These principles are also detailed in the course's [style guidelines](../../practicalities/style).
+Implementing functions that work correctly is one thing, but designing good **function contracts** is a separate and essential skill. Below are two fundamental principles of function design that you should adopt. These principles are also detailed in the course's [style guidelines](/practicalities/style/).
 
 ### The Single Responsibility Principle (SRP)
 
