@@ -6,15 +6,13 @@ This repository contains the source code for the ENGR103 website.
 
 This coming term:
 
-- [ ] Update the rubrics for assignment for the AI-critique component
-- [ ] Update the professional development assignments
-- [ ] Update the end-of-term survey link
-- [ ] Fix the MCQ in the assignment 3 design (question 3)
+- [ ] Update the professional development assignments (text is wrong and weights are wrong)
 - [ ] Create slide deck for intro lecture
 - [ ] Add the Canvas assignments + rubrics to GitHub
 
 Every term:
 
+- [ ] Update professional development assignments, resources, and end-of-term survey
 - [ ] Update **Due Dates** in Canvas
 - [ ] Update **Due Times** for quizzes and exams
 - [ ] Update **Course Schedule** in Canvas
