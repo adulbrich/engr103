@@ -45,9 +45,8 @@ In the previous studio, you generated an SSH key pair to authenticate your lapto
     If you've already generated SSH keys on the ENGR servers, skip to step 3. Otherwise enter the following command in your terminal and press Enter:
 
     ```bash
-    ssh-keygen -t rsa -b 4096
+    ssh-keygen -t ed25519
     ```
-    {/* IMPROVE: Consider recommending Ed25519 keys (ssh-keygen -t ed25519) as they are more modern and secure than RSA. */}
 
     Follow the on-screen instructions. Pay attention to where the keys are stored (default location is recommended).
 
@@ -58,13 +57,13 @@ In the previous studio, you generated an SSH key pair to authenticate your lapto
       
 3. **Locate and Copy Your Public Key**
 
-    Navigate to the directory where your SSH keys are stored (default: `~/.ssh/`). By default, your SSH key files should be named `id_rsa` and `id_rsa.pub`. Use the following command to print the contents of the public key file (`id_rsa.pub`):
+    Navigate to the directory where your SSH keys are stored (default: `~/.ssh/`). By default, your SSH key files should be named `id_ed25519` and `id_ed25519.pub`. Use the following command to print the contents of the public key file (`id_ed25519.pub`):
 
     ```bash
-    cat id_rsa.pub
+    cat id_ed25519.pub
     ```
-    {/* IMPROVE: If using Ed25519, the file will be `id_ed25519.pub`. Also, `cat ~/.ssh/id_rsa.pub` works from any directory. */}
-    The output should begin with ssh-rsa. Highlight the contents and copy it to your clipboard.
+
+    The output should begin with `ssh-ed25519`. Highlight the contents and copy it to your clipboard.
 
 4. **Add the Public Key to GitHub**
 

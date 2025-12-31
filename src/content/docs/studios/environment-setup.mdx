@@ -142,9 +142,8 @@ You've completed most of this studio, but there's one final step to make future 
 
 2. If you've generated SSH keys on your computer in the past, skip to step 3. Otherwise, type the following command into your second terminal and press enter:
     ```bash
-    ssh-keygen -t rsa -b 4096
+    ssh-keygen -t ed25519
     ```
-    {/* IMPROVE: Consider recommending Ed25519 keys (ssh-keygen -t ed25519) as they are more modern and secure than RSA. */}
     Follow the on-screen instructions. You'll be asked where to store your SSH keys. Take note of the storage location--you'll need this information for the next step. Press **Enter** to save them in the default location (recommended).
 
     Next, you'll be prompted to create an SSH key password. While using a password is optional, it's recommended for added security. Keep in mind:
@@ -152,10 +151,9 @@ You've completed most of this studio, but there's one final step to make future 
       - If you set a password, you'll need to type it each time you use your SSH keys unless you add the keys to your SSH agent (search online for guidance on this).
       - To protect your keys with a password, type your desired password and press Enter. If you prefer not to use a password, press **Enter** without typing anything.
 
-3. In a file explorer (e.g., Windows File Explorer or Mac Finder), navigate to the directory where your SSH keys are stored. By default, the  generated keys are named `id_rsa` and `id_rsa.pub`. 
+3. In a file explorer (e.g., Windows File Explorer or Mac Finder), navigate to the directory where your SSH keys are stored. By default, the  generated keys are named `id_ed25519` and `id_ed25519.pub`. 
 
-    Open the one ending in `.pub` using your text editor of choice (e.g., Notepad). The contents of the file should begin with “ssh-rsa”. Highlight the entire contents of the file and copy it to your clipboard.
-    {/* IMPROVE: For macOS/Linux users, suggest using `cat ~/.ssh/id_rsa.pub` (or the appropriate path) in the terminal to display the key, which is often faster than navigating the file explorer. */}
+    Open the one ending in `.pub` using your text editor of choice (e.g., Notepad). The contents of the file should begin with `ssh-ed25519`. Highlight the entire contents of the file and copy it to your clipboard. For macOS/Linux users, you can use `cat ~/.ssh/id_ed25519.pub` (or the appropriate path) in the terminal to display the key, which is often faster than navigating the file explorer.
 
 4. Open your original terminal session where you're still connected to the ENGR servers. Run the following commands to create and configure the permissions on a `~/.ssh` folder:
 

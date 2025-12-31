@@ -47,10 +47,9 @@ There are various hotkeys that you can use in normal mode to speed up developmen
 
 - Pressing `yy` will copy the current line of code (the one the cursor is on) into the vim clipboard.
 - Pressing `dd` will cut the current line of code into the vim clipboard.
-- Pressing `p` will paste the currently copied / cut line of code from the vim clipboard.
-- Pressing `y`, followed by a number, followed by the enter key, will copy the current line of code, followed by the number of subsequent lines matching the typed number. For example, typing `y12` and pressing enter will copy 13 total lines of code, including the current line of code.
-{/* IMPROVE: While 'y12<Enter>' works, the standard way to yank multiple lines is '[count]yy' (e.g., '12yy'). */}
-- Pressing `d`, followed by a number, followed by the enter key, will cut the current line of code, followed by the number of subsequent lines matching the typed number.
+- Pressing `p` will paste the currently copied / cut text from the vim clipboard after the cursor (if you yanked / deleted whole lines using `yy` or `dd`, this pastes below the current line). Pressing `P` will paste before the cursor (for whole lines, this pastes above the current line).
+- Pressing `[count]yy` will copy the current line of code plus the next `count - 1` lines. For example, typing `12yy` will copy 12 total lines of code, including the current line.
+- Pressing `[count]dd` will cut the current line of code plus the next `count - 1` lines. For example, typing `12dd` will cut 12 total lines of code, including the current line.
 - Pressing `gg` will jump your cursor to the beginning of the file.
 - Pressing `G` will jump your cursor to the end of the file.
 - Pressing `=G` will automatically correct the indentation of all code that appears after the cursor. Running this command after `gg` will correct the indentation of your entire file, i.e., `gg=G` to re-indent the entire file. It's a good idea to run this before submitting your code if you're concerned that your code might not conform to proper indentation as described by the course's style guidelines.
