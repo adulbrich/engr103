@@ -26,7 +26,11 @@ An **integral type** is a data type that can be converted to and from whole numb
 
 Integral types differ from **floating-point types**, such as `float` and `double`. If you convert a floating-point value to an integral type (e.g., by casting to int) and then back, the fractional part is truncated, making these types non-integral.
 
-Interestingly, the `char` data type is **also considered integral**. This is because, in binary computers, all data is stored as numbers. A variable's type determines how its binary representation is interpreted. Characters are stored as non-negative whole numbers in memory, and their corresponding character symbols are only displayed when interpreted by a terminal.
+Interestingly, the `char` data type is **also considered integral**. This is because, in binary computers, all data is stored as numbers. A variable's type determines how its binary representation is interpreted. Characters are stored as whole numbers in memory, and their corresponding character symbols are only displayed when interpreted by a terminal.
+
+:::note[Char as an Integral Type]
+A `char` stores a single byte (a pattern of bits). Whether `char` behaves like a signed or unsigned integer type is **implementation-defined** (it depends on the compiler/target). ASCII codes (see below) are non-negative, but the `char` type itself is not guaranteed to be non-negative.
+:::
 
 ## ASCII and Unicode
 
@@ -139,3 +143,5 @@ While understanding ASCII is helpful, many standard library functions handle cha
 - `std::toupper()` converts a character to uppercase.
 
 These functions simplify tasks and eliminate the need to work directly with ASCII values. However, knowing the underlying principles of the ASCII table provides valuable context and understanding for more advanced operations.
+
+While these functions might work out-of-the-box, you should always include the appropriate header files (like `<cctype>`) to ensure compatibility across different compilers and environments.

@@ -194,8 +194,9 @@ int main() {
 
 :::caution[Important Notes on User Input]
 
-- **Variable Types**: In this example, integers are used, but `std::cin` can also handle other primitive types, such as float, double, and char. However, be cautious with bool inputs--they behave a bit differently.
-- **Type Mismatches**: If the user enters a value that doesn't match the variable's type, unexpected behavior can occur. For instance, entering a decimal value (e.g., `3.5`) for an int variable like `a` or `b` in the program above won't simply truncate the number. Instead, it may lead to undefined or unpredictable behavior.
+In this example, integers are used, but `std::cin` can also **handle other primitive types**, such as float, double, and char. However, be cautious with bool inputs--they behave a bit differently.
+
+If the user enters a value that **doesn't match the variable's type**, unexpected behavior can occur. For instance, entering a decimal value (e.g., `3.5`) for an `int` variable like `a` or `b` in the program above won't simply truncate the number. Instead, `std::cin` will read the valid integer part (e.g., `3`) and leave the rest (e.g., `.5`) in the input buffer. This leftover data will be read by the *next* input operation, which can cause your program to behave confusingly.
 
 We'll discuss how to handle such user errors later in the term. For now, assume that users will provide reasonable, type-appropriate inputs.
 :::

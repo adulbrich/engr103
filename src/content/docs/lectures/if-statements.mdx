@@ -471,8 +471,8 @@ if (2 + 2 == 4) {
 As we've seen, in C++, the logical operators `&&` and `||` have similar counterparts: `&` and `|`. However, they differ in how they evaluate expressions.
 
 - The `&&` operator is known as the logical AND operator *with* short circuiting.
-- The `&` operator is the logical AND operator *without* short circuiting.
-- Similarly, `||` is the logical OR operator *with* short circuiting, while `|` is the logical OR operator *without* short circuiting.
+- The `&` and `|` operators are **bitwise** operators. When used with `bool`, they can behave like an AND/OR that *does not* short circuit.
+- Similarly, `||` is the logical OR operator *with* short circuiting, while `|` will evaluate both operands.
 
 This raises the question: what is short circuiting?
 
@@ -485,7 +485,7 @@ This raises the question: what is short circuiting?
   - If the left operand is `true`, there's no need to evaluate the right operand because the overall result will always be `true`.
   - Again, the evaluation is performed left-to-right, so the `||` operator short circuits as soon as it encounters a `true` left operand.
 - The `&` and `|` operators always evaluate both operands, regardless of the value of the left operand.
--	The only difference between `&&` and `&` (or `||` and `|`) is whether short circuiting occurs.
+-	A key difference is that `&&` and `||` are **logical** operators, while `&` and `|` are **bitwise** operators. Prefer `&&` and `||` for boolean logic unless you have a very specific reason.
 
 Short circuiting offers **performance improvements** by skipping the evaluation of the second operand when it is unnecessary. 
 
@@ -762,6 +762,8 @@ if (x == 5)
 ```
 
 If you accidentally use the assignment operator (`=`) instead of the equality operator (`==`) in Yoda Notation, the compiler will produce a **syntax error**. 
+
+Modern compilers will often warn you about assignment in a condition if you enable warnings (for example, `g++ -Wall` may emit a warning like "using the result of an assignment as a condition without parentheses"). Enabling warnings is a great way to catch this error without relying on Yoda notation.
 
 ### Exact Equality for Floating Point Numbers
 

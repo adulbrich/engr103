@@ -37,9 +37,9 @@ This line contains several expressions. Let's focus on three key ones:
 :::note
 The reality is a little less straightforward. 
 
-For example,technically, `std::endl` is a [manipulator](https://en.cppreference.com/w/cpp/io/manip/endl), not a sequence of characters. It instructs the output stream to insert a newline character and flushes the stream. 
+For example, technically, `std::endl` is a [manipulator](https://en.cppreference.com/w/cpp/io/manip/endl), not a sequence of characters. It instructs the output stream to insert a newline character and flushes the stream. 
 
-If we consider the whole `std::cout << "Hello, World!" << std::endl;` expression, including the `<<` operators, is of type `std::ostream&` (a reference to an output stream) and the value is the stream object itself. This is outside the scope of this class.
+If we consider the whole `std::cout << "Hello, World!" << std::endl;` expression, including the `<<` operators, it is of type `std::ostream&` (a reference to an output stream) and the value is the stream object itself. This is outside the scope of this class.
 :::
 
 Note that these expressions are combined using the `<<` operator to produce the desired output (which is also an expression). We'll discuss operators a little later.
@@ -92,7 +92,7 @@ For example, the [ASCII table](https://en.wikipedia.org/wiki/ASCII) maps charact
 
 Data can be stored in:
 
-- **Disk Storage**: Includes devices like hard drives, SSDs, USB drives, and floppy disks. This is where permanent files are stored. Disk storage has two key characteristics, which makes then slower:
+- **Disk Storage**: Includes devices like hard drives, SSDs, USB drives, and floppy disks. This is where permanent files are stored. Disk storage has two key characteristics, which makes them slower:
     - **Persistence**: Data remains intact even when the computer is turned off.
     - **Large Capacity**: Designed to store large amounts of data, such as files, videos, and programs.
 - **Random Access Memory (RAM)**: Much faster than disk storage but is volatile, meaning data is lost when the computer is turned off. It is used for temporary storage of data and instructions that the CPU needs while running a program.
@@ -138,7 +138,7 @@ Primitive data types have fixed sizes in memory, but the exact size can vary dep
 The term "typically" is used because the C++ standard does not mandate exact sizes for most primitive data types, except for `char`. Instead, it specifies minimum ranges that these types must support, allowing some flexibility in their implementation. The actual size can vary depending on the system architecture and compiler implementation.
 :::
 
-C++ expressions of the same type may share the *same binary representation* but are interpreted differently. For example, the integer 65 and the character 'A' may have the same binary representation (1000001) but are interpreted differently based on their types. 
+C++ expressions of different types may share the *same binary representation* but are interpreted differently. For example, the integer 65 and the character 'A' may have the same binary representation (1000001) but are interpreted differently based on their types. 
 
 ## Literals
 

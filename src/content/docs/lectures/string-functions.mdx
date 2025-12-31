@@ -79,7 +79,7 @@ int main() {
               << length_of_sentence << std::endl;
 }
 ```
-Using `std::string::size_typ`e ensures your program can handle extremely large strings if necessary and aligns the syntax with the intent of the code.
+Using `std::string::size_type` ensures your program can handle extremely large strings if necessary and aligns the syntax with the intent of the code.
 
 ## Character Indices and the .at() Function
 
@@ -99,9 +99,19 @@ Suppose you have a string variable named `my_string` and want to print its third
 std::cout << my_string.at(2) << std::endl;
 ```
 
+:::note[Using `.at()` vs `[]`]
+You may also see the **subscript operator** `[]` used to index strings:
+
+```cpp
+std::cout << my_string[2] << std::endl;
+```
+
+This is common, but it does **not** perform bounds checking. If the index is invalid, `[]` can lead to undefined behavior. In contrast, `.at()` performs bounds checking and will throw an exception if the index is out of range. This will be discussed later when we cover arrays.
+:::
+
 Here, the argument `2` specifies the third character since indices start at 0. Although the `.at()` function expects a `std::string::size_type` value, providing an `int` literal like `2` works because `int` values are implicitly convertible to `std::string::size_type`. However, converting in the opposite direction (from `std::string::size_type` to `int`) requires caution to avoid integer overflow, as `std::string::size_type` can represent larger values than `int`.
 
-Imagine you want to check if a string contains a specific character and return `true` if it does, or `false` otherwise. While there is a built-in .`find()` function for this purpose (discussed later), let's write our own solution.
+Imagine you want to check if a string contains a specific character and return `true` if it does, or `false` otherwise. While there is a built-in `.find()` function for this purpose (discussed later), let's write our own solution.
 
 To achieve this, we need to:
 

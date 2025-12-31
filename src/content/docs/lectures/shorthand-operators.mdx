@@ -103,5 +103,10 @@ Here's the explanation:
 4. The fourth print statement shows the updated value of `x`, which is `1`.
 
 If you don't use the value of the operation (e.g., in a standalone statement like `x++;` or `++x;`), there's no functional difference between the two. Both simply increment the variable by `1`.
+:::tip[Pre-increment vs Post-increment]
+While `x++` and `++x` do the same thing for integers when used as standalone statements, C++ programmers generally prefer **pre-increment** (`++x`). For complex types (like iterators, which you'll learn about later), post-increment (`x++`) often requires making a copy of the object, which can be slower. Pre-increment avoids this copy. It's a good habit to use `++x` unless you specifically need the old value.
+:::
+
+{/* TODO: show a benchmark example? */}
 
 Finally, just as with increment operators, there are pre- and post-decrement operators (`--x` and `x--`). These behave the same way but decrease the variable's value by `1` instead of increasing it.

@@ -124,7 +124,7 @@ Using the g++ compiler, you can automate these steps with a single command:
 g++ -o <executable_name> <source_file1> <source_file2> ... <source_fileN>
 ```
 where:
--	`<executable_name>` is rhe desired name of your executable, and
+-	`<executable_name>` is the desired name of your executable, and
 - `<source_fileX>` are the C++ source files to include.
 
 For example, to build a single-file program `hello.cpp` into an executable named `hello_world`, run:
@@ -245,7 +245,16 @@ I love coding!!!I love coding!!!
 
 Without `std::endl`, output strings are printed on the same line, demonstrating the importance of line breaks for formatting.
 
-{/* TODO: Mention the `return 0;`
-- In C++11 or later, if main() ends without a return, the program returns 0 automatically.
-- 	In pre-C++11, omitting a return in `main()` leads to undefined behavior.
-It’s good practice to include an explicit return 0; at the end of `main()` for clarity, even though it’s not required in modern C++. */}
+:::note[Return Value of `main`]
+
+You might notice that our `main` function is defined to return an `int`, but we didn't include a `return` statement. In C++, the `main` function is special: if execution reaches the end of `main` without encountering a return statement, it automatically returns `0`. A return value of `0` typically signals to the operating system that the program finished successfully.
+
+However, it is considered good practice to include an explicit `return 0;` at the end of `main` to make the exit status clear and consistent with other functions that return values.
+
+```cpp
+int main() {
+    std::cout << "Hello, World!" << std::endl;
+    return 0;
+}
+```
+:::

@@ -9,7 +9,9 @@ In C++, you can use type modifiers to modify a type. These keywords, such as `co
 
 ## Runtime Constants
 
-One such type modifier is `const`. A variable declared with the `const` keyword is a **runtime constant**. This means:
+One such type modifier is `const`. A variable declared with the `const` keyword is a **constant** (read-only after initialization). In many cases, `const` variables are **runtime constants** because they may be initialized using values only known while the program is running.
+
+This means:
 
 - It must be initialized at the time of declaration (in a single statement).
 - Its value cannot be changed after initialization.
@@ -68,6 +70,14 @@ constexpr double pi = 3.14159265;
 
 Using such variables enhances code readability, as meaningful variable names are easier to understand than repeated hardcoded values.
 
+:::note[Constants vs Macros]
+You might also see constants written with `#define` macros, like `#define PI 3.14159265`. In modern C++, prefer `constexpr` (or `const`) instead: variables have **types**, follow **scope rules**, and are easier for the compiler and tools to reason about.
+:::
+
+:::note[`const` vs `constexpr`]
+A `const` variable *can* be a compile-time constant if it is initialized with a constant expression (for example, `const int x = 5;`). The key difference is that `constexpr` **must** be initialized with a constant expression, while `const` is allowed to be initialized from a runtime value.
+:::
+
 ## Why Use Constants?
 
 You might wonder why constants are necessary, given their additional rules. While you could replace constants with regular variables, constants serve two primary purposes:
@@ -83,13 +93,13 @@ Constants help eliminate logic errors by converting them into syntax errors. For
 double pi = 3.14159265;
 ```
 
-As a fixed mathematical constant, `pi` should never change. However, with a regular variable, it's possible to *accidentally* reassign its value, leading to a logic error. Logic errors are problematic because they're syntactically valid and often difficult to diagnose. If you instead declare pi as a constant:
+As a fixed mathematical constant, `pi` should never change. However, with a regular variable, it's possible to *accidentally* reassign its value, leading to a logic error. Logic errors are problematic because they're syntactically valid and often difficult to diagnose. If you instead declare `pi` as a constant expression, any attempt to reassign its value will result in a syntax error.:
 
 ```cpp
 constexpr double pi = 3.14159265;
 ```
 
-Any attempt to reassign its value will result in a syntax error. Syntax errors are far easier to detect and resolve during development, making this approach more robust.
+Syntax errors are far easier to detect and resolve during development, making this approach more robust.
 
 ### Improving Readability
 

@@ -98,8 +98,10 @@ However, integer division behaves differently. Consider the expression `1 / 2`. 
 - `1 / 2` is evaluated as `0` (type `int`), not `0.5` (type `double`).
 
 This truncation occurs whenever you divide integers, even if the result is mathematically non-whole. For example:
+This truncation is **toward zero** (not always "down"). For example:
 
 - `999 / 1000` is truncated to `0`.
+- `-3 / 2` is truncated to `-1`.
 
 This behavior is commonly referred to as integer division. To avoid truncation and ensure accurate results when dividing, you need to make sure at least one of the operands is of a floating-point type (e.g., float or double). This is why, in the original example, I used double-typed literals (1.0 and 2.0) for division.
 
@@ -147,7 +149,8 @@ However, this shorthand is not valid in C++. In C++, you must explicitly use the
 
 In addition to built-in arithmetic operators, the C++ standard library provides many functions for performing more complex mathematical operations. While we'll cover functions in more detail later, for now, you just need to know that these functions can be used to simplify your code and handle advanced mathematics once you've included the necessary header files.
 
-Let's focus on three commonly used functions: `pow`, `sqrt`, and `abs`. These functions are provided by the `<cmath>` header file. Interestingly, they are not part of the `std` namespace or any namespace, so you can use them directly *without* the `std::` prefix.
+Let's focus on three commonly used functions: `pow`, `sqrt`, and `abs`. These functions are provided by the `<cmath>` header file.
+These functions are part of the `std` namespace when you include `<cmath>`, so you should use them with the `std::` prefix (e.g., `std::pow`). Some compilers also make them available without `std::`, but you should not rely on that as it makes the code less portable.
 
 ### Using Functions
 
@@ -167,10 +170,14 @@ Here's a simple program demonstrating the use of these functions:
 #include <cmath>
 
 int main() {
-    std::cout << pow(2, 5) << std::endl;  // 2^5
-    std::cout << abs(-12) << std::endl;   // Absolute value of -12
-    std::cout << sqrt(64) << std::endl;   // Square root of 64
+    std::cout << std::pow(2, 5) << std::endl;  // 2^5
+    std::cout << std::abs(-12) << std::endl;   // Absolute value of -12
+    std::cout << std::sqrt(64) << std::endl;   // Square root of 64
+
+    return 0;
 }
+
+```
 
 When you run this program, the output will be:
 
@@ -180,13 +187,13 @@ When you run this program, the output will be:
 8
 ```
 
-It's important to include the `<cmath>` header file to access these functions. If you forget to include it, your program will fail to compile, and you'll get an error like this:
+It's important to include the `<cmath>` header file to access these functions. If you forget to include it, your program *might* fail to compile, and you'll get an error like this:
 
 ```text frame="terminal"
 math-examples.cpp: In function 'int main()':
-math-examples.cpp:4:22: error: 'pow' was not declared in this scope
+math-examples.cpp:4:22: error: ‘pow’ is not a member of ‘std’
 
-4 | std::cout << pow(2, 5) << std::endl;
+4 | std::cout << std::pow(2, 5) << std::endl;
 ```
 
-The `cmath` header file offers a wide range of additional mathematical functions beyond pow, sqrt, and abs. You'll learn about a few more in upcoming lessons, and others will be introduced as they become relevant. In the meantime, I encourage you to explore the documentation for the `cmath` library. This will not only help you discover its full range of capabilities but also improve your ability to read and understand technical documentation.
+The `cmath` header file offers a wide range of additional mathematical functions beyond `pow`, `sqrt`, and `abs`. You'll learn about a few more in upcoming lessons, and others will be introduced as they become relevant. In the meantime, I encourage you to explore the documentation for the `cmath` library. This will not only help you discover its full range of capabilities but also improve your ability to read and understand technical documentation.

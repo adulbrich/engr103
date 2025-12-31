@@ -69,6 +69,9 @@ static_cast<TARGET_TYPE>(EXPRESSION)
 ```
 
 Here, `TARGET_TYPE` is the type you want to convert the expression to, and `EXPRESSION` is the value you want to cast. The angle brackets `<>` are *part of the syntax* and are not placeholders.
+:::note[C-style Casts]
+You might see code that uses "C-style casts" like `(int)pi` instead of `static_cast<int>(pi)`. While this works, it is generally discouraged in modern C++. C-style casts are harder to search for in your code and can be dangerous because they try to perform *any* kind of conversion, even unsafe ones. `static_cast` is safer and more explicit.
+:::
 
 Suppose you have a double variable and want to print its truncated int representation. Using type coercion (implicit type casting), you'd need to create a new int variable to store the coerced value before printing it:
 

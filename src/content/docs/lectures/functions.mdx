@@ -7,8 +7,6 @@ sidebar:
 
 import Latex from '../../../components/Latex.astro'
 
-{/* IMPROVE: Consider adding a section on default parameter values. */}
-
 In C++, a function is a reusable block of code that simplifies repetitive computations in your program. By creating functions, you avoid reinventing the wheel each time you need a specific computation. You've already used functions like `main`, `pow`, `sqrt`, and `abs`. In this lecture, you'll learn how to create your own functions to better organize and modularize your code.
 
 ## Creating Functions
@@ -86,6 +84,25 @@ In the case study, the sum function has two parameters:
 Parameter names should be meaningful and provide context. For instance, instead of vague names like `distance` or `time`, use descriptive names like `double feet` and `int milliseconds`, which also convey units. This approach improves readability and comprehension.
 
 Parameters can be of any type, and a function can have multiple parameters of different types. The types of the parameters should align with the function's purpose. In the sum example, both parameters are double because the function adds two numbers that may have decimal points.
+
+:::note[Default Parameter Values]
+In C++, you can give a parameter a **default value**. If the caller omits that argument, the default value is used.
+
+```cpp
+double rectangle_area(double width, double height = 1.0) {
+    return width * height;
+}
+```
+
+Then you can call the function in either of these ways:
+
+```cpp
+std::cout << rectangle_area(3.0, 4.0) << std::endl; // Uses height = 4.0
+std::cout << rectangle_area(3.0) << std::endl;      // Uses default height = 1.0
+```
+
+Default parameters must come **after** any non-default parameters. For example, `f(int x = 1, int y)` is not allowed, but `f(int x, int y = 1)` is.
+:::
 
 #### Function Return Types
 

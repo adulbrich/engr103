@@ -180,7 +180,7 @@ If the program attempts to read another string using `std::cin`, it will start w
 
 If you want to read an entire sentence or line of text from the user--capturing every character up until they press the Enter key--you'll need a method other than the `>>` operator. The `>>` operator stops reading at whitespace, as explained previously, making it unsuitable for this purpose. Instead, C++ provides the `std::getline()` function, which is designed specifically for reading entire lines of text.
 
-The `std::getline()` function is part of the `<iostream>` header file. It takes two arguments:
+The `std::getline()` function is part of the `<string>` header file. It takes two arguments:
 
 1. The stream to read from (e.g., `std::cin`).
 2. The string variable to store the input.
@@ -221,7 +221,6 @@ You don't need to worry about the technical details for now. Just note that refe
 
 Be cautious when combining `>>` and `std::getline()` in the same program. These two input mechanisms interact differently with the input buffer, which can cause unexpected behavior.
 
-
 - Stream Extraction Operator (`>>`)
   - Skips leading whitespace (e.g., spaces, tabs, newlines).
   - Stops at the first trailing whitespace or non-viable character, leaving the rest in the buffer.
@@ -238,5 +237,22 @@ std::getline(std::cin, text);
 ```
 
 In this case, `std::getline()` may capture just the leftover newline, resulting in an *empty* text variable.
+To fix this, you can use `std::cin.ignore()` to discard the leftover characters (like the newline) from the input buffer before calling `std::getline()`.
 
-{/* TODO: How to handle flushing the buffer for std::cin? */}
+```cpp
+std::cin >> number;
+std::cin.ignore(); // Discard the newline character left by >>
+std::getline(std::cin, text);
+```
+
+:::tip[Extra Safe `std::cin.ignore()`]
+If you want to be extra safe (for example, if the user might type extra characters after the number), you can ignore *everything up to the next newline* instead of just one character:
+
+```cpp
+#include <limits>
+
+std::cin >> number;
+std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+std::getline(std::cin, text);
+```
+:::

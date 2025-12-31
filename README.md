@@ -13,15 +13,15 @@ This coming term:
 Every term:
 
 - [ ] Update professional development assignments, resources, and end-of-term survey
-- [ ] Update **Due Dates** in Canvas
-- [ ] Update **Due Times** for quizzes and exams
-- [ ] Update **Course Schedule** in Canvas
-- [ ] Update **Syllabus** in Canvas
-- [ ] Update the version of this repository if making changes (`package.json`)
-- [ ] Add TAs to Canvas
+- [x] Update **Due Dates** in Canvas
+- [x] Update **Due Times** for quizzes and exams
+- [x] Update **Course Schedule** in Canvas
+- [x] Update **Syllabus** in Canvas
+- [x] Update the version of this repository if making changes (`package.json`)
+- [ ] Add TAs to Canvas - missing one FERPA compliant student
 - [ ] Create team **Bookings** page for assignment demo and set up slots (**not working**, investigate alternatives?)
-- [ ] Update sections in Canvas
-- [ ] Update **TA Names** in Canvas
+- [x] Update sections in Canvas
+- [x] Update **TA Names** in Canvas
 - [ ] Update **Office Hours** in Canvas
 - [ ] Update **Booking Links** in Canvas
 - [ ] Create **GitHub Classroom** class, add TAs, add assignments

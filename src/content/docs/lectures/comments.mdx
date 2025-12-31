@@ -18,7 +18,7 @@ In C++, there are two types of comments: single-line comments and multi-line com
 To create a single-line comment, use two consecutive forward slashes `//`. Any text following the slashes on the same line will be treated as a comment and ignored by the compiler. For example:
 
 ```cpp
-// single_line_commment.cpp
+// single_line_comment.cpp
 #include <iostream>
 #include <cmath>
 
@@ -53,6 +53,8 @@ For longer comments, you can use multi-line comments. These start with `/*` and 
    It spans several lines.
    Use this format for long notes or explanations. */
 ```
+
+Multi-line comments cannot be nested. If you write `/*` inside an existing `/* ... */` comment, the compiler will treat it as normal text, and the first `*/` it sees will end the comment.
 
 ## Why Documentation Matters
 

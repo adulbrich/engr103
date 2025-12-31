@@ -282,7 +282,7 @@ int main() {
 When executed, this program prints `“Hello, World!”` 100 times, followed by: `The loop terminated when the counter reached: 100`.
 
 :::caution[Shadowing in `for` Loops?]
- In C++, variables declared in the initialization statement of a `for` loop cannot be shadowed in the loop body. Attempting to declare a variable with the same name as the loop counter within the loop body will result in a compilation error. For example, the following code will not compile:
+In C++, variables declared in the initialization statement of a `for` loop cannot be shadowed in the loop body. Attempting to declare a variable with the same name as the loop counter within the loop body will result in a compilation error. For example, the following code will not compile:
 
  ```cpp
  // for_shadowing.cpp
@@ -307,6 +307,8 @@ for_shadowing.cpp:5:14: note: previous definition is here
       |              ^
 1 error generated.
 ```
+
+You can only shadow it by introducing an additional nested block `{}`, but this is confusing and should be avoided. Use distinct names instead.
 :::
 
 The counter variable can be used within the loop body to modify the operations performed in each iteration. For example, suppose you want to print all integers from 0 to 99, separated by commas. Here's how you could do it:
@@ -330,7 +332,7 @@ This program prints the numbers 0 to 99 in a single line, separated by commas. T
 The `<initialization statement>` and `<post-operation>` in a for loop can be any valid C++ statements, not just those involving a counter variable. However, the most common pattern for simple count-based loops includes:
 
 - Initialization: Setting the counter to 0 or N.
-- Condition: Comparing the counter to the target value using a less-than operator `<` or greater-then operator `>`.
+- Condition: Comparing the counter to the target value using a less-than operator `<` or greater-than operator `>`.
 - Post-Operation: Incrementing or decrementing the counter by 1 (`counter++` or `counter--`).
 
 This pattern is widely used because of its simplicity, but variations exist depending on the problem. These will be explored in future discussions.

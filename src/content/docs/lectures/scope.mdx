@@ -228,7 +228,7 @@ int main() {
 This code is problematic for several reasons:
 
 1. **Implicit Preconditions**: The `sum` function relies on the global variables `first_value` and `second_value` being initialized before it is called. If you forget to assign values to these variables, the program will not produce a syntax error, but a **logic error** instead.
-2. **Undefined Behavior**: If the global variables are used without being initialized, the program could even exhibit **undefined behavior**, which can cause unpredictable results.
+2. **Implicit Initialization (Still Bad Practice)**: Global variables are **zero-initialized by default** in C++. If you forget to initialize them, your program may still run but produce incorrect results (a logic bug). Relying on this implicit initialization is still a bad habit.
 3. **Hard to Debug**: Since the variables are global, it's difficult to trace where and when their values are being modified, making debugging complex and time-consuming.
 
 In contrast, functions that use explicit parameters and return values are much safer. For example:
