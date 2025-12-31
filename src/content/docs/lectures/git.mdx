@@ -96,14 +96,14 @@ There are a few important details to understand from this output:
 2. `“Your branch is up to date with ‘origin/main’”`: This means your local repository is synchronized with the remote repository on GitHub. In other words, you haven't created any new commits locally that need to be pushed back to GitHub.
 3. `“Nothing to commit”`: This indicates that no changes have been made to any files in your repository since the last commit, so there's nothing to save in a new commit. In fact, Git won't let you create a new commit unless changes have been made and staged.
 
-Now, suppose we modify `main.cpp` by removing the semicolon after `std::endl`, as shown below:
+Now, suppose we modify `main.cpp` by changing the text being printed, as shown below:
 
 ```diff lang="cpp"
 // main.cpp
   #include <iostream>
   int main() {
 -   std::cout << "Hello, World!" << std::endl;
-+   std::cout << "Hello, World!" << std::endl
++   std::cout << "Hello, Git!" << std::endl;
   }
 ```
 
@@ -115,7 +115,7 @@ Your branch is up to date with 'origin/main'.
 
 Changes not staged for commit:
   (use "git add <file>..." to update what will be committed)
-  (use "git restore file>..." to discard changes in working directory)
+  (use "git restore <file>..." to discard changes in working directory)
         modified: main.cpp
 
 no changes added to commit (use "git add" and/or "git commit -a")
@@ -123,11 +123,12 @@ no changes added to commit (use "git add" and/or "git commit -a")
 
 Notice the line under `“Changes not staged for commit”`. Git lists `main.cpp` here, indicating that this file has been modified since the last commit.
 
-In Git, every file in a repository falls into one of three categories:
+In Git, every file in a repository falls into one of four categories:
 
-- **Modified**: Files that have been changed since the last commit or newly created files that haven't been tracked in any commit.
+- **Untracked**: Files that exist in your directory but are not yet tracked by Git. They become tracked once you add them to the staging area.
+- **Modified**: Tracked files that have been changed since the last commit.
 - **Staged**: Files that are prepared to be included in the next commit.
-- **Committed**: Files that haven't been changed since they were last saved in a commit.
+- **Committed**: Files that are tracked and unchanged since the last commit.
 
 When creating a new commit, you must decide which files' changes should be included. To prepare files for a commit, you stage them using the `git add` command:
 
@@ -150,8 +151,8 @@ On branch main
 Your branch is up to date with 'origin/main'.
 
 Changes to be committed:
-  (use "git restore -staged <file>..." to unstage)
-        modified: main. cpp
+  (use "git restore --staged <file>..." to unstage)
+        modified: main.cpp
 ```
 
 The output will now indicate that `main.cpp` is staged and ready to be included in the next commit. This step is crucial for ensuring the latest versions of files are saved properly in your repository.
@@ -211,7 +212,7 @@ commit 7c611b02d9e1b63b6df4cd45e5ea564f71e7a722
 Author: Alex Ulbrich <adulbrich@users.noreply.github.com>
 Date:   Thu Dec 19 15:22:38 2024 -0800
 
-    Create main. cpp
+    Create main.cpp
 
 commit 9e6fba2790876d34a89a2c004928cba3ad2fa52e
 Author: Alex Ulbrich <adulbrich@users.noreply.github.com>
@@ -244,7 +245,7 @@ The output will highlight changes, showing removed lines in red (prefixed with a
 diff -git a/main.cpp b/main.cpp
 index a58acd3..9b79668 100644
 --- a/main.cpp
-+++ b/main. cpp 
++++ b/main.cpp 
 @@ -1,4 +1,4 @@
  #include <iostream>
  int main () {

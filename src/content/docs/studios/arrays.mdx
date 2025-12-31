@@ -6,6 +6,7 @@ sidebar:
 ---
 
 import Latex from '../../../components/Latex.astro'
+import ArraysStdDevForm from '../../../components/ArraysStdDevForm.svelte'
 
 Arrays are a fundamental data structure in programming that allow you to store multiple values of the same type under a single name. In C++, arrays are a fixed-size collection of elements that are stored in contiguous memory locations. Each element in an array can be accessed using an index, which is an integer value that represents the position of the element in the array. Check and understand the following example, then tackle the problems that follow.
 
@@ -92,10 +93,6 @@ In other words:
 5. Take the square root of the variance to calculate the sample standard deviation <Latex formula="S"/>.
 6. Print the result to the terminal.
 
-{/* TODO: add a simulator at the bottom like for assignments in addition to this link */}
-
-You can verify your solution using [this website](https://www.calculator.net/standard-deviation-calculator.html). Be sure to check the “sample” option (not “population”).
-
 ```text title="Example Output"
 Enter number #1: 1.0
 Enter number #2: 2.0
@@ -110,6 +107,13 @@ Enter number #10: 10.0
 
 Standard deviation: 3.02765
 ```
+
+Here's a small interactive simulator to test your program. Enter 10 numbers and the simulator will compute the <em>sample</em> standard deviation (uses N - 1 in the denominator).
+
+<ArraysStdDevForm client:load />
+<div class="print:block hidden italic">The simulator is not printed to PDF. Consult the online textbook to see it.</div>
+
+Alternatively, you can verify your solution using [this website](https://www.calculator.net/standard-deviation-calculator.html). Be sure to check the “sample” option (not “population”).
 
 :::tip[Finished Early?]
 The [last assignment](/assignments/calculator/) is one of the most challenging assignments of the term. If you finish this studio early, consider spending some extra time working on its design and/or code. This is optional but highly recommended.

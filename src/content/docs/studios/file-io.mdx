@@ -17,8 +17,8 @@ I/O stands for input/output, describing how programs receive and send data to ex
 
 The `<fstream>` header introduces two key classes:
 
-- `std::ifstream` the input file stream for reading data from files.
-- `std::ofstream` the output file stream for writing data to files.
+- `std::ifstream`: the input file stream for reading data from files.
+- `std::ofstream`: the output file stream for writing data to files.
 
 Both classes are like `std::string`--they are objects created using constructors. Below, we'll explore the syntax and examples for using these classes.
 
@@ -42,6 +42,7 @@ The `std::ofstream` constructor accepts:
 
 1. A file path (as a `std::string`) where data will be written.
 2. An open mode, a constant specifying how the file should be accessed. 
+{/* IMPROVE: Mention that the open mode is optional and defaults to overwriting (truncating) for std::ofstream. */}
 
 Two common modes are:
 
@@ -59,6 +60,7 @@ hello_world_stream << "Hello, World!" << std::endl; // Writes to the file.
 
 Here's a complete example program that writes “Hello, World!” to a file:
 
+{/* IMPROVE: Always check if the file opened successfully (e.g., if (hello_world_stream.is_open())) before using it to avoid silent failures. */}
 ```cpp
 #include <fstream>
 
@@ -125,6 +127,7 @@ Monroe, James
 ## Finding the Oldest Student
 
 Suppose you have a file, `student-data.txt`, with the following structure:
+{/* IMPROVE: Instruct the student to create this file manually with some sample data so they can test their program. */}
 
 ```text
 <number of students>

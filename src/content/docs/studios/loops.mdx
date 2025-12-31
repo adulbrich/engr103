@@ -123,7 +123,7 @@ Write a program that:
     - "That number is prime!" if the number is prime.
     - "That number is composite!" if the number is not prime.
 
-An integer <Latex formula="X"/> is considered prime if it is only divisible by 1 and itself. Examples of prime numbers include: 1, 2, 3, 5, 7, 11, 13, 17, and 19.
+An integer <Latex formula="X"/> is considered prime if it is only divisible by 1 and itself. Examples of prime numbers include: 2, 3, 5, 7, 11, 13, 17, and 19.
 
 A composite number (non-prime) is divisible by other integers besides 1 and itself. Examples:
 
@@ -148,7 +148,7 @@ Write a program that:
 1. Prompts the user to enter 10 integers.
 2. For each entered integer, computes and prints its factorial.
 
-he factorial of a number <Latex formula="n"/> is represented in mathematics as <Latex formula="n!"/> (this exclamation point denotes the factorial operator).
+The factorial of a number <Latex formula="n"/> is represented in mathematics as <Latex formula="n!"/> (this exclamation point denotes the factorial operator).
 
 The factorial of <Latex formula="n"/> is defined as the product of all positive integers less than or equal to <Latex formula="n"/>:
 
@@ -156,7 +156,7 @@ The factorial of <Latex formula="n"/> is defined as the product of all positive 
 
 For example, <Latex formula="5! = 5 \times 4! = 5 \times 4 \times 3 \times 2 \times 1 = 120"/>. The value of <Latex formula="0!"/> is <Latex formula="1"/>.
 
-Use a loop to perform the multiplication required to compute the factorial for each number.
+Use a loop to perform the multiplication required to compute the factorial for each number. Note that factorials grow very rapidly. Inputs larger than 12 will overflow a standard 32-bit integer, and larger than 20 will overflow a 64-bit integer.
 
 ## Approximating Pi
 
@@ -244,3 +244,4 @@ To randomly sample a floating-point value within a specific interval <Latex form
 ```cpp
 (static_cast<double>(rand()) / RAND_MAX) * (b - a) + a
 ```
+{/* IMPROVE: Mention that `rand()` generates the same sequence unless seeded with `srand(time(0))` (requires `<ctime>`), but for this exercise, deterministic behavior might be acceptable. */}

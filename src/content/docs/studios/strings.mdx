@@ -16,6 +16,7 @@ std::string get_first_name(std::string full_name)
 ```
 This function accepts a string `full_name`, representing a person's full name in the format `"last, first middle"`. It returns the person's first name. For example, calling `get_first_name("Machetti, Mario John")` should return `"Mario"`.
 
+{/* IMPROVE: Use `std::string::size_type` or `auto` instead of `int` for string positions to handle large strings correctly and match the return type of `find`. */}
 ```cpp title="Solution 1"
 std::string get_first_name(std::string full_name) {
     int space_position = full_name.find(" ");
@@ -44,6 +45,7 @@ int count_substr(std::string str, std::string substr)
 ```
 This function returns the number of times the string `substr` appears within the string `str`. The occurrences of `substr` in `str` are allowed to overlap. For instance, calling `count_substr("ooo", "oo")` should return `2`, as the middle `"o"` is part of both occurrences.
 
+{/* IMPROVE: Use `std::string::size_type` or `auto` for positions. */}
 ```cpp title="Solution 1"
 int count_substr(std::string str, std::string substr) {
     int count = 0;                // Tracks the number of occurrences found

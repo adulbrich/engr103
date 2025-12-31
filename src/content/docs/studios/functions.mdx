@@ -28,6 +28,8 @@ double cdf_uniform(double x, double a, double b) {
 }
 ```
 
+Note that this simple implementation assumes <Latex formula="a \leq x \leq b"/>. A robust CDF would return 0 for <Latex formula="x < a"/> and 1 for <Latex formula="x > b"/>.
+
 Write a program that uses the above function to compute and print <Latex formula="P(X \in [1, 2])"/> for <Latex formula="X \sim U(0, 5)"/>.
 
 Specifically:
@@ -131,7 +133,7 @@ Write a program that:
 
 1. Prompts the user to input a whole number between 1 and 10.
 2. Stores the user input in an `int` variable.
-3. Multiplies the stored number by 1.5, preserving decimal places (ie., no truncation).
+3. Multiplies the stored number by 1.5, preserving decimal places (i.e., no truncation).
 4. Prints the result, formatted as:
 
 ```text
@@ -165,4 +167,4 @@ Refactoring involves reorganizing your code to improve readability, modularity, 
 
 Your program should still perform exactly as it did previously. Verify this by solving the same uniform motion problem as in the previous studio and confirming that the output matches.
 
-Remember that if <latex formula="d > 0"/>, the quadratic equation has two real roots. Hence, you'll need two functions, one for each root. While it's possible to return multiple values in C++ by packing them into a single object, this concept has not yet been covered in the course. Stick to separate functions for now.
+Remember that if <Latex formula="d > 0"/>, the quadratic equation has two real roots. Hence, you'll need two functions, one for each root. While it's possible to return multiple values in C++ by packing them into a single object, this concept has not yet been covered in the course. Stick to separate functions for now.
