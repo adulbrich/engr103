@@ -15,13 +15,17 @@ Modern digital computers are designed to be **deterministic**, meaning they are 
 
 Since computers are inherently deterministic, they cannot generate true randomness. Instead, they rely on **pseudorandomness**, which appears random but is produced through a deterministic process. A **pseudorandom number generator (PRNG)** is a software tool that generates numbers that seem random but are mathematically derived. While these numbers are predictable in theory, the underlying process is often complex enough to make reverse engineering impractical for humans. Some advanced PRNGs, such as cryptographically secure PRNGs, even draw entropy from user interactions like mouse movements, making them more unpredictable.
 
-In C++, a PRNG is available in the standard library. To use it, include the `<cstdlib>` header at the top of your program. This gives you access to the `srand` and `rand` functions. Note that these functions are not part of the `std` namespace, so they do not require a `std::` prefix.
+In C++, a PRNG is available in the standard library. To use it, include the `<cstdlib>` header at the top of your program. This gives you access to the `srand` and `rand` functions. It's good practice to prefix these functions with `std::`, as they are part of the `std` namespace.
+
+:::note[Note on Modern C++ PRNGs]
+In modern C++, it's recommended to use the `<random>` header for more robust random number generation, but for simplicity, this studio focuses on the traditional `srand` and `rand` functions. Some sources specifically recommend against using `rand` due to its limitations. You can read more on [pseudo-random number generation](https://en.cppreference.com/w/cpp/numeric/random.html) in C++ if you're interested.
+:::
 
 ### How PRNGs Work
 
 Most PRNGs start with a number called the **random seed**. This seed undergoes a series of complex mathematical transformations to generate the next number in the **pseudorandom sequence**. The output of this process is then used as the seed for the next iteration, creating a sequence of numbers. A good PRNG ensures that small changes in the seed result in significant and seemingly arbitrary differences in the output sequence.
 
-By default, C++ initializes the PRNG with a seed of `0`. As a result, running the program repeatedly will produce the same sequence of pseudorandom numbers. To avoid this, you must ensure that the seed is different for each program execution.
+By default, C++ initializes the PRNG with a seed of `1`. As a result, running the program repeatedly will produce the same sequence of pseudorandom numbers. To avoid this, you must ensure that the seed is different for each program execution.
 
 ### Using the Current Time as a Seed
 
@@ -31,7 +35,7 @@ To set the PRNG seed, use the `srand` function provided by `<cstdlib>`. This fun
 
 Example of setting the seed:
 ```cpp
-srand(time(nullptr));
+std::srand(time(nullptr));
 ```
 
 ### Generating Pseudorandom Numbers
@@ -48,13 +52,13 @@ Here's an example program that demonstrates how to generate random numbers:
 
 int main() {
     // Seed the PRNG at the start of the program
-    srand(time(nullptr));
+    std::srand(time(nullptr));
 
     // Generate and print two random integers
-    std::cout << "Value 1: " << rand() << std::endl;
+    std::cout << "Value 1: " << std::rand() << std::endl;
 
     // Store a random value in a variable
-    int another_value = rand();
+    int another_value = std::rand();
     std::cout << "Value 2: " << another_value << std::endl;
 
     return 0;

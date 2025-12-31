@@ -490,7 +490,7 @@ This raises the question: what is short circuiting?
 Short circuiting offers **performance improvements** by skipping the evaluation of the second operand when it is unnecessary. 
 
 ```cpp title="Short Circuiting Performance Improvements"
-(1 > 100) && (sqrt(pow(2, 5)) * 3.141592 + pow(2.71, 9.81) > abs(-sqrt(100)))
+(1 > 100) && (std::sqrt(std::pow(2, 5)) * 3.141592 + std::pow(2.71, 9.81) > std::abs(-std::sqrt(100)))
 ```
 
 Here, the second operand of the `&&` operator involves complex calculations, including function calls like `sqrt`, `pow`, and `abs`. Evaluating this operand could take time (albeit minimal for a single operation). However:
@@ -784,7 +784,7 @@ This condition will likely evaluate to `false`, even if the two values are “cl
 Instead of checking for exact equality, compare the difference between the two values and ensure it falls within an acceptable range (or “tolerance”). For example:
 
 ```cpp
-if (abs(some_floating_point_value - some_other_floating_point_value) < 0.000001) {
+if (std::abs(some_floating_point_value - some_other_floating_point_value) < 0.000001) {
     // Code here
 }
 ```

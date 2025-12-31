@@ -242,6 +242,5 @@ Avoid using integers to sample coordinates, as truncation would lead to a highly
 To randomly sample a floating-point value within a specific interval <Latex formula="[a, b]"/>, use the following expression:
 
 ```cpp
-(static_cast<double>(rand()) / RAND_MAX) * (b - a) + a
+(static_cast<double>(std::rand()) / RAND_MAX) * (b - a) + a
 ```
-{/* IMPROVE: Mention that `rand()` generates the same sequence unless seeded with `srand(time(0))` (requires `<ctime>`), but for this exercise, deterministic behavior might be acceptable. */}
