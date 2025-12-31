@@ -47,10 +47,7 @@ npx @marp-team/marp-cli@latest web-graphics.md --pdf --allow-local-files
 
 ## To Dos
 
-- [ ] Fix "IMPROVE" comments
 - [ ] Create a Question? component that uses details/summary for better UX (ie in studio to challenge students)
-- [ ] Add AI guidelines to syllabus
-- [ ] Update rubrics for assignments to account for the potential design changes and for the AI critique component
 - [ ] Add learning objectives to each lecture, optionally studios and assignments as well
 - [ ] Improve the "secondary" learning outcomes for the class (to be more programming specific)
 - [ ] Add visual explanations of memory allocation and references
