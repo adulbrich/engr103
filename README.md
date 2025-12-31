@@ -47,7 +47,6 @@ npx @marp-team/marp-cli@latest web-graphics.md --pdf --allow-local-files
 
 ## To Dos
 
-- [ ] Fix "FIX" comments
 - [ ] Fix "IMPROVE" comments
 - [ ] Create a Question? component that uses details/summary for better UX (ie in studio to challenge students)
 - [ ] Add AI guidelines to syllabus
