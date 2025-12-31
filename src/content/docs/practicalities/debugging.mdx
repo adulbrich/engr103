@@ -17,21 +17,63 @@ In the following section, let's look at some common debugging techniques and too
 
 One of the simplest ways to debug your code is by adding print statements to check the values of variables at different points in your program.
 
+In small practice programs, it's common to print debug info with `std::cout`. In larger programs (or when you're writing code that will be graded/tested), it's often better to send **debug/error messages** to `std::cerr` so you don't mix them with your program's “real” output.
+
 ```cpp
-// my_program.cpp
+// debug_cout.cpp
+#include <iostream>
+
+int main() {
+    // Suppose we want the average of 1..N.
+    int N = 5;
+    int sum = 0;
+
+    for (int i = 1; i < N; i++) { // BUG: should be i <= N
+        sum += i;
+        std::cout << "i=" << i << ", sum=" << sum << std::endl;
+    }
+
+    double avg = static_cast<double>(sum) / N;
+    std::cout << "N=" << N << ", sum=" << sum << ", avg=" << avg << std::endl;
+
+    // Expected avg for N=5 is 3.0, but this prints 2.0.
+    // The print statements reveal that the loop stops at i=4.
+    return 0;
+}
+```
+
+This is especially useful for **logic errors** (your program runs, but the output is wrong). Print intermediate values and compare them to what you *expect*.
+
+### `std::cerr` for Debugging
+
+If your program is crashing (or you're printing debug info that you *don't* want mixed in with the “real” output), prefer `std::cerr`.
+
+- `std::cout` is for normal program output.
+- `std::cerr` is for error/debug output.
+
+Also, when a program crashes, some output may still be sitting in a buffer and never make it to the terminal. Using `std::cerr` and flushing (with `std::endl` or `std::flush`) makes it more likely you'll see your last debug message.
+
+```cpp
+// debug_cerr.cpp
 #include <iostream>
 
 int main() {
     int a = 5;
     int b = 0;
-    std::cout << "a: " << a << ", b: " << b << std::endl;
-    int c = a / b; // This will cause a runtime error
+
+    std::cerr << "About to divide: a=" << a << ", b=" << b << std::endl; // flushes
+
+    // Guard against a crash, but keep the debug print above.
+    if (b == 0) {
+        std::cerr << "Error: division by zero" << std::endl;
+        return 1;
+    }
+
+    int c = a / b;
     std::cout << "c: " << c << std::endl;
     return 0;
 }
 ```
-
-{/* IMPROVE: Explain that output buffers might not flush on crash, so using std::cerr or std::endl is important for debugging crashes. */}
 
 Use it when something unexpected happens in your program, and you want to see the values of variables at that point. Don't forget to remove these print statements once you've identified and fixed the bug. You could add a comment where you put the print statement to remind yourself to remove it later.
 
@@ -44,7 +86,7 @@ Here's an example using GDB (available on the ENGR servers).
 First compile your code with the `-g` flag to include debugging information:
 
 ```shell
-g++ -g -o run my_program.cpp
+g++ -g -o run debug_cerr.cpp
 ```
 
 Then run GDB with your compiled program:
@@ -64,13 +106,22 @@ Finally, set breakpoints, run the program, and inspect variables:
 (gdb) next
 ```
 
+:::note[`next` vs `step`]
+Two very common debugger commands are:
+
+- `next` (GDB: `next`, LLDB: `next` or `n`): execute the current line, but **do not** go inside function calls on that line ("step over").
+- `step` (GDB: `step`, LLDB: `step` or `s`): execute the current line, and **do** go inside function calls on that line ("step into").
+
+If you accidentally step into a function and want to get back out, `finish` runs until the current function returns.
+:::
+
 To exit GDB, use the `quit` command:
 
 ```shell
 (gdb) quit
 ```
 
-{/* IMPROVE: Mention 'step' vs 'next'. */}
+On macOS, you want to use `lldb` instead of `gdb`, as `gdb` is not natively supported. The commands are similar.
 
 ## Analyzing Core Dumps
 
@@ -88,8 +139,7 @@ Then run your program. If it crashes, it will create a `core` file that you can 
 gdb ./run core
 ```
 
-{/* I could not find the `core` file generated on the ENGR servers (it normally is located in the directory where the program is run or other default directories, but the ENGR servers are shared so I'm not sure what's going on). */}
-{/* FIX: Verify if core dumps are actually disabled or redirected on the specific course infrastructure. */}
+You will not be able to see core dumps on the ENGR servers, but you can use this technique on your local machine.
 
 ## Static Code Analysis
 
@@ -98,13 +148,13 @@ Static code analysis tools analyze your code without executing it. They can help
 On the ENGR servers, `clang` is installed and so is its static analyzer. You can run:
 
 ```shell
-clang++ --analyze -Xanalyzer -analyzer-output=text my_program.cpp
+clang++ --analyze -Xanalyzer -analyzer-output=text debug_cerr.cpp
 ```
 
 Alternatively, you can run `scan-build` (which comes with `clang`):
 
 ```shell
-scan-build g++ my_program.cpp -o run
+scan-build g++ debug_cerr.cpp -o run
 ```
 
 This latest command will create an HTML report, which is less practical in the terminal. 
