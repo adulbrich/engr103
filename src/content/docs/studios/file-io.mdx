@@ -41,8 +41,9 @@ std::ofstream my_cool_ofstream("my_cool_file.txt", std::ios::app);
 The `std::ofstream` constructor accepts:
 
 1. A file path (as a `std::string`) where data will be written.
-2. An open mode, a constant specifying how the file should be accessed. 
-{/* IMPROVE: Mention that the open mode is optional and defaults to overwriting (truncating) for std::ofstream. */}
+2. An open mode, a constant specifying how the file should be accessed (optional).
+
+If you omit the open mode, `std::ofstream` opens the file for output and **overwrites** any existing contents by default (equivalent to using `std::ios::trunc`).
 
 Two common modes are:
 
@@ -58,14 +59,20 @@ std::cout << "Hello, World!" << std::endl; // Writes to the console.
 hello_world_stream << "Hello, World!" << std::endl; // Writes to the file.
 ```
 
-Here's a complete example program that writes “Hello, World!” to a file:
+Here's a complete example program that writes “Hello, World!” to a file after checking that the file opened successfully:
 
-{/* IMPROVE: Always check if the file opened successfully (e.g., if (hello_world_stream.is_open())) before using it to avoid silent failures. */}
 ```cpp
 #include <fstream>
+#include <iostream>
 
 int main() {
     std::ofstream hello_world_stream("hello.txt", std::ios::trunc);
+
+    if (!hello_world_stream.is_open()) {
+        std::cerr << "Error: could not open hello.txt for writing." << std::endl;
+        return 1;
+    }
+
     hello_world_stream << "Hello, World!" << std::endl;
 }
 ```
@@ -127,7 +134,6 @@ Monroe, James
 ## Finding the Oldest Student
 
 Suppose you have a file, `student-data.txt`, with the following structure:
-{/* IMPROVE: Instruct the student to create this file manually with some sample data so they can test their program. */}
 
 ```text
 <number of students>
