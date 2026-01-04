@@ -6,13 +6,12 @@ This repository contains the source code for the ENGR103 website.
 
 This coming term:
 
-- [ ] Update the professional development assignments (text is wrong and weights are wrong)
-- [ ] Create slide deck for intro lecture
+- [ ] Create slide deck for intro lecture, mention professional development, textbook, ...
 - [ ] Add the Canvas assignments + rubrics to GitHub
 
 Every term:
 
-- [ ] Update professional development assignments, resources, and end-of-term survey
+- [x] Update professional development assignments, resources, and end-of-term survey
 - [x] Update **Due Dates** in Canvas
 - [x] Update **Due Times** for quizzes and exams
 - [x] Update **Course Schedule** in Canvas
@@ -24,9 +23,12 @@ Every term:
 - [x] Update **TA Names** in Canvas
 - [ ] Update **Office Hours** in Canvas
 - [ ] Update **Booking Links** in Canvas
-- [ ] Create **GitHub Classroom** class, add TAs, add assignments
-- [ ] Update GitHub Classroom **links** in Canvas (assignments)
+- [x] Create **GitHub Classroom** class
+- [ ] Add TAs to GitHub Organization and send Classroom invite link
+- [x] Add assignments to GitHub Classroom
+- [x] Update GitHub Classroom **links** in Canvas (assignments)
 - [ ] Test all studios and assignments on the ENGR servers
+- [ ] Add DAS accommodations for midterm and final exams
 
 ## PDFs
 
@@ -47,6 +49,7 @@ npx @marp-team/marp-cli@latest web-graphics.md --pdf --allow-local-files
 
 ## To Dos
 
+- [ ] Consider switching to https://revealjs.com/ instead of marp for slides for better accessibility OR have proper lecture notes
 - [ ] Create a Question? component that uses details/summary for better UX (ie in studio to challenge students)
 - [ ] Add learning objectives to each lecture, optionally studios and assignments as well
 - [ ] Improve the "secondary" learning outcomes for the class (to be more programming specific)
