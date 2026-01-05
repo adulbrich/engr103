@@ -6,7 +6,6 @@ This repository contains the source code for the ENGR103 website.
 
 This coming term:
 
-- [ ] Create slide deck for intro lecture, mention professional development, textbook, ...
 - [ ] Add the Canvas assignments + rubrics to GitHub
 
 Every term:
