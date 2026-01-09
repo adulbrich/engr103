@@ -51,6 +51,9 @@ async function printToPDF(url, outputPath) {
     }
   });
 
+  // Ensure print CSS (e.g. `@media print`) is applied for PDFs.
+  await page.emulateMediaType("print");
+
   // Print to PDF
   await page.pdf({
     path: outputPath,

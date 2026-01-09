@@ -32,3 +32,9 @@
 .hero>img {
     @apply rounded-lg;
 }
+
+@media print {
+    .actions-container {
+        display: none !important;
+    }
+}
