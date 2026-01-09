@@ -13,6 +13,53 @@ This scenario highlights how delicate code can be, especially if it isn't writte
 
 Git allows you to track and record changes to files over time using commits. While it can handle various types of digital projects, it's especially popular among software engineers. Git efficiently manages storage using object trees, referencing unchanged content across commits, and employs delta compression when repacking data for space efficiency.
 
+```mermaid
+block-beta
+columns 5
+block
+  columns 1
+  v1(["Version 1"]) a1["File A"] b1["File B"] c1["File C"]
+end
+block
+  columns 1
+  v2(["Version 2"]) a2["A1"] b2["B"] c2["C1"]
+end
+block
+  columns 1
+  v3(["Version 3"]) a3["A1"] b3["B"] c3["C2"]
+end
+block
+  columns 1
+  v4(["Version 4"]) a4["A2"] b4["B1"] c4["C2"]
+end
+block
+  columns 1
+  v5(["Version 5"]) a5["A2"] b5["B2"] c5["C3"]
+end
+a1 --- a2
+a2 --- a3
+a3 --- a4
+a4 --- a5
+b1 --- b2
+b2 --- b3
+b3 --- b4
+b4 --- b5
+c1 --- c2
+c2 --- c3
+c3 --- c4
+c4 --- c5
+style b2 stroke-dasharray: 5 5
+style b3 stroke-dasharray: 5 5
+style a3 stroke-dasharray: 5 5
+style a5 stroke-dasharray: 5 5
+style c4 stroke-dasharray: 5 5
+style v1 fill:#005580,color:#fff;
+style v2 fill:#005580,color:#fff;
+style v3 fill:#005580,color:#fff;
+style v4 fill:#005580,color:#fff;
+style v5 fill:#005580,color:#fff;
+```
+
 Git is a command-line utility, meaning you interact with it through a terminal. It's pre-installed on the ENGR servers, so you can use it there via SSH. You can also install Git on your personal computer.
 
 ## Configuring Git
@@ -29,7 +76,7 @@ You can update these settings at any time, and they can also be overridden with 
 :::tip
 If you are using GitHub, it will provide you with a GitHub-specific email address if you have email privacy enabled. You can use this email address for your Git configuration. It looks something like: `<gh_username>@users.noreply.github.com`.
 
-This will be used for web-based Git operations. You can also use your personal email address if you prefer.
+This affects the author email recorded in your commits (and what GitHub displays), not how you authenticate. You can also use your personal email address if you prefer.
 :::
 
 You can check that these were configured correctly by running:
@@ -46,6 +93,46 @@ Git works by tracking repositories (or repos), which are tagged directories cont
 2. **Initialize a Local Repo**: Use the `git init` command to tag an existing local directory as a Git repo. You can optionally configure this local repo to sync with a remote one, such as a GitHub repo.
 
 For this course, we'll focus on the first method.
+
+Before we start, we need to address the concept of **distributed version control**. Git is a distributed VCS, meaning every location containing the version history is a complete mirror of the entire history, including every version, commit, and snapshot. This allows for offline work and faster operations since most actions are performed locally. Changes can be synchronized with remote repositories (like GitHub) when needed (as we'll see in a minute).
+
+```mermaid
+flowchart LR
+    subgraph server["GitHub"]
+        direction TB
+        subgraph versionServer["Version Database"]
+            direction TB
+            versionServer1["Version 1"] --- versionServer2["Version 2"]
+            versionServer2 --- versionServer3["Version 3"]
+        end
+    end
+    subgraph computerOne["Personal Computer"]
+        direction TB
+        fileComputerOne(["File"])
+        subgraph versionComputerOne["Version Database"]
+            direction TB
+            versionComputerOne1["Version 1"] --- versionComputerOne2["Version 2"]
+            versionComputerOne2 --- versionComputerOne3["Version 3"]
+        end
+        fileComputerOne --> versionComputerOne
+    end
+    subgraph computerTwo["ENGR Servers"]
+        direction TB
+        fileComputerTwo(["File"])
+        subgraph versionComputerTwo["Version Database"]
+            direction TB
+            versionComputerTwo1["Version 1"] --- versionComputerTwo2["Version 2"]
+            versionComputerTwo2 --- versionComputerTwo3["Version 3"]
+        end
+        fileComputerTwo --> versionComputerTwo
+    end
+    computerOne <--> server
+    server <--> computerTwo
+    style fileComputerOne fill:#005580,color:#fff;
+    style fileComputerTwo fill:#005580,color:#fff;
+```
+
+You don't need to understand all the details of distributed version control to use Git effectively. The key takeaway is that every copy (clone) of a Git repo contains the full version history, allowing you to work offline and sync changes with remote repositories when needed. **Sync often to "save" your work and avoid last-minute surprises!**
 
 ## Creating and Cloning a Repo on GitHub
 
@@ -71,7 +158,7 @@ This command, along with all other Git commands, works only when your current wo
 
 By following these steps, you'll be ready to use Git to manage your projects effectively and avoid last-minute surprises.
 
-Suppose I've just cloned a repository containing a single file, main.cpp, with the following C++ source code:
+Suppose I've just cloned a repository containing a single file, `main.cpp`, with the following C++ source code:
 
 ```cpp 
 // main.cpp
@@ -92,9 +179,9 @@ nothing to commit, working tree clean
 
 There are a few important details to understand from this output:
 
-1. `On Branch main`: This line indicates the branch you're currently working on. While branches allow developers to work on different versions of a project simultaneously (and later merge them), we won't cover them in depth in this course. You'll always work on the main branch to keep things simple.
+1. `On branch main`: This line indicates the branch you're currently working on. While branches allow developers to work on different versions of a project simultaneously (and later merge them), we won't cover them in depth in this course. You'll always work on the main branch to keep things simple.
 2. `“Your branch is up to date with ‘origin/main’”`: This means your local repository is synchronized with the remote repository on GitHub. In other words, you haven't created any new commits locally that need to be pushed back to GitHub.
-3. `“Nothing to commit”`: This indicates that no changes have been made to any files in your repository since the last commit, so there's nothing to save in a new commit. In fact, Git won't let you create a new commit unless changes have been made and staged.
+3. `“Nothing to commit”`: This indicates that no changes have been made to any files in your repository since the last commit, so there's nothing to save in a new commit. (By default, Git won't create a new commit unless there's something staged, though you *can* create an empty commit with special flags.)
 
 Now, suppose we modify `main.cpp` by changing the text being printed, as shown below:
 
@@ -138,7 +225,7 @@ git add <file1> <file2> ... <fileN>
 
 You can also stage entire directories or even the entire repository. For instance, to stage every file in the repository, you can simply stage the root directory.
 
-Let's say we want to commit the changes made to `main.cpp` (with the semicolon removed). First, we stage the file using:
+Let's say we want to commit the changes made to `main.cpp` (changing the greeting message). First, we stage the file using:
 
 ```bash
 git add main.cpp
@@ -168,7 +255,7 @@ Replace `<commit_message>` with a brief description of the changes. Commit messa
 For example, if I wanted to commit the changes to `main.cpp`, I might use:
 
 ```bash
-git commit -m "Remove semicolon after std::endl"
+git commit -m "Change greeting message"
 ```
 
 After running this command, executing git status will produce the following: 
@@ -181,7 +268,7 @@ Your branch is ahead of 'origin/main' by 1 commit.
 nothing to commit, working tree clean
 ```
 
-Notice that there are no more modified or staged files—all changes have been committed. However, the output will say, `“Your branch is ahead of ‘origin/main’ by 1 commit.”` This means the new commit exists in your local repository but hasn't been synced with the remote GitHub repository yet. If you visit your GitHub repo at this point, it will still show the outdated version of main.cpp with the semicolon.
+Notice that there are no more modified or staged files—all changes have been committed. However, the output will say, `“Your branch is ahead of ‘origin/main’ by 1 commit.”` This means the new commit exists in your local repository but hasn't been synced with the remote GitHub repository yet. If you visit your GitHub repo at this point, it will still show the outdated version of `main.cpp` with the semicolon.
 
 To synchronize your local commits with the remote repository, use the git push command:
 
@@ -191,7 +278,16 @@ git push
 
 If your local repo was created by cloning a remote repo, this command should work immediately. However, if your local repo was created with `git init`, you might need to configure the remote connection first. Additionally, pushing changes requires proper permissions, which you'll set up in Studio 2 using SSH keys.
 
-Once you run `git push`, executing `git status` again will confirm that the local and remote repositories are now synchronized. If you refresh your GitHub repository page, you'll see that main.cpp has been updated, and the semicolon is gone.
+```mermaid
+sequenceDiagram
+  GitHub Repo ->> .git Directory: Clone or pull latest changes
+  .git Directory ->> Working Directory: Checkout the latest commit
+  Working Directory ->> Staging Area: Add files to staging area
+  Staging Area ->> .git Directory: Commit staged changes
+  .git Directory ->> GitHub Repo: Push commits
+```
+
+Once you run `git push`, executing `git status` again will confirm that the local and remote repositories are now synchronized. If you refresh your GitHub repository page, you'll see that `main.cpp` has been updated, and the semicolon is gone.
 
 To view the history of commits in your repository, use:
 
@@ -202,11 +298,11 @@ git log
 This will display each commit in reverse chronological order, showing the commit's hash (a unique identifier), author, timestamp, and commit message. For example:
 
 ```text title="git log" frame="terminal"
-commit 130725a6befde506775aa4610245b286a02ead4f (HEAD - main, origin/main, origin/HEAD)
+commit 130725a6befde506775aa4610245b286a02ead4f (HEAD -> main, origin/main, origin/HEAD)
 Author: Alexander Ulbrich <adulbrich@users.noreply.github.com>
 Date:   Thu Dec 19 15:28:13 2024 -0800
 
-    Remove semicolon after std::endl
+    Change greeting message
 
 commit 7c611b02d9e1b63b6df4cd45e5ea564f71e7a722
 Author: Alex Ulbrich <adulbrich@users.noreply.github.com>
@@ -233,7 +329,7 @@ If a file in your repository has been modified but not yet staged, you can use `
 git diff <file>
 ```
 
-For example, if I re-add the semicolon to `main.cpp` and then run:
+For example, if I accidentally remove the semicolon in `main.cpp` and then run:
 
 ```bash
 git diff main.cpp
@@ -248,9 +344,9 @@ index a58acd3..9b79668 100644
 +++ b/main.cpp 
 @@ -1,4 +1,4 @@
  #include <iostream>
- int main () {
--  std::cout << "Hello, World!" << std::endl
-+  std::cout << "Hello, World!" << std::endl;
+ int main() {
+-  std::cout << "Hello, Git!" << std::endl;
++  std::cout << "Hello, Git!" << std::endl
  }
 ```
 
