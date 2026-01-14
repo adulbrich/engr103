@@ -16,14 +16,14 @@ Every term:
 - [x] Update **Course Schedule** in Canvas
 - [x] Update **Syllabus** in Canvas
 - [x] Update the version of this repository if making changes (`package.json`)
-- [ ] Add TAs to Canvas - missing one FERPA compliant student
+- [x] Add TAs to Canvas
 - [ ] Create team **Bookings** page for assignment demo and set up slots (**not working**, investigate alternatives?)
 - [x] Update sections in Canvas
 - [x] Update **TA Names** in Canvas
-- [ ] Update **Office Hours** in Canvas
+- [x] Update **Office Hours** in Canvas
 - [ ] Update **Booking Links** in Canvas
 - [x] Create **GitHub Classroom** class
-- [ ] Add TAs to GitHub Organization and send Classroom invite link
+- [x] Add TAs to GitHub Organization and send Classroom invite link
 - [x] Add assignments to GitHub Classroom
 - [x] Update GitHub Classroom **links** in Canvas (assignments)
 - [ ] Test all studios and assignments on the ENGR servers

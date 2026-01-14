@@ -19,7 +19,7 @@ Use only spaces, and indent 2 or 4 spaces at a time.
 
 Avoid using tabs to ensure consistent formatting across editors. You should set your editor to emit spaces when you hit the tab key.
 
-We also recommend the One True Brace Style for brackets. For function declaration, the opening and closing brackets are on their own line, aligned vertically. Inside a function, a statement block's opening bracket is on the same line as the control statement, and the closing bracket is on its own line, aligned vertically with the control statement.
+We also recommend the One True Brace Style for braces. For function declaration, the opening and closing braces are on their own line, aligned vertically. Inside a function, a statement block's opening brace is on the same line as the control statement, and the closing brace is on its own line, aligned vertically with the control statement.
 
 As with everything in this guide, consistency is key. **Choose a style and stick with it.**
 
@@ -58,11 +58,13 @@ Add whitespace around operators (`=`, `+`, etc.) and after commas for readabilit
 
 ```c++
 // good_whitespace.cpp
-int addNumbers(int a, int b) {
+int addNumbers(int a, int b) 
+{
     return a + b;
 }
 
-int main() {
+int main() 
+{
     int x = 5;
     int y = 10;
     int sum = addNumbers(x, y);
@@ -76,7 +78,8 @@ int main() {
 // bad_whitespace.cpp
 int addNumbers(int a,int b){return a+b;}
 
-int main(){
+int main()
+{
   int x=5;int y=10;int sum=addNumbers(x,y);cout<<"Sum:"<<sum<<endl;return 0;
 }
 ```
@@ -90,7 +93,8 @@ Keep lines under 80 characters for better readability. Break long lines logicall
 
 ```c++
 // good_line_length.cpp
-int main() {
+int main() 
+{
     double radius;
     std::cin >> radius;
     double volume_of_sphere = 4.0 / 3.0 * 3.14159265 * 
@@ -101,7 +105,8 @@ Alternatively, you could use `pow(radius, 3)` from the `<cmath>` library. Note t
 
 ```c++
 // bad_line_length.cpp
-int main() {
+int main() 
+{
     double radius;
     std::cin >> radius;
     double volume_of_sphere = 4.0 / 3.0 * 3.14159265 * radius * radius * radius;
@@ -131,22 +136,26 @@ You are free to choose your own naming conventions, but consistency is key. Stic
 
 ```c++
 // good_naming_conventions.cpp
-int calculateArea(int width, int height) {
+int calculateArea(int width, int height) 
+{
     return width * height;
 }
 
-class Rectangle {
+class Rectangle 
+{
     // Class implementation
 };
 ```
 
 ```c++
 // bad_naming_conventions.cpp
-int calArea(int w, int h) {
+int calArea(int w, int h) 
+{
     return w * h;
 }
 
-class rectangle {
+class rectangle 
+{
     // Class implementation
 };
 ```
@@ -191,7 +200,8 @@ For complex functions, you could explain the parameters and return value.
  * Returns: True if the roots are real and successfully calculated, 
  *     false if the discriminant is negative.
  */
-bool calculateQuadraticRoots(double a, double b, double c, double &root1, double &root2) {
+bool calculateQuadraticRoots(double a, double b, double c, double &root1, double &root2) 
+{
     // Function implementation
 }
 ```
@@ -202,7 +212,8 @@ For simple functions, a brief description is enough, given that the function and
 /**
  * Calculates the area of a rectangle.
  */
-int calculateArea(int width, int height) {
+int calculateArea(int width, int height) 
+{
     return width * height;
 }
 ```
@@ -257,38 +268,45 @@ Lastly, **avoid daisy-chaining functions**. Daisy-chaining happens when responsi
 #include <iostream>
 #include <string>
 
-void writeResult(const std::string &out) {
+void writeResult(const std::string &out) 
+{
     std::cout << out << '\n';
 }
 
-void formatOutput(int value) {
+void formatOutput(int value) 
+{
     std::string out = std::string("Result: ") + std::to_string(value);
     writeResult(out);
 }
 
-int multiplyByTwo(int n) {
+int multiplyByTwo(int n) 
+{
     int result = n * 2;
     formatOutput(result);
     return result;
 }
 
-int normalizeNegativeToZero(int x) {
+int normalizeNegativeToZero(int x) 
+{
     int n = x < 0 ? 0 : x;
     return multiplyByTwo(n);
 }
 
-int stringToInteger(const std::string &s) {
+int stringToInteger(const std::string &s) 
+{
     int v = std::stoi(s);
     return normalizeNegativeToZero(v);
 }
 
-void readInput() {
+void readInput() 
+{
     std::string token;
     std::cin >> token;
     stringToInteger(token);
 }
 
-int main() {
+int main() 
+{
     readInput();
     return 0;
 }
@@ -313,23 +331,28 @@ Start by writing low-level functions that perform small, isolated, and modular t
 #include <iostream>
 #include <string>
 
-int stringToInteger(const std::string &s) {
+int stringToInteger(const std::string &s) 
+{
     return std::stoi(s);
 }
 
-int normalizeNegativeToZero(int x) {
+int normalizeNegativeToZero(int x) 
+{
     return x < 0 ? 0 : x;
 }
 
-int multiplyByTwo(int n) {
+int multiplyByTwo(int n) 
+{
     return n * 2;
 }
 
-std::string formatResult(int value) {
+std::string formatResult(int value) 
+{
     return std::string("Result: ") + std::to_string(value);
 }
 
-void processRequest() {
+void processRequest() 
+{
     std::string token;
     std::cin >> token;
 
@@ -340,7 +363,8 @@ void processRequest() {
     std::cout << formatResult(computed) << '\n';
 }
 
-int main() {
+int main() 
+{
     processRequest();
     return 0;
 }
@@ -429,7 +453,7 @@ Use the prompt below to guide AI code generation according to this style guide.
 Rewrite or reformat this C++ code according to the following rules:
 
 - Use spaces (not tabs) with consistent 2- or 4-space indentation.
-- Use K&R brace style: `{` on the same line, `}` aligned on its own line.
+- Use One True Brace Style: `{` on a separate line for functions,  `{` on the same line inside functions, `}` aligned on its own line.
 - Add whitespace around operators and after commas; separate logical sections with blank lines.
 - Keep lines under 80 characters; wrap long expressions at operators; split long strings.
 - Use camelCase or snake_case for variables/functions and PascalCase for classes; all names must be descriptive.
