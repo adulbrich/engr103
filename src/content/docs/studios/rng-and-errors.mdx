@@ -50,7 +50,8 @@ Here's an example program that demonstrates how to generate random numbers:
 #include <cstdlib> // For rand() and srand()
 #include <ctime>   // For time()
 
-int main() {
+int main() 
+{
     // Seed the PRNG at the start of the program
     std::srand(time(nullptr));
 
@@ -117,11 +118,13 @@ Read this error carefully. Focus especially on the beginning of the error messag
 ```cpp title="Error 1"
 #include <iostream>
 
-double triple_number() {
+double triple_number() 
+{
     return favorite_number * 3;
 }
 
-int main() {
+int main() 
+{
     std::cout << "Enter your favorite number, and I'll triple it for you: ";
     double favorite_number;
     std::cin >> favorite_number;
@@ -153,13 +156,15 @@ Read this error carefully. Focus especially on the beginning of the error messag
 ```cpp title="Error 2"
 #include <iostream>
 
-char prompt_for_character() {
+char prompt_for_character() 
+{
     std::cout << "What is your first initial? Enter a single character: ";
     char initial;
     std::cin >> initial;
 }
 
-int main() {
+int main() 
+{
     prompt_for_character();
     std::cout << "You said that your first initial is: " << initial;
 }
@@ -185,7 +190,8 @@ Read this error carefully. Focus especially on the beginning of the error messag
 ```cpp title="Error 3"
 #include <iostream>
 
-double f(double x) {
+double f(double x) 
+{
     return 2x + 5;
 }
 ...
@@ -205,7 +211,8 @@ You've written a program that recommends a board game to the user based on their
 * Description: Prompts for user’s age
 * Returns (int): User’s age as given through the terminal
 */
-int prompt_for_age() {
+int prompt_for_age() 
+{
     std::cout << "Enter your age: ";
     int age;
     std::cin >> age;
@@ -218,7 +225,8 @@ int prompt_for_age() {
 * Parameters:
 *    age (int): User’s age
 */
-void print_board_game_recommendation(int age) {
+void print_board_game_recommendation(int age) 
+{
     if (2 <= age <= 7) {
         std::cout << "Candyland" << std::endl;
     } else if (8 <= age <= 12) {
@@ -228,7 +236,8 @@ void print_board_game_recommendation(int age) {
     }
 }
 
-int main() {
+int main() 
+{
     // Get user’s age
     int age = prompt_for_age();
     // Print board game recommendation

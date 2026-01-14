@@ -40,7 +40,8 @@ Here's an example program that uses `getline()` to read a sentence from the user
 #include <iostream>
 #include <string>
 
-int main() {
+int main() 
+{
     std::cout << "Enter a sentence: ";
     std::string sentence;
     std::getline(std::cin, sentence);
@@ -66,7 +67,8 @@ The primary purpose of `std::string::size_type` is to handle values related to s
 #include <iostream>
 #include <string>
 
-int main() {
+int main() 
+{
     std::cout << "Enter a sentence: ";
     std::string sentence;
     std::getline(std::cin, sentence);
@@ -123,7 +125,8 @@ A `for` loop is ideal for this task because it naturally iterates over sequences
 
 ```cpp
 // string_contains_character.cpp
-bool string_contains_character(std::string the_string, char char_to_look_for) {
+bool string_contains_character(std::string the_string, char char_to_look_for) 
+{
     // Loop through each character in the string
     for (std::string::size_type i = 0; i < the_string.size(); i++) {
         // Check if the current character matches the target
@@ -185,7 +188,8 @@ Here's a program that demonstrates the use of these string functions:
 #include <iostream>
 #include <string>
 
-int main() {
+int main() 
+{
     std::string my_first_string = "The quick brown fox jumps";
     std::string my_second_string = " over the lazy dog.";
 

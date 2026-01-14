@@ -145,7 +145,8 @@ After declaring an array, its name acts as a handle to the array's base addressâ
 // array_doubles.cpp
 #include <iostream>
 
-int main() {
+int main() 
+{
     // Declare an array of 10 doubles:
     double my_list_of_numbers[10];
 
@@ -230,7 +231,8 @@ Manually initializing or accessing each element can become tedious for large arr
 // array_ints_for.cpp
 #include <iostream>
 
-int main() {
+int main() 
+{
     int values[100];
 
     // Initialize the array with values 1 to 100
@@ -371,7 +373,8 @@ To use an array as a function parameter, the syntax for declaring the parameter 
 
 ```cpp
 // Function to print an array of 10 strings
-void print_strings(std::string my_strings[10]) {
+void print_strings(std::string my_strings[10]) 
+{
     for (int i = 0; i < 10; i++) {
         std::cout << my_strings[i] << std::endl;
     }
@@ -382,7 +385,8 @@ You can call this function by providing an array as an argument:
 
 ```cpp
 // Main function using print_strings
-int main() {
+int main() 
+{
     std::string array_of_strings[10];
 
     // Ask the user for 10 strings
@@ -402,7 +406,8 @@ This can be dangerous. If you pass an array of size 5 to this function, the code
 
 ```cpp
 // array_parameter_decay.cpp
-int main() {
+int main() 
+{
     std::string small_list[3] = {"one", "two", "three"};
 
     // This COMPILES, but causes a buffer overflow at runtime!
@@ -414,7 +419,8 @@ To write a function that safely handles arrays of different sizes, you should om
 
 ```cpp
 // Function with flexible array size
-void print_strings(std::string my_strings[], int n_strings) {
+void print_strings(std::string my_strings[], int n_strings) 
+{
     for (int i = 0; i < n_strings; i++) {
         std::cout << my_strings[i] << std::endl;
     }
@@ -425,7 +431,8 @@ With this approach, the function works with arrays of any size, but you must exp
 
 ```cpp
 // Main function using print_strings with size parameter
-int main() {
+int main() 
+{
     std::string array_of_strings[10];
 
     // Ask the user for 10 strings
@@ -453,11 +460,13 @@ Remember, when you call a function with non-array variable argument, the argumen
 entirely separate memory and separate data. In such a case, modifying the parameter's data will not affect the argument's data. 
 
 ```cpp
-void foo(int x) {
+void foo(int x) 
+{
     x += 1;
 }
 
-int main() {
+int main() 
+{
     int y = 0;
     foo(y);
     std::cout << y << std::endl; // Outputs 0
@@ -470,7 +479,8 @@ This means that modifications to the elements of an array parameter do affect th
 
 ```cpp
 // array_as_reference.cpp
-void foo(int x[]) {
+void foo(int x[]) 
+{
     // Print the base address of the array
     std::cout << x << std::endl;
 
@@ -478,7 +488,8 @@ void foo(int x[]) {
     x[0] = 10;
 }
 
-int main() {
+int main() 
+{
     int y[10];
     y[0] = 100;
 
@@ -518,7 +529,8 @@ Below is an example that uses this strategy to manage an array of integers, allo
 // array_resizing.cpp
 #include <iostream>
 
-int main() {
+int main() 
+{
     // Array with a maximum capacity of 100 integers
     int arr[100];
 

@@ -9,7 +9,10 @@ import Latex from '../../../components/Latex.astro'
 
 Functions are reusable blocks of code that interact with other functions by accepting one or more inputs (parameters) and producing zero or one outputs (return values). Below are examples of basic function problems in C++. Review them carefully before attempting the remaining problems.
 
-:::note[Example Problem 1]
+## Example Problems
+
+### Example Problem 1
+
 The following function computes the cumulative distribution function (CDF) of a uniform distribution, defined by endpoints <Latex formula="a"/> and  <Latex formula="b"/>, evaluated at a specific point <Latex formula="x"/>.
 
 ```c++ title="Function Definition"
@@ -23,7 +26,8 @@ The following function computes the cumulative distribution function (CDF) of a 
  *   b (double): The upper bound of the uniform distribution’s support.
  * Returns (double): The CDF value of the distribution at the given point.
  */
-double cdf_uniform(double x, double a, double b) {
+double cdf_uniform(double x, double a, double b) 
+{
     return (x - a) / (b - a);
 }
 ```
@@ -38,24 +42,26 @@ Specifically:
 2. Compute the CDF of the same distribution at <Latex formula="x = 2"/>
 3. Subtract the first computed value from the second and print the result
 
-```c++ title="Solution"
+```c++ title="Solution for Example Problem 1"
 #include <iostream>
 
 // Function definition
-double cdf_uniform(double x, double a, double b) {
+double cdf_uniform(double x, double a, double b) 
+{
     return (x - a) / (b - a);
 }
 
-int main() {
+int main() 
+{
     double lower_cdf = cdf_uniform(1, 0, 5);
     double upper_cdf = cdf_uniform(2, 0, 5);
     std::cout << (upper_cdf - lower_cdf) << std::endl;
     return 0;
 }
 ```
-:::
 
-:::note[Example Problem 2]
+### Example Problem 2
+
 Implement a function to compute the y-coordinate of a point on a line in a Cartesian plane, given:
 
 - <Latex formula="x"/> the x-coordinate,
@@ -66,7 +72,7 @@ The function should calculate <Latex formula="y = mx + b"/>. Write a block comme
 
 Additionally, write a program that uses this function to compute and print the y-coordinates for <Latex formula="m = 10"/>, <Latex formula="b = 5"/>, and x-values of <Latex formula="0"/>, <Latex formula="1"/>, <Latex formula="5"/>, and <Latex formula="100"/>.
 
-```c++ title="Solution"
+```c++ title="Solution for Example Problem 2"
 #include <iostream>
 
 /*
@@ -78,11 +84,13 @@ Additionally, write a program that uses this function to compute and print the y
  *   y_intercept (double): The y-intercept of the linear function.
  * Returns (double): The y-coordinate of the linear function evaluated at the given x-coordinate.
  */
-double linear_function(double x, double slope, double y_intercept) {
+double linear_function(double x, double slope, double y_intercept) 
+{
     return slope * x + y_intercept;
 }
 
-int main() {
+int main() 
+{
     constexpr double slope = 10;
     constexpr double y_intercept = 5;
 
@@ -94,7 +102,6 @@ int main() {
     return 0;
 }
 ```
-:::
 
 ## Problem 1
 

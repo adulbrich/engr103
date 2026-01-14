@@ -11,25 +11,28 @@ import Latex from '../../../components/Latex.astro'
 
 Below are two example problems involving loops. Note that there may be more valid solutions than those provided. Ensure you understand the solutions, then write programs to solve the remaining problems.
 
-:::note[Example Problem 1]
+### Example Problem 1
+
 Prompt the user for 10 integers, then print out the minimum and maximum values among them. Do not use 10 separate integer variables. Instead, compute the minimum and maximum values as you go.
 
 This is a “counting loop” problem, meaning you need to repeat the same instructions a predetermined number of times (10, in this case). A for loop is a good choice.
 
-```cpp title="Solution"
+```cpp title="Solution for Example Problem 1"
 /*
  * Function: prompt_for_number
  * Description: Prompts the user for an integer and returns it.
  * Returns (int): Number provided by the user.
  */
-int prompt_for_number() {
+int prompt_for_number() 
+{
     std::cout << "Enter an integer: ";
     int current_num;
     std::cin >> current_num;
     return current_num;
 }
 
-int main() {
+int main() 
+{
     int max_num;
     int min_num;
 
@@ -50,20 +53,22 @@ int main() {
 ```
 
 Alternatively, you can simulate the `for` loop using a `while` loop with an external counting variable and a manual increment statement at the end of the loop body. However, this approach is less concise and clean.
-:::
 
-:::note[Example Problem 2]
+
+### Example Problem 2
+
 Prompt the user for an integer. Ask the user if they want to enter another integer by prompting them for a character. If the user enters 'Y', repeat from step 1. Otherwise, proceed to the next step. Print the sum of all numbers entered by the user.
 
 Since step 1 must execute at least once, a `do-while` loop is a good choice.
 
-```cpp title="Solution"
+```cpp title="Solution for Example Problem 2"
 /*
  * Function: prompt_for_number
  * Description: Prompts the user for an integer and returns it.
  * Returns (int): Number provided by the user.
  */
-int prompt_for_number() {
+int prompt_for_number() 
+{
     std::cout << "Enter an integer: ";
     int current_num;
     std::cin >> current_num;
@@ -75,14 +80,16 @@ int prompt_for_number() {
  * Description: Asks the user if they want to enter another number (Y/N).
  * Returns (char): Character entered by the user (Y or N).
  */
-char prompt_for_enter_again() {
+char prompt_for_enter_again() 
+{
     char again;
     std::cout << "Would you like to enter another integer? Enter Y for yes or N for no: ";
     std::cin >> again;
     return again;
 }
 
-int main() {
+int main() 
+{
     char enter_again;
     int sum = 0;
 
@@ -97,7 +104,6 @@ int main() {
 ```
 
 You can also simulate the `do-while` loop using a standard `while` loop. In this case, ensure the loop condition is initially true to guarantee at least one iteration. However, this approach is not as clean or intuitive.
-:::
 
 ### Problem 1
 

@@ -13,13 +13,15 @@ Here's an example to illustrate this concept:
 // scope_example.cpp
 #include <iostream>
 
-void change_value_and_print(int x) {
+void change_value_and_print(int x) 
+{
     std::cout << x << std::endl; // Prints the value of x
     x = 1;                       // Modifies the local copy of x
     std::cout << x << std::endl; // Prints the modified value of x
 }
 
-int main() {
+int main() 
+{
     int x = 0;
     std::cout << x << std::endl; // Prints 0
     change_value_and_print(x);   // Prints 0, followed by 1
@@ -35,7 +37,8 @@ This behavior is not unique to function parameters and arguments. It reflects th
 // variable_independence.cpp
 #include <iostream>
 
-int main() {
+int main() 
+{
     int x = 0;
     std::cout << x << std::endl; // Prints 0
 
@@ -131,7 +134,8 @@ Both placements are functionally identical, and the choice is stylistic. The key
 We can modify the `change_value_and_print()` function from earlier to use a reference parameter, enabling the function to directly modify the value of the `x` variable declared in `main()`. The only required change is to declare the parameter as a reference to an `int`:
 
 ```cpp  
-void change_value_and_print(int& x) {
+void change_value_and_print(int& x) 
+{
     ...
 }
 ```
@@ -146,7 +150,8 @@ Once a reference is initialized, its syntax for usage is identical to that of th
 // reference_example.cpp
 #include <iostream>
 
-void change_value_and_print(int& x) {
+void change_value_and_print(int& x) 
+{
     std::cout << x << std::endl;
 
     // This line appears to assign 1 to `x`, but in reality, it modifies
@@ -156,7 +161,8 @@ void change_value_and_print(int& x) {
     std::cout << x << std::endl;
 }
 
-int main() {
+int main() 
+{
     int x = 0;
     std::cout << x << std::endl; // Prints 0
 
@@ -186,7 +192,8 @@ References aren't limited to function parameters and arguments--you can also use
 // local_reference.cpp
 #include <iostream>
 
-int main() {
+int main() 
+{
     int x = 0;
     std::cout << x << std::endl; // Prints 0
 
@@ -239,12 +246,14 @@ In C++, you can declare a reference as `const`, which means the reference cannot
 ```cpp
 #include <iostream>
 
-void print(const int& x) {
+void print(const int& x) 
+{
     // x = 1; // this won't work because x is a const reference
     std::cout << x << std::endl;
 }
 
-int main() {
+int main() 
+{
     int x = 0;
     std::cout << x << std::endl; // Prints 0
     print(x);   // Prints 0
@@ -254,7 +263,8 @@ int main() {
 You can use the same `const` trick while passing arrays to functions. While arrays are not technically references, it will achieve a similar outcome. For instance, let's revisit the `print_strings()` function that prints the elements of an array. We can use the `const` keyword to ensure the function doesn't modify the array (i.e., the elements are read-only):
 
 ```cpp  
-void print_strings(const std::string my_strings[], int n_strings) {
+void print_strings(const std::string my_strings[], int n_strings) 
+{
     for (int i = 0; i < n_strings; i++) {
         std::cout << my_strings[i] << std::endl;
     }
@@ -272,14 +282,16 @@ Consider the following program:
 // dangling_reference.cpp
 #include <iostream>
 
-int& foo() {
+int& foo() 
+{
     int x = 0;
 
     // Return a reference to the local variable `x`
     return x;
 }
 
-int main() {
+int main() 
+{
     // Call `foo()` and store the returned reference in `y`
     int& y = foo();
 

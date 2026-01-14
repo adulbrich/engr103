@@ -45,7 +45,8 @@ Let's bring everything together. Consider the following program:
 // arithmetic_ex1.cpp
 #include <iostream>
 
-int main() {
+int main() 
+{
     std::cout << (5 * 3 + 1.0 / 2.0) << std::endl;
     std::cout << (6.0 / 3.0 - 8 % 3) << std::endl;
 }
@@ -115,7 +116,8 @@ On another note, the modulo operator `%` only works with integral types. If you 
 // bad-modulo.cpp
 #include <iostream>
 
-int main() {
+int main() 
+{
     std::cout << (5 % 2.0) << std::endl;
 }
 ```
@@ -169,7 +171,8 @@ Here's a simple program demonstrating the use of these functions:
 #include <iostream>
 #include <cmath>
 
-int main() {
+int main() 
+{
     std::cout << std::pow(2, 5) << std::endl;  // 2^5
     std::cout << std::abs(-12) << std::endl;   // Absolute value of -12
     std::cout << std::sqrt(64) << std::endl;   // Square root of 64

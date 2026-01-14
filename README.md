@@ -48,6 +48,8 @@ npx @marp-team/marp-cli@latest web-graphics.md --pdf --allow-local-files
 
 ## To Dos
 
+- [ ] Itemize rubrics for "subjective" demo grading
+- [ ] Consider starting with functions earlier.
 - [ ] Consider switching to https://revealjs.com/ instead of marp for slides for better accessibility OR have proper lecture notes
 - [ ] Create a Question? component that uses details/summary for better UX (ie in studio to challenge students)
 - [ ] Add learning objectives to each lecture, optionally studios and assignments as well

@@ -68,18 +68,20 @@ You can also:
 
 You can use `std::cin` to read strings from the user. However, note that the `>>` operator only reads one word at a time. If the user inputs multiple words separated by spaces, only the first word is stored, and the remaining input stays in the buffer. This can cause unexpected behavior, such as the menu looping multiple times as it processes the leftover words. For this assignment, reading a single word is sufficient, but if you want to handle multi-word input or avoid these issues, consider using [`std::getline()`](/lectures/strings#reading-strings-with-stdgetline).
 
-```cpp
+```cpp title="Prompt User for a Word"
 #include <string>
 #include <iostream>
 
-std::string prompt_for_word() {
+std::string prompt_for_word() 
+{
     std::cout << "Enter a word: ";
     std::string word;
     std::cin >> word;
     return word;
 }
 
-int main() {
+int main() 
+{
     std::string first_word = prompt_for_word();
     std::string second_word = prompt_for_word();
 }
@@ -89,11 +91,12 @@ int main() {
 
 To compare two strings for equality, use the == operator. For example:
 
-```cpp
+```cpp title="Comparing Strings"
 #include <iostream>
 #include <string>
 
-int main() {
+int main() 
+{
     std::cout << "Guess the magic word: ";
     std::string guess;
     std::cin >> guess;
@@ -121,7 +124,9 @@ While you can assign C strings to `std::string` variables (e.g., `std::string my
 It is safe to compare a std::string to a C string for equality, as seen in the examples above:
 
 ```cpp
-if (guess == "alakazam") { ... }
+if (guess == "alakazam") {
+    ...
+}
 ```
 :::
 

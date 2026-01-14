@@ -56,7 +56,7 @@ The first time a value is assigned to a variable, the process is called **initia
 
 It's important to note that the value assigned doesn't have to be a literal (like 10); it can be any valid expression, as long as the expression's type can be **converted** (or **coerced**) to the variable's type. For example, you could assign the result of a mathematical operation or a function call to the variable.
 
-This will be discussed later, but most primitive types in C++ can be coerced to and from one another. **However, coercing a floating-point expression to an integral type (like int) results in truncation (the fractional part is discarded).**
+This will be discussed later, but most primitive types in C++ can be coerced to and from one another. **However, coercing a floating-point expression to an integral type (like `int`) results in truncation (the fractional part is discarded).**
 
 It's also essential to understand that assignment happens last. If the expression on the right side of the assignment operator is complex, the entire expression will be evaluated first, and only then will the resulting value be assigned to the variable on the left. In terms of order of operations, the assignment operator (`=`) has very low precedence.
 
@@ -79,7 +79,8 @@ But what happens if you try to read (or “use”) a variable before assigning i
 ```cpp
 #include <iostream>
 
-int main() {
+int main() 
+{
     int my_cool_integer;
     std::cout << my_cool_integer << std::endl;
 }
@@ -112,7 +113,8 @@ One of the key features of variables in C++ is that you can assign new values to
 ```cpp
 #include <iostream>
 
-int main() {
+int main() 
+{
     int num_students = 10;
     num_students = 20;
     std::cout << num_students << std::endl;
@@ -174,10 +176,12 @@ Replace `<variable_identifier>` with the name of the variable where the input va
 Here's an example program that asks the user to enter two integers (<Latex formula="a"/> and <Latex formula="b"/>), computes the value of <Latex formula="a^b"/>, and prints the result:
 
 ```cpp
+// power_calculator.cpp
 #include <iostream>
 #include <cmath>
 
-int main() {
+int main() 
+{
     std::cout << "Please enter a whole number for a: ";
     int a;
     std::cin >> a;

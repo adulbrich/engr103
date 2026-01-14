@@ -93,14 +93,16 @@ Here's an example program to check if a user-supplied character is a lowercase l
 // check_lowercase.cpp
 #include <iostream>
 
-char prompt_for_character() {
+char prompt_for_character() 
+{
     std::cout << "Enter a character: ";
     char user_input;
     std::cin >> user_input;
     return user_input;
 }
 
-int main() {
+int main() 
+{
     char my_cool_character = prompt_for_character();
 
     // Check if the character is a lowercase letter
@@ -115,7 +117,8 @@ In the `if` statement, we check if the character lies between `'a'` and `'z'`. T
 Let's solve a slightly more complex problem: converting a lowercase letter to its uppercase equivalent. If the input character is already uppercase or not a letter, it should remain unchanged. Again, we can use the contiguity of ASCII values for this task.
 
 ```cpp
-char to_uppercase(char my_cool_character) {
+char to_uppercase(char my_cool_character) 
+{
     // If the character is not a lowercase letter, return it as-is
     if (my_cool_character < 'a' || my_cool_character > 'z') {
         return my_cool_character;

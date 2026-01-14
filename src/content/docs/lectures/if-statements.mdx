@@ -67,14 +67,16 @@ Below is a basic example of using if statements in C++:
  * Description: Prompts the user for an integer
  * Returns (int): Integer entered by the user
  */
-int prompt_for_integer() {
+int prompt_for_integer() 
+{
     std::cout << "Enter an integer: ";
     int user_input;
     std::cin >> user_input;
     return user_input;
 }
 
-int main() {
+int main() 
+{
     // Prompt user for a number
     int number = prompt_for_integer();
 
@@ -103,7 +105,8 @@ Sometimes, your program may require conditional logic that executes operations o
 Let's modify the earlier example so that the program does nothing if the user enters a value greater than 10. The main function would look like this:
 
 ```cpp
-int main() {
+int main() 
+{
     // Prompt user for a number
     int number = prompt_for_integer();
 
@@ -128,7 +131,8 @@ What's the difference between ending with an `else if` statement and not ending 
 It's important to note that code written outside any if, else if, or else statements is unconditional and will always execute. For example:
 
 ```cpp
-int main() {
+int main() 
+{
     // Prompt user for a number
     int number = prompt_for_integer();
 
@@ -151,7 +155,8 @@ int main() {
 You can also omit `else if` statements if they are unnecessary. For example:
 
 ```cpp
-int main() {
+int main() 
+{
     // Prompt user for a number
     int number = prompt_for_integer();
 
@@ -171,7 +176,8 @@ int main() {
 It's also valid to have an `if` statement immediately followed by an `else` statement without any `else if` blocks in between. This creates **two mutually exclusive** operations, where **exactly one** will execute. For example:
 
 ```cpp
-int main() {
+int main() 
+{
     // Prompt user for a number
     int number = prompt_for_integer();
 
@@ -202,7 +208,8 @@ Here's an example of a program that demonstrates repeated boundary conditions:
  * Description: Prompts the user for a grade percentage as an integer
  * Returns (int): Grade percentage entered by the user
  */
-int prompt_for_grade() {
+int prompt_for_grade() 
+{
     std::cout << "Enter your grade percentage: ";
     int grade_percentage;
     std::cin >> grade_percentage;
@@ -215,7 +222,8 @@ int prompt_for_grade() {
  * Parameters:
  *   grade (int): Grade percentage
  */
-void print_pass_or_fail(int grade) {
+void print_pass_or_fail(int grade) 
+{
     if (grade < 60) {
         std::cout << "You failed!" << std::endl;
     }
@@ -251,7 +259,8 @@ To address one these concerns, the second `if` statement can be replaced with an
  * Parameters:
  *   grade (int): Grade percentage
  */
-void print_pass_or_fail(int grade) {
+void print_pass_or_fail(int grade) 
+{
     if (grade < 60) {
         std::cout << "You failed!" << std::endl;
     } else if (grade >= 60) {
@@ -271,7 +280,8 @@ Since the conditions `grade < 60` and `grade >= 60` are complementary (i.e., if 
  * Parameters:
  *   grade (int): Grade percentage
  */
-void print_pass_or_fail(int grade) {
+void print_pass_or_fail(int grade) 
+{
     if (grade < 60) {
         std::cout << "You failed!" << std::endl;
     } else {
@@ -659,7 +669,8 @@ Consider the following incorrect code:
 ```cpp
 // else_error.cpp
 #include <iostream>
-int main() {
+int main() 
+{
     else {
         std::cout << "Hello!" << std::endl;
     }
@@ -697,7 +708,8 @@ If you have two adjacent `if` statements and want to make them mutually exclusiv
 ```cpp
 // mutually_exclusive_error.cpp
 #include <iostream>
-int main() {
+int main() 
+{
     int number = 5;
 
     // Incorrect: Two independent `if` statements
@@ -720,7 +732,8 @@ To make the conditions mutually exclusive, rewrite the second `if` as an `else i
 ```diff lang="cpp"
 // mutually_exclusive_error.cpp
 #include <iostream>
-int main() {
+int main() 
+{
     int number = 5;
 
     // Correct: Use `else if` to ensure mutual exclusivity

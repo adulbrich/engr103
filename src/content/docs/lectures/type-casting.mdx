@@ -38,7 +38,7 @@ For example, type coercion is common in function calls. Consider the `sqrt` func
 
 You can also perform type coercion on variables. Consider the following code:
 
-```cpp
+```cpp title="Implicit Type Coercion Example"
 double pi = 3.14159265;
 int x = pi;
 std::cout << x << std::endl;
@@ -75,7 +75,7 @@ You might see code that uses "C-style casts" like `(int)pi` instead of `static_c
 
 Suppose you have a double variable and want to print its truncated int representation. Using type coercion (implicit type casting), you'd need to create a new int variable to store the coerced value before printing it:
 
-```cpp
+```cpp title="Implicit Type Coercion"
 // Cumbersome type coercion
 double pi = 3.14159265;
 
@@ -90,8 +90,7 @@ While this works, it's unnecessarily cumbersome because it requires creating an 
 
 A more concise approach is to use explicit type casting with `static_cast` to directly cast the value in place and print it in a single statement:
 
-```cpp
-// Explicit type casting
+```cpp title="Explicit Type Casting"
 double pi = 3.14159265;
 std::cout << static_cast<int>(pi) << std::endl;
 ```
@@ -102,7 +101,7 @@ This approach produces the same output as the previous example but eliminates th
 
 When performing explicit type casting, the expression inside the parentheses is first evaluated, and only then is the type casting applied. This evaluation order can lead to subtle but important differences in behavior. Consider the following code:
 
-```cpp
+```cpp title="Type Casting Order of Operations"
 std::cout << (static_cast<int>(2.5) / 0.5) << std::endl;
 std::cout << (static_cast<int>(2.5 / 0.5)) << std::endl;
 ```

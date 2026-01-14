@@ -107,7 +107,8 @@ To write a C++ program, you start by creating a file with a `.cpp` extension, su
 ```cpp
 // hello.cpp
 #include <iostream>
-int main() {
+int main() 
+{
     std::cout << "Hello, World!" << std::endl;
 }
 ```
@@ -147,7 +148,8 @@ If you update your source code (e.g., changing the output to `I love coding!!!`)
 
 ```cpp
 #include <iostream>
-int main() {
+int main() 
+{
     std::cout << "I love coding!!!" << std::endl;
 }
 ```
@@ -163,7 +165,8 @@ Let's break down the key components of our original C++ program:
 ```cpp
 // hello.cpp
 #include <iostream>
-int main() {
+int main() 
+{
     std::cout << "Hello, World!" << std::endl;
 }
 ```
@@ -252,7 +255,8 @@ You might notice that our `main` function is defined to return an `int`, but we 
 However, it is considered good practice to include an explicit `return 0;` at the end of `main` to make the exit status clear and consistent with other functions that return values.
 
 ```cpp
-int main() {
+int main() 
+{
     std::cout << "Hello, World!" << std::endl;
     return 0;
 }

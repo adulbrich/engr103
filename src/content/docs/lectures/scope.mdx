@@ -31,12 +31,14 @@ Consider the following naive attempt to share a variable (result) between the ma
 // bad_scope.cpp
 #include <iostream>
 
-double sum(double first_value, double second_value) {
+double sum(double first_value, double second_value) 
+{
     // Attempt to modify the 'result' variable from the main function
     result = first_value + second_value; 
 }
 
-int main() {
+int main() 
+{
     double result; 
     sum(2, 2);
     std::cout << result << std::endl;
@@ -77,8 +79,8 @@ The following example demonstrates how nested scopes work in practice:
 // nested_scope.cpp
 #include <iostream>
 
-int main() {
-
+int main() 
+{
     // Create a second, nested scope (for demonstration purposes)
     {
         // my_cool_value is declared in this second, nested scope
@@ -118,14 +120,16 @@ We've already seen an example of variables with the same name in different scope
 // weird_sum.cpp
 #include <iostream>
 
-int weird_sum(int a, int b) {
+int weird_sum(int a, int b) 
+{
     int result = a + b; // Compute sum
     a = 0;              // Modify parameter a
     b = 0;              // Modify parameter b
     return result;      // Return the previously computed sum
 }
 
-int main() {
+int main() 
+{
     int a = 2;
     int b = 3;
 
@@ -153,7 +157,8 @@ Here's an example to illustrate shadowing:
 // shadowing.cpp
 #include <iostream>
 
-int main() {
+int main() 
+{
 
     int my_integer = 5;
     std::cout << my_integer << std::endl; // Prints 5
@@ -208,11 +213,13 @@ double result;
 
 // No parameters or return values--just uses the global variables.
 // This is a very bad idea!
-void sum() {
+void sum() 
+{
     result = first_value + second_value;
 }
 
-int main() {
+int main() 
+{
     // Initialize global variables before using them
     first_value = 2;
     second_value = 2;

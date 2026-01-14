@@ -32,7 +32,8 @@ A function must be declared (in this context, “declared” means defined) befo
 To illustrate, let's examine this simple function definition:
 
 ```cpp
-double sum(double first_value, double second_value) {
+double sum(double first_value, double second_value) 
+{
     return first_value + second_value;
 }
 ```
@@ -89,7 +90,8 @@ Parameters can be of any type, and a function can have multiple parameters of di
 In C++, you can give a parameter a **default value**. If the caller omits that argument, the default value is used.
 
 ```cpp
-double rectangle_area(double width, double height = 1.0) {
+double rectangle_area(double width, double height = 1.0) 
+{
     return width * height;
 }
 ```
@@ -151,7 +153,8 @@ This `return` statement evaluates the expression `first_value + second_value` an
 A function terminates immediately after a return statement is executed. Any code written after a return statement is considered **dead code** because it can never execute. For example:
 
 ```cpp
-double sum(double first_value, double second_value) {
+double sum(double first_value, double second_value) 
+{
     return first_value + second_value;
 
     // The code below will NEVER execute because the above return statement
@@ -225,11 +228,13 @@ For example, consider the following incorrect function call:
 // functions.cpp
 #include <iostream>
 
-double sum(double first_value, double second_value) {
+double sum(double first_value, double second_value) 
+{
     return first_value + second_value;
 }
 
-int main() {
+int main() 
+{
     std::cout << sum(2) << std::endl;
 }
 ```
@@ -272,7 +277,8 @@ std::cout << sum(3, 0.14) << std::endl; // Prints 3.14
 A common use case is to store the return value of a function call in a variable for later use. Here's an example:
 
 ```cpp
-int main() {
+int main() 
+{
     // Call the sum function with first_value = 2 and second_value = 3
     // Store the return value (5.0) in a new local variable called ‘result'
     double result = sum(2, 3);
@@ -285,7 +291,8 @@ int main() {
 You can also use the return value of one function call as an argument to another function. This enables you to chain function calls and perform more complex operations.
 
 ```cpp
-int main() {
+int main() 
+{
     // Compute 3 + 0.1 + 0.04 as:
     // (3 + 0.1) + 0.04
     // = sum(sum(3, 0.1), 0.04)
@@ -317,11 +324,13 @@ This behavior demonstrates that functions terminate in a **last in, first out (L
 It's common to pass local variables as arguments to function calls, but it's essential to understand how arguments differ from parameters. Let's clarify this with an example:
 
 ```cpp
-double sum(double first_value, double second_value) {
+double sum(double first_value, double second_value) 
+{
     return first_value + second_value;
 }
 
-int main() {
+int main() 
+{
     // Setup argument variables
     double x = 2;
     double y = 3;
@@ -344,14 +353,16 @@ Although parameters and arguments may seem connected, they are entirely **separa
 To understand how arguments and parameters are independent, consider the following example:
 
 ```cpp
-int weird_sum(int a, int b) {
+int weird_sum(int a, int b) 
+{
     int result = a + b; // Compute sum
     a = 0;              // Modify parameter a
     b = 0;              // Modify parameter b
     return result;      // Return the previously computed sum
 }
 
-int main() {
+int main() 
+{
     int x = 2;
     int y = 3;
 
@@ -370,14 +381,16 @@ This is because `a` and `x` are entirely separate variables, as are `b` and `y`.
 To make things even more confusing, argument variables and parameters can have the same names and still remain completely separate. Consider the following example, which behaves identically to the previous one:
 
 ```cpp
-int weird_sum(int a, int b) {
+int weird_sum(int a, int b) 
+{
     int result = a + b; // Compute sum
     a = 0;              // Modify parameter a
     b = 0;              // Modify parameter b
     return result;      // Return the previously computed sum
 }
 
-int main() {
+int main() 
+{
     int a = 2;
     int b = 3;
 
@@ -419,7 +432,8 @@ The following example demonstrates a `void` function that takes a number as inpu
 #include <cmath> // For the round() function
 #include <iostream> // For std::cout
 
-void print_money(double dollars) {
+void print_money(double dollars) 
+{
     // Round to the nearest penny
     // round() rounds its input to the nearest whole number (still a double),
     // which we then coerce to an integer.

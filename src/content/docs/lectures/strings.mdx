@@ -29,7 +29,8 @@ Here's an example of defining a string variable called `my_cool_string` that sto
 // string_basics.cpp
 #include <string>
 
-int main() {
+int main() 
+{
     std::string my_cool_string = "Hello";
     return 0;
 }
@@ -41,7 +42,7 @@ If you are already including the `<iostream>` header file, you don't need to exp
 
 Strings can be compared for **equality** using the `==` operator:
 
-```cpp
+```cpp title="String Comparison Example"
 if (some_string == some_other_string) {
     std::cout << "The two strings are equal!" << std::endl;
 }
@@ -53,7 +54,7 @@ The comparison evaluates to `true` only if every character in both strings match
 
 A `std::string` variable can hold any sequence of zero or more characters, including no characters. A string with no characters is called an **empty string**. To check if a string is empty, you can compare it directly to an empty string literal:
 
-```cpp
+```cpp title="Empty String Check"
 if (my_cool_string == "") {
     std::cout << "The string variable is empty!" << std::endl;
 }
@@ -65,11 +66,12 @@ While there are other methods to check for an empty string, the above approach i
 
 You can print the value of a `std::string` variable to the terminal using `std::cout`, just as you would with other variables. For example, here's a “Hello, World!” program that stores the text in a string variable:
 
-```cpp
+```cpp title="Hello World with Strings"
 #include <iostream>
 #include <string>
 
-int main() {
+int main() 
+{
     std::string greeting = "Hello, World!";
     std::cout << greeting << std::endl;
     return 0;
@@ -149,7 +151,8 @@ Consider this program:
 #include <iostream>
 #include <string>
 
-int main() {
+int main() 
+{
     std::cout << "Enter a sequence of characters: ";
     std::string sequence_of_characters;
     std::cin >> sequence_of_characters;
@@ -194,7 +197,8 @@ Here's an example of how you can use `std::getline()`:
 #include <iostream>
 #include <string>
 
-int main() {
+int main() 
+{
     std::cout << "Enter a sequence of characters: ";
     std::string sequence_of_characters;
     std::getline(std::cin, sequence_of_characters);

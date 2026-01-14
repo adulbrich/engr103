@@ -13,7 +13,8 @@ Below are example problems demonstrating how to convert mathematical expressions
 
 You may write your solutions on paper or in any text document.
 
-:::note[Example Problem 1]
+### Example Problem 1
+
 Convert the following mathematical expression into a C++ expression:
 
 <Latex formula="x^2 + 3x - 7" inline={false}/>
@@ -25,9 +26,9 @@ std::pow(x, 2) + 3 * x - 7
 ```text title="Solution 2"
 x * x + 3 * x - 7
 ```
-:::
 
-:::note[Example Problem 2]
+### Example Problem 2
+
 Convert the following mathematical expression into a C++ expression:
 
 <Latex formula="\frac{\ln(x+5)}{x^y + z}" inline={false}/>
@@ -76,31 +77,31 @@ Assumptions:
 
 You may write your solutions on paper or in any text document.
 
-:::note[Example Problem 1]
+### Example Problem 3
 Convert the following mathematical equations into a series of C++ variable initializations:
 
 <Latex formula="\begin{align*} x &= 5 \\ y &= x^3 + 7 \\ z &= \ln(y) \end{align*}" inline={false}/>
 
-```cpp title="Solution"
+```cpp title="Solution for Example Problem 3"
 int x = 5;
 int y = std::pow(x, 3) + 7; // Coercion from double to int
 double z = std::log(y);
 ```
 :::
 
-:::note[Example Problem 2]
-Convert the following mathematical equations into a series of C++ variable initializations:
+### Example Problem 4
 
+Convert the following mathematical equations into a series of C++ variable initializations:
 
 <Latex formula="\begin{align*} a &= 5.3 \\ b &= \lfloor a \rfloor \\ c &= \sqrt[b]{a} \end{align*}" inline={false}/>
 
-```cpp title="Solution 1"
+```cpp title="Solution 1 for Example Problem 4"
 double a = 5.3;
 int b = std::floor(a);
 double c = std::pow(a, 1.0 / b);
 ```
 
-```cpp title="Solution 2"
+```cpp title="Solution 2 for Example Problem 4"
 double a = 5.3;
 int b = a; // Implicit truncation by coercion
 double c = std::pow(a, 1.0 / b);
@@ -109,13 +110,13 @@ double c = std::pow(a, 1.0 / b);
 
 When writing your solutions, pay attention to operator precedence and type conversions to avoid unintended truncation or type mismatches. Use parentheses to clarify operations when necessary.
 
-### Problem 1
+### Problem 4
 
 Convert the following mathematical equations into a series of C++ variable initializations:
 
 <Latex formula="\begin{align*} a &= 5.3 \\ b &= \lceil a \rceil \\ c &= \frac{b}{1371} \end{align*}" inline={false}/>
 
-### Problem 2
+### Problem 5
 
 Convert the following mathematical equations into a series of C++ variable initializations:
 
@@ -123,7 +124,7 @@ Convert the following mathematical equations into a series of C++ variable initi
 
 Raising one integer to the power of another integer results in an integer. Similarly, the product of two integers is still an integer.
 
-### Problem 3
+### Problem 6
 
 Convert the following mathematical equations into a series of C++ variable initializations:
 

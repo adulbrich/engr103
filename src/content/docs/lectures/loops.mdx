@@ -46,7 +46,8 @@ Suppose you want to write a program that asks the user for numbers until they ch
  * Description: Prompts the user to enter a number.
  * Returns (double): The number provided by the user.
  */
-double prompt_for_number() {
+double prompt_for_number() 
+{
     std::cout << "Enter a number: ";
     double user_number;
     std::cin >> user_number;
@@ -58,14 +59,16 @@ double prompt_for_number() {
  * Description: Prompts the user to decide whether to continue.
  * Returns (char): 'y' if the user wants to continue, 'n' otherwise.
  */
-char prompt_for_go_again() {
+char prompt_for_go_again() 
+{
     std::cout << "Would you like to enter another number? Type 'y' for yes or 'n' for no: ";
     char response;
     std::cin >> response;
     return response;
 }
 
-int main() {
+int main() 
+{
     char go_again_response = 'y';
     double running_sum = 0.0;
 
@@ -123,7 +126,8 @@ Let's revisit the previous example, where the program asked the user to input nu
  * Description: Prompts the user to enter a number.
  * Returns (double): The number entered by the user.
  */
-double prompt_for_number() {
+double prompt_for_number() 
+{
     std::cout << "Enter a number: ";
     double user_number;
     std::cin >> user_number;
@@ -135,14 +139,16 @@ double prompt_for_number() {
  * Description: Prompts the user to decide whether to continue.
  * Returns (char): 'y' to continue, 'n' to stop.
  */
-char prompt_for_go_again() {
+char prompt_for_go_again() 
+{
     std::cout << "Would you like to enter another number? Type 'y' for yes or 'n' for no: ";
     char response;
     std::cin >> response;
     return response;
 }
 
-int main() {
+int main() 
+{
     char go_again_response;
     double running_sum = 0.0;
 
@@ -196,7 +202,8 @@ Suppose you want to write a program that prints “Hello, World!” exactly 100 
 ```cpp
 #include <iostream>
 
-int main() {
+int main() 
+{
     int counter = 0;
     while (counter < 100) {
         std::cout << "Hello, World!" << std::endl;
@@ -243,7 +250,8 @@ Here's how the count-based `while` loop example can be rewritten as a `for` loop
 ```cpp
 #include <iostream>
 
-int main() {
+int main() 
+{
     for (int counter = 0; counter < 100; counter++) {
         std::cout << "Hello, World!" << std::endl;
     }
@@ -257,7 +265,8 @@ For example, the following code will fail to compile because counter is out of s
 ```cpp
 #include <iostream>
 
-int main() {
+int main() 
+{
     for (int counter = 0; counter < 100; counter++) {
         std::cout << "Hello, World!" << std::endl;
     }
@@ -270,7 +279,8 @@ To resolve this, declare the counter variable outside the loop if you need to us
 ```cpp
 #include <iostream>
 
-int main() {
+int main() 
+{
     int counter;
     for (counter = 0; counter < 100; counter++) {
         std::cout << "Hello, World!" << std::endl;
@@ -317,7 +327,8 @@ The counter variable can be used within the loop body to modify the operations p
 // print_integers.cpp
 #include <iostream>
 
-int main() {
+int main() 
+{
     for (int counter = 0; counter < 100; counter++) {
         if (counter > 0) {
             std::cout << ", ";

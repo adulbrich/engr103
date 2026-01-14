@@ -62,10 +62,12 @@ hello_world_stream << "Hello, World!" << std::endl; // Writes to the file.
 Here's a complete example program that writes “Hello, World!” to a file after checking that the file opened successfully:
 
 ```cpp
+// file_output_stream.cpp
 #include <fstream>
 #include <iostream>
 
-int main() {
+int main() 
+{
     std::ofstream hello_world_stream("hello.txt", std::ios::trunc);
 
     if (!hello_world_stream.is_open()) {
@@ -104,10 +106,12 @@ James Monroe
 Here's a program that reads this file and prints names in the format: `<last name>, <first name>`:
 
 ```cpp
+// file_input_stream.cpp
 #include <iostream>
 #include <fstream>
 
-int main() {
+int main() 
+{
     std::ifstream my_cool_data_stream("data.txt");
 
     int num_names;
