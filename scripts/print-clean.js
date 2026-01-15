@@ -47,7 +47,7 @@ async function printToPDF(url, outputPath) {
 
       // Basic styling
       document.body.style.margin = "0";
-      document.body.style.padding = "20px";
+      document.body.style.padding = "0";
     }
   });
 
@@ -60,8 +60,8 @@ async function printToPDF(url, outputPath) {
     format: "Letter",
     printBackground: true,
     margin: {
-      top: "100px",
-      bottom: "100px",
+      top: "70px",
+      bottom: "70px",
       left: "20px",
       right: "20px",
     },

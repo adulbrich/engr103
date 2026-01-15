@@ -1,6 +1,18 @@
 import puppeteer from "puppeteer";
 
 async function printToPDF(url, outputPath) {
+  const generatedAt = new Date();
+  const formattedDate = generatedAt.toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+
+  const START_YEAR = 2025;
+  const endYear = generatedAt.getFullYear();
+  const copyrightYears =
+    endYear === START_YEAR ? `${START_YEAR}` : `${START_YEAR}-${endYear}`;
+
   const browser = await puppeteer.launch({
     headless: "new",
   });
@@ -47,7 +59,7 @@ async function printToPDF(url, outputPath) {
 
       // Basic styling
       document.body.style.margin = "0";
-      document.body.style.padding = "20px";
+      document.body.style.padding = "0";
     }
   });
 
@@ -60,8 +72,8 @@ async function printToPDF(url, outputPath) {
     format: "Letter",
     printBackground: true,
     margin: {
-      top: "100px",
-      bottom: "100px",
+      top: "70px",
+      bottom: "70px",
       left: "20px",
       right: "20px",
     },
@@ -89,7 +101,7 @@ async function printToPDF(url, outputPath) {
 
                 <div class="header-container">
                 <div>ENGR 103: Engineering Computation and Algorithmic Thinking</div>
-                <div class="date"></div>
+                <div>${formattedDate}</div>
                 </div>
             </body>
             </html>
@@ -121,7 +133,7 @@ async function printToPDF(url, outputPath) {
                 </style>
 
                 <div class="footer-container">
-                <span>© 2025-2026 Alexander Ulbrich. Adapted from Alexander Guyer. Licensed under CC BY-SA 4.0.</span>
+                <span>© ${copyrightYears} Alexander Ulbrich. Adapted from Alexander Guyer. Licensed under CC BY-SA 4.0.</span>
                 <div>
                     <span class="pageNumber"></span>
                 </div>

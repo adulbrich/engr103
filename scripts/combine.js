@@ -4,6 +4,20 @@ import { fileURLToPath } from "url";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 
 async function combinePDFs() {
+  const generatedAt = new Date();
+  const formattedDate = generatedAt.toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+
+  const START_YEAR = 2025;
+  const endYear = generatedAt.getFullYear();
+  const copyrightYears =
+    endYear === START_YEAR ? `${START_YEAR}` : `${START_YEAR}-${endYear}`;
+  const copyrightNotice =
+    `© ${copyrightYears} Alexander Ulbrich. Adapted from Alexander Guyer. Licensed under CC BY-SA 4.0.`;
+
   // Support passing lists via CLI flags so we don't duplicate content lists in multiple scripts.
   // Flags accepted (comma-separated values):
   // --lectures, --studios, --assignments, --practicalities
@@ -47,7 +61,7 @@ async function combinePDFs() {
   mergedPdf.setTitle("ENGR103 Complete Course Materials");
   mergedPdf.setAuthor("Alex Ulbrich");
   mergedPdf.setSubject("Engineering Computation and Algorithmic Thinking");
-  mergedPdf.setCreationDate(new Date());
+  mergedPdf.setCreationDate(generatedAt);
 
   // --- Title / cover page ---
   // Create a title page at the beginning of the PDF so the combined output
@@ -65,7 +79,7 @@ async function combinePDFs() {
   const titleText = "ENGR 103 — Complete Course Materials";
   const subtitleText = "Engineering Computation and Algorithmic Thinking";
   const authorText = "Alex Ulbrich";
-  const generatedDate = `Generated: ${new Date().toLocaleDateString()}`;
+  const generatedDate = `Generated: ${formattedDate}`;
 
   // Large title centered vertically
   const titleSize = 28;
@@ -168,6 +182,9 @@ async function combinePDFs() {
   const pages = mergedPdf.getPages();
   const font = await mergedPdf.embedFont(StandardFonts.Helvetica);
   const totalPages = pages.length;
+  // Match Puppeteer header/footer templates which use `margin-inline: 1cm`.
+  // pdf-lib coordinates are in PDF points (72 points per inch).
+  const HEADER_FOOTER_INSET = 72 / 2.54; // 1cm
   // Content pages exclude the cover (first page). Page numbers shown to users
   // should start at 1 for the first content page. When there are no content
   // pages (only the cover), contentPageCount will be 0.
@@ -180,17 +197,17 @@ async function combinePDFs() {
 
     // Header
     page.drawText("ENGR 103 Engineering Computation and Algorithmic Thinking", {
-      x: 40,
+      x: HEADER_FOOTER_INSET,
       y: height - 30,
       size: 10,
       font,
       color: rgb(0.3, 0.3, 0.3),
     });
 
-    const dateText = `Generated: ${new Date().toLocaleDateString()}`;
+    const dateText = `Generated: ${formattedDate}`;
     const dateTextWidth = font.widthOfTextAtSize(dateText, 10);
     page.drawText(dateText, {
-      x: width - dateTextWidth - 40,
+      x: width - dateTextWidth - HEADER_FOOTER_INSET,
       y: height - 30,
       size: 10,
       font,
@@ -198,23 +215,20 @@ async function combinePDFs() {
     });
 
     // Footer
-    page.drawText(
-      "© 2025-2026 Alexander Ulbrich. Adapted from Alexander Guyer. Licensed under CC BY-SA 4.0.",
-      {
-        x: 40,
-        y: 20,
-        size: 10,
-        font,
-        color: rgb(0.3, 0.3, 0.3),
-      }
-    );
+    page.drawText(copyrightNotice, {
+      x: HEADER_FOOTER_INSET,
+      y: 20,
+      size: 10,
+      font,
+      color: rgb(0.3, 0.3, 0.3),
+    });
 
     // For the content pages we want numbering starting at 1 and not include
     // the cover in the human-visible count.
     const pageText = `Page ${index} of ${contentPageCount}`;
     const pageTextWidth = font.widthOfTextAtSize(pageText, 10);
     page.drawText(pageText, {
-      x: width - pageTextWidth - 40,
+      x: width - pageTextWidth - HEADER_FOOTER_INSET,
       y: 20,
       size: 10,
       font,
