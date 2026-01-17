@@ -36,7 +36,7 @@ Convert the following mathematical expression into a C++ expression:
 ```text title="Solution"
 std::log(x + 5) / (std::pow(x, y) + z)
 ```
-:::
+
 
 Review the provided examples carefully and ensure you account for operator precedence and truncation issues when writing your solutions. Use parentheses as needed for clarity and correctness.
 
@@ -78,6 +78,7 @@ Assumptions:
 You may write your solutions on paper or in any text document.
 
 ### Example Problem 3
+
 Convert the following mathematical equations into a series of C++ variable initializations:
 
 <Latex formula="\begin{align*} x &= 5 \\ y &= x^3 + 7 \\ z &= \ln(y) \end{align*}" inline={false}/>
@@ -87,7 +88,7 @@ int x = 5;
 int y = std::pow(x, 3) + 7; // Coercion from double to int
 double z = std::log(y);
 ```
-:::
+
 
 ### Example Problem 4
 
@@ -106,7 +107,6 @@ double a = 5.3;
 int b = a; // Implicit truncation by coercion
 double c = std::pow(a, 1.0 / b);
 ```
-:::
 
 When writing your solutions, pay attention to operator precedence and type conversions to avoid unintended truncation or type mismatches. Use parentheses to clarify operations when necessary.
 
