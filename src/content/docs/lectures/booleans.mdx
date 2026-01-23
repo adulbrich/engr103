@@ -19,8 +19,7 @@ In this section, we will explore how to use booleans and conditional statements 
 
 There are exactly two valid boolean literals in C++: `true` and `false`. For example, you can define boolean variables and assign values to them like this:
 
-```cpp
-// Boolean Literals
+```cpp title="Boolean Literals"
 bool i_like_spaghetti = true;
 bool i_like_broccoli = false;
 ```
@@ -36,8 +35,7 @@ Booleans in C++ can also be converted to and from numeric types, though the conv
 
 When you print a `bool` value using `std::cout`, it is automatically converted to an integer before being displayed. This means that `true` will appear as `1` and `false` as `0`. Consider the following examples:
 
-```cpp
-// Printing booleans
+```cpp title="Printing Booleans"
 bool i_like_spaghetti = true;
 bool i_like_broccoli = false;
 
@@ -135,8 +133,7 @@ Instead of checking if `a == b`, it is safer to check if the difference between 
 
 Here's an example program to illustrate relational operators:
 
-```cpp
-// Relational operator examples
+```cpp title="Relational Operator Examles"
 std::cout << (1 == 2) << std::endl;   // Prints 0 (false)
 std::cout << (1 == 1) << std::endl;   // Prints 1 (true)
 std::cout << (1 != 1) << std::endl;   // Prints 0 (false)
@@ -236,7 +233,7 @@ This syntax may seem logical in mathematics, but it doesn't work as expected in 
 
 The following example demonstrates how logical operators behave in C++:
 
-```cpp
+```cpp title="Logical Operator Examples"
 int x = 0;
 
 std::cout << (x == 1 || 2) << std::endl;            // Prints '1' (true)

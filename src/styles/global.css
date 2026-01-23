@@ -37,4 +37,25 @@
     .actions-container {
         display: none !important;
     }
+
+    .sl-markdown-content pre,
+    .sl-markdown-content pre > code,
+    .sl-markdown-content .expressive-code,
+    .sl-markdown-content .expressive-code pre,
+    .sl-markdown-content .expressive-code code,
+    .sl-markdown-content .expressive-code .frame,
+    .sl-markdown-content .expressive-code .header {
+        background: transparent !important;
+        background-image: none !important;
+        box-shadow: none !important;
+        filter: none !important;
+    }
+
+    /* .expressive-code .ec-line.ins .code::before {
+        color: var(--color-gray-900) !important;
+    } */
+
+    /* .expressive-code .ec-line.del .code::before {
+        color: var(--color-gray-900) !important;
+    } */
 }
