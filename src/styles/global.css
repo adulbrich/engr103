@@ -51,11 +51,11 @@
         filter: none !important;
     }
 
-    /* .expressive-code .ec-line.ins .code::before {
+    .expressive-code .ec-line.ins .code::before {
         color: var(--color-gray-900) !important;
-    } */
+    }
 
-    /* .expressive-code .ec-line.del .code::before {
+    .expressive-code .ec-line.del .code::before {
         color: var(--color-gray-900) !important;
-    } */
+    }
 }
