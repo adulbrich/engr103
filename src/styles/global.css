@@ -38,7 +38,8 @@
         display: none !important;
     }
 
-    .sl-markdown-content pre,
+    /* Remove background for code blocks to prevent wrong accessibility flags */
+    /* .sl-markdown-content pre,
     .sl-markdown-content pre > code,
     .sl-markdown-content .expressive-code,
     .sl-markdown-content .expressive-code pre,
@@ -49,12 +50,20 @@
         background-image: none !important;
         box-shadow: none !important;
         filter: none !important;
-    }
+    } */
 
+    /* Keep code background in asides for contrast purposes */
+    /* .sl-markdown-content aside pre,
+    .sl-markdown-content aside .expressive-code,
+    .sl-markdown-content aside .expressive-code .frame {
+        background: var(--code-background) !important;
+        border: 1px solid #bdbdbd !important;
+    } */
+
+    /* Increase contrast of + and - markers for diff code blocks */
     .expressive-code .ec-line.ins .code::before {
         color: var(--color-gray-900) !important;
     }
-
     .expressive-code .ec-line.del .code::before {
         color: var(--color-gray-900) !important;
     }

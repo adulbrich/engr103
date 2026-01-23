@@ -70,7 +70,8 @@ async function printToPDF(url, outputPath) {
   await page.pdf({
     path: outputPath,
     format: "Letter",
-    printBackground: true,
+    // printBackground: true,
+    tagged: true,
     margin: {
       top: "70px",
       bottom: "70px",
