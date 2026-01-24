@@ -9,7 +9,7 @@ The assignment operator in C++ has a very low precedence in the order of operati
 
 Interestingly, the variable on the left of an assignment operator can also appear on the right side of the same assignment. This works exactly as expected. For example, consider the following code:
 
-```cpp
+```cpp title="Basic Assignment Example"
 int x = 0;
 x = x + 2;
 x = x - 1;
@@ -54,7 +54,7 @@ If you need to increase `my_number` by exactly `1`, you can write `my_number = m
 
 To understand the difference, it's important to know that in C++, assignments are *also* expressions. For example:
 
-```cpp
+```cpp title="Assignment as Expression"
 int my_cool_integer = 0;
 std::cout << (my_cool_integer = 100) << std::endl;
 std::cout << my_cool_integer << std::endl;
@@ -62,7 +62,7 @@ std::cout << my_cool_integer << std::endl;
 
 The output of this code will be:
 
-```plaintext frame="terminal"
+```plaintext frame="terminal" title="Output of Assignment Expression"
 100
 100
 ```
@@ -77,7 +77,7 @@ Shorthand assignment operations (e.g., `+=`) also behave as expressions. For ins
 
 Now consider the difference between pre-increment and post-increment operators:
 
-```cpp
+```cpp title="Pre-Increment vs Post-Increment Operators"
 int x = 0;
 std::cout << (++x) << std::endl; // Pre-increment
 std::cout << x << std::endl;
@@ -88,7 +88,7 @@ std::cout << x << std::endl;
 ```
 The output will be:
 
-```plaintext frame="terminal"
+```plaintext frame="terminal" title="Output of Pre-Increment and Post-Increment Operators"
 1
 1
 0

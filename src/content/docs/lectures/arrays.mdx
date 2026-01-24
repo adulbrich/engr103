@@ -33,7 +33,7 @@ When declaring a statically allocated array, you must ensure its size is “big 
 
 The syntax for declaring a statically allocated array in C++ is:
 
-```cpp
+```cpp title="Array Declaration Syntax"
 <element data type> <array variable name>[<array size>];
 ```
 
@@ -43,7 +43,7 @@ The syntax for declaring a statically allocated array in C++ is:
 
 For example, the following code declares an array named pages containing 200 strings (each representing a page in a book):
 
-```cpp
+```cpp title="Declaring an Array of Strings"
 std::string pages[200];
 ```
 
@@ -74,13 +74,13 @@ While the third example will compile and run with `g++` by default, it uses a fe
 
 To disable VLA support in `g++`, use the `-Werror=vla` flag during compilation. For instance:
 
-```shell
+```shell title="Disabling VLA Support"
 g++ -Werror=vla -o my_program my_program.cpp
 ```
 
 When applied to the invalid example, the compiler produces the following error:
 
-```plaintext frame="terminal"
+```plaintext frame="terminal" title="VLA Compilation Error"
 array_examples.cpp:15:22: error: variable length arrays are a C99 feature [-Werror,-Wvla-extension]
    15 |     bool my_booleans[n]; // Syntax error
       |                      ^
@@ -159,7 +159,7 @@ int main()
 
 When you run this program, the output will display something like this:
 
-```plaintext frame="terminal"
+```plaintext frame="terminal" title="Array Base Address Example"
 0x16b82af88
 ```
 
@@ -172,7 +172,7 @@ You might wonder why `std::cout` prints a memory address for the array above. Th
 
 However, `char` arrays behave differently with `std::cout`. Even though they also decay to a pointer (`char*`), `std::cout` has a special rule for `char*`: it assumes the pointer points to a **C-string** (text) and prints characters until it finds a null terminator (`\0`).
 
-```cpp
+```cpp title="Special Case for char Arrays"
 char name[5] = {'B', 'o', 'b', '\0'};
 std::cout << name << std::endl; // Prints "Bob", not an address
 ```
@@ -194,7 +194,7 @@ Array elements are accessed using their indices. Arrays in C++ are zero-indexed,
 
 To access an array element at a specific index, use the subscript operator, which consists of square brackets (`[]`). The syntax is:
 
-```cpp
+```cpp title="Syntax for Accessing an Array Element"
 <array name>[<index>]
 ```
 
@@ -202,7 +202,7 @@ This provides direct access to the element at the specified index, allowing you 
 
 Here's an example of declaring an array of five doubles and initializing all its elements to zero:
 
-```cpp
+```cpp title="Declaring and Initializing an Array"
 double my_list_of_numbers[5];
 my_list_of_numbers[0] = 0;
 my_list_of_numbers[1] = 0;
@@ -213,7 +213,7 @@ my_list_of_numbers[4] = 0;
 
 To print the value of the third element:
 
-```cpp
+```cpp title="Printing an Array Element"
 std::cout << my_list_of_numbers[2] << std::endl;
 ```
 
@@ -255,13 +255,13 @@ It's important to distinguish between array declaration syntax and element acces
 
 When declaring an array, you specify the element type, array name, and size:
 
-```cpp
+```cpp title="Declaring an Array"
 std::string my_array[20];
 ```
 
 When accessing an array element, you specify the array name and the target index:
 
-```cpp
+```cpp title="Accessing an Array Element"
 my_array[20]; // Accesses the 21st element
 ```
 
@@ -281,8 +281,7 @@ The subscript operator (`[]`) takes an index as its operand and provides direct 
 
 Because of this, you can directly read input from `std::cin` and store it in a specific array element using the subscript operator. For example, the following code demonstrates how to populate an array of int elements with user-provided data using the stream extraction operator (`>>`):
 
-```cpp
-// Reading integers into an array
+```cpp title="Reading Integers Into an Array"
 int array_of_numbers[10];
 for (int i = 0; i < 10; i++) {
     std::cout << "Enter a number: ";
@@ -292,8 +291,7 @@ for (int i = 0; i < 10; i++) {
 
 Similarly, for an array of `std::string` values, you can use `std::getline()` to read entire lines of input and store them in individual array elements:
 
-```cpp
-// Reading strings into an array using std::getline
+```cpp title="Reading Strings Into an Array Using std::getline"
 std::string array_of_sentences[5];
 for (int i = 0; i < 5; i++) {
     std::cout << "Enter a sentence: ";
@@ -305,7 +303,7 @@ for (int i = 0; i < 5; i++) {
 
 While you can modify individual array elements using the assignment operator (`=`) with the subscript operator (`[]`), you cannot assign or reassign an entire array. For example, the following code snippet would produce a syntax error:
 
-```cpp
+```cpp title="Invalid Array Assignment"
 int numbers[100];
 int other_numbers[100];
 numbers = other_numbers; // Syntax error
@@ -317,8 +315,7 @@ The statement `numbers = other_numbers` would attempt to change the base address
 
 If you want to copy the contents of one array into another, you must do so by copying each element individually. This can be achieved using a loop or a higher-level mechanism. Here's an example using a loop:
 
-```cpp
-// Copying array elements manually
+```cpp title="Copying Array Elements Manually"
 for (int i = 0; i < 100; i++) {
     numbers[i] = other_numbers[i];
 }
@@ -328,7 +325,7 @@ By iterating over each element, you can replicate the data from one array to ano
 
 When you **declare** an array, you can initialize its elements directly using an initializer list. This list is enclosed in curly braces (`{}`) and contains the initial values for each element, separated by commas. The initializer list is placed after the array name and size during declaration.
 
-```cpp
+```cpp title="Array Declaration with Initializer List"
 int arr[5] = {1, 2, 3, 4, 5};
 ```
 
@@ -336,7 +333,7 @@ This is part of the array's construction process and does not involve reassignin
 
 An invalid but common mistake is to attempt to use the assignment operator (`=`) to initialize an array after declaration. This is not allowed in C++:
 
-```cpp
+```cpp title="Invalid Array Initialization after Declaration"
 int arr[5];
 arr = {1, 2, 3, 4, 5}; // Syntax error
 ```
@@ -357,7 +354,7 @@ Conversely, an `rvalue` is an expression that represents a temporary value or a 
 
 Lastly, what happens when you partly initialize an array? For example, consider the following code:
 
-```cpp  
+```cpp title="Partially Initializing an Array"
 int arr[5] = {1, 2};
 ```
 
@@ -371,8 +368,7 @@ Passing an array to a function is straightforward in C++, but the process involv
 
 To use an array as a function parameter, the syntax for declaring the parameter is similar to that of declaring a local array variable. For example, the following function receives an array of 10 `std::string` elements and prints them:
 
-```cpp
-// Function to print an array of 10 strings
+```cpp title="Function to Print an Array of 10 Strings"
 void print_strings(std::string my_strings[10]) 
 {
     for (int i = 0; i < 10; i++) {
@@ -383,8 +379,7 @@ void print_strings(std::string my_strings[10])
 
 You can call this function by providing an array as an argument:
 
-```cpp
-// Main function using print_strings
+```cpp title="Calling print_strings with an Array"
 int main() 
 {
     std::string array_of_strings[10];
@@ -417,8 +412,7 @@ int main()
 ```
 To write a function that safely handles arrays of different sizes, you should omit the size in the brackets (`[]`) and pass the size as a separate argument. Note that the `[]` syntax is valid only for function parameters, not for local variable declarations.
 
-```cpp
-// Function with flexible array size
+```cpp title="Function with Flexible Array Size"
 void print_strings(std::string my_strings[], int n_strings) 
 {
     for (int i = 0; i < n_strings; i++) {
@@ -429,8 +423,7 @@ void print_strings(std::string my_strings[], int n_strings)
 
 With this approach, the function works with arrays of any size, but you must explicitly pass the array's size as an additional parameter:
 
-```cpp
-// Main function using print_strings with size parameter
+```cpp title="Calling print_strings with Size Parameter"
 int main() 
 {
     std::string array_of_strings[10];
@@ -459,7 +452,7 @@ This means that the function's array parameter `my_strings[]` is not an entire c
 Remember, when you call a function with non-array variable argument, the argument is fully copied into the parameter, and you end up with two separate variables (the argument and parameter) each with their own
 entirely separate memory and separate data. In such a case, modifying the parameter's data will not affect the argument's data. 
 
-```cpp
+```cpp title="Passing Non-Array Variable by Value"
 void foo(int x) 
 {
     x += 1;

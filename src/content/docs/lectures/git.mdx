@@ -66,7 +66,7 @@ Git is a command-line utility, meaning you interact with it through a terminal. 
 
 Before using Git, you must configure some global settings, such as your name and email address. These are stored with every commit you create. To set them up, run the following commands, replacing `<your_name>` and `<your_email>` with your full name and email:
 
-```bash
+```bash title="Git Configuration"
 git config --global user.name "<your_name>"
 git config --global user.email "<your_email>"
 ```
@@ -81,7 +81,7 @@ This affects the author email recorded in your commits (and what GitHub displays
 
 You can check that these were configured correctly by running:
 
-```bash
+```bash title="Check Git Configuration"
 git config --list 
 ```
 
@@ -138,7 +138,7 @@ You don't need to understand all the details of distributed version control to u
 
 To create a GitHub repo, follow the steps on the platform's web interface. After creating a repo (or accessing one from GitHub Classroom), you can clone it into your filespace using:
 
-```bash
+```bash title="Cloning a GitHub Repo"
 git clone <github-repo-ssh-url>
 ```
 
@@ -150,7 +150,7 @@ After cloning, run `ls` in your terminal to verify that a new directory matching
 
 Once your working directory (or one of its parent directories) is tagged as a Git repo, you can use various Git commands. For example, to check the status of your repo, run:
 
-```bash
+```bash title="Check Git Repo Status"
 git status
 ```
 
@@ -185,7 +185,7 @@ There are a few important details to understand from this output:
 
 Now, suppose we modify `main.cpp` by changing the text being printed, as shown below:
 
-```diff lang="cpp"
+```diff lang="cpp" title="Modified main.cpp"
 // main.cpp
   #include <iostream>
   int main() {
@@ -219,7 +219,7 @@ In Git, every file in a repository falls into one of four categories:
 
 When creating a new commit, you must decide which files' changes should be included. To prepare files for a commit, you stage them using the `git add` command:
 
-```bash
+```bash title="Staging Files for Commit"
 git add <file1> <file2> ... <fileN>
 ```
 
@@ -227,7 +227,7 @@ You can also stage entire directories or even the entire repository. For instanc
 
 Let's say we want to commit the changes made to `main.cpp` (changing the greeting message). First, we stage the file using:
 
-```bash
+```bash title="Staging main.cpp"
 git add main.cpp
 ```
 
@@ -246,7 +246,7 @@ The output will now indicate that `main.cpp` is staged and ready to be included 
 
 Once you've staged your changes for the next commit, you can create the commit using the following command:
 
-```bash
+```bash title="Commit with Message Syntax"
 git commit -m "<commit_message>"
 ```
 
@@ -254,7 +254,7 @@ Replace `<commit_message>` with a brief description of the changes. Commit messa
 
 For example, if I wanted to commit the changes to `main.cpp`, I might use:
 
-```bash
+```bash title="Committing Changes"
 git commit -m "Change greeting message"
 ```
 
@@ -272,7 +272,7 @@ Notice that there are no more modified or staged files—all changes have been c
 
 To synchronize your local commits with the remote repository, use the git push command:
 
-```bash
+```bash title="Pushing Commits to Remote Repo"
 git push
 ```
 
@@ -291,7 +291,7 @@ Once you run `git push`, executing `git status` again will confirm that the loca
 
 To view the history of commits in your repository, use:
 
-```bash
+```bash title="Viewing Commit History"
 git log
 ```
 
@@ -325,13 +325,13 @@ In this case, there are three commits. The first one (with the message “Initia
 
 If a file in your repository has been modified but not yet staged, you can use `git diff` to view the changes since the last commit:
 
-```bash
+```bash title="Viewing Changes with git diff"
 git diff <file>
 ```
 
 For example, if I accidentally remove the semicolon in `main.cpp` and then run:
 
-```bash
+```bash title="Viewing Changes to main.cpp with git diff"
 git diff main.cpp
 ``` 
 

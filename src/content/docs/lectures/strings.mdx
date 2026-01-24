@@ -7,7 +7,7 @@ sidebar:
 
 A **string** is a sequence of characters, and a **string literal** is simply text enclosed in quotation marks `""`. You've encountered string literals many times, even in a basic “Hello, World!” program, where the printed text is enclosed as a string literal:
 
-```cpp
+```cpp title="Hello World Example"
 std::cout << "Hello, World!" << std::endl;
 ```
 
@@ -17,7 +17,7 @@ While strings may seem simple, they are actually more complex than they appear.
 
 Like other data types, **string values** can be stored in variables. However, in C++, strings are not primitive data types; they belong to a more complex type known as a **class**. To use strings, you need to include the appropriate header file. The string data type in C++ is called `std::string`, and to access it, you must add the following directive at the top of your program:
 
-```cpp
+```cpp title="Including the String Header"
 #include <string>
 ```
 
@@ -100,7 +100,7 @@ Any characters that remain after the operator stops are left in the input buffer
 
 Consider this program:
 
-```cpp
+```cpp title="Reading an Integer with >>"
 std::cout << "Enter an integer: ";
 int number;
 std::cin >> number;
@@ -135,7 +135,7 @@ If the user enters `3.5`:
 
 The output will be:
 
-```plaintext frame="terminal"
+```plaintext frame="terminal" title="Output of leftover_data.cpp"
 Number is: 3
 Leftover data is: 0.5
 ```
@@ -166,13 +166,13 @@ int main()
 
 If the user enters the famous English pangram:
 
-```plaintext frame="terminal"
+```plaintext frame="terminal" title="User Input Example"
 the quick brown fox jumps over the lazy dog
 ```
 
 The `>>` operator stops at the first space, leaving the rest of the input in the buffer. The program will output:
 
-```plaintext frame="terminal"
+```plaintext frame="terminal" title="Output of leftover_data_string.cpp"
 Enter a sequence of characters: the quick brown fox jumps over the lazy dog
 You entered the following: the
 ```
@@ -210,7 +210,7 @@ int main()
 }
 ```
 
-```plaintext frame="terminal"
+```plaintext frame="terminal" title="User Input with std::getline()"
 Enter a sequence of characters: the quick brown fox jumps over the lazy dog
 You entered the following: the quick brown fox jumps over the lazy dog
 ```
@@ -243,7 +243,7 @@ std::getline(std::cin, text);
 In this case, `std::getline()` may capture just the leftover newline, resulting in an *empty* text variable.
 To fix this, you can use `std::cin.ignore()` to discard the leftover characters (like the newline) from the input buffer before calling `std::getline()`.
 
-```cpp
+```cpp title="Using std::cin.ignore()"
 std::cin >> number;
 std::cin.ignore(); // Discard the newline character left by >>
 std::getline(std::cin, text);
@@ -252,7 +252,7 @@ std::getline(std::cin, text);
 :::tip[Extra Safe `std::cin.ignore()`]
 If you want to be extra safe (for example, if the user might type extra characters after the number), you can ignore *everything up to the next newline* instead of just one character:
 
-```cpp
+```cpp title="Extra Safe std::cin.ignore()"
 #include <limits>
 
 std::cin >> number;

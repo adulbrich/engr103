@@ -19,7 +19,7 @@ The simplest type of loop in C++ is the `while` loop. It functions similarly to 
 
 The syntax for a `while` loop is nearly identical to an `if` statement, except that `while` is used instead of `if`. However, unlike an `if` statement, a `while` loop cannot include `else if` or `else` branches. The general syntax is:
 
-```cpp
+```cpp title="While Loop Syntax"
 while (<condition>) {
     <loop body>
 }
@@ -107,7 +107,7 @@ Thankfully, C++ provides the `do-while` loop, a construct specifically designed 
 
 This distinction is reflected in their syntax. A `while` loop places the condition before the loop body, while a `do-while` loop places the body before the condition:
 
-```cpp
+```cpp title="Do-While Loop Syntax"
 do {
     <loop body>
 } while (<condition>);
@@ -169,7 +169,7 @@ The structure is more intuitive because the logic aligns with the problem's requ
 
 We can streamline the code by taking advantage of the fact that assignment operations are expressions. Instead of updating `go_again_response` inside the loop body, we can include the assignment directly in the condition:
 
-```cpp
+```cpp title="Do-While Loop with Assignment in Condition"
 do {
     double number = prompt_for_number();
     running_sum += number;
@@ -180,7 +180,7 @@ This approach removes the need to update `go_again_response` explicitly in the l
 
 If the condition variable (`go_again_response`) is only used within the condition and not elsewhere in the program, it can be removed entirely:
 
-```cpp
+```cpp title="Do-While Loop without Condition Variable"
 do {
     double number = prompt_for_number();
     running_sum += number;
@@ -199,7 +199,7 @@ A common solution to count-based repetition involves creating a counter variable
 
 Suppose you want to write a program that prints “Hello, World!” exactly 100 times. This is a classic count-based repetition problem. Using a while loop, the solution might look like this:
 
-```cpp
+```cpp title="Count-Based While Loop Example"
 #include <iostream>
 
 int main() 
@@ -233,7 +233,7 @@ C++ provides a `for` loop, a specialized construct for count-based repetition. A
 
 A `for` loop in C++ is similar to a `while` loop but uses a specialized syntax optimized for count-based repetition. Its structure is as follows:
 
-```cpp
+```cpp title="For Loop Syntax"
 for (<initialization statement>; <condition>; <post-operation>) {
     <loop body>
 }
@@ -247,7 +247,7 @@ This syntax can seem confusing at first, so here's a detailed breakdown:
 
 Here's how the count-based `while` loop example can be rewritten as a `for` loop:
 
-```cpp
+```cpp title="Count-Based For Loop Example"
 #include <iostream>
 
 int main() 
@@ -262,7 +262,7 @@ One major difference is variable scope. In the `for` loop example above, the cou
 
 For example, the following code will fail to compile because counter is out of scope after the loop:
 
-```cpp
+```cpp title="For Loop Scope Example"
 #include <iostream>
 
 int main() 
@@ -276,7 +276,7 @@ int main()
 
 To resolve this, declare the counter variable outside the loop if you need to use it afterward:
 
-```cpp
+```cpp title="For Loop with External Counter"
 #include <iostream>
 
 int main() 
@@ -308,7 +308,7 @@ int main()
 }
 ```
 
-```plaintext frame="terminal"
+```plaintext frame="terminal" title="Compilation Error: Shadowing in For Loop"
 for_shadowing.cpp:7:18: error: redefinition of 'counter' with a different type: 'long' vs 'int'
     7 |             long counter = 1;
       |                  ^
@@ -366,7 +366,7 @@ As we've mentioned, the initialization statement and post-operation in a `for` l
 2. Use a less-than operator to compare the counter against the target number of iterations.
 3. Increment the counter by 1 in the post-operation.
 
-```cpp
+```cpp title="Common For Loop Pattern"
 for (int i = 0; i < n; i++) {
     ...
 }
@@ -376,7 +376,7 @@ In this code, `n` specifies how many times the loop should execute.
 
 While the above pattern is common, it can be unintuitive in some scenarios. Consider a situation where you need to print all integers from 7 to 54, inclusive. This involves printing 48 numbers, but figuring that out isn't immediately obvious--you might need to calculate it manually. Once you determine that `n = 48`, you could set up the loop header as follows:
 
-```cpp
+```cpp title="For Loop with Offset"
 for (int i = 0; i < 48; i++) {
     if (i > 0) {
         std::cout << ", ";
@@ -387,7 +387,7 @@ for (int i = 0; i < 48; i++) {
 
 While the above solution works, it's not entirely intuitive. The loop's purpose is to print numbers from 7 to 54, yet the counter runs from 0 to 47. In such cases, breaking the common pattern often makes the code cleaner. By directly iterating the counter over the desired range, the logic becomes clearer:
 
-```cpp
+```cpp title="For Loop over Desired Range"
 for (int i = 7; i <= 54; i++) {
     if (i > 7) {
         std::cout << ", ";
@@ -400,7 +400,7 @@ This approach removes the need for offsetting and directly iterates over the val
 
 The flexibility of `for` loops allows for creative variations. For instance, suppose you want to print numbers backward from 54 to 7, skipping every other number (e.g., 54, 52, 50, ..., 8). This requires adjusting the loop header and the comma placement logic:
 
-```cpp
+```cpp title="For Loop with Decrementing Counter"
 for (int i = 54; i >= 7; i -= 2) {
     if (i < 54) {
         std::cout << ", ";
@@ -577,7 +577,7 @@ In C++, `std::endl` is a special stream manipulator that outputs a newline chara
 
 This nested loop prints a <Latex formula="10 \times 10"/> multiplication table:
 
-```plaintext frame="terminal"
+```plaintext frame="terminal" title="Multiplication Table Output"
 1       2       3       4       5       6       7       8       9       10
 2       4       6       8       10      12      14      16      18      20
 3       6       9       12      15      18      21      24      27      30

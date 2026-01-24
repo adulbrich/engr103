@@ -123,7 +123,7 @@ This is a valid C++ program, but computers cannot execute C++ directly—they un
 
 Using the g++ compiler, you can automate these steps with a single command:
 
-```bash
+```bash title="g++ Build Command Syntax"
 g++ -o <executable_name> <source_file1> <source_file2> ... <source_fileN>
 ```
 where:
@@ -132,13 +132,13 @@ where:
 
 For example, to build a single-file program `hello.cpp` into an executable named `hello_world`, run:
 
-```bash
+```bash title="g++ Build Command Example"
 g++ -o hello_world hello.cpp
 ```
 
 On UNIX-like systems (Linux/Mac), executables usually have no file extension, while on Windows, they typically use `.exe`. To run your executable, type its path in the terminal. For example:
 
-```bash
+```bash title="Running the Executable"
 ./hello_world
 ```
 
@@ -148,7 +148,8 @@ This will print `Hello, World!` to the terminal.
 
 If you update your source code (e.g., changing the output to `I love coding!!!`), you must rebuild the executable to reflect the changes:
 
-```cpp
+```cpp 
+// hello.cpp
 #include <iostream>
 int main() 
 {
@@ -198,7 +199,7 @@ Note that there is another stream insertion operator before `std::endl`, which a
 
 Multiple insertions can be chained: `std::cout << a << b << c;` is equivalent to:
 
-```cpp
+```cpp title="Chained Stream Insertions"
 std::cout << a; 
 std::cout << b; 
 std::cout << c;
@@ -208,7 +209,7 @@ std::cout << c;
 
 If `#include <iostream>` is omitted, running `g++` would produce two errors:
 
-```
+```shell title="Compiler Errors Without iostream"
 hello.cpp:2:3: error: use of undeclared identifier 'std'
     2 |   std::cout << "Hello, World!" << std::endl;
       |   ^
@@ -227,7 +228,7 @@ This indicates `std` is undefined because the `iostream` library was not include
 
 We can modify the program , for example by adding another `std::cout` statement:
 
-```diff lang="cpp"
+```diff lang="cpp" title="Modified Hello Program"
   #include <iostream>
   int main() 
   {
@@ -252,12 +253,12 @@ I love coding!!!I love coding!!!
 Without `std::endl`, output strings are printed on the same line, demonstrating the importance of line breaks for formatting.
 
 :::note[Return Value of `main`]
-
 You might notice that our `main` function is defined to return an `int`, but we didn't include a `return` statement. In C++, the `main` function is special: if execution reaches the end of `main` without encountering a return statement, it automatically returns `0`. A return value of `0` typically signals to the operating system that the program finished successfully.
 
 However, it is considered good practice to include an explicit `return 0;` at the end of `main` to make the exit status clear and consistent with other functions that return values.
 
 ```cpp
+// hello.cpp
 int main() 
 {
     std::cout << "Hello, World!" << std::endl;

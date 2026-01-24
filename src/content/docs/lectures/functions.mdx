@@ -21,7 +21,7 @@ A function definition consists of two main parts:
 
 The general syntax for a function definition is as follows:
 
-```cpp
+```cpp title="Function Definition Syntax"
 <return type> <function name>(<parameter list>) {
     <function body>
 }
@@ -31,7 +31,7 @@ A function must be declared (in this context, “declared” means defined) befo
 
 To illustrate, let's examine this simple function definition:
 
-```cpp
+```cpp title="Sum Function Definition Example"
 double sum(double first_value, double second_value) 
 {
     return first_value + second_value;
@@ -42,7 +42,7 @@ double sum(double first_value, double second_value)
 
 The function header is the first thing to determine when creating a function. It consists of the function's name, parameter list, and return type. Syntactically, it is the part of the function definition before the opening curly brace `{`.
 
-```cpp
+```cpp title="Sum Function Header Example"
 double sum(double first_value, double second_value)
 ```
 
@@ -73,7 +73,7 @@ In mathematics, parameters function as placeholders in expressions like <Latex f
 
 Similarly, function parameters in C++ are placeholders filled with actual values when the function is called. Parameters are declared as variables, but without initialization, since they are just placeholders. Their declarations are listed within parentheses after the function name, separated by commas if there are multiple parameters. This is referred to as the parameter list.
 
-```cpp
+```cpp title="Sum Function Parameters Example"
 double first_value, double second_value
 ```
 
@@ -89,7 +89,7 @@ Parameters can be of any type, and a function can have multiple parameters of di
 :::note[Default Parameter Values]
 In C++, you can give a parameter a **default value**. If the caller omits that argument, the default value is used.
 
-```cpp
+```cpp title="Function with Default Parameter Example"
 double rectangle_area(double width, double height = 1.0) 
 {
     return width * height;
@@ -98,7 +98,7 @@ double rectangle_area(double width, double height = 1.0)
 
 Then you can call the function in either of these ways:
 
-```cpp
+```cpp title="Function Calls with and without Default Parameter"
 std::cout << rectangle_area(3.0, 4.0) << std::endl; // Uses height = 4.0
 std::cout << rectangle_area(3.0) << std::endl;      // Uses default height = 1.0
 ```
@@ -134,7 +134,7 @@ Within the function body, you can:
 
 The primary role of the function body is to process its parameters and produce a return value. Once the function completes its intended operations, you can use the return statement to send the result back to the calling location. The syntax for returning a value is:
 
-```cpp
+```cpp title="Return Statement Syntax"
 return <expression>;
 ```
 
@@ -142,7 +142,7 @@ Here, the `<expression>` is evaluated, and its resulting value is sent back to w
 
 In the case study, the `sum` function calculates the sum of its two parameters, `first_value` and `second_value`, and returns the result:
 
-```cpp
+```cpp title="Sum Function Return Statement Example"
 return first_value + second_value;
 ```
 
@@ -152,7 +152,7 @@ This `return` statement evaluates the expression `first_value + second_value` an
 
 A function terminates immediately after a return statement is executed. Any code written after a return statement is considered **dead code** because it can never execute. For example:
 
-```cpp
+```cpp title="Dead Code Example"
 double sum(double first_value, double second_value) 
 {
     return first_value + second_value;
@@ -181,7 +181,7 @@ Once a function is defined, it can be called from within any other function that
 
 The syntax for calling a function is as follows:
 
-```cpp
+```cpp title="Function Call Syntax"
 <name>(<argument 1>, <argument 2>, ..., <argument N>);
 ```
 
@@ -194,7 +194,7 @@ Arguments are expressions whose values are substituted for the corresponding **p
 
 Taking the above `sum` function as an example, you can call it like this:
 
-```cpp
+```cpp title="Sum Function Call Example"
 sum(2, 3);
 ```
 
@@ -207,7 +207,7 @@ When the function is executed, `first_value` will take the value `2`, and `secon
 
 Similarly,
 
-```cpp
+```cpp cpp title="Sum Function Call with Different Argument Order"
 sum(3, 2);
 ```
 In this case:
@@ -257,7 +257,7 @@ The error message points out that the `sum` function expects two arguments (as d
 
 We've learned how to call a function, but one important question remains: how do we access the output of a function call? For example, while it's perfectly valid to call the sum function like this:
 
-```cpp
+```cpp title="Sum Function Call Without Using Return Value"
 sum(2, 3);
 ```
 
@@ -270,13 +270,13 @@ The answer is straightforward: a function call is an expression! As you may reca
 
 Since a function call is an expression, it can be used anywhere that an expression of its return type is valid. For example, you can directly use a function call in an output statement, as shown here:
 
-```cpp
+```cpp title="Sum Function Call in Output Statement"
 std::cout << sum(3, 0.14) << std::endl; // Prints 3.14
 ```
 
 A common use case is to store the return value of a function call in a variable for later use. Here's an example:
 
-```cpp
+```cpp title="Storing Function Call Return Value in Variable"
 int main() 
 {
     // Call the sum function with first_value = 2 and second_value = 3
@@ -290,7 +290,7 @@ int main()
 
 You can also use the return value of one function call as an argument to another function. This enables you to chain function calls and perform more complex operations.
 
-```cpp
+```cpp title="Chained Function Calls Example"
 int main() 
 {
     // Compute 3 + 0.1 + 0.04 as:
@@ -323,7 +323,7 @@ This behavior demonstrates that functions terminate in a **last in, first out (L
 
 It's common to pass local variables as arguments to function calls, but it's essential to understand how arguments differ from parameters. Let's clarify this with an example:
 
-```cpp
+```cpp title="Arguments vs Parameters Example"
 double sum(double first_value, double second_value) 
 {
     return first_value + second_value;
@@ -352,7 +352,7 @@ Although parameters and arguments may seem connected, they are entirely **separa
 
 To understand how arguments and parameters are independent, consider the following example:
 
-```cpp
+```cpp title="Argument and Parameter Independence Example"
 int weird_sum(int a, int b) 
 {
     int result = a + b; // Compute sum
@@ -380,7 +380,7 @@ This is because `a` and `x` are entirely separate variables, as are `b` and `y`.
 
 To make things even more confusing, argument variables and parameters can have the same names and still remain completely separate. Consider the following example, which behaves identically to the previous one:
 
-```cpp
+```cpp title="Same Names for Arguments and Parameters Example"
 int weird_sum(int a, int b) 
 {
     int result = a + b; // Compute sum
@@ -428,7 +428,7 @@ Every function's header must include a return type. For functions that do not re
 
 The following example demonstrates a `void` function that takes a number as input, rounds it to the nearest penny, formats it as a U.S. dollar amount, and prints it to the terminal. This function has a side effect (printing to the terminal) but does not return any value.
 
-```cpp
+```cpp title="Void Function Example"
 #include <cmath> // For the round() function
 #include <iostream> // For std::cout
 
@@ -482,7 +482,7 @@ Benefits of the DRY Principle:
 
 ### Function Block Comment
 
-The style guidelines include specific expectations for documenting your code. Every function you write--except for `main()`--must include a function block comment.
+The style guidelines include specific expectations for documenting your code. Every function you write, except for `main()`, must include a function block comment.
 
 The level of details of the function block comment depends on how complex the function is. For simple functions, a brief description of the function's purpose and its parameters is sufficient. For more complex functions, you should provide a more detailed explanation of the function's behavior, including any assumptions or invariants.
 

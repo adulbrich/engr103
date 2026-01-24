@@ -81,7 +81,7 @@ Once your account is created and you have internet access, you'll be ready to co
 
 To do this, type the following command into your terminal and press enter, substituting `<ONID>` with your ONID username (e.g., mine is `ulbrical`):
 
-```sh
+```shell title="SSH Command to Access ENGR Servers"
 ssh <ONID>@access.engr.oregonstate.edu
 ```
 
@@ -148,7 +148,7 @@ Now that you're logged in, your terminal is controlling the ENGR servers, not yo
 
 The prompt is essentially a marker for where you can type commands. It appears every time the shell is ready to accept input. A simple example of a default prompt might look like this:
 
-```sh
+```shell title="Simple Shell Prompt"
 user@hostname:~$
 ```
 
@@ -187,7 +187,7 @@ Now that our terminal is connected to the ENGR servers, we should learn how to u
 
 ### Basic Structure
 
-```sh
+```shell title="Basic Command Structure"
 command [options] [arguments]
 ```
 
@@ -213,7 +213,7 @@ Inputs to the command, such as file names, directories, or specific data to oper
 
 Example:
 
-```sh
+```shell title="Cat Command Example"
 cat myfile.txt
 ``` 
 
@@ -221,7 +221,7 @@ where `myfile.txt` is the argument to the `cat` command, which concatenates file
 
 Commands can accept multiple arguments:
 
-```sh
+```shell title="Copy Command Example"
 cp file1.txt file2.txt destination/
 ```
 
@@ -231,7 +231,7 @@ where `file1.txt` and `file2.txt` are source files, and `destination/` is the ta
 
 Options and arguments can be combined in various ways, depending on the command syntax.
 
-```sh
+```shell title="Tar Command Example"
 tar -czf archive.tar.gz file1 file2
 ```
 
@@ -243,13 +243,13 @@ A terminal can be thought of as a text-based version of a file explorer. At any 
 
 To see your current working directory, use the following command:
 
-```bash
+```bash title="Print Working Directory"
 pwd
 ```
 
 `pwd` stands for “print working directory,” which means it will display your current directory in the terminal. For example:
 
-```bash
+```shell title="Print Working Directory Example Output"
 /nfs/stak/users/ulbrical
 ```
 
@@ -257,7 +257,7 @@ After logging into the ENGR servers, your working directory will default to your
 
 To view the files and directories within your working directory, use:
 
-```bash
+```bash title="List Directory Contents"
 ls
 ```
 
@@ -265,7 +265,7 @@ ls
 
 A path specifies the location of a file or directory. Paths use a path separator (`/` on Linux systems) to separate directories. For example:
 
-```text
+```text frame="terminal" title="Path Example"
 A/B/C.jpg
 ```
 
@@ -275,13 +275,13 @@ We distinguish between two types of paths:
 
 - **Absolute Paths**: Start from the root directory (`/`) and specify the full path to a file or directory. For example:
 
-```text
+```text frame="terminal" title="Absolute Path Example"
 /nfs/stak/users/<ONID>/A/B/C.jpg
 ```
 
 - **Relative Paths**: Start from the current working directory and specify the path relative to it. For example:
 
-```text
+```text frame="terminal" title="Relative Path Example"
 A/B/C.jpg
 ```
 
@@ -293,19 +293,19 @@ We also have some special path shortcuts:
 
 To create a new directory, use:
 
-```bash
+```bash title="Make Directory Command"
 mkdir <path>
 ```
 
 For example
 
-```bash
+```bash title="Make Directory Example"
 mkdir A
 ```
 
 This creates a directory named `A` in the current working directory. If you want to create a directory along with its parent directories, use the `-p` flag:
 
-```bash
+```bash title="Make Parent Directories Example"
 mkdir -p A/B/C
 ```
 
@@ -313,24 +313,24 @@ This command creates `A`, `B`, and `C` if they don't already exist.
 
 To move to a different directory, use:
 
-```bash
+```bash title="Change Directory Command"
 cd <path>
 ```
 For example:
 
-```bash
+```bash title="Change Directory Example"
 cd A
 ```
 This sets your working directory to A. You can return to your home directory by running either of the following:
 
-```bash
+```bash title="Change to Parent Directory"
 cd
 cd ..
 ```
 
 To clean up your terminal screen, use:
 
-```bash
+```bash title="Clear Terminal Command"
 clear
 ```
 
@@ -343,36 +343,36 @@ Experiment with your terminal to understand how it behaves.
 
 To copy a file, use:
 
-```bash
+```bash title="Copy Command"
 cp <source_path> <destination_path>
 ```
 For example:
 
-```bash
+```bash title="Copy File Example"
 cp file1.txt file2.txt
 ```
 
 This copies `file1.txt` to `file2.txt`. To copy an entire directory, add the `-r` flag (recursive):
 
-```bash
+```bash title="Copy Directory Example"
 cp -r dir1 dir2
 ```
 
 To move a file or directory, use:
 
-```bash
+```bash title="Move Command"
 mv <source_path> <destination_path>
 ```
 
 For example:
 
-```bash
+```bash title="Move File Example"
 mv file1.txt dir1/
 ```
 
 This moves `file1.txt` into `dir1/`. You can also use `mv` to rename files:
 
-```bash
+```bash title="Rename File Example"
 mv old_name.txt new_name.txt
 ```
 
@@ -380,27 +380,28 @@ This renames the file from `old_name.txt` to `new_name.txt`.
 
 To delete a file, use:
 
-```bash
+```bash title="Remove Command"
 rm <path>
 ```
 
 For example:
 
-```bash
+```bash title="Remove File Example"
 rm file1.txt
 ```
 
 To remove a directory and all its contents, use the `-r` flag:
 
-```bash
+```bash title="Remove Directory and its Contents Example"
 rm -r dir1
 ```
 
 Most shell commands require a path as an argument. For example, to list the contents of a specific directory, use:
 
-```bash
+```bash title="List Directory Contents at Specific Path"
 ls <path>
 ```
+
 This command displays the contents of the directory at `<path>`. Similarly, paths are used with commands like `cp`, `mv`, and `rm` to specify files or directories to operate on.
 
 By mastering these basic commands, you can effectively navigate and manage files within the terminal:
@@ -423,7 +424,7 @@ A pipe connects the output of one command directly to the input of another, enab
 
 Example:
 
-```bash
+```bash title="Pipe Example"
 ls | grep "example"
 ```
 - `ls` lists the files in the directory.
@@ -437,19 +438,19 @@ Redirection allows you to control where a command's output goes or where it take
 
 - Output Redirection (`>`) redirects the output of a command to a file, overwriting the file if it exists.
 
-```bash
+```bash title="Output Redirection Example: Overwrites File"
 echo "Hello, World!" > output.txt
 ```
 
 - Append Output (`>>`) appends the output of a command to a file without overwriting it.
 
-```bash
+```bash title="Output Redirection Example: Appends to File"
 echo "Another line" >> output.txt
 ```
 
 - Input Redirection (`<`) redirects a file as input to a command.
 
-```bash
+```bash title="Input Redirection Example"
 wc -l < input.txt
 ```
 
@@ -466,7 +467,7 @@ Common Environment Variables:
 - `HOME`: The current user's home directory.
 - `USER`: The name of the current user.
 
-```bash
+```bash title="Environment Variable Example"
 echo $HOME
 ```
 
@@ -474,7 +475,7 @@ This command prints the value of the `HOME` environment variable, which should r
 
 You can also define your own variables:
 
-```bash
+```bash title="Defining Environment Variable Example"
 MY_VAR="Hello, World!"
 echo $MY_VAR
 ```
@@ -487,19 +488,19 @@ The shell allows you to execute commands in specific orders and combine them usi
 
 - `&&` executes the next command only if the previous command succeeds.
 
-```bash
+```bash title="Logical AND Example"
 mkdir new_dir && cd new_dir
 ```
 
 - `||` executes the next command only if the previous command fails.
 
-```bash
+```bash title="Logical OR Example"
 cd nonexistent_dir || echo "Directory not found"
 ```
 
 - `;` executes commands sequentially, regardless of success or failure.
 
-```bash
+```bash title="Sequential Execution Example"
 echo "First" ; echo "Second"
 ```
 These operators provide fine-grained control over the flow of commands, enabling you to automate and script tasks with precision.
@@ -508,7 +509,7 @@ These operators provide fine-grained control over the flow of commands, enabling
 
 A subshell is a separate child process created by the shell to execute commands. It inherits the environment of the parent shell but operates independently. When a subshell runs a command or a group of commands, changes made in the subshell (like variable assignments or directory changes) do not affect the parent shell.
 
-```bash
+```bash title="Subshell Example"
 (cd /tmp && ls)
 ```
 
@@ -520,7 +521,7 @@ A subshell is a separate child process created by the shell to execute commands.
 
 Command substitution is a way to capture the output of a command and use it in another command. This is achieved using the `$()` syntax, making it a crucial tool for dynamic command generation and scripting. When using `$()`, the shell spawns a subshell to execute the command inside the `$()` and replaces the substitution with the command's output.
 
-```bash
+```bash title="Command Substitution Example"
 echo "Today is $(date)"
 ```
 
@@ -531,13 +532,13 @@ By now, you should have a solid understanding of how to navigate a file system i
 
 To open a file in vim, use the following command:
 
-```bash
+```bash title="Open File in vim Command"
 vim <path>
 ```
 
 This opens the file at the specified path. If the file doesn't exist, vim will create it. For instance, to create a file named `hello.txt` in your current directory, you would run:
 
-```bash
+```bash title="Create and Open hello.txt in vim"
 vim hello.txt
 ```
 
@@ -606,7 +607,7 @@ After pressing **Enter**, you'll return to your regular SSH session.
 
 You can customize vim by creating a file named `.vimrc` in your home directory. Open it in vim:
 
-```bash
+```bash title="Open .vimrc in vim"
 vim ~/.vimrc
 ```
 
@@ -617,7 +618,7 @@ Add vim commands (without colons) to configure default settings. For instance:
 
 Each command should go on its own line.
 
-```text title="vimrc" frame="terminal"
+```text title=".vimrc" frame="terminal"
   1 set mouse=A
   2 set nu█
 ~
@@ -630,7 +631,7 @@ Each command should go on its own line.
 
 To confirm that a file was saved, run the following command in the correct directory:
 
-```bash
+```bash title="List Directory Contents Command"
 ls
 ```
 
@@ -638,13 +639,13 @@ This will show `hello.txt` in your working directory.
 
 To show hidden files (like `.vimrc`), use the `-a` flag:
 
-```bash
+```bash title="List All Files Command"
 ls -a ~
 ```
 
 You can use the `cat` command to view the contents of a file. Originally designed to concatenate files, `cat` also works for a single file, printing its contents to the terminal. For example:
 
-```bash
+```bash title="Cat Command Example"
 cat hello.txt
 ```
 
@@ -652,7 +653,7 @@ This will display the text you wrote in `hello.txt`. If you want to view the con
 
 The cat command can also concatenate multiple files. For example:
 
-```bash
+```bash title="Concatenate Multiple Files Command"
 cat file1.txt file2.txt file3.txt
 ```
 This will combine the contents of `file1.txt`, `file2.txt`, and `file3.txt` in order, displaying the result in the terminal.

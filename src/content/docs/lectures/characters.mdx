@@ -10,7 +10,7 @@ import AsciiTable from '../../../components/AsciiTable.astro'
 
 The `char` data type is used to store a single character in C++. A character literal is represented by a single character enclosed in single quotes (e.g., `'A'`). To declare a char-typed variable, you can write:
 
-```cpp
+```cpp title="Char Variable Declaration"
 char myLetter = 'A';
 ```
 
@@ -48,13 +48,11 @@ This is probably sounding pretty abstract. So here's an image of the ASCII table
 
 <AsciiTable />
 
-{/* ![ASCII Table](https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/ASCII-Table-wide.svg/1280px-ASCII-Table-wide.svg.png) */}
-
 Specifically, pay attention to the “Decimal” and “Char” columns of the above table. These columns provide the mappings. For example, the ASCII numeric representation of capital 'A' is the number 65.
 
 Each character has a direct numeric representation in ASCII. You can convert between char and int using casting. For instance:
 
-```cpp
+```cpp title="ASCII Conversion Example"
 std::cout << static_cast<char>(72); 
 std::cout << static_cast<char>(101);
 std::cout << static_cast<char>(108);
@@ -64,7 +62,7 @@ std::cout << static_cast<char>(111);
 
 This program prints `“Hello”` by converting integers to their corresponding characters using the ASCII table. However, such manual conversion is unnecessary because C++ automatically handles character-to-ASCII conversions. The same program can be rewritten more simply:
 
-```cpp
+```cpp title="Character Literal Example"
 std::cout << 'H';
 std::cout << 'e';
 std::cout << 'l';
@@ -116,7 +114,7 @@ In the `if` statement, we check if the character lies between `'a'` and `'z'`. T
 
 Let's solve a slightly more complex problem: converting a lowercase letter to its uppercase equivalent. If the input character is already uppercase or not a letter, it should remain unchanged. Again, we can use the contiguity of ASCII values for this task.
 
-```cpp
+```cpp title="Lowercase to Uppercase Conversion"
 char to_uppercase(char my_cool_character) 
 {
     // If the character is not a lowercase letter, return it as-is

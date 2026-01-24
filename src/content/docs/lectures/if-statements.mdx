@@ -34,7 +34,7 @@ This chain of “**if…else if…else**” logic ensures that *only one* sequen
 
 Here's how you can represent this logic in C++:
 
-```cpp
+```cpp title="If Statement Structure"
 if (condition_A) {
     // Sequence of operations A
 } else if (condition_B) {
@@ -104,7 +104,7 @@ Sometimes, your program may require conditional logic that executes operations o
 
 Let's modify the earlier example so that the program does nothing if the user enters a value greater than 10. The main function would look like this:
 
-```cpp
+```cpp title="If Statement Without else"
 int main() 
 {
     // Prompt user for a number
@@ -130,7 +130,7 @@ What's the difference between ending with an `else if` statement and not ending 
 
 It's important to note that code written outside any if, else if, or else statements is unconditional and will always execute. For example:
 
-```cpp
+```cpp title="Unconditional Code"
 int main() 
 {
     // Prompt user for a number
@@ -154,7 +154,7 @@ int main()
 
 You can also omit `else if` statements if they are unnecessary. For example:
 
-```cpp
+```cpp title="If Statement with Single Condition"
 int main() 
 {
     // Prompt user for a number
@@ -175,7 +175,7 @@ int main()
 
 It's also valid to have an `if` statement immediately followed by an `else` statement without any `else if` blocks in between. This creates **two mutually exclusive** operations, where **exactly one** will execute. For example:
 
-```cpp
+```cpp title="Mutually Exclusive if-else Statement"
 int main() 
 {
     // Prompt user for a number
@@ -252,7 +252,7 @@ While this program works correctly, the implementation has stylistic issues:
 
 To address one these concerns, the second `if` statement can be replaced with an `else if` statement. This makes it explicitly clear that only one of the conditions will execute:
 
-```cpp
+```cpp title="Changing if-if to if-else if"
 /*
  * Function: print_pass_or_fail
  * Description: Prints whether the user passed or failed based on the grade percentage
@@ -273,7 +273,7 @@ By using `else if`, the code now explicitly reflects the mutual exclusivity of t
 
 Since the conditions `grade < 60` and `grade >= 60` are complementary (i.e., if one is `false`, the other must be `true`), there's no need to explicitly check the second condition. Instead, the `else if` can be replaced with an `else`:
 
-```cpp
+```cpp title="Changing else if to else"
 /*
  * Function: print_pass_or_fail
  * Description: Prints whether the user passed or failed based on the grade percentage
@@ -309,7 +309,7 @@ In C++, it's legal to omit curly braces from the body of an `if` statement (or a
 
 The following program demonstrates this behavior and will print `"Two plus two is four!"`:
 
-```cpp
+```cpp title="Implied Curly Braces Example"
 if (2 + 2 == 4)
     std::cout << "Two plus two is four!" << std::endl;
 else if (2 + 2 == 5)
@@ -318,11 +318,11 @@ else
     std::cout << "Oh no! Math is so hard! :(" << std::endl;
 ```
 
-Unlike some programming languages, C++ **does not** rely on indentation to determine code structure. This means that the way your code is indented has no effect on its behavior (though proper indentation is critical for human readability). We say that C++ is not whitespace-sensitive.
+Unlike some programming languages, C++ **does not** rely on indentation to determine code structure. This means that the way your code is indented has no effect on its behavior (though proper indentation is critical for human readability). We say that C++ is *not whitespace-sensitive*.
 
 For example, consider the following program:
 
-```cpp
+```cpp title="Misleading Indentation Example"
 if (2 + 2 == 100)
     std::cout << "Woo! Two plus two is 100!" << std::endl;
     std::cout << "Hello, World!" << std::endl;
@@ -332,7 +332,7 @@ At first glance, the indentation might suggest that both `std::cout` statements 
 
 The above program is equivalent to:
 
-```cpp
+```cpp title="Corrected Indentation Example"
 if (2 + 2 == 100)
     std::cout << "Woo! Two plus two is 100!" << std::endl;
 
@@ -351,7 +351,7 @@ To avoid these pitfalls, it's best to always use curly braces for `if` statement
 
 For example, the program above would be safer and clearer if written as:
 
-```cpp
+```cpp title="Using Curly Braces Example"
 if (2 + 2 == 100) {
     std::cout << "Woo! Two plus two is 100!" << std::endl;
 }
@@ -363,7 +363,7 @@ std::cout << "Hello, World!" << std::endl;
 
 In C++, you can nest `if` statements, meaning you can place one `if` statement inside another. This creates a structure similar to a logical AND operation, where both conditions must be satisfied for a particular block of code to execute.
 
-```cpp
+```cpp title="Nested If Statements Example"
 if (i_like_spaghetti) {
     if (i_like_broccoli) {
         std::cout << "I like both spaghetti AND broccoli!" << std::endl;
@@ -377,7 +377,7 @@ if (i_like_spaghetti) {
 
 If either condition is `false`, the program does nothing. This behavior is analogous to the logical `&&` operator with short-circuiting (i.e., the second condition is not evaluated unless the first condition is `true`).
 
-```cpp
+```cpp title="Nested If Statements Behavior"
 if (i_like_spaghetti) {
     if (i_like_broccoli) {
         std::cout << "I like both spaghetti AND broccoli!" << std::endl;
@@ -393,7 +393,7 @@ if (i_like_spaghetti) {
 
 You can rewrite nested `if` statements using the logical`&&` operator. For example:
 
-```cpp
+```cpp title="Using Logical AND Instead of Nested Ifs"
 if (i_like_spaghetti && i_like_broccoli) {
     std::cout << "I like both spaghetti AND broccoli!" << std::endl;
 } else {
@@ -407,7 +407,7 @@ if (i_like_spaghetti && i_like_broccoli) {
 
 To replicate the behavior of the nested `if` statements, you can use an `else if` statement:
 
-```cpp
+```cpp title="Using Logical AND with else if"
 if (i_like_spaghetti && i_like_broccoli) {
     std::cout << "I like both spaghetti AND broccoli!" << std::endl;
 } else if (i_like_spaghetti) {
@@ -441,7 +441,7 @@ When you omit curly braces in nested if statements, C++ associates any `else` or
 
 For example:
 
-```cpp
+```cpp title="Misleading Nested If Example"
 if (2 + 2 == 4)
     if (4 + 5 == 8)
         std::cout << "A" << std::endl;
@@ -456,7 +456,7 @@ At first glance, it might seem like the program will print nothing because both 
 
 To make this clearer, rewrite the program with proper indentation:
 
-```cpp
+```cpp title="Corrected Nested If Indentation Example"
 if (2 + 2 == 4)
     if (4 + 5 == 8)
         std::cout << "A" << std::endl;
@@ -466,7 +466,7 @@ if (2 + 2 == 4)
 
 Or better, use curly braces to avoid ambiguity:
 
-```cpp
+```cpp title="Using Curly Braces in Nested If Statements"
 if (2 + 2 == 4) {
     if (4 + 5 == 8) {
         std::cout << "A" << std::endl;
@@ -562,7 +562,7 @@ where x is some numeric expression (e.g., an int variable or a more complex expr
 
 A naive attempt to write this condition in C++ might look like this:
 
-```cpp
+```cpp title="Incomplete Logical Operand Example"
 x == 2 || 0
 ```
 
@@ -575,13 +575,13 @@ In such situations, C++ implicitly converts the int to a boolean using its boole
 
 As a result, the above expression is interpreted as:
 
-```cpp
+```cpp title="Implicit Conversion Example"
 x == 2 || false
 ```
 
 Applying a logical OR `||` operation to false has no effect because it's equivalent to an identity operation. Therefore, the expression simplifies further to:
 
-```cpp
+```cpp title="Simplified Expression"
 x == 2
 ```
 
@@ -589,7 +589,7 @@ Clearly, this is not the logic you intended to express. Instead of checking whet
 
 To correctly express the logic “x is equal to 2 or 0”, ensure that **both operands are complete boolean expressions**. This means explicitly stating each comparison:
 
-```cpp
+```cpp title="Correct Logical Operand Example"
 x == 2 || x == 0
 ```
 
@@ -605,7 +605,7 @@ When expressing conditions like “x is between 1 and 10”, it's common in math
 
 At first glance, you might think this could be directly translated into C++ as:
 
-```cpp
+```cpp title="Risky Chained Inequality Example"
 1 <= x <= 10
 ```
 
@@ -613,7 +613,7 @@ However, this approach introduces a bug because C++ does not evaluate chained in
 
 In C++, operators are evaluated one at a time, from left to right, unless parentheses explicitly change the order of operations. Therefore, the above expression is equivalent to:
 
-```cpp
+```cpp title="Risky Chained Inequality Breakdown"
 (1 <= x) <= 10
 ```
 
@@ -638,7 +638,7 @@ The parentheses here clarify that the expression is not treated as a single comp
 
 To express the condition “x is between 1 and 10” in C++, you need to use a logical AND `&&` to combine two separate inequalities:
 
-```cpp
+```cpp title="Correct Chained Inequality Example"
 1 <= x && x <= 10
 ```
 
@@ -651,7 +651,7 @@ Only if **both** conditions are `true` will the entire expression evaluate to `t
 
 You can reverse the order in different ways, for example:
 
-```cpp
+```cpp title="Alternative Correct Chained Inequality Examples"
 x >= 1 && x <= 10
 x <= 10 && x >= 1
 ```
@@ -679,7 +679,7 @@ int main()
 
 This code will fail to compile. The compiler expects an if statement preceding the else but does not find one. Here is the resulting compiler error:
 
-```plaintext frame="terminal"
+```plaintext frame="terminal" title="Compiler Error: Single Else Without If"
 else_error.cpp:4:5: error: expected expression
     4 |     else {
       |     ^
@@ -764,13 +764,13 @@ If your program contains `if` statements that don't behave as expected, this is 
 
 A popular way to prevent this error is to use “Yoda Notation”, which involves writing constant values on the left-hand side of an equality check. For example:
 
-```cpp
+```cpp title="Yoda Notation Example"
 if (5 == x)
 ```
 
 Instead of:
 
-```cpp
+```cpp title="Standard Notation Example"
 if (x == 5)
 ```
 
@@ -786,7 +786,7 @@ If you perform a series of mathematical operations on floating point numbers, ro
 
 Because of these precision issues, comparing floating point numbers for exact equality often fails. Consider the following problematic if statement:
 
-```cpp
+```cpp title="Floating Point Equality Example"
 if (some_floating_point_value == some_other_floating_point_value) {
     // Code here
 }
@@ -796,7 +796,7 @@ This condition will likely evaluate to `false`, even if the two values are “cl
 
 Instead of checking for exact equality, compare the difference between the two values and ensure it falls within an acceptable range (or “tolerance”). For example:
 
-```cpp
+```cpp title="Floating Point Approximate Equality Example"
 if (std::abs(some_floating_point_value - some_other_floating_point_value) < 0.000001) {
     // Code here
 }

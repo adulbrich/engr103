@@ -9,7 +9,7 @@ import Latex from '../../../components/Latex.astro'
 
 In C++, the following is a perfectly valid statement:
 
-```cpp
+```cpp title="Expression Statement Example"
 5;
 ```
 
@@ -41,8 +41,7 @@ By using parentheses effectively, you can make your code easier to read and prev
 
 Let's bring everything together. Consider the following program:
 
-```cpp
-// arithmetic_ex1.cpp
+```cpp title="Arithmetic Example 1"
 #include <iostream>
 
 int main() 
@@ -54,7 +53,7 @@ int main()
 
 When this program is run, it produces the following output:
 
-```text frame="terminal"
+```text frame="terminal" title="Arithmetic Example 1 Output"
 15.5
 0
 ```
@@ -75,13 +74,13 @@ The expression `(6.0 / 3.0 - 8 % 3)` is evaluated as follows:
 
 Notice that I used double-typed literals (e.g., 1.0, 2.0, 6.0) for division and int-typed literals for everything else. This distinction is important. Let's look at a slight modification of the first line of the code:
 
-```cpp
+```cpp title="Arithmetic Example 2"
 std::cout << (5 * 3 + 1 / 2) << std::endl;
 ```
 
 Here, the only change is replacing `1.0 / 2.0` with `1 / 2`. You might expect this to produce the same output (15.5), but it doesn't. Instead, it prints:
 
-```text frame="terminal"
+```text frame="terminal" title="Arithmetic Example 2 Output"
 15
 ```
 
@@ -113,7 +112,7 @@ By doing so, the division produces a double result, preserving the fractional pa
 On another note, the modulo operator `%` only works with integral types. If you attempt to use a floating-point operand on either side of the modulo operator, it will result in a syntax error, and your program will fail to compile. For example, consider the following program:
 
 ```cpp 
-// bad-modulo.cpp
+// bad_modulo.cpp
 #include <iostream>
 
 int main() 
@@ -124,7 +123,7 @@ int main()
 
 When you try to compile this code using `g++`, you'll encounter an error like this:
 
-```text frame="terminal"
+```text frame="terminal" title="Compilation Error for Invalid Modulo Operation"
 bad-modulo.cpp: In function ‘int main()':
 bad-modulo.cpp:4:21: error: invalid operands of types ‘int' and ‘double' to binary ‘operator%'
     4 |     std::cout << (5 % 2.0) << std::endl;
@@ -166,8 +165,7 @@ Here's what these three functions do:
 
 Here's a simple program demonstrating the use of these functions:
 
-```cpp
-// math-examples.cpp
+```cpp title="Math Functions Example"
 #include <iostream>
 #include <cmath>
 
@@ -183,7 +181,7 @@ int main()
 
 When you run this program, the output will be:
 
-```text frame="terminal"
+```text frame="terminal" title="Math Functions Example Output"
 32
 12
 8
@@ -191,7 +189,7 @@ When you run this program, the output will be:
 
 It's important to include the `<cmath>` header file to access these functions. If you forget to include it, your program *might* fail to compile, and you'll get an error like this:
 
-```text frame="terminal"
+```text frame="terminal" title="Compilation Error Without cmath"
 math-examples.cpp: In function 'int main()':
 math-examples.cpp:4:22: error: ‘pow’ is not a member of ‘std’
 

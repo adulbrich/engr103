@@ -26,7 +26,7 @@ Now that we've covered the rules, let's move on to how type casting works.
 
 Type coercion is a form of type casting that happens automatically when an expression of one type is used where an expression of another type is expected. Consider the following example:
 
-```cpp
+```cpp title="Type Coercion Example"
 double x = 3;
 ```
 
@@ -47,7 +47,7 @@ std::cout << pi << std::endl;
 
 The above program prints:
 
-```plaintext frame="terminal"
+```plaintext frame="terminal" title="Output of Implicit Type Coercion Example"
 3
 3.14159265
 ```
@@ -64,7 +64,7 @@ Explicit type casting occurs when you use specific syntax to intentionally cast 
 
 To perform a static cast, use the following syntax:
 
-```cpp
+```cpp title="Static Cast Syntax"
 static_cast<TARGET_TYPE>(EXPRESSION)
 ```
 

@@ -122,7 +122,7 @@ int main()
 }
 ```
 
-```text
+```text frame="terminal" title="Error Accumulation Example"
 0.30000000000000004441
 ```
 
@@ -199,19 +199,19 @@ For the `&&`, `&`, `||`, and `|` operators, the operands can be any expressions 
 
 If you want to check whether a variable x is equal to either 1 or 2, the correct boolean expression would be:
 
-```cpp
+```cpp title="Correct Usage of Logical OR"
 x == 1 || x == 2
 ```
 
 A common mistake is writing:
 
-```cpp
+```cpp title="Incorrect Usage of Logical OR"
 x == 1 || 2
 ```
 
 This is incorrect because `x == 1` is evaluated as a boolean, but `2` is treated as a numeric literal. According to the boolean conversion rules, all non-zero numeric values are treated as `true`. As a result, the expression `x == 1 || 2` simplifies to:
 
-```cpp
+```cpp title="Simplified Incorrect Expression"
 x == 1 || true
 ```
 
@@ -219,13 +219,13 @@ This is always `true`, regardless of the value of `x`, making it a tautology.
 
 If you want to check whether a variable x is between two values a and b, you would write:
 
-```cpp
+```cpp title="Correct Usage of Logical AND"
 x >= a && x <= b
 ```
 
 A common mistake is writing:
 
-```cpp
+```cpp title="Incorrect Usage of Chained Comparison"
 a <= x <= b
 ```
 

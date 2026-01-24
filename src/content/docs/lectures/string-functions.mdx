@@ -9,6 +9,8 @@ import Latex from '../../../components/Latex.astro'
 
 ## Classes and Objects
 
+{/* TODO: proper class/object explanation, maybe on separate page */}
+
 The `std::string` type in C++ is not a primitive data type. Instead, it is a more complex type defined in the `<string>` header file, and it is known as a class.
 
 A **class** is essentially a complex type that encapsulates both **data** and **behavior**. When you create an instance of a class (i.e., a variable of a class type), it is called an **object**. For example, in C++, strings are objects--they include both data (the text) and behavior (functions that act on the text).
@@ -19,7 +21,7 @@ An object is a **composite data type**, meaning it can include multiple pieces o
 
 To access an object's members (variables or functions), you use the **dot operator** (`.`), formally known as the **member access operator**. The syntax is:
 
-```cpp
+```cpp title="Accessing Object Members"
 <object>.<member>
 ```
 
@@ -27,7 +29,7 @@ Here, `<object>` is the name of your object (e.g., a string variable), and `<mem
 
 The `std::string` class has a member function called `size()`, which takes no arguments and returns the number of characters in the string. For a string variable named `my_string`, you can call this function as:
 
-```cpp
+```cpp title="Using the .size() Function"
 my_string.size();
 ```
 
@@ -97,14 +99,14 @@ Consequently, the index of the last character in a string is always equal to the
 
 Suppose you have a string variable named `my_string` and want to print its third character. You would use the `.at()` function like this:
 
-```cpp
+```cpp title="Using the .at() Function"
 std::cout << my_string.at(2) << std::endl;
 ```
 
 :::note[Using `.at()` vs `[]`]
 You may also see the **subscript operator** `[]` used to index strings:
 
-```cpp
+```cpp title="Using the Subscript Operator"
 std::cout << my_string[2] << std::endl;
 ```
 
@@ -140,7 +142,7 @@ bool string_contains_character(std::string the_string, char char_to_look_for)
 
 The `.at()` function allows not only reading but also modifying a character at a specified index. You can use the assignment operator (`=`) with `.at()` to change a character. For example:
 
-```cpp
+```cpp title="Modifying a Character with .at()"
 my_string.at(4) = 'E';
 ```
 
@@ -160,7 +162,7 @@ std::cout << my_string.at(12) << std::endl; // Prints "!"
 std::cout << my_string.at(13) << std::endl; // Out-of-bounds! Runtime error.
 ```
 
-```plaintext frame="terminal"
+```plaintext frame="terminal" title="Output of Out-of-Bounds Access"
 H
 !
 libc++abi: terminating due to uncaught exception of type std::out_of_range: basic_string
@@ -237,7 +239,7 @@ int main()
 
 Below is the output you would see when running the program:
 
-```plaintext frame="terminal"
+```plaintext frame="terminal" title="Output of string_functions.cpp"
 The quick brown fox jumps over the lazy dog.
 44
 c

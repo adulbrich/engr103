@@ -15,13 +15,13 @@ In C++, a **variable** is a named entity that refers to a fixed location in memo
 
 To create a variable in C++, you must first declare it. A standalone C++ variable declaration follows this structure:
 
-```cpp
+```cpp title="Variable Declaration Syntax"
 <type> <identifier>;
 ```
 
 Here, `<type>` specifies the kind of data the variable will store, and `<identifier>` is the name you assign to the variable. For example, to declare a variable named `num_students` of type `int`, you would write:
 
-```cpp
+```cpp title="Variable Declaration Example"
 int num_students;
 ```
 
@@ -48,7 +48,7 @@ Assignment in C++ is performed using the **assignment operator**, represented by
 
 The expression is evaluated, and its resulting value is stored in the variable's memory. For example, the following statement stores the value `10` in the variable `num_students`:
 
-```cpp
+```cpp title="Variable Assignment Example"
 num_students = 10;
 ```
 
@@ -64,19 +64,19 @@ It's also essential to understand that assignment happens last. If the expressio
 
 Once a value is assigned to a variable (e.g., num_students), you can **read** or **use** it in other parts of your program. To do this, simply refer to the variable by name. At runtime, the variable's name will be replaced by its stored value. For instance, to print the value of num_students to the terminal, you can write:
 
-```cpp
+```cpp title="Printing a Variable to the Terminal"
 std::cout << num_students << std::endl;
 ```
 
 This will produce the following output:
 
-```plaintext frame="terminal"
+```plaintext frame="terminal" title="Output of Printing a Variable to the Terminal"
 10
 ```
 
 But what happens if you try to read (or “use”) a variable before assigning it a value? For example, consider this program:
 
-```cpp
+```cpp title="Using an Uninitialized Variable"
 #include <iostream>
 
 int main() 
@@ -94,13 +94,13 @@ Critically, undefined behavior is not a syntax error and cannot be reliably dete
 
 To prevent undefined behavior, it's a best practice to initialize variables immediately after declaring them. C++ allows you to combine variable declaration and initialization in a single statement:
 
-```cpp
+```cpp title="Variable Declaration and Initialization"
 <type> <identifier> = <expression>;
 ```
 
 For example:
 
-```cpp
+```cpp cpp title="Declaring and Initializing a Variable"
 int my_cool_integer = 0;
 ```
 
@@ -110,7 +110,7 @@ Even if you plan to update the variable later, initializing it to a **default va
 
 One of the key features of variables in C++ is that you can assign new values to them at any time. For example, consider the following program:
 
-```cpp
+```cpp title="Reassigning Variable Values"
 #include <iostream>
 
 int main() 
@@ -126,7 +126,7 @@ int main()
 
 This program produces the following output:
 
-```plaintext frame="terminal"
+```plaintext frame="terminal" title="Output of Reassigning Variable Values"
 20
 21
 ```
@@ -137,7 +137,7 @@ It's worth noting that the statement `num_students = num_students + 1` might loo
 
 It's crucial to remember that variables should be **declared only once**. In the program above, the variable `num_students` is declared and initialized with the statement:
 
-```cpp
+```cpp title="Variable Declaration and Initialization"
 int num_students = 10;
 ```
 
@@ -145,7 +145,7 @@ In every subsequent line, the variable is referenced simply as `num_students`, w
 
 If you mistakenly prefix the variable name with its type again, like this:
 
-```cpp
+```cpp title="Incorrect Variable Re-declaration"
 int num_students = num_students + 1;
 ```
 
@@ -167,7 +167,7 @@ We also have stream operators
 
 Using `std::cin`, you can capture user input and store it in a variable. The syntax is as follows:
 
-```cpp
+```cpp title="User Input Syntax"
 std::cin >> <variable_identifier>;
 ```
 

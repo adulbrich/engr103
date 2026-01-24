@@ -18,7 +18,7 @@ This means:
 
 To use a type modifier, place it before or after the type being modified. For example:
 
-```cpp
+```cpp title="Const Variable Declaration"
 const char my_cool_character = 'D';
 ```
 
@@ -37,7 +37,7 @@ However, compile-time constants have an additional restriction: their initial va
 
 Here's an example of a `constexpr` declaration:
 
-```cpp
+```cpp title="Constexpr Variable Declaration"
 constexpr char my_cool_character = 'D';
 ```
 
@@ -47,7 +47,7 @@ This works because `'D'` is a literal and, therefore, a compile-time constant.
 
 While `const` and `constexpr` often overlap, they are not interchangeable in all cases. Consider the following example:
 
-```cpp
+```cpp title="Const Initialization at Runtime"
 char user_input;
 std::cin >> user_input;
 const char my_cool_character = user_input;
@@ -64,7 +64,7 @@ Here, `my_cool_character` is a runtime constant initialized with the value of `u
 
 `constexpr` variables are particularly useful for replacing literals. For example, instead of hardcoding the value of π multiple times, you can define it as a `constexpr`:
 
-```cpp
+```cpp title="Pi Constant Declaration"
 constexpr double pi = 3.14159265;
 ```
 
@@ -89,13 +89,13 @@ You might wonder why constants are necessary, given their additional rules. Whil
 
 Constants help eliminate logic errors by converting them into syntax errors. For example, consider the following declaration:
 
-```cpp
+```cpp title="Pi Variable Declaration"
 double pi = 3.14159265;
 ```
 
 As a fixed mathematical constant, `pi` should never change. However, with a regular variable, it's possible to *accidentally* reassign its value, leading to a logic error. Logic errors are problematic because they're syntactically valid and often difficult to diagnose. If you instead declare `pi` as a constant expression, any attempt to reassign its value will result in a syntax error.:
 
-```cpp
+```cpp title="Pi Constant Declaration"
 constexpr double pi = 3.14159265;
 ```
 

@@ -97,25 +97,25 @@ Both pointers and references are types of variables designed to store memory add
 
 The modification to use a reference is minimal. Normally, to declare a variable `<name>` of type `<type>`, the syntax is:
 
-```cpp
+```cpp title="Variable Declaration Syntax"
 <type> <name>;
 ```
 
 To declare a variable `<name>` as a “*reference to a value of type* `<type>`,” the syntax is:
 
-```cpp
+```cpp title="Reference Variable Declaration Syntax"
 <type>& <name>;
 ```
 
 The ampersand (`&`) between the type specifier and the variable name indicates that the variable doesn't store a value but rather the memory address of an existing value. For example:
 
-```cpp
+```cpp title="Integer Reference Declaration Example"
 int& ref = x; // `ref` is a reference to the integer variable `x`.
 ```
 
 You might also encounter the ampersand placed next to the variable name, like this:
 
-```cpp
+```cpp title="Alternative Reference Variable Declaration Syntax"
 <type> &<name>;
 ```
 
@@ -133,7 +133,7 @@ Both placements are functionally identical, and the choice is stylistic. The key
 
 We can modify the `change_value_and_print()` function from earlier to use a reference parameter, enabling the function to directly modify the value of the `x` variable declared in `main()`. The only required change is to declare the parameter as a reference to an `int`:
 
-```cpp  
+```cpp title="Function with Reference Parameter"
 void change_value_and_print(int& x) 
 {
     ...
@@ -174,7 +174,7 @@ int main()
 
 Once a reference is initialized, using the assignment operator doesn't modify the reference itself. Instead, it modifies the value of the variable the reference points to.
 
-```cpp
+```cpp title="Reference Assignment Example"
 int a = 10;
 int& ref = a; // `ref` references `a`
 ref = 20;     // Changes the value of `a` to 20
@@ -220,7 +220,7 @@ However, in this specific example, using a reference is redundant because you co
 
 References can also be copied into other references. If `y` is a reference to `x`, and `z` is declared as a reference initialized with `y`, then `z` also becomes a reference to `x`. For example:
 
-```cpp
+```cpp title="Chained References Example"
 std::string x;
 std::string& y = x;
 std::string& z = y;
@@ -233,7 +233,7 @@ std::cout << x << std::endl; // Prints "Hello"
 
 References cannot store the address of a literal or a temporary value (i.e., `rvalue`). Attempting to do so results in a syntax error. For instance, the following code is invalid:
 
-```cpp
+```cpp title="Invalid Reference to Literal"
 int& x = 100; // Syntax error
 ```
 
@@ -243,7 +243,7 @@ Technically, there is an exception: you can bind a `const` reference to an `rval
 
 In C++, you can declare a reference as `const`, which means the reference cannot be used to modify the underlying variable. This is useful when you want to pass a variable to a function by reference but don't want the function to modify the variable. Let's revisit the `change_value_and_print()` function and modify it to accept a `const` reference:
 
-```cpp
+```cpp title="Function with Const Reference Parameter"
 #include <iostream>
 
 void print(const int& x) 
@@ -262,7 +262,7 @@ int main()
 
 You can use the same `const` trick while passing arrays to functions. While arrays are not technically references, it will achieve a similar outcome. For instance, let's revisit the `print_strings()` function that prints the elements of an array. We can use the `const` keyword to ensure the function doesn't modify the array (i.e., the elements are read-only):
 
-```cpp  
+```cpp title="Function with Const Array Parameter"
 void print_strings(const std::string my_strings[], int n_strings) 
 {
     for (int i = 0; i < n_strings; i++) {
