@@ -44,7 +44,7 @@ In the previous studio, you generated an SSH key pair to authenticate your lapto
 
     If you've already generated SSH keys on the ENGR servers, skip to step 3. Otherwise enter the following command in your terminal and press Enter:
 
-    ```bash
+    ```bash title="Generate SSH Keys"
     ssh-keygen -t ed25519
     ```
 
@@ -59,7 +59,7 @@ In the previous studio, you generated an SSH key pair to authenticate your lapto
 
     Navigate to the directory where your SSH keys are stored (default: `~/.ssh/`). By default, your SSH key files should be named `id_ed25519` and `id_ed25519.pub`. Use the following command to print the contents of the public key file (`id_ed25519.pub`):
 
-    ```bash
+    ```bash title="Display Public SSH Key"
     cat id_ed25519.pub
     ```
 
@@ -102,14 +102,14 @@ Follow these steps to clone your Studio 2 GitHub repository to the ENGR servers.
 
     Run the following command in your terminal, replacing `<repository-ssh-url>` with the SSH URL you copied earlier:
 
-    ```bash
+    ```bash title="Clone Studio 2 Repository"
     git clone <repository-ssh-url>
     ```
 5. **Verify the Clone**
     
     Run the `ls` command. You should see a new directory named `studio-2-XXX`, where `XXX` is your GitHub username. Navigate into the new directory using:
     
-    ```bash
+    ```bash title="Navigate to Cloned Repository"
     cd studio-2-XXX
     ```
 

@@ -68,7 +68,7 @@ Review the [Linux shell commands](/lectures/development-environment/#shell-comma
 
 In your studio 1 project directory, use vim to open a file called `main.cpp`:
 
-```bash
+```bash title="Open main.cpp in vim"
 vim main.cpp
 ```
 
@@ -102,7 +102,7 @@ In this course, we will use the `g++` compiler to translate our C++ code into ma
 
 To compile your C++ code into machine code, use the following command:
 
-```bash
+```bash title="Compile C++ Code Command Structure"
 g++ -o <name of executable> <file1.cpp> <file2.cpp> ... <fileN.cpp>
 ```
 
@@ -110,7 +110,7 @@ This command will create a new executable file that can run your program directl
 
 In ENGR 103, you'll typically only compile one `.cpp` file at a time, as we won't be working on large programs with multiple source code files. For example, if your only source file is `main.cpp`, you could use the following command to create an executable named run:
 
-```bash
+```bash title="Compile main.cpp into run Executable"
 g++ -o run main.cpp
 ```
 
@@ -126,7 +126,7 @@ To execute your program, you can run the executable just like any other terminal
 
 If this happens and you see an error like “command not found,” you'll need to specify the executable in your current working directory. To do this, try the following:
 
-```bash
+```bash title="Run Executable from Current Directory"
 ./run
 ```
 
@@ -142,7 +142,7 @@ You've completed most of this studio, but there's one final step to make future 
 1. Open a second terminal window, but don't close the first one.
 
 2. If you've generated SSH keys on your computer in the past, skip to step 3. Otherwise, type the following command into your second terminal and press enter:
-    ```bash
+    ```bash title="Generate SSH Keys Command"
     ssh-keygen -t ed25519
     ```
     Follow the on-screen instructions. You'll be asked where to store your SSH keys. Take note of the storage location--you'll need this information for the next step. Press **Enter** to save them in the default location (recommended).
@@ -158,14 +158,14 @@ You've completed most of this studio, but there's one final step to make future 
 
 4. Open your original terminal session where you're still connected to the ENGR servers. Run the following commands to create and configure the permissions on a `~/.ssh` folder:
 
-    ```bash
+    ```bash title="Create .ssh Directory"
     mkdir -p ~/.ssh
     chmod 700 ~/.ssh
     ```
     Note that the first character in those file paths is a tilde (`~`).
 5. Use vim to open your SSH authorized keys file:
 
-    ```bash
+    ```bash title="Open authorized_keys in vim"
     vim ~/.ssh/authorized_keys
     ```
 
@@ -178,13 +178,13 @@ You've completed most of this studio, but there's one final step to make future 
 
 6. Update the permissions of your `~/.ssh/authorized_keys` file via the following command:
 
-    ```bash
+    ```bash title="Set authorized_keys Permissions"
     chmod 600 ~/.ssh/authorized_keys
     ```
 
 7. In the second terminal session (the one where you generated your SSH keys and are not currently connected to the ENGR servers), try reconnecting to the ENGR servers using the same command you used at the start of this studio:
 
-    ```bash
+    ```bash title="Reconnect to ENGR Servers via SSH"
     ssh <Your_ONID>@access.engr.oregonstate.edu
     ```
 

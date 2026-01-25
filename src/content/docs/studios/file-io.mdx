@@ -26,13 +26,13 @@ Both classes are like `std::string`--they are objects created using constructors
 
 To create an `std::ifstream` or `std::ofstream` object, use the constructor syntax:
 
-```cpp
+```cpp title="File Stream Object Creation Syntax"
 <type> <variable_name>(<constructor_arguments>);
 ```
 
 For example, the following creates an `std::ofstream` object for writing to a file:
 
-```cpp
+```cpp title="Creating an ofstream Object"
 std::ofstream my_cool_ofstream("my_cool_file.txt", std::ios::app);
 ```
 
@@ -54,7 +54,7 @@ If the file doesn't exist, it will be created during this process.
 
 Once an `std::ofstream` object is created, writing to the file is as simple as using the same syntax as `std::cout`:
 
-```cpp
+```cpp title="Writing to an ofstream Object"
 std::cout << "Hello, World!" << std::endl; // Writes to the console.
 hello_world_stream << "Hello, World!" << std::endl; // Writes to the file.
 ```
@@ -128,7 +128,7 @@ int main()
 
 If `data.txt` is present in the working directory, this program will output:
 
-```text
+```text frame="terminal" title="file_input_stream.cpp Output"
 Washington, George
 Adams, John
 Jefferson, Thomas
@@ -141,6 +141,7 @@ Monroe, James
 Suppose you have a file, `student-data.txt`, with the following structure:
 
 ```text
+// student-data.txt
 <number of students>
 <first name> <last name> <age>
 <first name> <last name> <age>

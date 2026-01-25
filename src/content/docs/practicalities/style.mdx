@@ -162,14 +162,13 @@ class rectangle
 
 To be fair, the C++ standard library uses **snake_case** for variables and functions, which leads many developers to follow the same convention.
 
-
 ## Code Comments
 
 Include **file-level comments** at the top and **function-level comments** above functions. Write inline comments *sparingly* to clarify non-obvious logic. Do not be unnecessarily verbose or state the completely obvious.
 
 For file-level comments, you should include the following information:
 
-```c++
+```c++ title="File-Level Comment"
 /*
 * Author: <INSERT YOUR FIRST AND LAST NAME HERE>
 * Description: <BRIEFLY DESCRIBE THE PURPOSE OF THIS PROGRAM>
@@ -208,7 +207,7 @@ bool calculateQuadraticRoots(double a, double b, double c, double &root1, double
 
 For simple functions, a brief description is enough, given that the function and parameter names are descriptive.
 
-```c++
+```c++ title="Function-Level Comment"
 /**
  * Calculates the area of a rectangle.
  */
@@ -449,7 +448,7 @@ Testing is outside the scope of this course, but it's important to keep in mind 
 
 Use the prompt below to guide AI code generation according to this style guide.
 
-```md
+```md title="AI Instruction Prompt for C++ Styling"
 Rewrite or reformat this C++ code according to the following rules:
 
 - Use spaces (not tabs) with consistent 2- or 4-space indentation.

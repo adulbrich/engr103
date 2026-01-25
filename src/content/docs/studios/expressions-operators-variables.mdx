@@ -19,11 +19,11 @@ Convert the following mathematical expression into a C++ expression:
 
 <Latex formula="x^2 + 3x - 7" inline={false}/>
 
-```text title="Solution 1"
+```text title="Solution 1 to Example Problem 1"
 std::pow(x, 2) + 3 * x - 7
 ```
 
-```text title="Solution 2"
+```text title="Solution 2 to Example Problem 1"
 x * x + 3 * x - 7
 ```
 
@@ -33,7 +33,7 @@ Convert the following mathematical expression into a C++ expression:
 
 <Latex formula="\frac{\ln(x+5)}{x^y + z}" inline={false}/>
 
-```text title="Solution"
+```text title="Solution to Example Problem 2"
 std::log(x + 5) / (std::pow(x, y) + z)
 ```
 
@@ -88,7 +88,6 @@ int x = 5;
 int y = std::pow(x, 3) + 7; // Coercion from double to int
 double z = std::log(y);
 ```
-
 
 ### Example Problem 4
 

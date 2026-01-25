@@ -85,13 +85,13 @@ Here's an example using GDB (available on the ENGR servers).
 
 First compile your code with the `-g` flag to include debugging information:
 
-```shell
+```shell title="Compile with Debug Info"
 g++ -g -o run debug_cerr.cpp
 ```
 
 Then run GDB with your compiled program:
 
-```shell
+```shell title="Start GDB Session"
 gdb ./run
 ```
 
@@ -99,7 +99,7 @@ This will open an interactive GDB session.
 
 Finally, set breakpoints, run the program, and inspect variables:
 
-```shell
+```shell title="GDB Commands"
 (gdb) break main
 (gdb) run
 (gdb) print a
@@ -117,7 +117,7 @@ If you accidentally step into a function and want to get back out, `finish` runs
 
 To exit GDB, use the `quit` command:
 
-```shell
+```shell title="Exit GDB"
 (gdb) quit
 ```
 
@@ -129,13 +129,13 @@ A core dump is a file that captures the memory of a program at a specific point 
 
 First, enable core dumps:
 
-```shell
+```shell title="Enable Core Dumps"
 ulimit -c unlimited
 ```
 
 Then run your program. If it crashes, it will create a `core` file that you can analyze with:
 
-```shell
+```shell title="Analyze Core Dump"
 gdb ./run core
 ```
 
@@ -147,13 +147,13 @@ Static code analysis tools analyze your code without executing it. They can help
 
 On the ENGR servers, `clang` is installed and so is its static analyzer. You can run:
 
-```shell
+```shell title="Clang Static Analyzer"
 clang++ --analyze -Xanalyzer -analyzer-output=text debug_cerr.cpp
 ```
 
 Alternatively, you can run `scan-build` (which comes with `clang`):
 
-```shell
+```shell title="Scan-Build Static Analysis"
 scan-build g++ debug_cerr.cpp -o run
 ```
 

@@ -139,7 +139,7 @@ A composite number (non-prime) is divisible by other integers besides 1 and itse
 
 To check divisibility of an integer <Latex formula="a"/> by another integer <Latex formula="b"/>, use the following boolean expression:
 
-```cpp
+```cpp title="Check Divisibility"
 a % b == 0
 ```
 
@@ -247,6 +247,6 @@ Avoid using integers to sample coordinates, as truncation would lead to a highly
 
 To randomly sample a floating-point value within a specific interval <Latex formula="[a, b]"/>, use the following expression:
 
-```cpp
+```cpp title="Random Floating-Point Sampling"
 (static_cast<double>(std::rand()) / RAND_MAX) * (b - a) + a
 ```

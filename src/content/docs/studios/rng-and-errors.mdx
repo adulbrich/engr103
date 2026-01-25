@@ -34,7 +34,8 @@ A common approach is to derive the seed from the current time. Specifically, the
 To set the PRNG seed, use the `srand` function provided by `<cstdlib>`. This function accepts an integer argument representing the seed. Typically, you should call `srand` only once at the beginning of your program, usually in the main function.
 
 Example of setting the seed:
-```cpp
+
+```cpp title="Seeding the PRNG with Current Time"
 std::srand(time(nullptr));
 ```
 
@@ -99,7 +100,7 @@ This section is dedicated to helping you identify and resolve common errors in a
 
 Suppose your compiler outputs the following error message when trying to compile a program:
 
-```text frame='terminal'
+```text frame='terminal' title="Compiler Error 1"
 main.cpp: In function 'double triple_number()':
 main.cpp:4:16: error: 'favorite_number' was not declared in this scope
 4 | return favorite_number * 3;
@@ -140,7 +141,7 @@ Looking at the code and the error message, what changes might you make to the co
 
 Suppose your compiler outputs the following error message when trying to compile a program:
 
-```text frame='terminal'
+```text frame='terminal' title="Compiler Error 2"
 main.cpp: In function 'char prompt_for_character()':
 main.cpp:7:1: warning: no return statement in function returning non-void [-Wreturn-type]
 7 | }
@@ -178,7 +179,7 @@ Looking at the code and the error message, what changes might you make to the co
 
 Suppose you want to convert the mathematical statement <Latex formula="f(x) = 2x + 5"/> to a C++ function. You've implemented the function for it, but your compiler outputs the following error message when trying to compile your code:
 
-```text frame='terminal'
+```text frame='terminal' title="Compiler Error 3"
 main.cpp: In function 'double f(double)':
 main.cpp:4:16: error: unable to find numeric literal operator 'operator""x'
 4 | return 2x + 5;
