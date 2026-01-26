@@ -9,6 +9,7 @@ import Latex from '../../../components/Latex.astro'
 import LinearEquationsForm from '../../../components/LinearEquationsForm.svelte'
 import AssignmentRequirements from '../../../components/AssignmentRequirements.astro'
 import AssignmentAICritique from '../../../components/AssignmentAICritique.astro'
+import RubricTable from '../../../components/RubricTable.astro'
 
 In this assignment, you will write two small programs to solve systems of linear equations in different contexts. The second problem is more challenging and carries more weight in the rubric.
 
@@ -205,3 +206,7 @@ The following only applies to Problem 2 (the gardening problem).
 
 <LinearEquationsForm client:load />
 <div class="print:block hidden italic">The simulators are not printed to PDF. Consult the online textbook to see them.</div>
+
+## Rubric
+
+<RubricTable src="canvas/assignments/linear-equations-rubrics.tsv" caption="Linear Equations Rubric" />

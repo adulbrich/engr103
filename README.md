@@ -6,7 +6,7 @@ This repository contains the source code for the ENGR103 website.
 
 This coming term:
 
-- [ ] Add the Canvas assignments + rubrics to GitHub
+- [ ] Add the Canvas assignments + rubrics to GitHub (OK for assignments 2, 3, 4, 5)
 
 Every term:
 
@@ -17,11 +17,11 @@ Every term:
 - [x] Update **Syllabus** in Canvas
 - [x] Update the version of this repository if making changes (`package.json`)
 - [x] Add TAs to Canvas
-- [ ] Create team **Bookings** page for assignment demo and set up slots (**not working**, investigate alternatives?)
+- [x] Create team **Bookings** page for assignment demo and set up slots
 - [x] Update sections in Canvas
 - [x] Update **TA Names** in Canvas
 - [x] Update **Office Hours** in Canvas
-- [ ] Update **Booking Links** in Canvas
+- [x] Update **Booking Links** in Canvas
 - [x] Create **GitHub Classroom** class
 - [x] Add TAs to GitHub Organization and send Classroom invite link
 - [x] Add assignments to GitHub Classroom
@@ -61,7 +61,6 @@ npx @marp-team/marp-cli@latest web-graphics.md --pdf --allow-local-files
   - what constitutes a computer (incl. hardware components relevant to programming), ties in with memory later
   - diagram to show how tranlsators work (compiler, linker, loader)
   - diagram to show build pipeline for C++
-- [ ] Add visual explanations for git
 - [ ] Mention using `getline()` in dictionary assignment instead of `cin`
 - [ ] Provide larger code examples/programs the students can play with
 
@@ -69,7 +68,6 @@ npx @marp-team/marp-cli@latest web-graphics.md --pdf --allow-local-files
 
 - [ ] Use [Internationalization](https://starlight.astro.build/guides/i18n/) to have multiple version of the course for different terms or different languages.
 - [ ] Change the icon for the language dropdown (code instead of translation)
-- [ ] Figure out the CSS for the Latex component. Right now, the containing `<span>` has some padding on the right which looks odd when there's punctuation following the expression.
 
 Here's an example of the change to be made to `astro.config.mjs` to enable different versions:
 

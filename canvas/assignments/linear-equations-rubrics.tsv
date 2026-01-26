@@ -1,0 +1,17 @@
+Problem 1: Prompts the user for inputs via std::cout		true	2	Full Marks		0	No Marks							
+Problem 1: Receives user inputs via std::cin	Storing inputs in appropriately typed variables.	true	4	Full Marks		0	No Marks							
+Problem 1: Solves for N		true	5	Full Marks		0	No Marks							
+Problem 1: Prints N via std::cout		true	2	Full Marks		0	No Marks							
+Problem 2: Prompts the user for inputs via std::cout		true	5	Full Marks		0	No Marks							
+Problem 2: Receives user inputs via std::cin	Storing inputs in appropriately typed variables.	true	10	Full Marks		0	No Marks							
+Problem 2: Solves for M1		true	10	Full Marks		0	No Marks							
+Problem 2: Solves for M2		true	7	Full Marks		0	No Marks							
+Problem 2: Solves for M3		true	3	Full Marks		0	No Marks							
+Problem 2: Solves for the total proportion of nitrogen in the fertilizer		true	4	Full Marks		0	No Marks							
+Problem 2: Solves for the total proportion of phosphorus in the fertilizer		true	4	Full Marks		0	No Marks							
+Problem 2: Solves for the total proportion of potassium in the fertilizer		true	4	Full Marks		0	No Marks							
+Problem 2: Prints all computed outputs via std::cout		true	5	Full Marks		0	No Marks							
+AI Critique	Submits ai_gardening.cpp and ai_reflection.txt. Reflection must include: (1) two things the AI did well, (2) two potential problems with the AI solution, (3) whether the student would trust the solution, with reasoning.	true	10	Full Marks		0	No Marks							
+Style: File block comments are provided		true	2	Full Marks		0	No Marks							
+Style: Follows remaining relevant style guidelines	Each program can be encapsulated entirely within its respective main() function. This column counts downward from full points with deductions for mistakes (clipped at 0): globals (-5), indentation (up to -10), documentation/variable names (up to -5), naming consistency (up to -5), whitespace separation (up to -3), other style issues (TA discretion, up to -5).	true	8	Full Marks		0	No Marks							
+Provides reasonable answers to TA's questions during demo		true	15	Full Marks		0	No Marks							
