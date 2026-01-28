@@ -7,6 +7,8 @@ sidebar:
 
 {/* https://stackoverflow.com/questions/7479946/whats-an-expression-and-expression-statement-in-c */}
 
+import MemoryPoolDiagram from '../../../components/MemoryPoolDiagram.astro'
+
 Programs are essentially sequences of instructions that operate on data. To write a program, it is essential to represent data, define operations that transform the data, and allocate storage for intermediate data during execution.
 
 In general programming, an **expression** is a non-empty sequence of literals, variables, operators, and function calls that calculates a value. The process of executing an expression is called **evaluation**, and the resulting value produced is called the **result** of the expression (also sometimes called the **return value**).
@@ -48,7 +50,7 @@ Note that these expressions are combined using the `<<` operator to produce the 
 
 All expressions in a program have both types and values. For a computer to work with these values, it must represent them internally. Modern digital computers rely on the binary numeric system to store and process data. In fact, all data in a computer program is ultimately stored in numeric form.
 
-Expressions have types and values, which must be stored internally by the computer. Modern computers use the binary numeric system for data representation, storing everything in numeric form.
+Expressions have types and values, which must be stored internally by the computer. Modern computers use the binary numeric system for data representation.
 
 ### Binary and Decimal Systems
 
@@ -97,6 +99,8 @@ Data can be stored in:
     - **Large Capacity**: Designed to store large amounts of data, such as files, videos, and programs.
 - **Random Access Memory (RAM)**: Much faster than disk storage but is volatile, meaning data is lost when the computer is turned off. It is used for temporary storage of data and instructions that the CPU needs while running a program.
 
+Think of storage or memory as a large collection of *boxes*, each with a **unique address**. Each box can hold a **fixed** amount of data (typically one byte). When a program runs, it requests boxes from memory to store data temporarily while executing instructions.
+
 ## Expression Types
 
 The type of an expression determines:
@@ -132,10 +136,12 @@ Primitive data types have fixed sizes in memory, but the exact size can vary dep
 - `char`: Always requires 1 byte, as mandated by the C++ standard. It is the only primitive type with a fixed size specified by the standard.
 - `float`: Typically requires 4 bytes. This allows for the representation of decimal values but with less precision compared to `double`.
 - `double`: Typically requires 8 bytes, which is twice the size of a float. This allows it to store larger values and more precise decimals.
-- `bool`: Usually requires 1 byte, but this can vary depending on the system.
+- `bool`: Usually requires 1 byte, but on some older systems, it may occupy more space (e.g., 2 or 4 bytes).
+
+<MemoryPoolDiagram />
 
 :::note[Typically?]
-The term "typically" is used because the C++ standard does not mandate exact sizes for most primitive data types, except for `char`. Instead, it specifies minimum ranges that these types must support, allowing some flexibility in their implementation. The actual size can vary depending on the system architecture and compiler implementation.
+The term "typically" is used because the C++ standard does not mandate exact sizes for most primitive data types, except for `char` and `bool` (both are 1 byte). Instead, it specifies minimum ranges that these types must support, allowing some flexibility in their implementation. The actual size can vary depending on the system architecture and compiler implementation.
 :::
 
 C++ expressions of different types may share the *same binary representation* but are interpreted differently. For example, the integer 65 and the character 'A' may have the same binary representation (1000001) but are interpreted differently based on their types. 

@@ -47,9 +47,23 @@ In the realm of computing, humans write programs in **high-level** programming l
 
 ### Machine Language
 
-Computers understand only their machine language, which is a **low-level** language consisting of binary operation codes specific to a processor. Machine language is difficult for humans to read and write due to its complexity and lack of abstraction.
+Computers understand only their machine language, which is a **low-level** language consisting of binary operation codes specific to a Central Processing Unit (CPU). Machine language is difficult for humans to read and write due to its complexity and lack of abstraction.
 
-It would be very difficult to write meaningful software using such a primitive language. To make matters worse, different processors (computers) have different machine languages, so your program wouldn't even be portable (e.g., it might only run on one very specific style of CPU).
+:::note[What are the Components of a Computer?]
+A computer consists of several key components that work together to process data and execute programs:
+
+- **Central Processing Unit (CPU)**: The brain of the computer that performs calculations and executes instructions.
+- **Random Access Memory (RAM)**: Temporary storage that holds data and instructions while the computer is running.
+- **Storage Devices**: Permanent storage for data and programs, such as hard drives (HDDs) or solid-state drives (SSDs).
+- **Motherboard**: The main circuit board that connects all components of the computer.
+- **Graphics Processing Unit (GPU)**: Specialized processor for rendering images and videos, often used in gaming and graphic design.
+
+There are many other components (such as input and output devices, power supply, etc.), but these are the most relevant for understanding how programs are executed.
+:::
+
+:::note[Why Not Just Write in Machine Language?]
+It would be very difficult to write meaningful software using such a primitive language. To make matters worse, different CPUs have different machine languages, so your program wouldn't even be portable.
+:::
 
 ### Translator Programs
 
@@ -134,6 +148,25 @@ For example, to build a single-file program `hello.cpp` into an executable named
 
 ```bash title="g++ Build Command Example"
 g++ -o hello_world hello.cpp
+```
+
+```mermaid
+flowchart TB
+  subgraph SRC["C++ Source Files"]
+    S1["source_file1.cpp &#xA; (e.g., hello.cpp)"]
+    S2["source_file2.cpp"]
+  end
+
+  S1 --> P1["Preprocessing"]
+  S2 --> P2["Preprocessing"]
+
+  P1 --> O1["Compilation"]
+  P2 --> O2["Compilation"]
+
+  O1 --> L["Linking"]
+  O2 --> L
+  LIB["Libraries"] --> L
+  L --> EXE["executable &#xA; (e.g., hello_world)"]
 ```
 
 On UNIX-like systems (Linux/Mac), executables usually have no file extension, while on Windows, they typically use `.exe`. To run your executable, type its path in the terminal. For example:
