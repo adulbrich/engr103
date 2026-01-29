@@ -76,7 +76,7 @@ async function combinePDFs() {
   const coverFont = await mergedPdf.embedFont(StandardFonts.HelveticaBold);
   const coverSubFont = await mergedPdf.embedFont(StandardFonts.Helvetica);
 
-  const titleText = "ENGR 103 — Complete Course Materials";
+  const titleText = "ENGR 103 Complete Course Materials";
   const subtitleText = "Engineering Computation and Algorithmic Thinking";
   const authorText = "Alex Ulbrich";
   const generatedDate = `Generated: ${formattedDate}`;

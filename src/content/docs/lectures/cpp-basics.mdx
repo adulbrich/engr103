@@ -207,20 +207,20 @@ int main()
 }
 ```
 
-##### `#include <iostream>`
+**`#include <iostream>`**
 
 - A *preprocessor directive* instructing the compiler to insert the contents of the `iostream` header file from the C++ standard library before compilation. 
 - Angle brackets `<>` denote a system header file, part of the C++ Standard Library. This library provides pre-written code for common tasks. `iostream` specifically provides tools for input/output (IO) streams, enabling interaction with the terminal (console). A stream is a channel for sending and receiving data.
 - Without this line, attempting to use `std::cout` would result in a syntax error because it wouldn't be defined.
 
-##### `int main() {}`
+**`int main() {}`**
 
 - Defines a **function** named `main`, the special entry point for any C++ program.
 - The `int` indicates that the function returns an integer value (typically `0` to indicate successful execution).
 - The `{}` enclose the function body, which contains the code executed when the program runs.
 - The program's *control flow* starts at `main`. When the program is executed, the code inside `main` is executed sequentially.
 
-##### `std::cout << "Hello, World!" << std::endl;`
+**`std::cout << "Hello, World!" << std::endl;`**
 
 - `std::cout` represents the standard output stream (connected to the terminal).
 - `<<` is the stream insertion operator, used to send data into the output stream.
