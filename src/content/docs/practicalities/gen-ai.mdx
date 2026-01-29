@@ -33,19 +33,42 @@ GenAI does **not** understand your program the way a human does.
 - It can make confident mistakes (including subtle C++ mistakes).
 - Unless a tool is explicitly connected to the internet or your files, it cannot "see" your project or browse documentation.
 
-> GenAI is very good at producing a "reasonable-sounding guess." Your job is to verify that guess.
+### Wait — Can Some Tools “Verify” Things Now?
+
+Yes, some modern GenAI tools are **more than just a text-only LLM**.
+
+Many systems are *tool-augmented* and/or *multimodal*. That means they might be able to:
+
+- **Run code** (or run unit tests) in a sandbox.
+- **Compile and lint** code and report real compiler messages.
+- **Search the web or documentation** and cite sources.
+- **Read images** (screenshots of code/errors) and extract details.
+- **Inspect files** you've explicitly shared with the tool.
+
+When a tool does one of these things, it can sometimes verify a claim in a real, checkable way (for example: “this code fails to compile” or “this unit test fails”).
+
+An LLM by itself is a text generator. Verification comes from *running tools* (compilers, tests, search, file access), not from 
+"understanding like a human.""
+
+Tool outputs can be incomplete, misconfigured, or based on the wrong version of a library. Always reproduce important results locally (compile, run, and test your own code).
+
+**GenAI is very good at producing a "reasonable-sounding guess." Your job is to verify that guess.**
 
 ## Frontier Models (Today)
 
 There are many GenAI systems, but the most capable general-purpose ones are typically "frontier" LLMs (state-of-the-art models) offered by major labs. You'll commonly see:
 
-- GPT models by OpenAI
-- Claude models by Anthropic
-- Gemini models by Google
-- Grok models by xAI
+- [GPT models](https://chatgpt.com/) by OpenAI
+- [Claude models](https://claude.ai/) by Anthropic
+- [Gemini models](https://gemini.google.com/) by Google
+- [Grok models](https://grok.com/) by xAI
 - Open-weight models like Llama, Qwen, Kimi, GLM, DeepSeek, or Mistral
 
 These change quickly. The important point is not the brand name, it's that different models have different strengths (coding accuracy, explanation quality, speed, safety filters, etc.).
+
+Oregon State University's approved tool for GenAI use is **Microsoft Copilot**. It generally uses OpenAI models under the hood. There are a lot of other tools that can leverage the models listed above, in addition to the brand-specific tools (like ChatGPT).
+
+If you use GitHub and VS Code, you can also access GitHub Copilot. Students can get free access to GitHub Copilot [through GitHub Education](https://education.github.com/pack).
 
 ## Strengths and Weaknesses
 
@@ -183,6 +206,10 @@ Share the smallest amount of information needed to get useful help.
 :::caution[The Golden Rule of GenAI Use]
 If you can't explain what every part of your submission does (and why it's correct), you are not ready to turn it in.
 :::
+
+### Local Models
+
+You can run some open-weight models locally on your own computer. This avoids privacy concerns but may require a powerful GPU and technical setup. There are some lightweight models that can run on a modest machine, but they are generally less capable. The easiest way to get started is probably with [Ollama](https://ollama.com/).
 
 ## Academic Integrity
 
