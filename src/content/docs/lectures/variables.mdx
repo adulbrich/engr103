@@ -6,6 +6,7 @@ sidebar:
 ---
 
 import Latex from '../../../components/Latex.astro'
+// import VariableLifecycleDiagram from '../../../components/VariableLifecycleDiagram.astro'
 
 We've learned how to represent data in our programs and explored ways to manipulate it to compute new data. However, as our computations become more complex, it will eventually become impractical—if not impossible—to perform all operations in a single, large expression or statement. Additionally, the data we've used so far has been constant, hard-coded values (literals or operations based on them). But what if we need to perform computations on values that vary at runtime, such as an integer input provided by a user? To address these needs, we require a way to store and name values, enabling us to refer to them later in our code.
 
@@ -150,6 +151,8 @@ int num_students = num_students + 1;
 ```
 
 You would be trying to declare a new variable named `num_students`, which would result in a syntax error in this case. This behavior is consistent with the rules of C++, where referencing a variable by name without its type refers to an existing variable, whereas prefixing it with a type declares a new variable. Declaring multiple variables with the same name is illegal in most contexts and leads to errors.
+
+{/* <VariableLifecycleDiagram /> */}
 
 ## Reading Values from the User
 

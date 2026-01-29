@@ -1,0 +1,134 @@
+---
+const variableName = "num_students";
+const variableType = "int";
+
+const bytes = Array.from({ length: 16 }, (_, i) => i);
+
+type Step = {
+  title: string;
+  code: string;
+  valueDisplay: string;
+  rhsValueDisplay?: string;
+  note?: string;
+};
+
+const steps: Step[] = [
+  {
+    title: "Declare",
+    code: `${variableType} ${variableName};`,
+    valueDisplay: "??",
+    note: "Declaring reserves 4 bytes for the variable, but its value is unspecified until initialization.",
+  },
+  {
+    title: "Initialize",
+    code: `${variableName} = 10;`,
+    valueDisplay: "10",
+    rhsValueDisplay: "10",
+    note: "Initialization writes the first value into the same 4-byte region.",
+  },
+  {
+    title: "Reassign",
+    code: `${variableName} = 20;`,
+    valueDisplay: "20",
+    rhsValueDisplay: "20",
+    note: "The right-hand side is evaluated first (temporarily), then the result is stored in the variable.",
+  },
+  {
+    title: "Reassign (using old value)",
+    code: `${variableName} = ${variableName} + 1;`,
+    valueDisplay: "21",
+    rhsValueDisplay: "21",
+    note: "The right-hand side is evaluated first; then the result is written back.",
+  },
+];
+---
+
+<div class="mt-0 mb-4">
+  <div class="text-sm text-center font-semibold mb-2">
+    Step-by-step: code line → memory change
+  </div>
+
+  <div class="grid gap-4">
+    {steps.map((step, stepIndex) => (
+      <div class="mt-0">
+        <div class="mt-0 font-semibold text-sm">{stepIndex + 1}. {step.title}</div>
+
+        <div class="mt-1 font-mono text-xs rounded border border-gray-200 dark:border-gray-700 bg-gray-50/60 dark:bg-gray-800/40 px-2 py-2">
+          {step.code}
+        </div>
+
+        <div class="mt-2 w-fit mx-auto md:mx-0">
+          <div class="grid grid-cols-8 gap-1">
+            {bytes.map((index) => {
+              if (index === 0) {
+                return (
+                  <div
+                    class="relative mt-0 col-span-4 rounded border-2 border-sky-500 bg-sky-200 text-sky-950 dark:bg-sky-900/50 dark:border-sky-400 dark:text-sky-100 h-10 sm:h-11 flex items-center justify-center font-mono text-[13px] font-bold leading-none"
+                    title={`${variableName} (${variableType}), bytes 0–3`}
+                    aria-label={`${variableName} (${variableType}), bytes 0–3`}
+                  >
+
+                    <div class="absolute left-1 top-0.5 text-[10px] font-semibold font-mono opacity-90 leading-none">
+                      {variableName}
+                    </div>
+
+                    <span class="-translate-y-px">{step.valueDisplay}</span>
+                  </div>
+                );
+              }
+
+              if (index > 0 && index < 4) {
+                return null;
+              }
+
+              if (step.rhsValueDisplay && index === 4) {
+                return (
+                  <div
+                    class="relative mt-0 col-span-4 rounded border-2 border-amber-500 bg-amber-200 text-amber-950 dark:bg-amber-900/50 dark:border-amber-400 dark:text-amber-100 h-10 sm:h-11 flex items-center justify-center font-mono text-[13px] font-bold leading-none"
+                    title={`rhs (temporary), bytes 4–7`}
+                    aria-label={`rhs (temporary), bytes 4–7`}
+                  >
+                    <div class="absolute left-1 top-0.5 text-[10px] font-semibold font-mono opacity-90 leading-none">
+                      rhs (temporary)
+                    </div>
+
+                    <span class="-translate-y-px">{step.rhsValueDisplay}</span>
+                  </div>
+                );
+              }
+
+              if (step.rhsValueDisplay && index > 4 && index < 8) {
+                return null;
+              }
+
+              return (
+                <div
+                  class="mt-0 flex items-center justify-center rounded border font-mono text-[11px] leading-none w-10 h-10 sm:w-11 sm:h-11 bg-gray-50 border-gray-300 text-gray-700 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
+                  title={`unused byte ${index}`}
+                  aria-label={`unused byte ${index}`}
+                />
+              );
+            })}
+          </div>
+        </div>
+
+        {step.rhsValueDisplay && (
+          <p class="mt-1 text-xs text-gray-600 dark:text-gray-300">
+            The RHS value exists only during evaluation (shown here in bytes 4–7); then it is stored into <span class="font-mono">{variableName}</span>.
+          </p>
+        )}
+
+        {step.note && (
+          <p>
+            {step.note}
+          </p>
+        )}
+      </div>
+    ))}
+  </div>
+
+  <p>
+    The <strong>label</strong> (<span class="font-mono">{variableName}</span>) is the name used in code and is <strong>scope-dependent</strong> (not globally unique).
+    The variable also has a specific <strong>memory address</strong> at runtime (unique for that instance), which the program uses to find these bytes.
+  </p>
+</div>
