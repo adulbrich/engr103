@@ -1,0 +1,210 @@
+---
+title: Using GenAI Tools
+description: What generative AI is, what it isn't, and how to use it responsibly in ENGR 103.
+---
+
+Generative AI (GenAI) tools are now a normal part of software development. You will see them in IDEs, search engines, and coding assistants. Used well, they can speed up learning and reduce frustration. Used poorly, they can quietly prevent you from learning the core skills this course is trying to build.
+
+This page explains what GenAI is (in plain language), what it is *not*, what it's good and bad at, and how to use it responsibly.
+
+## Why This Matters
+
+In ENGR 103, the goal isn't just to "get code that runs." The goal is to build **problem-solving skills** and **programming habits** that you can reuse in every future class.
+
+GenAI can help with that if you use it like a tutor or a reference. But if you use it like a vending machine for answers, it can short-circuit the learning process.
+
+## What GenAI Is
+
+In simple terms, GenAI is a tool that can **generate text** based on patterns it learned from lots of examples. Some GenAI tools are especially good at producing code and explaining code.
+
+For coding, you can think of it as a super-powered autocomplete + explanation engine:
+
+- You give it a prompt (question, code snippet, error message, goal).
+- It predicts a helpful response (explanation, example, rewrite, checklist, etc.).
+
+Most "chat" GenAI tools for programming are based on large language models (LLMs). They are trained to produce plausible, useful text — not to "run" your program in their head.
+
+## What GenAI Is Not
+
+GenAI does **not** understand your program the way a human does.
+
+- It does not *know* if a statement is true. It produces text that *sounds* right.
+- It does not automatically check your code against your assignment requirements.
+- It can make confident mistakes (including subtle C++ mistakes).
+- Unless a tool is explicitly connected to the internet or your files, it cannot "see" your project or browse documentation.
+
+> GenAI is very good at producing a "reasonable-sounding guess." Your job is to verify that guess.
+
+## Frontier Models (Today)
+
+There are many GenAI systems, but the most capable general-purpose ones are typically "frontier" LLMs (state-of-the-art models) offered by major labs. You'll commonly see:
+
+- GPT models by OpenAI
+- Claude models by Anthropic
+- Gemini models by Google
+- Grok models by xAI
+- Open-weight models like Llama, Qwen, Kimi, GLM, DeepSeek, or Mistral
+
+These change quickly. The important point is not the brand name, it's that different models have different strengths (coding accuracy, explanation quality, speed, safety filters, etc.).
+
+## Strengths and Weaknesses
+
+If you can't explain the code line-by-line, you shouldn't submit it.
+
+### Strengths
+
+- **Explaining errors**: turning a compiler error into a plain-English diagnosis and a plan.
+- **Generating examples**: "show me 3 examples of loops that use `i += 2`."
+- **Refactoring**: improving readability (names, structure) without changing behavior.
+- **Idea generation**: brainstorming edge cases, test inputs, or alternative designs.
+- **Documentation help**: summarizing what a function does and how to call it.
+
+### Weaknesses
+
+- **Hallucinations**: making up facts, APIs, or C++ rules.
+- **Subtle bugs**: off-by-one errors, incorrect loop bounds, wrong types, missing headers.
+- **Overconfidence**: sounding certain even when wrong.
+- **Hidden assumptions**: inventing requirements you didn't ask for.
+- **Academic-risk behavior**: generating a full solution that you can't explain.
+
+## How To Use GenAI
+
+Use GenAI in ways that keep *you* in control:
+
+### Tutor Mode
+
+Ask for explanations/concepts, not solutions/answers. Ask it to quiz you.
+
+```text title="Tutor mode prompt"
+You are a patient C++ tutor for a first-year student.
+
+Topic: [loops / functions / arrays / strings / file I/O]
+My current understanding: [1-2 sentences]
+
+Teach me using short steps.
+Ask me one check-for-understanding question after each step.
+If I ask for a full solution, refuse and instead give hints.
+```
+
+Some tools have a "tutor" or "teaching" mode you can enable.
+
+### Debugging Help
+
+GenAI is most useful when you provide:
+
+- the **exact compiler error**,
+- the **smallest code snippet** that triggers it,
+- what you expected vs what happened.
+
+```text title="Explain this compiler error"
+I am compiling C++ with g++.
+
+Error message:
+[paste the error]
+
+Code (minimal snippet):
+[paste 10-30 lines]
+
+Explain what the compiler is complaining about.
+Then give 2-3 likely fixes.
+Then suggest a tiny experiment I can run to confirm the cause.
+```
+
+### Using It Like Documentation
+
+This can be great for learning standard library functions, but verify with a trusted source (cppreference, your notes, or lecture material).
+
+```text title="How do I use this?"
+In C++, what does [std::getline / std::vector::push_back / std::stoi] do?
+
+Give me:
+1. a one-sentence description
+2. a tiny example
+3. 2 common mistakes beginners make
+```
+
+### Examples and Small Patterns
+
+Ask for *small* examples you can adapt (not a complete assignment).
+
+```text title="Small example request"
+Show a minimal C++ example of:
+- reading an int safely from std::cin
+- rejecting bad input
+- reprompting until valid
+
+Keep it under 30 lines and explain each part.
+```
+
+### Refactoring and Improvement
+
+GenAI is useful **once your program works** and you want to make it cleaner.
+
+```text title="Refactor without changing behavior"
+Please refactor this C++ code to improve readability.
+
+Rules:
+- do not change behavior
+- keep the same input/output
+- prefer clear variable names
+- add small helper functions if helpful
+
+Here is the code:
+[paste code]
+```
+
+We provide a [prompt to apply the course C++ style guide](../../practicalities/style/#ai-instructions).
+
+## Prompts to Illustrate Strengths vs Weaknesses
+
+Try these and compare the results:
+
+1. **Good use (explanation)**
+   - "Explain why this loop runs one extra time, and show how to fix it."
+2. **Good use (tests)**
+   - "Give me 10 test cases for a function that converts Fahrenheit to Celsius, including edge cases."
+3. **Risky use (solution vending)**
+   - "Write my whole program for the assignment."
+4. **Tricky use (hallucination bait)**
+   - "What does `std::vector::append` do in C++?" (It doesn't exist — see if it invents it.)
+
+## Privacy and Safety
+
+Treat anything you paste into a GenAI tool as potentially visible outside this course.
+
+- Don't paste **passwords, API keys, tokens**, or personal data.
+- Don't paste **entire solutions** for graded work. Use minimal snippets.
+- If a tool offers "upload your whole project," be cautious and understand what it stores.
+
+Most tools log inputs for quality and safety monitoring.
+
+Share the smallest amount of information needed to get useful help.
+
+:::caution[The Golden Rule of GenAI Use]
+If you can't explain what every part of your submission does (and why it's correct), you are not ready to turn it in.
+:::
+
+## Academic Integrity
+
+GenAI use must follow the course's academic integrity rules. In general:
+
+- **You are responsible** for everything you submit.
+- **Learning is the point**: using GenAI to skip the thinking defeats the purpose.
+- **Don't outsource the assignment**: asking for complete solutions (or copying them) is likely an integrity violation.
+- **Be transparent** if your instructor/TA asks: be prepared to explain *how* you used GenAI.
+
+It is usually fine to ask for explanations, examples, debugging strategies, and refactoring suggestions, as long as you understand and verify what you use.
+
+ENGR 103 assignments have an AI Critique rubric item. You may be asked to explain how you used GenAI tools and reflect on their usefulness and limitations.
+
+## A Simple Checklist
+
+Before you use any GenAI output in your work, check:
+
+1. Can I explain it line-by-line? 
+2. Does it compile?
+3. Did I test it with at least a few inputs (including edge cases)?
+4. Does it match the assignment's requirements exactly?
+5. Did I verify any factual/API claims with a trusted source?
+
+If the answer to any of these is "no," slow down and fix that first.

@@ -73,6 +73,7 @@ assignments=(
 practicalities=(
     "debugging"
     "demos"
+    "gen-ai"
     "polya"
     "style"
     "vim"
