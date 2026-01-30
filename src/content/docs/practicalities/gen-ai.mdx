@@ -48,7 +48,7 @@ Many systems are *tool-augmented* and/or *multimodal*. That means they might be 
 When a tool does one of these things, it can sometimes verify a claim in a real, checkable way (for example: “this code fails to compile” or “this unit test fails”).
 
 An LLM by itself is a text generator. Verification comes from *running tools* (compilers, tests, search, file access), not from 
-"understanding like a human.""
+"understanding like a human."
 
 Tool outputs can be incomplete, misconfigured, or based on the wrong version of a library. Always reproduce important results locally (compile, run, and test your own code).
 
@@ -93,6 +93,10 @@ If you can't explain the code line-by-line, you shouldn't submit it.
 ## How To Use GenAI
 
 Use GenAI in ways that keep *you* in control:
+
+:::caution[Rule of Thumb]
+If you feel like you're making progress but you couldn't reproduce the solution without AI, you are probably not learning what this course is trying to teach.
+:::
 
 ### Tutor Mode
 
@@ -203,10 +207,6 @@ Most tools log inputs for quality and safety monitoring.
 
 Share the smallest amount of information needed to get useful help.
 
-:::caution[The Golden Rule of GenAI Use]
-If you can't explain what every part of your submission does (and why it's correct), you are not ready to turn it in.
-:::
-
 ### Local Models
 
 You can run some open-weight models locally on your own computer. This avoids privacy concerns but may require a powerful GPU and technical setup. There are some lightweight models that can run on a modest machine, but they are generally less capable. The easiest way to get started is probably with [Ollama](https://ollama.com/).
@@ -224,6 +224,10 @@ It is usually fine to ask for explanations, examples, debugging strategies, and 
 
 ENGR 103 assignments have an AI Critique rubric item. You may be asked to explain how you used GenAI tools and reflect on their usefulness and limitations.
 
+:::caution[The Golden Rule of GenAI Use]
+If you can't explain what every part of your submission does (and why it's correct), you are not ready to turn it in.
+:::
+
 ## A Simple Checklist
 
 Before you use any GenAI output in your work, check:
@@ -233,5 +237,11 @@ Before you use any GenAI output in your work, check:
 3. Did I test it with at least a few inputs (including edge cases)?
 4. Does it match the assignment's requirements exactly?
 5. Did I verify any factual/API claims with a trusted source?
+6. If I used AI, did I use it in a way that improved my understanding (not just my speed)?
 
 If the answer to any of these is "no," slow down and fix that first.
+
+## References
+
+1. Shen, Judy Hanwen, and Alex Tamkin. 2026. “How AI Impacts Skill Formation.” arXiv:2601.20245. Preprint, arXiv, January 28. https://doi.org/10.48550/arXiv.2601.20245.
+2. Prather, James, Brent N Reeves, Juho Leinonen, et al. 2024. “The Widening Gap: The Benefits and Harms of Generative AI for Novice Programmers.” Proceedings of the 2024 ACM Conference on International Computing Education Research - Volume 1 (New York, NY, USA), ICER ’24, vol. 1 (August): 469–86. https://doi.org/10.1145/3632620.3671116.
