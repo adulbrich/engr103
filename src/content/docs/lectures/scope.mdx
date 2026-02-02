@@ -5,6 +5,8 @@ sidebar:
   order: 12
 ---
 
+import CppMemoryStepper from '../../../components/CppMemoryStepper.svelte';
+
 You might wonder: “If the goal is simply to share information between functions, why do we need parameters and return values? Can't we just declare variables in one function and access them from another?”
 
 The answer lies in two important reasons:
@@ -187,6 +189,19 @@ int main()
 2. Nested Scope Modification: Within the nested scope, the same `my_integer` is modified, changing its value to `10`.
 3. Shadowing: A *new* variable, also named `my_integer`, is declared in the nested scope with an initial value of `0`. This shadows the outer variable, making the outer `my_integer` temporarily inaccessible.
 4. Falling Out of Scope: When the program exits the nested scope, the inner `my_integer` (the shadowing variable) falls out of scope, and the outer `my_integer` becomes accessible again. Its value remains `10`, as it was last modified before the shadowing occurred.
+
+<CppMemoryStepper
+  client:visible
+  title="Shadowing in a Nested Scope"
+  code={`int x = 1;
+
+{
+  int x = 10;
+  x = x + 1;
+}
+
+x = x + 1;`}
+/>
 
 ## Global Scope and Global Variables 
 

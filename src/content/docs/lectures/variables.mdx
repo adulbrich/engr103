@@ -6,6 +6,8 @@ sidebar:
 ---
 
 import Latex from '../../../components/Latex.astro'
+import CppMemoryStepper from '../../../components/CppMemoryStepper.svelte';
+
 // import VariableLifecycleDiagram from '../../../components/VariableLifecycleDiagram.astro'
 
 We've learned how to represent data in our programs and explored ways to manipulate it to compute new data. However, as our computations become more complex, it will eventually become impractical—if not impossible—to perform all operations in a single, large expression or statement. Additionally, the data we've used so far has been constant, hard-coded values (literals or operations based on them). But what if we need to perform computations on values that vary at runtime, such as an integer input provided by a user? To address these needs, we require a way to store and name values, enabling us to refer to them later in our code.
@@ -153,6 +155,13 @@ int num_students = num_students + 1;
 You would be trying to declare a new variable named `num_students`, which would result in a syntax error in this case. This behavior is consistent with the rules of C++, where referencing a variable by name without its type refers to an existing variable, whereas prefixing it with a type declares a new variable. Declaring multiple variables with the same name is illegal in most contexts and leads to errors.
 
 {/* <VariableLifecycleDiagram /> */}
+<CppMemoryStepper
+  client:visible
+  title="Declarations + Assignment"
+  code={`int x = 3;
+int y;
+y = x + 2;`}
+/>
 
 ## Reading Values from the User
 
@@ -200,7 +209,6 @@ int main()
 ```
 
 :::caution[Important Notes on User Input]
-
 In this example, integers are used, but `std::cin` can also **handle other primitive types**, such as float, double, and char. However, be cautious with bool inputs--they behave a bit differently.
 
 If the user enters a value that **doesn't match the variable's type**, unexpected behavior can occur. For instance, entering a decimal value (e.g., `3.5`) for an `int` variable like `a` or `b` in the program above won't simply truncate the number. Instead, `std::cin` will read the valid integer part (e.g., `3`) and leave the rest (e.g., `.5`) in the input buffer. This leftover data will be read by the *next* input operation, which can cause your program to behave confusingly.
