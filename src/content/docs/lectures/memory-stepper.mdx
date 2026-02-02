@@ -1,0 +1,181 @@
+---
+title: Memory Stepper (Teaching Model)
+description: Step through a small C++ snippet and see stack allocations, writes, and scope lifetimes.
+draft: true
+---
+
+import CppMemoryStepper from '../../../components/CppMemoryStepper.svelte';
+
+This interactive widget uses a deterministic **teaching model** (not a real compiler/runtime).
+
+## Example: declarations + assignment
+
+<CppMemoryStepper
+  client:visible
+  title="Declarations + assignment"
+  code={`int x = 3;
+int y;
+y = x + 2;`}
+/>
+
+## Example: scopes + references
+
+<CppMemoryStepper
+  client:visible
+  title="Scopes + references"
+  code={`int x = 10;
+{
+  int y = x + 1;
+  int& r = y;
+  y = y + 5;
+}
+x = x + 1;`}
+/>
+
+## Example: if / else
+
+<CppMemoryStepper
+  client:visible
+  title="if / else"
+  code={`int x = 2;
+int y = 0;
+
+if (x < 3)
+{
+  y = 10;
+}
+else
+{
+  y = 20;
+}`}
+/>
+
+## Example: if with a new local
+
+<CppMemoryStepper
+  client:visible
+  title="if with a new local"
+  code={`int x = 2;
+int y = 0;
+
+if (x < 3)
+{
+  int t = x + 5;
+  y = t + 1;
+}`}
+/>
+
+## Example: for loop
+
+<CppMemoryStepper
+  client:visible
+  title="for loop"
+  code={`int sum = 0;
+
+for (int i = 0; i < 4; i = i + 1)
+{
+  sum = sum + i;
+}`}
+/>
+
+## Example: for loop with a new local in the body
+
+<CppMemoryStepper
+  client:visible
+  title="for loop with a new local in the body"
+  code={`int sum = 0;
+
+for (int i = 0; i < 4; i = i + 1)
+{
+  int tmp = i * 2;
+  sum = sum + tmp;
+}`}
+/>
+
+## Example: while loop
+
+<CppMemoryStepper
+  client:visible
+  title="while loop"
+  code={`int x = 0;
+
+while (x < 3)
+{
+  x = x + 1;
+}`}
+/>
+
+## Example: while loop with a new local in the body
+
+<CppMemoryStepper
+  client:visible
+  title="while loop with a new local in the body"
+  code={`int x = 0;
+int sum = 0;
+
+while (x < 3)
+{
+  int tmp = x;
+  sum = sum + tmp;
+  x = x + 1;
+}`}
+/>
+
+## Example: do / while loop
+
+<CppMemoryStepper
+  client:visible
+  title="do / while loop"
+  code={`int x = 0;
+
+do
+{
+  x = x + 1;
+}
+while (x < 3);`}
+/>
+
+## Example: shadowing in a nested scope
+
+<CppMemoryStepper
+  client:visible
+  title="shadowing in a nested scope"
+  code={`int x = 1;
+
+{
+  int x = 10;
+  x = x + 1;
+}
+
+x = x + 1;`}
+/>
+
+## Example: shadowing in a for loop
+
+<CppMemoryStepper
+  client:visible
+  title="shadowing in a for loop"
+  code={`int i = 100;
+int sum = 0;
+
+for (int i = 0; i < 3; i = i + 1)
+{
+  sum = sum + i;
+}
+
+i = i + 1;`}
+/>
+
+## Supported subset (currently)
+
+- Block scopes: `{` and `}` on their own lines
+- Local declarations: `int/double/bool/char` (optional initialization)
+- Assignments: `name = expr` (int expressions support `+ - * /` with parentheses)
+- References: `T& name = otherName` (aliases; no extra storage)
+- Conditionals: `if (cond)` + optional `else` (braces on their own lines)
+- Loops: `for (init; cond; inc)` (braces on their own lines)
+- Loops: `while (cond)` (braces on their own lines)
+- Loops: `do` + `{ ... }` + `while (cond);` (braces on their own lines)
+- Shadowing: allowed in nested scopes (not allowed in the same scope)
+
+No pointers, heap, or function calls yet.
