@@ -95,12 +95,17 @@ y = x + 2;`,
   }
 </script>
 
-<div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+<div>
+  <div class="hidden print:block text-sm italic text-slate-600">
+    Interactive memory stepper example is not available when printing. Please view this page online.
+  </div>
+
+  <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm print:hidden dark:border-slate-800 dark:bg-slate-950">
   <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
     <h3 class="m-0 text-base font-semibold text-slate-900 dark:text-slate-100">{title}</h3>
 
     {#if result}
-      <div class="text-xs text-slate-600 dark:text-slate-300">
+      <div class="mt-0 text-xs text-slate-600 dark:text-slate-300">
         Model: int={result.config.intSize}B, double={result.config.doubleSize}B, bool={result.config.boolSize}B,
         char={result.config.charSize}B, eval={result.config.evaluationOrder}
       </div>
@@ -237,4 +242,5 @@ y = x + 2;`,
       </div>
     </div>
   {/if}
+  </div>
 </div>
