@@ -32,6 +32,27 @@ y = x + 2;`}
 x = x + 1;`}
 />
 
+## Example: function call + parameters
+
+<CppMemoryStepper
+  client:visible
+  title="Function call + parameters"
+  showWrapper={false}
+  code={`int addOne(int a)
+{
+  int b = a + 1;
+  return b;
+}
+
+int main()
+{
+  int a = 5;
+  int b;
+  b = addOne(a);
+  return 0;
+}`}
+/>
+
 ## Example: if / else
 
 <CppMemoryStepper
@@ -178,4 +199,11 @@ i = i + 1;`}
 - Loops: `do` + `{ ... }` + `while (cond);` (braces on their own lines)
 - Shadowing: allowed in nested scopes (not allowed in the same scope)
 
-No pointers, heap, or function calls yet.
+Function calls (minimal teaching subset):
+
+- Define `int`/`void` functions at top level (braces on their own lines)
+- Run starts at `main()` (so include `int main()` and set `showWrapper={false}`)
+- Pass arguments by value into parameters
+- Return `int` values with `return expr;`
+
+No pointers or heap yet.

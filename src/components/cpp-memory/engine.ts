@@ -81,6 +81,22 @@ type Token =
 
 type CompareOp = '==' | '!=' | '<' | '<=' | '>' | '>=';
 
+type FunctionReturnType = 'int' | 'void';
+
+interface FunctionParam {
+  type: PrimitiveType;
+  name: string;
+}
+
+interface FunctionDef {
+  name: string;
+  returnType: FunctionReturnType;
+  params: FunctionParam[];
+  signatureLineIndex: number;
+  bodyOpenLineIndex: number;
+  bodyCloseLineIndex: number;
+}
+
 function stripLineComment(line: string): string {
   const idx = line.indexOf('//');
   return idx >= 0 ? line.slice(0, idx) : line;
@@ -386,6 +402,9 @@ export function generateCppTeachingTrace(code: string, partialConfig?: Partial<M
   const scopes: string[][] = [[]];
   let scopeDepth = 0;
   let nextAddress = config.baseAddress;
+  const scopeAddressStack: number[] = [nextAddress];
+
+  const functionDefs = new Map<string, FunctionDef>();
 
   const steps: TraceStep[] = [];
 
@@ -490,6 +509,22 @@ export function generateCppTeachingTrace(code: string, partialConfig?: Partial<M
     }
   }
 
+  function enterScope(lineIndex: number, explanation = 'Enter a new scope block.') {
+    scopeDepth += 1;
+    scopes.push([]);
+    scopeAddressStack.push(nextAddress);
+    pushStep(lineIndex, explanation, []);
+  }
+
+  function exitScope(lineIndex: number, explanation = 'Exit scope block.') {
+    if (scopeDepth === 0) throw new Error('Unmatched }');
+    deallocScope(lineIndex);
+    scopeDepth -= 1;
+    const restored = scopeAddressStack.pop();
+    if (restored !== undefined) nextAddress = restored;
+    pushStep(lineIndex, explanation, []);
+  }
+
   function nextNonEmptyLineIndex(fromIndex: number): number {
     for (let i = fromIndex; i < lines.length; i += 1) {
       const s = normalizeStatement(lines[i] ?? '');
@@ -514,8 +549,196 @@ export function generateCppTeachingTrace(code: string, partialConfig?: Partial<M
     throw new Error('Unmatched {');
   }
 
+  function splitTopLevelCommaList(raw: string): string[] {
+    const s = raw.trim();
+    if (s.length === 0) return [];
+
+    const parts: string[] = [];
+    let depth = 0;
+    let start = 0;
+
+    for (let i = 0; i < s.length; i += 1) {
+      const ch = s[i] ?? '';
+      if (ch === '(') depth += 1;
+      else if (ch === ')') depth = Math.max(0, depth - 1);
+      else if (ch === ',' && depth === 0) {
+        parts.push(s.slice(start, i).trim());
+        start = i + 1;
+      }
+    }
+
+    parts.push(s.slice(start).trim());
+    return parts.filter((p) => p.length > 0);
+  }
+
+  function parseFunctionParamList(paramRaw: string): FunctionParam[] {
+    const parts = splitTopLevelCommaList(paramRaw);
+    const params: FunctionParam[] = [];
+    for (const part of parts) {
+      const m = part.trim().match(/^(?:const\s+)?(int|double|bool|char)\s+([A-Za-z_]\w*)$/);
+      if (!m) throw new Error(`Unsupported parameter '${part}'`);
+      params.push({ type: m[1] as PrimitiveType, name: m[2]! });
+    }
+    return params;
+  }
+
+  function indexFunctionDefinitions() {
+    let depth = 0;
+    for (let i = 0; i < lines.length; i += 1) {
+      const stmt0 = normalizeStatement(lines[i] ?? '');
+      if (stmt0 === '{') {
+        depth += 1;
+        continue;
+      }
+      if (stmt0 === '}') {
+        depth = Math.max(0, depth - 1);
+        continue;
+      }
+
+      if (depth !== 0) continue;
+      if (stmt0.length === 0) continue;
+
+      const m = stmt0.match(/^(int|void)\s+([A-Za-z_]\w*)\s*\((.*)\)\s*$/);
+      if (!m) continue;
+
+      const returnType = m[1] as FunctionReturnType;
+      const name = m[2]!;
+      const paramRaw = m[3] ?? '';
+
+      const bodyOpen = nextNonEmptyLineIndex(i + 1);
+      if (bodyOpen >= lines.length || normalizeStatement(lines[bodyOpen] ?? '') !== '{') {
+        throw new Error("Expected '{' on its own line after function signature");
+      }
+      const bodyClose = findMatchingCloseBrace(bodyOpen);
+
+      const params = parseFunctionParamList(paramRaw);
+      if (functionDefs.has(name)) throw new Error(`Duplicate function definition '${name}'`);
+
+      functionDefs.set(name, {
+        name,
+        returnType,
+        params,
+        signatureLineIndex: i,
+        bodyOpenLineIndex: bodyOpen,
+        bodyCloseLineIndex: bodyClose,
+      });
+
+      // Skip over the body range (we only support top-level function defs).
+      i = bodyClose;
+    }
+  }
+
+  class ReturnSignal {
+    lineIndex: number;
+    value: number | null;
+
+    constructor(lineIndex: number, value: number | null) {
+      this.lineIndex = lineIndex;
+      this.value = value;
+    }
+  }
+
+  const functionStack: FunctionDef[] = [];
+
+  function callFunction(callLineIndex: number, name: string, rawArgs: string[]): number | null {
+    const def = functionDefs.get(name);
+    if (!def) throw new Error(`Unknown function '${name}'`);
+
+    if (rawArgs.length !== def.params.length) {
+      throw new Error(`Argument count mismatch calling '${name}': expected ${def.params.length}, got ${rawArgs.length}`);
+    }
+
+    // Evaluate arguments in the caller (left-to-right teaching rule).
+    const evaluatedArgs: Array<number | boolean | string> = [];
+    for (let i = 0; i < def.params.length; i += 1) {
+      const p = def.params[i]!;
+      const raw = rawArgs[i] ?? '';
+      const envInts = buildIntEnv(vars);
+      const v = parsePrimitiveLiteral(p.type, raw, envInts);
+      pushStep(callLineIndex, `Evaluate argument ${i + 1} for '${name}' -> ${String(v)}.`, []);
+      evaluatedArgs.push(v);
+    }
+
+    pushStep(callLineIndex, `Call function '${name}(... )'.`, []);
+
+    // Enter function scope (teaching model: one stack frame).
+    const baseDepth = scopeDepth;
+    enterScope(def.bodyOpenLineIndex, `Enter function '${name}' stack frame.`);
+
+    for (let i = 0; i < def.params.length; i += 1) {
+      const p = def.params[i]!;
+      const argValue = evaluatedArgs[i]!;
+      const pv = allocValue(def.bodyOpenLineIndex, p.type, p.name);
+      writeValue(def.bodyOpenLineIndex, pv, argValue, `Parameter '${p.name}' receives a copy of the argument.`);
+    }
+
+    functionStack.push(def);
+    let ret: number | null = null;
+    let returnLine = def.bodyCloseLineIndex;
+    try {
+      executeRange(def.bodyOpenLineIndex + 1, def.bodyCloseLineIndex);
+      if (def.returnType === 'int') {
+        throw new Error(`Missing return value in function '${name}'`);
+      }
+    } catch (e) {
+      if (e instanceof ReturnSignal) {
+        ret = e.value;
+        returnLine = e.lineIndex;
+      } else {
+        throw e;
+      }
+    } finally {
+      functionStack.pop();
+    }
+
+    // Unwind all scopes back to the caller.
+    while (scopeDepth > baseDepth) {
+      exitScope(returnLine, `Exit function '${name}' stack frame.`);
+    }
+
+    if (def.returnType === 'int') {
+      pushStep(returnLine, `Return from '${name}' to caller with value ${ret === null ? '??' : String(ret)}.`, []);
+      return ret;
+    }
+
+    pushStep(returnLine, `Return from '${name}' to caller.`, []);
+    return null;
+  }
+
   function executeSimpleStatement(lineIndex: number, stmt0: string) {
     const stmt = removeTrailingSemicolon(stmt0);
+
+    // return expr;
+    {
+      const m = stmt.match(/^return(?:\s+(.+))?$/);
+      if (m) {
+        const currentFn = functionStack[functionStack.length - 1];
+        if (!currentFn) throw new Error("'return' is only valid inside a function");
+
+        const expr = (m[1] ?? '').trim();
+        if (currentFn.returnType === 'void') {
+          pushStep(lineIndex, `Return from '${currentFn.name}' (void).`, []);
+          throw new ReturnSignal(lineIndex, null);
+        }
+
+        if (expr.length === 0) throw new Error(`Missing return value in function '${currentFn.name}'`);
+        const envInts = buildIntEnv(vars);
+        const value = Number(parsePrimitiveLiteral('int', expr, envInts));
+        pushStep(lineIndex, `Evaluate return expression -> ${String(value)}.`, []);
+        throw new ReturnSignal(lineIndex, value);
+      }
+    }
+
+    // Function call as a statement: foo(a, b);
+    {
+      const m = stmt.match(/^([A-Za-z_]\w*)\s*\((.*)\)\s*$/);
+      if (m) {
+        const fnName = m[1]!;
+        const args = splitTopLevelCommaList(m[2] ?? '');
+        callFunction(lineIndex, fnName, args);
+        return;
+      }
+    }
 
     // Reference declaration: int& r = x
     {
@@ -575,6 +798,25 @@ export function generateCppTeachingTrace(code: string, partialConfig?: Partial<M
         const lhsName = m[1]!;
         const rhsExpr = m[2]!;
 
+        // Assignment from function call: x = foo(a, b)
+        const callMatch = rhsExpr.trim().match(/^([A-Za-z_]\w*)\s*\((.*)\)\s*$/);
+        if (callMatch) {
+          const fnName = callMatch[1]!;
+          const args = splitTopLevelCommaList(callMatch[2] ?? '');
+
+          const lhs = resolveLValue(vars, lhsName);
+          if (!lhs) throw new Error(`Unknown identifier '${lhsName}'`);
+          const target = lhs.kind === 'ref' && lhs.refTarget ? vars.find((x) => x.id === lhs.refTarget) ?? null : lhs;
+          if (!target) throw new Error(`Dangling reference '${lhsName}'`);
+          if (!target.alive) throw new Error(`Cannot assign to '${lhsName}' because its lifetime has ended`);
+          if (target.type !== 'int') throw new Error(`Only int return values are supported for function calls (assigning to '${lhsName}')`);
+
+          const rv = callFunction(lineIndex, fnName, args);
+          if (rv === null) throw new Error(`Function '${fnName}' does not return a value`);
+          writeValue(lineIndex, target, rv, `Assign function return value into '${lhsName}'.`);
+          return;
+        }
+
         const lhs = resolveLValue(vars, lhsName);
         if (!lhs) throw new Error(`Unknown identifier '${lhsName}'`);
 
@@ -605,18 +847,13 @@ export function generateCppTeachingTrace(code: string, partialConfig?: Partial<M
       }
 
       if (stmt0 === '{') {
-        scopeDepth += 1;
-        scopes.push([]);
-        pushStep(i, 'Enter a new scope block.', []);
+        enterScope(i);
         i += 1;
         continue;
       }
 
       if (stmt0 === '}') {
-        if (scopeDepth === 0) throw new Error('Unmatched }');
-        deallocScope(i);
-        scopeDepth -= 1;
-        pushStep(i, 'Exit scope block.', []);
+        exitScope(i);
         i += 1;
         continue;
       }
@@ -747,9 +984,7 @@ export function generateCppTeachingTrace(code: string, partialConfig?: Partial<M
           const bodyClose = findMatchingCloseBrace(bodyOpen);
 
           // Model C++ for-loop init-scope: variables declared in init live through the loop.
-          scopeDepth += 1;
-          scopes.push([]);
-          pushStep(i, 'Enter for-loop scope.', []);
+          enterScope(i, 'Enter for-loop scope.');
 
           if (initPart.length > 0) {
             executeSimpleStatement(i, initPart);
@@ -771,9 +1006,7 @@ export function generateCppTeachingTrace(code: string, partialConfig?: Partial<M
           }
 
           // End of for-loop init-scope; align deallocation to the closing brace of the loop body.
-          deallocScope(bodyClose);
-          scopeDepth -= 1;
-          pushStep(bodyClose, 'Exit for-loop scope.', []);
+          exitScope(bodyClose, 'Exit for-loop scope.');
 
           i = bodyClose + 1;
           continue;
@@ -786,7 +1019,19 @@ export function generateCppTeachingTrace(code: string, partialConfig?: Partial<M
   }
 
   try {
-    executeRange(0, lines.length);
+    indexFunctionDefinitions();
+
+    if (functionDefs.size > 0) {
+      const main = functionDefs.get('main');
+      if (!main) {
+        throw new Error("Function definitions were found, but no 'main' function was found.");
+      }
+
+      pushStep(main.signatureLineIndex, 'Program start: call main().', []);
+      callFunction(main.signatureLineIndex, 'main', []);
+    } else {
+      executeRange(0, lines.length);
+    }
 
     // End of top-level scope: deallocate everything still alive.
     // Use a virtual line index one past the last snippet line so UI wrappers
@@ -801,7 +1046,7 @@ export function generateCppTeachingTrace(code: string, partialConfig?: Partial<M
       lines,
       message,
       hint:
-        "Supported subset: { } blocks, primitive local declarations (int/double/bool/char), initialization, assignments, T& references, if/else, for, while, and do/while (with braces on their own lines). No pointers/heaps/functions yet.",
+        "Supported subset: { } blocks, primitive local declarations (int/double/bool/char), initialization, assignments, T& references, if/else, for, while, do/while (braces on their own lines), and simple function definitions + calls via main(). No pointers/heaps yet.",
     };
   }
 }

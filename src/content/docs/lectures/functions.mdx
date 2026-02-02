@@ -6,6 +6,7 @@ sidebar:
 ---
 
 import Latex from '../../../components/Latex.astro'
+import CppMemoryStepper from '../../../components/CppMemoryStepper.svelte';
 
 In C++, a function is a reusable block of code that simplifies repetitive computations in your program. By creating functions, you avoid reinventing the wheel each time you need a specific computation. You've already used functions like `main`, `pow`, `sqrt`, and `abs`. In this lecture, you'll learn how to create your own functions to better organize and modularize your code.
 
@@ -411,6 +412,25 @@ This behavior highlights the concept of **variable scope**, which we will explor
 
 - Arguments and parameters are separate variables.
 - Even if they share the same name, they do not interfere with each other.
+
+<CppMemoryStepper
+  client:visible
+  title="Function Call: Arguments and Parameters"
+  showWrapper={false}
+  code={`int addOne(int a)
+{
+  int b = a + 1;
+  return b;
+}
+
+int main()
+{
+  int a = 5;
+  int b;
+  b = addOne(a);
+  return 0;
+}`}
+/>
 
 ## Void Functions
 
