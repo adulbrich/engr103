@@ -108,8 +108,8 @@ std::cin >> number;
 
 If the user enters `3.5`, the `>>` operator reads the `3` (the part of the input valid for an `int`) and stops when it encounters the period (`.`), which is non-viable for an `int`. The result is:
 
-- number stores `3`.
--	The remaining input (`.5`) stays in the input buffer.
+- `number` stores `3`.
+- The remaining input (`.5`) stays in the input buffer.
 
 If the program subsequently reads more input, it will process the leftover `.5` without waiting for new input.
 
@@ -130,8 +130,8 @@ std::cout << "Leftover data is: " << leftover_data << std::endl;
 
 If the user enters `3.5`:
 
-- number is assigned 3.
-- The leftover .5 is read into leftover_data.
+- `number` is assigned `3`.
+- The leftover `.5` is read into `leftover_data`.
 
 The output will be:
 
