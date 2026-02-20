@@ -62,6 +62,7 @@ Change `web-graphics.md` to the desired slide deck.
 
 ### Course Design
 
+- [ ] Add more content on proper design (including testing and coming up with good test cases)
 - [ ] Completely re-evalute assessment in this class, assuming that everyone has access to strong GenAI tools (i.e., tools that can reason, write code, and explain code -- basically tackle any of the fundamental concepts they should be learning). Here are some ideas:
   - How do we define the goal underlying engineering studies? Here's a possible answer: reliably judge under uncertainty in safety-critical, economically consequential systems.
   - Could we do more in-person live oral (vivas) assessments in addition to the written exams? We already do live demos but many students still use GenAI to write their code.
