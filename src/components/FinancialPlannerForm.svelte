@@ -111,7 +111,7 @@
 
       <div class="mt-4 space-y-2">
         <label class="block text-sm font-medium"
-          >Compounding Period
+          >Compounding Period (also sets payment period)
           <div class="mt-1 space-x-4">
             <label class="inline-flex items-center">
               <input
@@ -165,7 +165,7 @@
 
       <div>
         <label class="block text-sm font-medium"
-          >Number of Periods
+          >Number of Years
           <input
             type="number"
             bind:value={number_of_periods}
@@ -189,7 +189,7 @@
         </div>
         <div>
           <label class="block text-sm font-medium"
-            >Periodic Deposits (per period)
+            >Periodic Payment (per period)
             <input
               type="number"
               bind:value={recurring_payments}
@@ -245,7 +245,7 @@
         </div>
         <div>
           <label class="block text-sm font-medium"
-            >Monthly Payment
+            >Periodic Payment (per period)
             <input
               type="number"
               bind:value={recurring_payments}
