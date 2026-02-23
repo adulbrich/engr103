@@ -90,9 +90,6 @@ Change `web-graphics.md` to the desired slide deck.
 - [ ] Illustrate how variables are stored in memory (when discussing variables), i.e. show that the variable name is just a label for a memory address
 - [ ] Illustrate how arguments / parameters are passed on the call stack (when discussing functions) and stored in memory, also discuss the return value/address
 - [ ] Illustrate base address and references (when discussing arrays and references)
-- [ ] Make the dev env lecture notes much simpler and add information about using other IDEs/editors
-  - make additional concepts of the shell clearly optional (or have a practicalities/guide page for advanced shell usage)
-- [ ] Mention using `getline()` in dictionary assignment instead of `cin`
 - [ ] Provide larger code examples/programs the students can play with
 
 ### Housekeeping

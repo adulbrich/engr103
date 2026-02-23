@@ -249,6 +249,8 @@ std::cin.ignore(); // Discard the newline character left by >>
 std::getline(std::cin, text);
 ```
 
+`std::cin.ignore()` without arguments discards exactly one character in the input buffer, which is typically the newline left by the `>>` operator. This allows `std::getline()` to function as intended, reading the user's input without interference from leftover characters.
+
 :::tip[Extra Safe `std::cin.ignore()`]
 If you want to be extra safe (for example, if the user might type extra characters after the number), you can ignore *everything up to the next newline* instead of just one character:
 
@@ -259,4 +261,6 @@ std::cin >> number;
 std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 std::getline(std::cin, text);
 ```
+
+The first argument is the number of characters to ignore, and the second argument is the delimiter at which to stop ignoring.
 :::
