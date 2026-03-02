@@ -86,6 +86,8 @@ Change `web-graphics.md` to the desired slide deck.
 
 ### Contents
 
+- [ ] Consider additional explanations about static vs dynamic array allocations, the STL (resizable and dynamic) and automatic vs dynamic storage duration (bonus)
+- [ ] Consider additional object-oriented programming contents, including examples of class declaration and usage, and the design of classes (bonus)
 - [ ] Consider starting with functions earlier? It's already pretty early because we need to discuss variables/expressions first.
 - [ ] Illustrate how variables are stored in memory (when discussing variables), i.e. show that the variable name is just a label for a memory address
 - [ ] Illustrate how arguments / parameters are passed on the call stack (when discussing functions) and stored in memory, also discuss the return value/address
