@@ -64,7 +64,7 @@ Alex Ulbrich
 
 **Artificial Intelligence (AI)** refers to the capability of computational systems to perform tasks typically associated with human *intelligence* (learning, reasoning, problem-solving, perception, and decision-making).
 
-**Machine Learning (ML)** is s subset of AI that learns patterns from data.
+**Machine Learning (ML)** is a subset of AI that learns patterns from data.
 
 **Deep learning** is a subset of machine learning that focuses on utilizing *neural networks*.
 
@@ -98,9 +98,11 @@ Raw data is **messy**: missing values, outliers, inconsistent formats, or irrele
 
 Not all datasets are terrible.
 
-When doing supervised learning, we want to have *train* and *test* data.
+When doing supervised learning, we want to have *train* and *test* data. A *validation* set is also often used to tune the model before the final evaluation on the test set.
 
 <!-- Researcher at Hugging Face realized that if you trained your LLM on books/literature, they would perform much worse than if you trained them on the web. -->
+
+<!-- A very common behavior is overfitting: the model memorizes the training data but fails (to generalize) on new data. -->
 
 ---
 
@@ -145,8 +147,6 @@ Can we predict Titanic survivors? **Green** mostly survived. **Red** mostly died
 
 ---
 
-
-
 <!-- Group individuals or families based on certain criteria for advertising purposes. -->
 
 ![bg right:70% width:500px](https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/SLINK-Gaussian-data.svg/1280px-SLINK-Gaussian-data.svg.png)
@@ -164,7 +164,7 @@ Centroid vs Density
 
 Scatter Plots
 
-Principal Component Analyis (PCA)
+Principal Component Analysis (PCA)
 
 *Iris Dataset*
 
@@ -177,7 +177,7 @@ Principal Component Analyis (PCA)
 
 Imagine trying to teach a pup how to sit by giving them a reward if they succeed.
 
-In this case, the model/agent improves when making successful attempts.
+In this case, the model/agent improves when making successful attempts and adjusts when they fail.
 
 [Source](https://en.wikipedia.org/wiki/Reinforcement_learning)
 
@@ -233,11 +233,10 @@ Code is [available on GitHub](https://github.com/adulbrich/engr103-special-topic
 
 # Worth Checking
 
+- [Is AI Hiding Its Full Power? With Geoffrey Hinton](https://www.youtube.com/watch?v=l6ZcFa8pybE)
 - [AlphaGo Documentary](https://www.youtube.com/watch?v=WXuK6gekU1Y)
+- [The Thinking Game](https://www.youtube.com/watch?v=d95J8yzvjbQ)
 - [HuggingFace LeRobot](https://github.com/huggingface/lerobot)
-- Conversational AI and Search: Grok, ChatGPT, Gemini, LeChat, Copilot, Perplexity
 - [Teachable Machine](https://teachablemachine.withgoogle.com/)
 - [TensorFlow Playground](https://playground.tensorflow.org/)
 - [Kaggle's Intro to Machine Learning](https://www.kaggle.com/learn/intro-to-machine-learning)
-- [AI Dungeon](https://play.aidungeon.com/)
-- [Quick, Draw!](https://quickdraw.withgoogle.com/)
