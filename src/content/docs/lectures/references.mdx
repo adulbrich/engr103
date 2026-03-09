@@ -5,6 +5,8 @@ sidebar:
   order: 21
 ---
 
+import CppMemoryStepper from '../../../components/CppMemoryStepper.svelte';
+
 In programming, the relationship between arguments passed to a function and the parameters defined in the function header is fundamentally a copy operation. When a function is called, its parameters are declared and allocated as independent variables. The values of the provided arguments are copied into the memory allocated for the corresponding parameters. Once this copy operation is complete, the arguments and parameters operate independently--they are separate variables with distinct memory locations.
 
 Here's an example to illustrate this concept:
@@ -183,6 +185,17 @@ ref = 20;     // Changes the value of `a` to 20
 Any operation on a reference--whether it's reading a value (e.g., printing) or writing to it (e.g., assignment)--actually operates on the underlying variable.
 
 You can think of references as permanent **aliases** to preexisting variables. Once configured, any interaction with the reference directly affects the original variable.
+
+Here is a small interactive example that shows that aliasing behavior in the teaching-model memory stepper:
+
+<CppMemoryStepper
+    client:visible
+    title="Reference aliasing"
+    code={`int x = 0;
+int& y = x;
+y = y + 1;
+x = x + 2;`}
+/>
 
 ## References Outside Function Parameters
 

@@ -11,19 +11,27 @@ y = x + 2;`,
     wrapperSignature = 'int main()',
   } = $props();
 
+  function fallbackLines(rawCode) {
+    return rawCode.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+  }
+
   let showDeallocated = $state(false);
-  const traceOutput = $derived(generateCppTeachingTrace(code));
+  const traceOutput = $derived.by(() => generateCppTeachingTrace(code));
 
-  const result = $derived(traceOutput.ok ? traceOutput : null);
-  const errorMessage = $derived(!traceOutput.ok ? traceOutput.message : null);
-  const errorHint = $derived(!traceOutput.ok ? traceOutput.hint : null);
+  const result = $derived.by(() => (traceOutput.ok ? traceOutput : null));
+  const errorMessage = $derived.by(() => (!traceOutput.ok ? traceOutput.message : null));
+  const errorHint = $derived.by(() => (!traceOutput.ok ? traceOutput.hint : null));
 
-  const steps = $derived(result?.steps ?? []);
-  const lines = $derived(
-    result?.lines ?? code.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n')
-  );
+  const steps = $derived.by(() => (Array.isArray(result?.steps) ? result.steps : []));
+  const lines = $derived.by(() => (Array.isArray(result?.lines) ? result.lines : fallbackLines(code)));
 
   let stepIndex = $state(0);
+  const safeStepIndex = $derived.by(() => {
+    if (steps.length === 0) return 0;
+    if (stepIndex < 0) return 0;
+    if (stepIndex >= steps.length) return steps.length - 1;
+    return stepIndex;
+  });
 
   function formatCodeLines(rawLines, baseIndentLevel = 0) {
     let indentLevel = baseIndentLevel;
@@ -47,7 +55,7 @@ y = x + 2;`,
   });
 
   const activeDisplayLineIndex = $derived.by(() => {
-    const baseLineIndex = steps[stepIndex]?.lineIndex;
+    const baseLineIndex = steps[safeStepIndex]?.lineIndex;
     if (baseLineIndex === undefined) return -1;
     const displayIndex = showWrapper ? baseLineIndex + 1 : baseLineIndex;
     const maxIndex = displayLines.length - 1;
@@ -57,30 +65,23 @@ y = x + 2;`,
     return displayIndex;
   });
 
-  $effect(() => {
-    // Reset when code changes
-    if (steps.length === 0) {
-      stepIndex = 0;
-      return;
-    }
-    if (stepIndex < 0) stepIndex = 0;
-    if (stepIndex >= steps.length) stepIndex = steps.length - 1;
+  const currentStep = $derived.by(() => {
+    if (steps.length === 0) return null;
+    return steps[safeStepIndex] ?? null;
   });
 
-  const currentStep = $derived(stepIndex >= 0 ? steps[stepIndex] : null);
-
   const currentVars = $derived.by(() => {
-    if (!currentStep) return [];
+    if (!currentStep || !currentStep.state || !Array.isArray(currentStep.state.vars)) return [];
     const vars = currentStep.state.vars;
     return showDeallocated ? vars : vars.filter((v) => v.alive);
   });
 
   function goPrev() {
-    if (stepIndex > 0) stepIndex -= 1;
+    if (safeStepIndex > 0) stepIndex = safeStepIndex - 1;
   }
 
   function goNext() {
-    if (stepIndex >= 0 && stepIndex < steps.length - 1) stepIndex += 1;
+    if (safeStepIndex >= 0 && safeStepIndex < steps.length - 1) stepIndex = safeStepIndex + 1;
   }
 
   function fmtAddr(n) {
@@ -127,7 +128,7 @@ y = x + 2;`,
           Code
         </div>
         <div class="overflow-auto rounded-lg border border-slate-200 bg-slate-50 font-mono text-sm dark:border-slate-800 dark:bg-slate-900">
-          {#each displayLines as line, i}
+          {#each displayLines as line, i (`${i}:${line}`)}
             <div
               class={
                 'mt-0 flex gap-3 px-3 py-0 leading-5 ' +
@@ -148,7 +149,7 @@ y = x + 2;`,
           </div>
           {#if currentStep}
             <div class="mt-1">
-              <div class="font-mono text-xs text-slate-500 dark:text-slate-400">#{stepIndex + 1} / {steps.length}</div>
+              <div class="font-mono text-xs text-slate-500 dark:text-slate-400">#{safeStepIndex + 1} / {steps.length}</div>
               <div class="mt-1">{currentStep.explanation}</div>
             </div>
           {:else}
@@ -161,7 +162,7 @@ y = x + 2;`,
             type="button"
             class="mt-0 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-900 shadow-sm disabled:opacity-50 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
             onclick={goPrev}
-            disabled={stepIndex <= 0}
+            disabled={safeStepIndex <= 0}
           >
             Prev
           </button>
@@ -169,7 +170,7 @@ y = x + 2;`,
             type="button"
             class="mt-0 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-900 shadow-sm disabled:opacity-50 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
             onclick={goNext}
-            disabled={stepIndex < 0 || stepIndex >= steps.length - 1}
+              disabled={safeStepIndex < 0 || safeStepIndex >= steps.length - 1}
           >
             Next
           </button>
@@ -179,7 +180,7 @@ y = x + 2;`,
               type="range"
               min="0"
               max={Math.max(0, steps.length - 1)}
-              value={Math.max(0, stepIndex)}
+              value={safeStepIndex}
               class="w-full"
               oninput={(e) => {
                 const v = Number(e.currentTarget.value);
