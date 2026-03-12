@@ -97,11 +97,11 @@ The user must provide the following inputs:
 | Annual return rate | Expected annual rate as a percentage (e.g., 5 for 5%) | Positive | Negative → notify and override with default 5% |
 | Number of periods (years) | Number of years the investment will grow | Strictly positive | Zero or negative → print error and terminate immediately |
 | Recurring payment (PMT) | Amount added to savings each period (USD) | Positive | Negative → notify and override with default 0 |
-| When are payments made | Timing of periodic payments: beginning or end of period | `beginning` or `end` (case-insensitive) | Invalid → notify and override with default (`end`) |
+| When are payments made | Timing of periodic payments: beginning or end of period | Two different values | Invalid → notify and override with default (end of period) |
 
 You can use **equation (1)** from above to calculate the future value.
 
-The output will be the future value of the investment or item, formatted as currency, i.e., `$12,345.67`.
+The output will be the future value of the investment or item, formatted as currency, i.e., `$12,345.67` or `$12345.67`.
 
 ### Option 2: Present Value Calculation
 
@@ -113,11 +113,11 @@ The user must provide the following inputs:
 | Annual return rate | Expected annual discount/return rate as a percentage | Positive | Negative → notify and override with default 5% |
 | Number of periods (years) | Years until the future amount is received | Strictly positive | Zero or negative → print error and terminate immediately |
 | Recurring payment (PMT) | Periodic contribution or withdrawal amount (USD) | Positive | Negative → notify and override with default 0 |
-| When are payments made | Timing of periodic payments: beginning or end of period | `beginning` or `end` (case-insensitive) | Invalid → notify and override with default (`end`) |
+| When are payments made | Timing of periodic payments: beginning or end of period | Two different values | Invalid → notify and override with default (end of period) |
 
 You can use **equation (3)** from above to calculate the present value.
 
-The output will be the present value of the future sum, formatted as currency, i.e., `$12,345.67`.
+The output will be the present value of the future sum, formatted as currency, i.e., `$12,345.67` or `$12345.67`.
 
 ### Option 3: Recurring Payments Calculation
 
@@ -129,13 +129,13 @@ The user must provide the following inputs:
 | Future value goal | Target amount to reach after specified period (USD) | Positive | Negative or `≤ Current savings` → print error and terminate immediately |
 | Annual return rate | Expected annual rate of return as a percentage | Positive | Negative → notify and override with default 5% |
 | Number of periods (years) | Number of years to save | Strictly positive | Zero or negative → print error and terminate immediately |
-| When are payments made | Timing of periodic payments: beginning or end of period | `beginning` or `end` (case-insensitive) | Invalid → notify and override with default (`end`) |
+| When are payments made | Timing of periodic payments: beginning or end of period | Two different values | Invalid → notify and override with default (end of period) |
 
 Ensure future value goal is greater than current savings.
 
 You can use **equation (2)** from above to calculate the required recurring payments.
 
-The output will be the required recurring payments needed to reach the future value goal, formatted as currency, i.e., `$12,345.67`.
+The output will be the required recurring payments needed to reach the future value goal, formatted as currency, i.e., `$12,345.67` or `$12345.67`.
 
 ### Additional Details
 
