@@ -62,6 +62,10 @@ export default defineConfig({
           items: [{ autogenerate: { "directory": "overview" } }],
         },
         {
+          label: "Reference",
+          items: [{ autogenerate: { "directory": "reference" } }],
+        },
+        {
           label: "Practicalities",
           items: [{ autogenerate: { "directory": "practicalities" } }],
         },
@@ -70,12 +74,16 @@ export default defineConfig({
           items: [{ autogenerate: { "directory": "lectures" } }],
         },
         {
-          label: "Studios",
-          items: [{ autogenerate: { "directory": "studios" } }],
+          label: "Activities",
+          items: [{ autogenerate: { "directory": "activities" } }],
         },
         {
           label: "Assignments",
           items: [{ autogenerate: { "directory": "assignments" } }],
+        },
+        {
+          label: "Recitations",
+          items: [{ autogenerate: { "directory": "recitations" } }],
         },
         {
           label: "About",
