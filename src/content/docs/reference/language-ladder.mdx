@@ -5,4 +5,26 @@ sidebar:
   order: 1
 ---
 
-This reference page is authored in the Reference sub-project (see the project roadmap). It is a placeholder so the section and its links resolve.
+This ladder lists the Python and Rust constructs allowed each week. It grows cumulatively: a construct introduced in an earlier week stays allowed in every later week. Anything not yet on the ladder must not appear in take-home work, so that everyone traces the same constructs and any AI-generated cleverness stays easy to spot. Students who arrive experienced may use anything already introduced, in either language, at any point.
+
+## The weekly ladder
+
+| Week | Newly allowed in Python | Newly allowed in Rust | Still fenced off |
+|---|---|---|---|
+| 1 | `print`; int, float, bool, str literals; arithmetic operators and precedence; `//` vs `/` division | `println!` with `{}` placeholders; `i32`, `f64`, `bool`, `&str`; arithmetic and precedence | variables, functions |
+| 2 | variables and assignment; `UPPER_CASE` constants; basic f-strings; `def` functions with parameters and return | `let`, `let mut`, shadowing; `const`; `fn` free functions with typed params and return | conditionals, loops |
+| 3 | comparisons; `and`, `or`, `not`; `if`/`elif`/`else` | comparisons; `&&`, `\|\|`, `!`; `if`/`else if`/`else`; `match` | loops |
+| 4 | `while`; `for` over `range` | `while`; `for` over ranges | collections |
+| 5 | local scope; `list`; indexing; `len`; iteration; `append` | scope and the call stack; `Vec`; indexing; `.len()`; iteration; `push` | string methods |
+| 6 | strings as sequences; characters; slicing; searching; building strings | `String` and `&str` method subset; `char`; slicing; building strings | the memory model, references |
+| 7 | aliasing (two names, one list) | `&` references; moves; borrowing-lite | traits, lifetimes, generics (always) |
+| 8 | `input`; `try`/`except`; `int()`, `float()` parsing; comparing floats with a tolerance | `read_line`; `.parse()`; `Result`; `?`; comparing floats with a tolerance | dictionaries and maps |
+| 9 | `dict`; `assert`; test functions | `HashMap`; `assert!`; test functions | nothing new |
+| 10 | synthesis only, no new constructs | synthesis only, no new constructs | nothing new |
+
+## Fenced off for the whole course
+
+These constructs never appear in course examples or take-home work, even after the week their topic is reached.
+
+- **Python:** comprehensions, lambdas, and f-string format specs beyond the basics.
+- **Rust:** traits, lifetimes, and generics; and any borrowing before week 7.
