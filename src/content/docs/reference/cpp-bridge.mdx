@@ -1,8 +1,52 @@
 ---
 title: C++ Bridge
-description: The course subset of Rust mapped onto C++ syntax, for students continuing into C++ courses.
+description: The course subset of Rust mapped construct by construct onto C++ syntax, for students continuing into C++ courses.
 sidebar:
   order: 4
 ---
 
-This reference page is authored in the Reference sub-project (see the project roadmap). It is a placeholder so the section and its links resolve.
+This page maps the course subset of Rust onto C++ syntax, for students who continue into C++-based courses. It covers only the constructs on the [language ladder](/reference/language-ladder), in ladder order, so what you learned here has a direct C++ form. Cells hold short fragments, not full programs. To compile and run a C++ program, use the `g++` compiler; the old C++ basics lecture shows the build command.
+
+## Construct map
+
+| Concept | Rust (course subset) | C++ |
+|---|---|---|
+| Print a value | `println!("{}", x);` | `std::cout << x << "\n";` |
+| Integer type | `let x: i32 = 5;` | `int x = 5;` |
+| Float type | `let y: f64 = 2.5;` | `double y = 2.5;` |
+| Boolean type | `let b: bool = true;` | `bool b = true;` |
+| Arithmetic and precedence | `a + b * c` | `a + b * c` |
+| Integer division truncates | `7 / 2` is `3` | `7 / 2` is `3` |
+| Variable (immutable by default) | `let x = 5;` | `const int x = 5;` |
+| Mutable variable | `let mut x = 5;` | `int x = 5;` |
+| Reassign | `x = 6;` | `x = 6;` |
+| Constant | `const MAX: i32 = 10;` | `const int MAX = 10;` |
+| Function | `fn add(a: i32, b: i32) -> i32 { a + b }` | `int add(int a, int b) { return a + b; }` |
+| Call a function | `let s = add(2, 3);` | `int s = add(2, 3);` |
+| Comparisons | `a == b`, `a < b`, `a != b` | `a == b`, `a < b`, `a != b` |
+| Boolean operators | `a && b`, `a \|\| b`, `!a` | `a && b`, `a \|\| b`, `!a` |
+| `if` / `else if` / `else` | `if c { } else if d { } else { }` | `if (c) { } else if (d) { } else { }` |
+| `match` on a value | `match x { 1 => f(), _ => g() }` | `switch (x) { case 1: f(); break; default: g(); break; }` |
+| `while` loop | `while c { }` | `while (c) { }` |
+| Counted `for` loop | `for i in 0..n { }` | `for (int i = 0; i < n; i++) { }` |
+| Growable list | `let mut v: Vec<i32> = Vec::new();` | `std::vector<int> v;` |
+| Add to the end | `v.push(3);` | `v.push_back(3);` |
+| Index an element | `v[0]` | `v[0]` |
+| Length | `v.len()` | `v.size()` |
+| Iterate over elements | `for x in &v { }` | `for (const int& x : v) { }` |
+| Fixed-size array | `let a = [1, 2, 3];` | `int a[] = {1, 2, 3};` |
+| Owned string | `let mut s = String::new();` | `std::string s;` |
+| Build up a string | `s.push_str("hi");` | `s += "hi";` |
+| Single character | `let c: char = 'a';` | `char c = 'a';` |
+| String length | `s.len()` | `s.size()` |
+| Shared reference (borrow) | `fn f(v: &Vec<i32>) { }` | `void f(const std::vector<int>& v) { }` |
+| Mutable reference | `fn f(x: &mut i32) { }` | `void f(int& x) { }` |
+| Read a line of input | `io::stdin().read_line(&mut s)?;` | `std::getline(std::cin, s);` |
+| Parse text to a number | `let n: i32 = s.trim().parse()?;` | `int n = std::stoi(s);` |
+
+## What will surprise you
+
+- **Uninitialized variables and undefined behavior.** C++ lets you read a variable before you give it a value, and it lets you read past the end of a vector or array. Rust rejects both at compile time; C++ often accepts them and the program does something unpredictable instead of stopping.
+- **Manual headers and build steps.** In C++ you write `#include` lines for the standard library features you use (such as `<iostream>`, `<vector>`, `<string>`), and you compile with `g++` before you can run. There is no single `cargo run` step.
+- **`std::vector` and `std::string` versus `Vec` and `String`.** The C++ names and methods differ: `push_back` not `push`, `size` not `len`. They do the same jobs, but you look them up under different names.
+- **No move checker.** C++ does not track ownership or borrowing for you. It will let you keep using a value after it has been moved or freed, so you must reason about lifetimes yourself instead of relying on the compiler to catch the mistake.
