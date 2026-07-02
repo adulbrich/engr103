@@ -53,7 +53,7 @@ To generate slides from `marp`, use:
 
 ```bash
 cd slides
-bun x @marp-team/marp-cli@latest web-graphics.md --pdf --allow-local-files
+npx @marp-team/marp-cli@latest web-graphics.md --pdf --allow-local-files
 ```
 
 Change `web-graphics.md` to the desired slide deck.
@@ -132,16 +132,16 @@ Important directories and files include:
 
 All commands are run from the root of the project, from a terminal.
 
-This project uses `bun` instead of `npm`. Feel free to use `npm`, `pnpm`, or `yarn` if you prefer.
+This project uses `npm`. Feel free to use `pnpm`, `yarn`, or `bun` if you prefer.
 
 | Command                   | Action                                           |
 | :------------------------ | :----------------------------------------------- |
-| `bun install`             | Installs dependencies                            |
-| `bun run dev`             | Starts local dev server at `localhost:4321`      |
-| `bun run build`           | Build your production site to `./dist/`          |
-| `bun run preview`         | Preview your build locally, before deploying     |
-| `bun run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `bun run astro -- --help` | Get help using the Astro CLI                     |
+| `npm install`             | Installs dependencies                            |
+| `npm run dev`             | Starts local dev server at `localhost:4321`      |
+| `npm run build`           | Build your production site to `./dist/`          |
+| `npm run preview`         | Preview your build locally, before deploying     |
+| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
+| `npm run astro -- --help` | Get help using the Astro CLI                     |
 
 ## Resources
 

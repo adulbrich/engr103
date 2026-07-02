@@ -5,11 +5,15 @@ import starlight from "@astrojs/starlight";
 import tailwindcss from "@tailwindcss/vite";
 import mermaid from 'astro-mermaid';
 import svelte from "@astrojs/svelte";
-import starlightPageActions from 'starlight-page-actions'
+// import starlightPageActions from 'starlight-page-actions'
 import starlightLinksValidator from 'starlight-links-validator'
+// import { unified } from '@astrojs/markdown-remark';
 
 // https://astro.build/config
 export default defineConfig({
+  // markdown: {
+  //   processor: unified(),
+  // },
   vite: {
     plugins: [tailwindcss()],
   },
@@ -23,18 +27,18 @@ export default defineConfig({
     starlight({
       plugins: [
         starlightLinksValidator(),
-        starlightPageActions({
-          baseUrl: "https://engr103.alexulbrich.com",
-          actions: {
-            markdown: false,
-            custom: {
-              grok: {
-                label: "Open in Grok",
-                href: "https://grok.com/?q=",
-              },
-            },
-          },
-        })
+        // starlightPageActions({
+        //   baseUrl: "https://engr103.alexulbrich.com",
+        //   actions: {
+        //     markdown: false,
+        //     custom: {
+        //       grok: {
+        //         label: "Open in Grok",
+        //         href: "https://grok.com/?q=",
+        //       },
+        //     },
+        //   },
+        // })
       ],
       title: "ENGR 103 Engineering Computation and Algorithmic Thinking",
       social: [
@@ -55,27 +59,27 @@ export default defineConfig({
       sidebar: [
         {
           label: "Overview",
-          autogenerate: { directory: "overview" },
+          items: [{ autogenerate: { "directory": "overview" } }],
         },
         {
           label: "Practicalities",
-          autogenerate: { directory: "practicalities" },
+          items: [{ autogenerate: { "directory": "practicalities" } }],
         },
         {
           label: "Lecture Notes",
-          autogenerate: { directory: "lectures" },
+          items: [{ autogenerate: { "directory": "lectures" } }],
         },
         {
           label: "Studios",
-          autogenerate: { directory: "studios" },
+          items: [{ autogenerate: { "directory": "studios" } }],
         },
         {
           label: "Assignments",
-          autogenerate: { directory: "assignments" },
+          items: [{ autogenerate: { "directory": "assignments" } }],
         },
         {
           label: "About",
-          autogenerate: { directory: "about" },
+          items: [{ autogenerate: { "directory": "about" } }],
         },
       ],
       customCss: ["./src/styles/global.css"],
