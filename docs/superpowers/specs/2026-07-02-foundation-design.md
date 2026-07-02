@@ -54,10 +54,10 @@ mapping that week's artifacts to their pages:
 
 | | |
 |---|---|
-| **Lecture 1 — How programs run** | link to the lecture page |
-| **Assignment 0** | link |
-| **Recitation 1** | link |
-| **Lecture 2 — Values, types, expressions** | link |
+| **Lecture 1: How programs run** | topic/family note (label becomes a link when its page exists) |
+| **Assignment 0** | topic/family note |
+| **Recitation 1** | topic/family note |
+| **Lecture 2: Values, types, expressions** | topic/family note |
 
 Rows are listed in chronological within-week order following VISION's weekly
 rhythm (Lecture A, recitation, Lecture B), with the assignment placed where it
@@ -67,10 +67,13 @@ may appear as their own rows under the lecture they belong to.
 
 The single source of truth for what each week contains is VISION §10 (now
 corrected: L17 "Testing", L18 "Program design"); the schedule page is its
-rendered, link-carrying form. In Foundation the page is authored with the full
-per-week structure, linking to the stub routes created for every section, so
-`starlight-links-validator` passes and links resolve to real content as later
-tracks fill the stubs in.
+rendered form. In Foundation the page ships the full per-week structure with
+rows **unlinked** (the per-week lecture, activity, and recitation pages do not
+exist yet), so the build stays green with no dangling links. The left column is
+the bold artifact label, which becomes a hyperlink once its page is authored;
+the right column is a one-line topic or family note that stays useful after the
+label is linked. Each later track wires its own artifacts' links as it creates
+their pages.
 
 ## 4. Dual-language code component (Tabs)
 
