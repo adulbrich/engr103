@@ -19,7 +19,7 @@ are real deliverables tracked separately and are not the website.
 
 ## Current site (as analyzed)
 
-- **Framework:** Astro 5.16, Starlight 0.37 docs theme, a single `docs` content
+- **Framework:** Astro 7, Starlight 0.41 docs theme, a single `docs` content
   collection of MDX files; sidebar auto-generated per directory.
 - **Rendering:** Tailwind 4, KaTeX, `astro-mermaid`, Expressive Code with line
   numbers, Plausible analytics, sitemap, `starlight-links-validator` (broken

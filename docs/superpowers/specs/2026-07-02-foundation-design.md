@@ -47,13 +47,30 @@ later tracks validate against real routes from day one.
 
 ## 3. The schedule page
 
-`overview/schedule.mdx` reproduces the VISION §10 lecture schedule as a table
-(week, lecture, notes content, recitation that week, assignment due before it).
-It is the single place the weekly escalator (family → activity → assignment →
-recitation → exam) is visible without reorganizing the site by week. Cells may
-link to the relevant artifacts as those artifacts come online in later tracks;
-in Foundation the table is authored with links only to routes that already
-exist (or none), keeping the build green.
+`overview/schedule.mdx` is the navigation hub for the weekly escalator. It is
+organized as **one section (H2 header) per week** (`## Week 1` … `## Week 10`,
+plus `## Finals Week`), and each week's section holds a **two-column table**
+mapping that week's artifacts to their pages:
+
+| | |
+|---|---|
+| **Lecture 1 — How programs run** | link to the lecture page |
+| **Assignment 0** | link |
+| **Recitation 1** | link |
+| **Lecture 2 — Values, types, expressions** | link |
+
+Rows are listed in chronological within-week order following VISION's weekly
+rhythm (Lecture A, recitation, Lecture B), with the assignment placed where it
+is due (before the recitation). The **midterm** appears as a row in the Week 6
+section and the **final** in the Finals Week section. Activities, once authored,
+may appear as their own rows under the lecture they belong to.
+
+The single source of truth for what each week contains is VISION §10 (now
+corrected: L17 "Testing", L18 "Program design"); the schedule page is its
+rendered, link-carrying form. In Foundation the page is authored with the full
+per-week structure, linking to the stub routes created for every section, so
+`starlight-links-validator` passes and links resolve to real content as later
+tracks fill the stubs in.
 
 ## 4. Dual-language code component (Tabs)
 
