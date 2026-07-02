@@ -98,8 +98,11 @@ Disposition of current pages not carried forward as their own lecture:
 - `comments` folds into L1 or L2 as a brief note, not its own lecture.
 - `cpp-basics` is retired from the lectures section; its bridge role now lives
   in the Reference C++ bridge.
-- `git` and `development-environment` stay in place for the Practicalities track
-  to relocate.
+- `development-environment` stays in place for the Practicalities track to
+  relocate as a how-to guide.
+- `git` / GitHub is neither a lecture nor a Practicalities how-to: it becomes its
+  own **extra-credit activity** (owned by the Activities track). It stays in
+  place until that track authors it.
 - The `memory-stepper` page's content folds into L12; the interactive component
   is deferred (section 1).
 

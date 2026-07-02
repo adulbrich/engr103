@@ -52,7 +52,8 @@ in parallel; author tooling is extractable once one genre's style is proven.
    dual-language memory stepper (VISION §11 flags this reuse).
 4. **Activities** — new genre: thin, story-free prompt sheets (a listing, a
    question, room to predict), one per family altitude-1; worked resolutions
-   published after class.
+   published after class. Also owns a standalone **git/GitHub extra-credit
+   activity** (the onboarding tooling, pulled out of the lectures).
 5. **Assignments** — Rubber Duck Robotics tickets (Gary), spec-to-tests
    problems (from week 3), paper practice, reflection line, summit problem.
    Absorbs the migrated `studios/` mechanics.
