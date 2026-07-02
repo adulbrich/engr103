@@ -80,8 +80,8 @@ in parallel; author tooling is extractable once one genre's style is proven.
 ## Status
 
 - [x] Program decomposed and scoped (this document)
-- [ ] **Foundation** — brainstormed and specced (in progress)
-- [ ] Reference pages
+- [x] **Foundation** — specced, built, reviewed (on `website-redesign`)
+- [x] **Reference pages** — specced, built, reviewed (glossary deferred to lecture track; story arc + technical conventions deferred to content tracks)
 - [ ] Lecture-notes conversion
 - [ ] Activities
 - [ ] Assignments
