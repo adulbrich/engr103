@@ -33,8 +33,7 @@ This page maps the course subset of Rust onto C++ syntax, for students who conti
 | Add to the end | `v.push(3);` | `v.push_back(3);` |
 | Index an element | `v[0]` | `v[0]` |
 | Length | `v.len()` | `v.size()` |
-| Iterate over elements | `for x in &v { }` | `for (const int& x : v) { }` |
-| Fixed-size array | `let a = [1, 2, 3];` | `int a[] = {1, 2, 3};` |
+| Iterate over elements | `for i in 0..v.len() { let x = v[i]; }` | `for (int i = 0; i < v.size(); i++) { int x = v[i]; }` |
 | Owned string | `let mut s = String::new();` | `std::string s;` |
 | Build up a string | `s.push_str("hi");` | `s += "hi";` |
 | Single character | `let c: char = 'a';` | `char c = 'a';` |
