@@ -1,37 +1,17 @@
 ---
 // A two-part call-out that pairs with a dual-language (Python/Rust) tabbed
 // example: what differs between the two languages, and what cannot differ.
-// Static, no client JS. Styled with Starlight CSS variables so it adapts to
-// light and dark themes automatically.
+// Static, no client JS. Tailwind utilities with Starlight theme variables so it
+// adapts to light and dark automatically.
 ---
 
-<aside class="what-differs" aria-label="What differs, what cannot differ">
-  <div class="wd-section">
-    <p class="wd-title"><span aria-hidden="true">&#8644;</span> What differs</p>
+<aside class="my-6 rounded-lg border border-[var(--sl-color-gray-5)] bg-[var(--sl-color-gray-6)] px-5 py-4" aria-label="What differs, what cannot differ">
+  <div>
+    <p class="mb-1 font-semibold text-[var(--sl-color-white)]"><span aria-hidden="true">&#8644;</span> What differs</p>
     <slot name="differs" />
   </div>
-  <div class="wd-section">
-    <p class="wd-title"><span aria-hidden="true">&#8801;</span> What cannot differ</p>
+  <div class="mt-3 border-t border-[var(--sl-color-gray-5)] pt-3">
+    <p class="mb-1 font-semibold text-[var(--sl-color-white)]"><span aria-hidden="true">&#8801;</span> What cannot differ</p>
     <slot name="cannot" />
   </div>
 </aside>
-
-<style>
-  .what-differs {
-    border: 1px solid var(--sl-color-gray-5);
-    border-radius: 0.5rem;
-    background-color: var(--sl-color-gray-6);
-    padding: 1rem 1.25rem;
-    margin: 1.5rem 0;
-  }
-  .wd-section + .wd-section {
-    margin-top: 0.75rem;
-    padding-top: 0.75rem;
-    border-top: 1px solid var(--sl-color-gray-5);
-  }
-  .wd-title {
-    font-weight: 600;
-    color: var(--sl-color-white);
-    margin: 0 0 0.25rem;
-  }
-</style>
