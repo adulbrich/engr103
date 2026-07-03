@@ -67,6 +67,21 @@ section; build validation; length treated as a diagnostic, not a target.
   Schedule Alignment points at `overview/schedule.mdx`.
 - **Tone.** Gentler and plainer than cs312's confident-expert voice, calibrated
   to a nervous beginner, while still explaining the "why" behind each concept.
+- **Authoritative accuracy pass.** After a lecture is written and before it is
+  considered done, every factual claim is verified against official
+  documentation (docs.python.org, doc.rust-lang.org) and every code example is
+  executed in both languages (`python3` and `rustc`) with its real output,
+  value, type, or error compared to what the text states. Any mismatch is
+  fixed. Nothing ships unverified. This replaces cs312's lighter "Factual
+  Currency" section with a stronger execute-and-verify rule.
+- **Language versions on the page.** A small `<LanguageVersions>` component sits
+  at the top of every content page and shows the Python and Rust versions the
+  course targets, read from a single source of truth
+  (`src/data/languageVersions.ts`). The course targets **Python 3.14 and Rust
+  1.88** (the toolchains the accuracy pass runs against). The component and its
+  data file are shared infrastructure: activities, assignments, and recitations
+  use the same component at the top of their pages, and a version bump is a
+  one-line edit to the data file.
 
 ## 3. Old to new lecture mapping
 
