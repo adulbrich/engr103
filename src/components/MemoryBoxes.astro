@@ -1,0 +1,40 @@
+---
+type Box = {
+  address?: string;
+  value?: string;
+  name?: string;
+};
+
+type Props = {
+  boxes: Box[];
+};
+
+const { boxes = [] } = Astro.props as Props;
+---
+
+<div class="my-4 flex flex-col items-center gap-6">
+  {
+    boxes.map((box) => (
+      <div class="flex flex-col items-center gap-2">
+        {box.name && (
+          <div class="text-sm font-semibold text-[var(--sl-color-gray-2)] flex items-center gap-1">
+            <span>{box.name}</span>
+            <span class="text-xs">↓</span>
+          </div>
+        )}
+        <div
+          class="flex flex-col items-center gap-2 px-3 py-2 border-2 border-[var(--sl-color-gray-5)] rounded bg-[var(--sl-color-bg-page)] dark:bg-[var(--sl-color-gray-6)]"
+        >
+          <div class="font-mono font-semibold text-center text-[var(--sl-color-gray-1)]">
+            {box.value || "-"}
+          </div>
+          {box.address && (
+            <div class="text-xs font-mono text-[var(--sl-color-gray-3)]">
+              {box.address}
+            </div>
+          )}
+        </div>
+      </div>
+    ))
+  }
+</div>
