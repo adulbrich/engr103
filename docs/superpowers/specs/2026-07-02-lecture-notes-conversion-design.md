@@ -53,10 +53,14 @@ section; build validation; length treated as a diagnostic, not a target.
 - **Glossary discipline.** The lecture is where a term gets its canonical
   plain-language definition and a stable heading anchor; the glossary links in
   (it does not restate the definition).
-- **Concepts only.** No git, shell, editor, or other tooling (VISION places
-  those in recitations and assignments). A lecture may name the problem
-  **family** a concept feeds (Launch Window, Airlock, and so on) but never a
-  specific assignment, recitation, or activity.
+- **Concepts and dual-language only, fully story-agnostic.** No git, shell,
+  editor, or other tooling, and no reference to stories, problem families,
+  assignments, activities, or recitations. A lecture teaches the concept in
+  Python and Rust and says nothing about how or where it is later exercised.
+  This deliberately **overrides** VISION §9's "names the problem family where
+  the concept will be exercised" clause, per instructor decision: the narrative
+  and assessment structure lives entirely in the activity, assignment, and
+  recitation tiers, never in the notes.
 - **ENGR imports.** The available components are `WhatDiffers`, `Latex`,
   `AsciiTable`, and the static memory diagrams (`MemoryPoolDiagram`,
   `VariableLifecycleDiagram`), plus Starlight's `Tabs`/`TabItem`/`Aside`.
