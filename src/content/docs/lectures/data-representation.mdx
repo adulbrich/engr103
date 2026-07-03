@@ -62,7 +62,7 @@ fn main() {
 
 <WhatDiffers>
 <Fragment slot="differs">
-Both languages write a binary literal the same way, a `0b` prefix followed by the binary digits, and both evaluate `0b1000001` to the whole number 65, exactly like the plain decimal literal `65` above it. Rust's only extra requirement is wrapping the two lines in `fn main() { ... }` and printing through `println!` with a `{}` placeholder, rather than calling `print(...)` directly the way Python does.
+Rust's only extra requirement is wrapping the two lines in `fn main() { ... }` and printing through `println!` with a `{}` placeholder, rather than calling `print(...)` directly the way Python does.
 </Fragment>
 </WhatDiffers>
 
@@ -112,7 +112,7 @@ fn main() {
 
 <WhatDiffers>
 <Fragment slot="differs">
-The four values themselves are stored the same way underneath, as a byte each, regardless of which language printed them; storing bytes in memory is something the running program does, not something either language's syntax changes. The visible difference is only in how each language spells the four print statements: Rust wraps them in `fn main() { ... }` and uses `println!` with a `{}` placeholder, while Python calls `print(...)` directly on each line.
+The visible difference is only in how each language spells the four print statements: Rust wraps them in `fn main() { ... }` and uses `println!` with a `{}` placeholder, while Python calls `print(...)` directly on each line.
 </Fragment>
 </WhatDiffers>
 
@@ -145,7 +145,7 @@ fn main() {
 
 <WhatDiffers>
 <Fragment slot="differs">
-Both languages print the letter `A` exactly as written and the number 65 exactly as written; neither shows, on its own, that the two are related. Rust's literal type for `"A"` is `&str`, the same string-slice type used for any piece of text, since Rust does not yet expose a Python-style string in this course; Python's literal type is `str`. Both wrap the numeric literal identically aside from Rust's usual `fn main() { ... }` and `println!` requirements.
+Both languages print the letter `A` exactly as written and the number 65 exactly as written; neither shows, on its own, that the two are related. Rust's literal type for `"A"` is `&str`, the type Rust uses for text, since Rust does not yet expose a Python-style string in this course; Python's literal type is `str`. Both wrap the numeric literal identically aside from Rust's usual `fn main() { ... }` and `println!` requirements.
 </Fragment>
 </WhatDiffers>
 
