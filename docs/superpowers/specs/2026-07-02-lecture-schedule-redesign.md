@@ -1,139 +1,109 @@
-# Lecture Schedule Redesign (v3): weave memory early, keep the family lockstep
+# Lecture Schedule Redesign (v4): calendar-accurate, foundation-forward, interactive
 
-A revision of VISION §10 driven by a careful read of the original C++ lecture
-notes. The originals weave memory and machine-number concepts at increasing
-depth exactly where each is first needed; VISION §10 flattened that into two
-late standalone lectures (L12 "memory model", L15 "numbers in machines"), which
-left week-1 content (and Rust's `i32`/`f64`) ungrounded.
+Supersedes v3. Two corrections drove this version: the real Winter-term calendar
+(one lecture slot is lost to the MLK holiday, and the two week-10 special topics
+are dropped), and the instructor's emphasis that the hard foundations (binary,
+bits and bytes, memory, the underlying machinery of programming) must be covered
+**well and with interactive/visual components**, not just enriched prose.
 
-**Key finding from re-checking the interlock:** VISION §10's lecture *order* is
-already correctly aligned to the recitations and their problem families. The
-defect is **content placement**, not sequence. So this redesign is surgical: it
-enriches early lectures and reframes the two late ones, and it does **not**
-reorder the sequence, which keeps every recitation aligned to the lecture it
-needs. Status: **proposal for instructor approval** before propagating to
-VISION §4/§10, the lecture-notes spec, the skill, and the L2 pilot.
+Status: **proposal for instructor approval** before propagating to VISION and
+the specs/skill/pilot.
 
-## 1. Diagnosis: the originals weave memory; VISION §10 dumped it late
+## 1. The calendar reality (this is the slot budget)
 
-The original notes have no single "memory" lecture. They introduce memory and
-machine-number ideas at rising depth, each where it is first needed:
+Two lectures per week (Monday and Wednesday) across ten weeks = 20 slots. But:
 
-- **Expressions (order 5):** binary, bits, bytes, storage, primitive types and
-  their **sizes**. The light foundation that grounds everything after.
-- **Operators (order 6):** integer division and truncation, grounded in the
-  integer type's size.
-- **Variables (order 7):** a variable is a named memory location; uninitialized
-  reads are undefined behavior.
-- **Functions (order 11):** arguments and parameters are separate memory; the
-  value is copied. Foreshadows references.
-- **Scope (order 12):** memory reclaimed on scope exit; the global-variable
-  antipattern.
-- **Booleans (order 13):** the floating-point equality trap and epsilon, taught
-  with comparisons, not deferred.
-- **Arrays (order 19):** contiguous memory, base address, buffer overflow.
-- **References (order 21):** indirection, aliasing, dangling references, and an
-  explicit C/C++ (manual) vs Python (garbage collection) vs Rust (compile-time
-  ownership) contrast.
+- **Week 3 Monday is the MLK holiday: no class.** That removes one slot.
+- **The midterm consumes one slot** (week 6).
+- **The two week-10 special topics (web/graphics, AI/ML) are dropped.**
 
-VISION §10 moved the light foundation and the machine-number concepts to L12 and
-L15 and put machine numbers on the final only. That is why the L2 pilot could not
-explain `i32`/`f64` without reaching forward. The fix is to **restore the early
-light foundation**, not to defer the type names.
+So there are **18 content-lecture slots**, not 19 or 20. The redesign must fit 18
+lectures. The dropped special-topic slots become week-10 synthesis, not new
+material.
 
-## 2. The surgical fix (no reorder)
+## 2. Foundations are first-class, and taught interactively
 
-1. **Enrich L2** so "what is a type" includes its machine representation: bits,
-   bytes, sizes; integer vs floating-point representation; Python's
-   arbitrary-precision `int` vs Rust's fixed `i32`/`f64`; static vs dynamic
-   typing. This grounds `i32`/`f64` and integer division at the point of use.
-   This is one topic (types and their representation), not two.
-2. **Foreshadow the deep model in L4 (Functions I):** arguments and parameters
-   are separate memory, the value is copied (as the originals do).
-3. **Teach the float-equality trap with comparisons (L5/L6)**, grounded in L2's
-   representation, exactly as the original booleans lecture did.
-4. **Reframe L12 (memory model) and L15** as *deepenings of an early
-   foundation*, not first introductions. L12 builds the aliasing/ownership model
-   on L2 and L4; L15 becomes "numeric robustness" (accumulation error, tolerance,
-   integer overflow in depth) feeding the week-9 Telemetry recitation, building
-   on the float and size ideas seeded in L2/L6.
-5. **Fold type coercion vs explicit casting into L2/L3** (Rust's stricter `as`),
-   which the originals had as a topic and VISION dropped.
-6. **Restore dual-language contrasts** as lessons: Python arbitrary-precision
-   `int` (no overflow) vs Rust fixed `i32`; `do-while` exists only in C++ (a
-   Python/Rust "what differs" in loops); bounds errors as Python `IndexError`
-   vs Rust panic vs the C++ buffer-overflow danger.
+The originals lean hard on memory and machine representation (binary/bits/bytes
+in Expressions, memory boxes and sizes, contiguous memory and addresses in
+Arrays, aliasing and dangling in References). The instructor wants these covered
+**well and visually/interactively**. Concretely:
 
-## 3. The full verified grid
+- **A dedicated early foundation lecture (L2, "Data representation and memory")**
+  teaches binary and decimal, bits and bytes, ASCII, memory as addressable
+  boxes, and type sizes, before any type name (`i32`, `f64`) is used to mean a
+  bit-width. This replaces the "enrich L2 in place" compromise: the foundation
+  earns its own lecture now that dropping the special topics frees room.
+- **Interactive components (un-deferring the memory stepper):**
+  - a **binary/bits/bytes visualizer** (decimal to binary, show the byte, show a
+    value's bit pattern) for L2;
+  - a **memory-box / address diagram** (values in addressable boxes, a variable
+    as a named box) for L2 and L4;
+  - the **dual-language memory stepper** (Python aliasing, Rust
+    ownership/moves/borrows), ported from `CppMemoryStepper`, for L13.
+  These are built as part of the lecture track (a small component sub-track),
+  reversing the earlier "defer the stepper" decision.
+- Memory is still **threaded** at rising depth after L2 (L4 uninitialized/
+  binding, L5 copy foreshadow, L10 scope lifetime, L13 the deep model, L16
+  numeric robustness), but now each hard step has a visual or interactive aid.
 
-Order is unchanged from VISION §10; the **bold** text marks enriched or reframed
-content. Each row lists the recitation that week (its Mission Ares family) and
-the assignment due before it, so the lecture -> recitation -> family lockstep is
-visible. Recitation in week N assesses through week N's first lecture.
+## 3. The 18-lecture sequence
 
-| Wk | # | Lecture (enriched) | Recitation (family) | Assignment due |
-|---|---|---|---|---|
-| 1 | 1 | How programs run **+ a first look at how data is represented (bits and bytes)** | R1 onboarding (ungraded) | A0 setup |
-| 1 | 2 | Values, types, expressions **and how they are stored: bits/bytes/sizes, integer vs float representation, Python arbitrary-precision `int` vs Rust `i32`/`f64`, static vs dynamic typing, implicit coercion** | | |
-| 2 | 3 | Variables and state **(uninitialized reads: Rust forbids, C++ undefined behavior; `let`/`let mut`; explicit casts, Rust's `as`)** | R2 Launch Window (expressions, types, variables) | A1 Launch Window arithmetic |
-| 2 | 4 | Functions I **(arguments and parameters are separate memory, value copied: foreshadows references)** | | |
-| 3 | 5 | Booleans and conditionals **(the floating-point equality trap and epsilon, taught here with comparisons)** | R3 Launch Window (writing and testing functions) | A2 Launch Window functions |
-| 3 | 6 | Decision structures (chains, `match`, decision tables, condition bugs) | | |
-| 4 | 7 | Loops (`while`, counted `for`; **`do-while` as a C++-only "what differs"**) | R4 Airlock (conditionals, decision tables) | A3 Airlock rules |
-| 4 | 8 | Loop patterns (accumulate, count, search, sentinel, nested) | | |
-| 5 | 9 | Functions II: scope and the call stack **(nested scope, shadowing, the global-variable antipattern, memory reclaimed on scope exit)** | R5 Rover (loops + functions) | A4 Rover drive |
-| 5 | 10 | Collections I: lists and vectors **(out-of-bounds: Python `IndexError` vs Rust panic vs the C++ buffer-overflow danger)** | | |
-| 6 | 11 | Strings and characters **(character encoding and ASCII, grounded in L2 bits/bytes)** | R6 Mission Readiness Review (cumulative, midterm rehearsal) | A5 cumulative |
-| 6 | - | **Midterm** (paper, L1 to L11; may now test type sizes, integer division, float-equality concept) | | |
-| 7 | 12 | The memory model **(deepens L2/L4: names as labels, copies vs shared references, Python aliasing, Rust ownership/moves/borrows-lite, the C++ dangling/buffer-overflow danger as why memory safety matters)** | R7 Comms (lists + strings; ciphers, checksums) | A6 Comms encode/decode |
-| 7 | 13 | Sharing and mutation (passing collections; Python aliasing gotchas; Rust `&`/`&mut`) | | |
-| 8 | 14 | Errors, input, and validation (syntax/runtime/logic; console input and parsing; exceptions vs `Result`) | R8 Comms (memory model; packet buffers) | A7 memory and sharing |
-| 8 | 15 | **Numeric robustness** (deepens L2/L6: floating-point accumulation and tolerance, integer overflow: Rust wrap/panic vs Python arbitrary precision; units and magnitudes) | | |
-| 9 | 16 | Collections II: dictionaries and maps | R9 Telemetry (validation + floats) | A8 Telemetry watchdog |
-| 9 | 17 | Testing (test cases from specs, boundary/error cases, assertions; consolidates the spec-to-tests skill; the debugging *method* is woven into every lecture and threaded via the weekly live-debugging activity, not introduced here) | | |
-| 10 | 18 | Program design and modeling (decomposition, from word problem to program; **synthesis only, no new examinable atom**) | R10 capstone Sol 100 (Manifest) | A9 Manifest + critique |
-| 10 | 19 | Computing with judgment (evaluate code you did not write; non-exam) | | |
+| # | Lecture | Foundational / interactive note |
+|---|---|---|
+| 1 | How programs run | compute, interpret vs compile, running, errors as messages, the debugging method, two-language philosophy and ladder |
+| 2 | **Data representation and memory** | binary and decimal, bits, bytes, ASCII, memory as addressable boxes, type sizes. **Interactive: binary/bits visualizer + memory-box diagram.** Grounds every later type name |
+| 3 | Values, types, and expressions | values and types; static vs dynamic typing; Python arbitrary-precision `int` vs Rust `i32`/`f64` (now grounded by L2); operators, precedence, integer division and truncation; implicit coercion; literals |
+| 4 | Variables and state | names vs values; assignment; `let`/`let mut`; initialization and uninitialized reads (Rust forbids, C++ undefined behavior). **Interactive: memory-box diagram of a variable** |
+| 5 | Functions I | define/call, parameters, arguments, return; arguments and parameters are separate memory, value copied (foreshadows the memory model) |
+| 6 | Booleans and conditionals | comparisons, logical operators, short-circuit; `if`/`else`; the floating-point equality trap and epsilon, grounded in L2/L3 |
+| 7 | Decision structures | chains, `match`, decision tables, guard clauses, condition bugs |
+| 8 | Loops | `while`, counted `for`, termination; `do-while` as a C++-only "what differs" |
+| 9 | Loop patterns | accumulate, count, search, sentinel, nested |
+| 10 | Functions II: scope and the call stack | local/nested scope, shadowing, lifetime, the global-variable antipattern, the call stack by hand |
+| 11 | Strings and characters | strings as sequences; encoding and ASCII (grounded in L2); slicing, searching, building |
+| 12 | Collections I: lists and vectors | indexing, iteration, growing/mutating; out-of-bounds as `IndexError` vs Rust panic vs the C++ buffer-overflow danger |
+| 13 | The memory model | names as labels; Python aliasing vs Rust ownership/moves/borrows; the C++ danger as why safety matters. **Interactive: dual-language memory stepper** |
+| 14 | Sharing and mutation | passing collections; when the caller sees changes; defensive copying; Rust `&`/`&mut` |
+| 15 | Errors, input, and validation | syntax/runtime/logic; console input and parsing; exceptions vs `Result`; validating |
+| 16 | Numeric robustness | integer overflow (Rust wrap/panic vs Python arbitrary precision); floating-point accumulation and tolerance in depth; units and magnitudes |
+| 17 | Collections II: dictionaries and maps | key-value thinking; choosing list vs map; frequency and lookup |
+| 18 | Program design and testing (synthesis) | decomposition top-down, from word problem to program; test cases from specs, boundary/error cases, assertions (consolidating the spec-to-tests skill threaded since week 3). Synthesis only, no new archetype |
 
-## 4. Invariants re-verified
+Dropped from the v3/VISION list to fit 18 slots: the standalone "Computing with
+judgment" lecture (outcome O8 lives in the assignment critique thread per VISION
+§6, so no lecture is required), and the separate "Type conversions" lecture
+(folded into L3). Testing is consolidated into the week-10 synthesis (L18)
+because the spec-to-tests skill is threaded from week 3, so L18 introduces no new
+examinable archetype.
 
-- **Recitation lockstep:** R2 needs variables (L3, week 2 lecture A, before R2)
-  and values/types/expressions (L2). R3 needs functions (L4, before R3). R4
-  needs booleans and decision tables (L5/L6, before R4). R5 needs loops (L7/L8,
-  before R5). R7 needs strings (L11) and lists (L10, before R7). R8 needs the
-  memory model (L12, week 7, before R8 in week 8). R9 needs errors/validation
-  (L14) and numeric robustness (L15, before R9). R10 needs dictionaries (L16,
-  before R10). All hold, because the order is unchanged.
-- **Assignment before recitation:** unchanged from VISION §10, still holds.
-- **No new examinable atom after week 9:** testing is L17 (week 9); week 10 is
-  program design (synthesis) and non-exam judgment. Holds.
-- **No lecture carries two major topics:** L2 is "types and their
-  representation" (one topic; the bits/bytes content is the substrate of "what a
-  type is", not a separate memory lecture). The deep model stays L12.
+## 4. What still needs verifying (and one open risk)
 
-## 5. Ripple (on approval)
+- **Recitation/family lockstep and the MLK week.** With week 3 losing its Monday
+  lecture, the "Lecture A, recitation, Lecture B" rhythm for week 3 needs the
+  instructor's actual recitation day to finalize. The lecture *content* order
+  above preserves the family prerequisites (variables before the Launch Window
+  recitation, loops before Rover, strings+lists before Comms, memory model
+  before the Comms memory recitation, dicts before the Manifest capstone), but
+  the exact week each recitation lands must be re-checked against the real
+  calendar once the foundation lecture (L2) shifts everything one slot.
+- **Exam invariant.** Testing is consolidated in the week-10 synthesis; because
+  it is threaded from week 3 it introduces no new examinable atom, so the
+  "nothing new after week 9" rule still holds. Confirm this reading.
 
-- **VISION §4 (exams):** machine numbers are no longer a single late topic. The
-  midterm (L1 to L11) may test type sizes, integer division, and the
-  float-equality concept. The final still weights collections, the memory model,
-  errors, testing, and numeric robustness. Update the coverage split.
-- **VISION §10:** keep the order; replace the lecture descriptions with the
-  enriched ones above; rename L15 to "Numeric robustness".
-- **Lecture-notes skill:** add the legibility gate already agreed (no forward
-  references, anchored to the ladder) and annotate the ladder so `i32`/`f64` are
-  grounded by L2. The gate is what would have caught the pilot.
-- **L2 pilot:** re-scope to include the light memory foundation (bits/bytes/
-  sizes and the Python-vs-Rust integer models) so `i32`/`f64` are grounded, and
-  re-author against the enriched L2 (plus the reviewer's two accuracy fixes).
+## 5. Decisions needed
 
-## 6. Open questions for the instructor
+1. Dedicated **L2 "Data representation and memory"** lecture (recommended, now
+   that special topics are dropped), versus keeping it enriched-in-place.
+2. **Interactive component scope:** build all three (binary/bits visualizer,
+   memory-box diagram, dual-language memory stepper), or a subset?
+3. **18-lecture fit:** drop the standalone judgment lecture and fold type
+   conversions into L3 and testing into the week-10 synthesis (recommended), or
+   keep one of them and drop something else?
 
-1. Enriching L2 in place keeps 19 lectures and the family lockstep. The
-   alternative is a dedicated week-1 "how computers store data" lecture (20
-   lectures), which desyncs the recitations by a week and needs the family map
-   shifted. The in-place enrichment is recommended; confirm.
-2. L15 reframed from "numbers in machines" to "numeric robustness" (a deepening
-   that feeds the Telemetry recitation), with the first exposure moved early to
-   L2/L6. Does that satisfy "not too late", or do you want overflow/float given
-   a fuller early lecture at the cost of the lockstep?
-3. Testing and debugging stays a single week-9 lecture (L17). Acceptable, or
-   split (which would push program design or judgment out of week 10)?
+## 6. Ripple (on approval)
+
+VISION §10 becomes 18 lectures (this sequence), the midterm and MLK gap noted,
+special topics removed; VISION §4 coverage updated. The lecture-notes spec gains
+the interactive-component sub-track. The skill's legibility gate and the L2
+pilot (already grounded) stay; the pilot may split into L2 (data representation,
+with the visualizer) and L3 (values/types/expressions) to match the new L2/L3.
