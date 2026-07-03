@@ -58,7 +58,7 @@ advanced-extra lectures in week 10.
 | 9 | Mon | 15 | The memory model: aliasing and ownership (names as labels; Python aliasing vs Rust ownership/moves/borrows; the C++ danger as why safety matters). Tool: memory stepper. *Late because aliasing needs lists (L14) to exist first* |
 | 9 | Wed | 16 | Sharing and mutation (passing collections; when the caller sees changes; Rust `&`/`&mut`). Tool: memory stepper |
 | 10 | Mon | 17 | **Collections II: dictionaries and maps** (advanced extra; the capstone is list-based) |
-| 10 | Wed | 18 | Advanced extra topic (instructor's choice) |
+| 10 | Wed | 18 | **Computing with judgment** (advanced extra): evaluating code you did not write (a peer's, a library's, an AI's); limitations and failure modes; who is excluded by our tools; course synthesis. Recommended; instructor may swap |
 
 Woven rather than given a standalone lecture: **numeric robustness** (integer
 overflow in L2/L3, floating point in L7, accumulation and tolerance in L9), and

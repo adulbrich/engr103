@@ -298,17 +298,19 @@ on exam day. Few problem families with variations, fully disclosed.
 
 ### Coverage split
 
-- **Midterm (lectures 1 to 9):** values and types, how values are stored (bits,
+- **Midterm (lectures 1 to 10):** values and types, how values are stored (bits,
   bytes, sizes; integer vs floating-point representation), expressions and
-  integer division, variables and state, functions, conditionals (including the
-  floating-point equality trap as a concept), loops and loop patterns, scope,
-  and the call stack. Collections are lectured at the end of week 5 but first
-  appear on the final.
-- **Final (cumulative, weighted to weeks 6 to 10):** collections (lists/vectors,
-  dictionaries/hashmaps), strings and characters, the memory model (aliasing,
-  references, ownership-lite), errors, input handling and validation, numeric
-  robustness (floating-point accumulation and tolerance, integer overflow,
-  deepening the representation foundation seeded in the midterm scope), testing,
+  integer division, variables and state, functions, scope and the call stack,
+  conditionals (including the floating-point equality trap as a concept), errors
+  and validation, and testing (choosing test cases, boundary and error cases).
+  Loops and collections are taught after the midterm and first appear on the
+  final.
+- **Final (cumulative, weighted to the second half):** loops and loop patterns,
+  strings and characters, collections (lists and vectors), the memory model
+  (aliasing, references, ownership-lite), sharing and mutation, plus (from the
+  first half) errors and validation and testing; numeric robustness
+  (floating-point tolerance, integer overflow) is woven and tested as concepts;
+  dictionaries are a week-10 extra and not required on the exams;
   debugging, and program design (the last
   as synthesis of skills practiced all term, introducing no new archetype;
   modeling versus analysis is tested only as a concept and is introduced in
@@ -573,7 +575,9 @@ Lecture notes are read **before** class. A three-question pre-lecture check
 (auto-graded, due an hour before lecture, counts toward the 5% preparation
 grade) verifies the reading and, more importantly, tells the instructor which
 misconception to open with. Lecture time itself is spent almost entirely on
-examples, activities, and problems; the notes carry the exposition.
+examples, activities, and problems; the notes carry the exposition. Only lecture
+1, and perhaps lecture 2, receive a full in-class walkthrough (the onboarding
+week); from then on the notes are the exposition and class time is activities.
 
 ### Shape of a 50-minute session
 
@@ -630,6 +634,14 @@ The six skeletons and their two faces:
 | **Comms** — encode, decode, clean a sequence | Garbled customer order codes, novelty-pager messages | Ciphers, checksums, packet buffers | Strings, lists/vectors, memory model, sharing | 6 to 8 |
 | **Telemetry** — validate and summarize a noisy stream | The smart bathtub's water-level sensor returns nonsense | Dust-storm sensor streams, tolerance alarms | Errors, input validation, floating point, RNG noise | 8 to 9 |
 | **Manifest** — key-value lookup and counting | Duck SKU inventory after a warehouse mix-up | Cargo inventory, resupply planning (the Rust pun is intended) | Dictionaries/hashmaps, choosing structures | 9 to 10 |
+
+The **Weeks** column above reflects the pre-reorder plan. Section 10's schedule
+now teaches errors and testing before the midterm and loops after it, so the
+family week-ranges are re-derived to follow that lecture order when the
+recitations are authored: the Rover (loops) family moves to the second half, the
+Manifest family (dictionaries) becomes a week-10 extra, and the capstone is
+list-based. The prerequisite rule is unchanged: each family's recitation follows
+the lecture that teaches its concept.
 
 Why these instead of the current course's calculator, financial planner,
 dictionary, and linear-equation solver: same concepts, but every problem has a
@@ -829,58 +841,82 @@ linked from week 1 and from every stretch problem.
 
 ## 10. Lecture schedule (the lecture notes contents)
 
-Nineteen content sessions plus the in-lecture midterm across ten weeks. Notes
-are concept-first and dual-language
-throughout: every concept section ends with a tabbed Python/Rust example pair
-and a "what differs, what cannot differ" call-out. Weekly rhythm: Lecture A,
-recitation, Lecture B. In the table, recitation cells name each family's
-Mission Ares face; the assignment preparing it presents the same skeleton in
-Rubber Duck Robotics costume (section 8).
+Sixteen outcome-bearing lectures across weeks 1 to 9, plus two advanced-extra
+lectures in week 10, with the midterm in week 6. The Winter-term calendar gives
+twenty Monday/Wednesday slots, minus the MLK holiday (week 3 Monday, no class)
+and the midterm slot, leaving eighteen teaching sessions. **All learning
+outcomes are met by the end of week 9; week 10 introduces only advanced material
+not required for the outcomes.** The term is correctness-first: the first half
+(through the midterm) teaches foundations, functions, scope, conditionals,
+errors, and testing without iteration; loops and data come after the midterm.
+
+Notes are concept-first and dual-language throughout: every concept section ends
+with a tabbed Python/Rust example pair and a "what differs, what cannot differ"
+call-out. **The notes are read before class (the flipped model, section 7):
+class time is spent on activities, and only lecture 1 (and perhaps lecture 2)
+receives a full in-class walkthrough; every other lecture's exposition lives in
+its notes.** The reusable memory stepper and the binary/bits visualizer are
+embedded wherever the representation or memory picture helps (variable
+assignment, function calls, scope, aliasing, sharing), not confined to one
+lecture.
+
+The recitation and assignment columns below show the intended
+lecture-to-family alignment. Because this schedule reorders the term (errors and
+testing before the midterm, loops after it), the exact week each Mission Ares
+family recitation lands, and the family week-ranges in section 8, are
+**re-derived to follow this lecture order when the recitations are authored**;
+the prerequisite rule holds (each family's recitation follows the lecture that
+teaches its concept).
 
 | Wk | Lecture | Notes content (read in advance) | Recitation that week | Assignment due before that recitation |
 |---|---|---|---|---|
-| 1 | 1 | **How programs run.** Computation and algorithms; source code, interpreters (Python) and compilers (Rust); running a program; printing results; errors as messages, not verdicts; the systematic debugging method (read the error, form a hypothesis, test it) and the modeling-versus-analysis distinction, both introduced here and threaded all term; the two-language philosophy and the language ladder. | R1 (ungraded): environment, terminal, editor, git, the `check` harness, hello in both languages. | A0: setup, toolchains, hello in both languages (due end of week 1, after R1). |
-| 1 | 2 | **Values, types, expressions.** Integers, floats, booleans, strings as values; how a computer stores them (bits, bytes, sizes; integer vs floating-point representation; Python's arbitrary-precision `int` vs Rust's fixed `i32`/`f64`); static vs dynamic typing; implicit coercion; operators, precedence, integer vs float division grounded in those sizes; evaluating expressions by hand. This light representation foundation grounds the type names and is deepened later (lectures 12 and 15). | | |
-| 2 | 3 | **Variables and state.** Names vs values; assignment and rebinding; `let` and `let mut`, shadowing; state over time; constants; tracing with a variable table. | R2: expressions, types, variables (Launch Window). | A1: Launch Window arithmetic families + paper trace. |
-| 2 | 4 | **Functions I.** Defining and calling; parameters, arguments, return values; signatures and types; arguments and parameters are separate memory and the value is copied (a first foreshadow of the memory model); functions as named, testable formulas; how the autograder calls your functions. | | |
-| 3 | 5 | **Booleans and conditionals.** Comparisons, logical operators, truth tables; `if`/`else`; building conditions from specifications; the floating-point equality trap and comparison with tolerance, taught here with comparisons and grounded in lecture 2's representation. | R3: writing and testing functions (Launch Window). | A2: Launch Window function families + paper trace. |
-| 3 | 6 | **Decision structures.** `elif`/`else if` chains and `match`; nesting vs chaining; decision tables; guard clauses; common boundary bugs. | | |
-| 4 | 7 | **Loops.** `while` for unknown counts, counted loops (`for`/`range` and `for`/ranges); loop variables; termination; tracing loops. | R4: conditionals and decision tables (Airlock). | A3: Airlock rule families + paper trace. |
-| 4 | 8 | **Loop patterns.** Accumulate, count, search, sentinel, validate-until-correct; nested loops (ASCII rendering); choosing the pattern from the problem statement. | | |
-| 5 | 9 | **Functions II: scope and the call stack.** Local scope, lifetimes of names; the call stack drawn by hand; passing values to functions; decomposing a program into functions. | R5: loops + functions synthesis (Rover). | A4: Rover drive families + call-stack paper practice. |
-| 5 | 10 | **Collections I.** Lists and vectors; indexing, length, iteration; growing and mutating; out-of-bounds as Python's `IndexError` vs Rust's panic (and, in one phrase, the C++ buffer-overflow danger that motivates both). | | |
-| 6 | 11 | **Strings and characters.** Strings as sequences; characters and encodings (ASCII/UTF-8 awareness, grounded in lecture 2's bits and bytes); slicing, searching, building strings. | R6: Mission Readiness Review, cumulative synthesis over lectures 1 to 9 (Launch Window + Airlock + Rover remix); doubles as midterm rehearsal. | A5: cumulative families + midterm-format paper practice set. |
-| 6 | | **Midterm**, the written flight qualification, on paper during the second lecture slot (45 min, lectures 1 to 9). | | |
-| 7 | 12 | **The memory model.** Deepening the foundation from lectures 2 and 4: names point at values; aliasing in Python (two names, one list) and ownership/borrowing-lite in Rust (moves, `&` references); copies vs views; the C++ dangling/buffer-overflow danger as why memory safety matters; drawing memory diagrams. | R7: lists + strings (Comms: ciphers and checksums). | A6: Comms encode/decode families + paper trace. |
-| 7 | 13 | **Sharing and mutation.** Passing collections to functions in both languages; when the caller sees your changes; defensive copying; why Rust makes you declare intent. | | |
-| 8 | 14 | **Errors, input, and validation.** Kinds of errors (syntax, run-time, logic); console input arrives at last: exceptions vs `Result` at the parse boundary; validating input; failing loudly and early. | R8: memory model + functions over collections (Comms: packet buffers). | A7: memory/sharing families + memory-diagram paper practice. |
-| 8 | 15 | **Numeric robustness.** Deepening lecture 2's representation and lecture 5's tolerance: integer overflow (Rust wrap/panic vs Python's arbitrary precision); floating-point accumulation error and tolerance in depth; units and magnitudes in engineering computation. Feeds the week-9 Telemetry recitation. | | |
-| 9 | 16 | **Collections II.** Dictionaries and hashmaps; key-value thinking; choosing between list and map; frequency counting and lookup-table patterns; (recitation-only companion: reading data from a file). | R9: robust numeric programs, validation + floats (Telemetry). | A8: Telemetry watchdog families + paper practice. |
-| 9 | 17 | **Testing.** Test cases from specifications; boundary and error cases; assertions and test functions in both languages; consolidates and formalizes the spec-to-tests skill practiced since week 3. (The systematic debugging method is introduced in week 1 and threaded via the weekly live-debugging activity and the HAB find-the-bug problems.) | | |
-| 10 | 18 | **Program design.** Decomposition top-down; inputs, outputs, assumptions; from word problem to program, start to finish. Synthesis only: it assembles skills practiced all term and introduces no new examinable concept. (Modeling versus analysis, introduced in week 1, is applied here at full scale.) | R10: capstone, the Sol 100 mission-status program with tests, synthesizing the whole term. | A9: Manifest map families + capstone prep; accessibility/equity critique; final-format paper practice set. |
-| 10 | 19 | **Computing with judgment.** Evaluating code you did not write (a peer's, a library's, an AI's); limitations and failure modes; who is excluded by our tools; course synthesis and final exam concept map. | | |
+| 1 | 1 | **How programs run.** Computation and algorithms; source code, interpreters (Python) and compilers (Rust); running a program; printing results; errors as messages, not verdicts; the systematic debugging method and the modeling-versus-analysis distinction, both introduced here and threaded all term; the two-language philosophy and the language ladder. (This lecture, and perhaps lecture 2, get a full in-class walkthrough; the rest are read before class.) | R1 (ungraded): environment, terminal, editor, the `check` harness, hello in both languages. | A0: setup, toolchains, hello in both languages. |
+| 1 | 2 | **Data representation and memory.** Binary and decimal; bits and bytes; ASCII; memory as addressable boxes; type sizes; what the numbers in `i32`/`f64` mean. Taught with the interactive binary/bits visualizer and a memory-box diagram, before any type name is used to mean a bit-width. | | |
+| 2 | 3 | **Values, types, expressions.** Integers, floats, booleans, strings as values; static vs dynamic typing; Python's arbitrary-precision `int` vs Rust's fixed `i32`/`f64` (grounded by lecture 2); implicit coercion; operators, precedence, integer vs float division and truncation; evaluating by hand. | R2: expressions and types (Launch Window). | A1: Launch Window arithmetic families + paper trace. |
+| 2 | 4 | **Variables and state.** Names vs values; assignment and rebinding; `let` and `let mut`, shadowing; initialization and uninitialized reads (Rust forbids, C++ undefined behavior); constants; tracing with a variable table. Uses the memory stepper. | | |
+| 3 | 5 | **Functions I.** Defining and calling; parameters, arguments, return values; signatures and types; arguments and parameters are separate memory and the value is copied; how the autograder calls your functions. Uses the memory stepper. (Week 3 Monday is the MLK holiday, so this is the only week-3 lecture.) | R3: functions and variables (Launch Window). | A2: Launch Window function families + paper trace. |
+| 4 | 6 | **Scope and the call stack.** Local and nested scope; shadowing; lifetimes of names; the global-variable antipattern; the call stack drawn by hand; decomposing a program into functions. Uses the memory stepper. Taught before control flow because scope governs the blocks inside conditionals and loops. | R4: functions and scope synthesis (Launch Window). | A3: Launch Window scope/call-stack practice. |
+| 4 | 7 | **Booleans and conditionals.** Comparisons, logical operators, short-circuit; `if`/`else`; building conditions from specifications; the floating-point equality trap and comparison with tolerance, grounded in lecture 2. | | |
+| 5 | 8 | **Decision structures.** `elif`/`else if` chains and `match`; nesting vs chaining; decision tables; guard clauses; common boundary bugs. | R5: conditionals and decision tables (Airlock). | A4: Airlock rule families + paper trace. |
+| 5 | 9 | **Errors, input, and validation.** Kinds of errors (syntax, run-time, logic); console input and parsing; exceptions vs `Result`; validating a value and failing loudly. (The loop-based validate-until-correct pattern is deferred to lecture 12.) | | |
+| 6 | 10 | **Testing.** Test cases from a specification; boundary and error cases; assertions and test functions in both languages; consolidates the spec-to-tests skill practiced since week 3. | R6: Mission Readiness Review, cumulative synthesis over lectures 1 to 10; doubles as midterm rehearsal. | A5: cumulative families + midterm-format paper practice set. |
+| 6 | | **Midterm**, on paper during the second lecture slot (lectures 1 to 10: foundations, functions, scope, conditionals, errors, testing; no loops). | | |
+| 7 | 11 | **Loops.** `while` for unknown counts, counted loops; loop variables; termination; `do-while` as a C++-only "what differs"; tracing loops. | R7: loops (Rover). | A6: Rover drive families + paper trace. |
+| 7 | 12 | **Loop patterns.** Accumulate, count, search, sentinel, validate-until-correct; nested loops (ASCII rendering); choosing the pattern from the problem statement. | | |
+| 8 | 13 | **Strings and characters.** Strings as sequences; characters and encodings (grounded in lecture 2's bits and bytes); slicing, searching, building strings. | R8: strings and lists (Comms: ciphers and checksums). | A7: Comms encode/decode families + paper trace. |
+| 8 | 14 | **Collections I: lists and vectors.** Indexing, length, iteration; growing and mutating; out-of-bounds as Python's `IndexError` vs Rust's panic (and the C++ buffer-overflow danger that motivates both). | | |
+| 9 | 15 | **The memory model: aliasing and ownership.** Names point at values; aliasing in Python (two names, one list) and ownership/moves/borrows-lite in Rust; the C++ dangling/buffer-overflow danger as why memory safety matters; drawing memory diagrams. Uses the memory stepper. (Late because aliasing needs lists to exist first; the foundation and the stepper are early.) | R9: memory model and sharing (Comms: packet buffers). | A8: memory/sharing families + memory-diagram paper practice. |
+| 9 | 16 | **Sharing and mutation.** Passing collections to functions; when the caller sees your changes; defensive copying; Rust `&`/`&mut` and why Rust makes you declare intent. Uses the memory stepper. | | |
+| 10 | 17 | **Collections II: dictionaries and maps** (advanced extra, not required for the outcomes). Dictionaries and hashmaps; key-value thinking; choosing between list and map; frequency counting and lookup. | R10: capstone, the list-based Sol 100 mission-status program with tests, synthesizing the whole term. | A9: capstone prep; accessibility/equity critique; final-format paper practice set. |
+| 10 | 18 | **Computing with judgment** (advanced extra, not required for the outcomes). Evaluating code you did not write (a peer's, a library's, an AI's); limitations and failure modes; who is excluded by our tools; course synthesis and final-exam concept map. | | |
 
 Alignment checks built into the table:
 
 - Every recitation's material has had at least one full lecture, one assignment,
   and several activities before it is assessed, and the assignment covering a
   family is always due before the recitation that assesses it.
-- No lecture carries two major topics. The two hardest conceptual jumps get
-  special treatment: functions arrive in two passes (mechanics in week 2, scope
-  and the call stack in week 5), and the memory model keeps a full two-lecture
-  week; both own exam archetypes (5 and 6).
-- Console input is deliberately deferred to week 8. Until then, students write
-  functions against provided harnesses (mirroring how the autograder works),
-  which spares week 2 students Rust's `read_line`/`parse` ceremony and lands
-  input parsing exactly where its concepts live: errors and validation.
-- Tooling (git, shell, editor, file I/O) lives in recitations and assignments
-  only, never on exams, per the exams-are-concepts-only rule.
-- No new examinable archetype-by-topic cell is introduced after week 9. Every
-  exam topic is introduced in week 9 or earlier; week 10 is synthesis (lecture
-  18) and non-exam judgment (lecture 19), so every exam topic has a full practice
-  runway before the final. Concepts that culminate late (the systematic
-  debugging method, the modeling-versus-analysis distinction) are introduced in
-  week 1 and threaded, then consolidated, never first-taught in week 10.
+- **All learning outcomes are met by the end of week 9.** Week 10 introduces only
+  advanced material not required for the outcomes; nothing examinable is
+  first-taught there.
+- **Scope is taught before control flow** (lecture 6, before conditionals and
+  loops), because scope governs the blocks inside `if`, `while`, and `for`.
+- **Errors and testing are taught before the midterm** (lectures 9 and 10),
+  reinforcing the test-and-debug discipline threaded from week 1; loops come
+  after the midterm.
+- **The light memory foundation is early** (lecture 2, with the interactive
+  binary/bits visualizer and memory-box diagram); the deep memory model is late
+  (lecture 15) only because aliasing needs lists to exist first. The reusable
+  memory stepper is used wherever the memory picture helps (lectures 4, 5, 6, 15,
+  16), not confined to one lecture.
+- The midterm covers lectures 1 to 10 (no loops). No new examinable
+  archetype-by-topic cell is introduced after week 9; concepts that culminate
+  late (the systematic debugging method, the modeling-versus-analysis
+  distinction) are introduced in week 1 and threaded, never first-taught in week
+  10.
+- Tooling (git, shell, editor, file I/O) lives in activities and assignments
+  only, never on exams; git in particular is a standalone extra-credit activity.
+- No lecture carries two major topics; lecture 2 is "values and their
+  representation" as one topic.
 
 ---
 
@@ -890,8 +926,12 @@ Alignment checks built into the table:
   booleans, if-statements, loops, functions, scope, strings, arrays, references,
   error handling) map directly onto the new schedule; the work is converting
   C++ examples to tabbed Python/Rust pairs and adding the "what differs" call-outs.
-  `cpp-basics.mdx` becomes the C++ bridge appendix. The memory-stepper component
-  is reusable for lectures 12 and 13 and archetype 6 practice.
+  `cpp-basics.mdx` becomes the C++ bridge appendix. The `CppMemoryStepper`
+  component is ported to a dual-language memory stepper (Python aliasing vs Rust
+  ownership) and used as a reusable tool wherever the memory picture helps
+  (lectures 4, 5, 6, 15, 16, and archetype 6 practice); a new binary/bits
+  visualizer and memory-box diagram support the week-1 data-representation
+  lecture.
 - **Studios** become the assignment problem sets (their current difficulty is
   the take-home tier); recitation problems are authored new as same-level
   variations of the assignment problems.

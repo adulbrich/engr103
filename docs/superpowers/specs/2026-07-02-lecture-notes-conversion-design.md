@@ -10,20 +10,27 @@ lecture-notes style skill to govern that conversion and all future edits.
 
 ## 1. Shape of the track
 
-Three deliverables, in order:
+Four deliverables, in order:
 
 1. **The `engr103-lecture-notes` skill**, the style contract every lecture
    conversion follows (section 2).
-2. **Nineteen dual-language concept lectures** matching VISION §10, built by
-   converting and restructuring the current C++ pages (section 3).
-3. **The glossary body**, deferred here by the Reference track because each
+2. **A small interactive-component sub-track:** a binary/bits visualizer and a
+   memory-box diagram for the week-1 data-representation lecture, and the
+   dual-language memory stepper (ported from `CppMemoryStepper`, Python aliasing
+   vs Rust ownership) used as a reusable tool wherever the memory picture helps
+   (variable assignment, function calls, scope, aliasing, sharing). Built before
+   the lectures that embed them.
+3. **Sixteen dual-language concept lectures (weeks 1 to 9) plus two week-10
+   advanced extras**, per the schedule redesign
+   (`2026-07-02-lecture-schedule-redesign.md`, v7) and the updated VISION §10,
+   built by converting and restructuring the current C++ pages (section 3).
+4. **The glossary body**, deferred here by the Reference track because each
    term links out to the lecture section that defines it; those anchors exist
    only once the lectures are converted (section 5).
 
-Deferred out of this track: the interactive dual-language memory stepper (its
-own component-engineering effort), and relocating the tooling pages
-`git.mdx` and `development-environment.mdx` from lectures to Practicalities
-(that track's job).
+Deferred out of this track: relocating the tooling pages `git.mdx` and
+`development-environment.mdx` out of lectures (git becomes an extra-credit
+activity per VISION §10; that is the Activities/Practicalities tracks' job).
 
 ## 2. The `engr103-lecture-notes` skill
 
@@ -85,13 +92,18 @@ section; build validation; length treated as a diagnostic, not a target.
 
 ## 3. Old to new lecture mapping
 
-The nineteen new lectures and the current pages each is built from. VISION §11
-is the authority for intent ("most existing pages map directly; the work is
-converting C++ examples to tabbed Python/Rust pairs and adding the what-differs
-call-outs"). **Lecture scope and the enriched content (the early memory
-foundation woven into L2, the machine-number concepts distributed to their home
-lectures, L15 reframed as "Numeric robustness") are governed by the schedule
-redesign, `2026-07-02-lecture-schedule-redesign.md`, and the updated VISION §10.**
+**The authoritative lecture list, order, and scope is the schedule redesign
+(`2026-07-02-lecture-schedule-redesign.md`, v7) and the updated VISION §10: 16
+outcome lectures (weeks 1 to 9) plus 2 week-10 advanced extras.** The mapping
+table below (which pages each new lecture is built from) is a helper and is
+superseded by v7 where they differ. Key differences from the old table: a
+dedicated L2 "Data representation and memory" (from the memory half of
+`expressions`, plus the new binary visualizer and memory-box diagram); L3
+values/types/expressions; errors (L9) and testing (L10) before the midterm;
+loops (L11-12) after it; dictionaries as a week-10 extra; and "Computing with
+judgment" restored as a week-10 extra. VISION §11 remains the authority for
+intent ("most existing pages map directly; the work is converting C++ examples
+to tabbed Python/Rust pairs and adding the what-differs call-outs").
 
 | New (VISION §10) | Built from current pages |
 |---|---|
@@ -173,8 +185,8 @@ resolve.
 
 ## 8. Out of scope
 
-The interactive dual-language memory stepper; relocating `git` and
-`development-environment` to Practicalities; the Numbers-in-machines,
-Collections-II, Testing, Program-design, and Computing-with-judgment problem
+Relocating `git` and `development-environment` out of lectures (git becomes an
+extra-credit activity); authoring the week-10 advanced extras beyond their
+notes; the problem
 sets (content tracks); and any change to the language ladder or archetype
 inventory (Reference track, already done).
