@@ -90,7 +90,7 @@ visible. Recitation in week N assesses through week N's first lecture.
 | 8 | 14 | Errors, input, and validation (syntax/runtime/logic; console input and parsing; exceptions vs `Result`) | R8 Comms (memory model; packet buffers) | A7 memory and sharing |
 | 8 | 15 | **Numeric robustness** (deepens L2/L6: floating-point accumulation and tolerance, integer overflow: Rust wrap/panic vs Python arbitrary precision; units and magnitudes) | | |
 | 9 | 16 | Collections II: dictionaries and maps | R9 Telemetry (validation + floats) | A8 Telemetry watchdog |
-| 9 | 17 | Testing and debugging (test cases from specs, boundary/error cases, assertions; systematic debugging) | | |
+| 9 | 17 | Testing (test cases from specs, boundary/error cases, assertions; consolidates the spec-to-tests skill; the debugging *method* is woven into every lecture and threaded via the weekly live-debugging activity, not introduced here) | | |
 | 10 | 18 | Program design and modeling (decomposition, from word problem to program; **synthesis only, no new examinable atom**) | R10 capstone Sol 100 (Manifest) | A9 Manifest + critique |
 | 10 | 19 | Computing with judgment (evaluate code you did not write; non-exam) | | |
 

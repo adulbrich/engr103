@@ -88,12 +88,15 @@ section; build validation; length treated as a diagnostic, not a target.
 The nineteen new lectures and the current pages each is built from. VISION §11
 is the authority for intent ("most existing pages map directly; the work is
 converting C++ examples to tabbed Python/Rust pairs and adding the what-differs
-call-outs").
+call-outs"). **Lecture scope and the enriched content (the early memory
+foundation woven into L2, the machine-number concepts distributed to their home
+lectures, L15 reframed as "Numeric robustness") are governed by the schedule
+redesign, `2026-07-02-lecture-schedule-redesign.md`, and the updated VISION §10.**
 
 | New (VISION §10) | Built from current pages |
 |---|---|
 | L1 How programs run | `introduction` plus the conceptual parts of `cpp-basics` (source, interpret, compile); new two-language, ladder, systematic-debugging, and modeling-versus-analysis threads |
-| L2 Values, types, expressions | `expressions` + `operators` + `type-casting` |
+| L2 Values, types, expressions, and how they are stored | `expressions` (values/types plus the light memory foundation: bits, bytes, sizes, integer vs float representation, Python vs Rust integer models) + `operators` + `type-casting` |
 | L3 Variables and state | `variables` + `constants` + `shorthand-operators` |
 | L4 Functions I | `functions` (mechanics) |
 | L5 Booleans and conditionals | `booleans` + `if-statements` |
@@ -106,7 +109,7 @@ call-outs").
 | L12 The memory model | `references` + the `memory-stepper` page (static diagrams) |
 | L13 Sharing and mutation | `references` (passing collections); new |
 | L14 Errors, input, and validation | `error-handling`; new input parsing |
-| L15 Numbers in machines | new (integer overflow, floating point, units) |
+| L15 Numeric robustness | `expressions` (sizes) + new (integer overflow, floating-point accumulation and tolerance in depth, units); deepens the L2/L5 foundation |
 | L16 Collections II | new (dictionaries and hashmaps) |
 | L17 Testing | new |
 | L18 Program design | new (from the Polya practicalities page) |
