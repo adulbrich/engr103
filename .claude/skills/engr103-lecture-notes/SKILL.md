@@ -72,6 +72,8 @@ Python needs no keyword to create a variable; writing a name and a value is enou
 
 Never end a concept section with only one language, and never skip the `<WhatDiffers>` callout: seeing the same idea in two notations is what separates the concept from the syntax.
 
+One exception: some foundational concepts are genuinely language-agnostic, with no meaningful Python-versus-Rust difference to show (what a bit is, what a byte is, what a memory address is). Do not manufacture an artificial example just to satisfy the pattern. Teach such a concept in prose and let it share the tabbed example of the nearest section that does have a real dual-language difference (for example, group "bits" with "binary", whose literal syntax genuinely differs), rather than pinning a hollow `<Tabs>` onto a concept that reads identically in both languages.
+
 ## Show What Wrong Code Looks Like
 
 Correct code shows what to do; wrong code shows why. Wherever a mistake teaches, include a short example of code that is wrong, and **mark the offending line with an inline comment** saying what is wrong and, when it is a compile error, that it will not compile.
@@ -154,6 +156,7 @@ Every lecture opens with one or two paragraphs establishing why the concept matt
 - Present a real difficulty the concept solves, in plain, concrete terms.
 - Never say "in this lecture we will..." or otherwise describe the lecture instead of the problem.
 - Never name a story, assignment, activity, or recitation (see above).
+- Be specific to this lecture. Never reuse a neighboring lecture's opening hook, and never let two adjacent lectures begin the same way. If the lecture before this one already used a problem, open on a different door into your own subject.
 
 **Example of a strong opening:**
 
@@ -164,9 +167,23 @@ Every lecture opens with one or two paragraphs establishing why the concept matt
 - "In this lecture we will cover variables and assignment."
 - "Variables are an important topic in programming."
 
-### Section Structure
+### Section Structure and Flow
 
-Every `##` and `###` section opens with prose before any code block, table, or component. That opening prose explains what the section covers, why it matters, and, where relevant, how it connects to the section before it. Never start a section with a code block, a table, or a `<Tabs>` component; always lead with a sentence or two of explanation.
+Every `##` and `###` section leads with prose before any code block, table, or component; never open a section with a `<Tabs>`, a code block, or a table.
+
+That lead-in must **teach or connect, never announce**. Do not begin a section by describing what the section is about. Sentences like "This section names the smallest unit a computer can store," "In this section we look at...," or "This part covers..." are banned: the heading already says what the section is, so the first sentence must do real work, either stating the section's first substantive idea or carrying the thread forward from the section before it. A reader who deleted every heading should still read one continuous, flowing explanation, not a stack of blocks that each introduce themselves.
+
+**One heading per concept; never echo a heading inside itself.** A concept gets a single heading at the right level. Never place a `### X` immediately inside a `## X` of the same or nearly the same name: a `## Values` whose only child is `### Values` is wrong. Put the explanation directly under the one heading. Use a `##` parent only when it genuinely groups two or more *distinct* `###` concepts (for example `## Types` over `### Static typing` and `### Dynamic typing`), and even then the parent's own prose must teach or transition, not restate the heading.
+
+Weak section openers to avoid, both of which only announce:
+
+- "This section names the basic unit of data and the kinds it comes in."
+- "This section looks at what each language does when the types do not match."
+
+Strong section openers, which teach or connect immediately:
+
+- "A bit is the smallest piece of information a computer can store: a single 0 or a single 1."
+- "Knowing that everything is stored as bits is only half the picture; the other half is where those bits actually live."
 
 ### Concept Depth
 
