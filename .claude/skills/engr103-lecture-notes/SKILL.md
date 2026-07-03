@@ -39,7 +39,7 @@ Every ENGR 103 lecture teaches its concepts in Python and in Rust side by side, 
 Every concept section that introduces a new idea ends with two things, in this order:
 
 1. A `<Tabs syncKey="lang">` component with one `<TabItem>` for Python and one for Rust, in that order. Each tab's example is self-contained and paste-runnable: a reader can copy just that block into a file and run it, with no earlier scaffolding required.
-2. A `<WhatDiffers>` callout, filling the `differs` slot with what changed between the two renderings: syntax, keywords, what each language requires that the other does not, what the compiler checks. It names **only the differences**. The shared concept is already explained in the lecture prose above the example, so do not restate it in the callout.
+2. A `<WhatDiffers>` callout **only when something substantive differs beyond the standard boilerplate**. Fill the `differs` slot with what genuinely changed between the two renderings: a keyword, a spelling (`True` versus `true`), an operator's behavior, whether the code even compiles. It names **only** those differences; the shared concept is already in the prose above, so do not restate it. The standard boilerplate, Rust's `fn main() { ... }` wrapper and its `println!` with a `{}` placeholder versus Python's bare `print(...)`, is **not** a substantive difference: explain it once, when the two-language convention is first introduced to students, and never restate it in later examples or lectures. If that boilerplate is the *only* thing that differs between the two tabs, omit the `<WhatDiffers>` entirely and let the section end with the tabbed example alone.
 
 `syncKey="lang"` keeps every `Tabs` component on a page (and across pages) switching together, so a reader who picks Rust once sees Rust everywhere.
 
@@ -70,7 +70,7 @@ Python needs no keyword to create a variable; writing a name and a value is enou
 </WhatDiffers>
 ````
 
-Never end a concept section with only one language, and never skip the `<WhatDiffers>` callout: seeing the same idea in two notations is what separates the concept from the syntax.
+Never end a concept section with only one language. Include the `<WhatDiffers>` whenever a real difference exists, because seeing where two notations diverge is what separates the concept from the syntax; skip it when the only difference is the boilerplate just described, so the callout never degrades into restating `fn main` and `println!` on every example.
 
 One exception: some foundational concepts are genuinely language-agnostic, with no meaningful Python-versus-Rust difference to show (what a bit is, what a byte is, what a memory address is). Do not manufacture an artificial example just to satisfy the pattern. Teach such a concept in prose and let it share the tabbed example of the nearest section that does have a real dual-language difference (for example, group "bits" with "binary", whose literal syntax genuinely differs), rather than pinning a hollow `<Tabs>` onto a concept that reads identically in both languages.
 
@@ -93,6 +93,8 @@ print(1 // 2)  # 0: // is the whole-number division you probably meant
 ```
 
 Keep bad examples short and always commented, so a reader skimming the code never mistakes the wrong line for the right way. Never show wrong code without the comment that flags it. Run the accuracy pass on bad examples too: confirm the compile error or the wrong output is really what the comment claims.
+
+When the whole point of a dual-language contrast is that the *same* code one language accepts, the other rejects, put the identical code in both `<Tabs>` tabs and show the failing side failing. Do not substitute different, compiling code into the rejecting language's tab to keep it runnable: writing Rust's `3.0 + 2.5` where the lesson is that Rust rejects `3 + 2.5` hides the exact difference you are teaching, and gives that tab a title that no longer matches its code. This is the one case where a `<Tabs>` tab holds code that does not run, because its not running is the lesson. Title that tab with the same concept plus "(will not compile)", comment the offending line, and let the shared code make the contrast obvious.
 
 ## Code Block Titles
 
