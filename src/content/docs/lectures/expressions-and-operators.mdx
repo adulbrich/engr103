@@ -48,12 +48,6 @@ fn main() {
 </TabItem>
 </Tabs>
 
-<WhatDiffers>
-<Fragment slot="differs">
-Rust wraps every runnable line inside a `fn main() { ... }` function; Python does not. Rust prints with `println!` and a placeholder marker `{}` that stands for the value; Python prints directly with `print(...)`.
-</Fragment>
-</WhatDiffers>
-
 ## Operators and Operator Precedence
 
 A single value on its own is not very useful; programs become powerful once values can be combined into new ones.
@@ -84,12 +78,6 @@ fn main() {
 ```
 </TabItem>
 </Tabs>
-
-<WhatDiffers>
-<Fragment slot="differs">
-Nothing about the arithmetic itself differs: the symbols `+`, `*`, and `(`...`)` are written the same way in both languages. Rust's only extra requirement is wrapping the two lines in `fn main() { ... }`.
-</Fragment>
-</WhatDiffers>
 
 ## Integer Versus Float Division
 
@@ -148,9 +136,9 @@ print(3 + 2.5)
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="Adding a whole number and a decimal number"
+```rust title="Adding a whole number and a decimal number (will not compile)"
 fn main() {
-    println!("{}", 3.0 + 2.5);
+    println!("{}", 3 + 2.5); // error: cannot add a float to an integer (Rust will not compile this)
 }
 ```
 </TabItem>
@@ -158,19 +146,11 @@ fn main() {
 
 <WhatDiffers>
 <Fragment slot="differs">
-Python coerces the whole number `3` into the float `3.0` the moment the line runs, so `3 + 2.5` resolves to `5.5` without you writing a conversion. Rust performs no such coercion, so this example writes both values as floats (`3.0` and `2.5`) instead of mixing a whole number with a decimal number.
+Python coerces the whole number `3` into the float `3.0` the moment the line runs, so `3 + 2.5` resolves to `5.5` without you writing a conversion. Rust performs no such coercion, so the identical `3 + 2.5` never compiles: with no automatic conversion to rescue the mismatch, adding a whole number to a decimal number is a type error the compiler refuses to build.
 </Fragment>
 </WhatDiffers>
 
-Rust will not accept the mixed-type version Python allows:
-
-```rust title="Adding an integer literal to a float literal (will not compile)"
-fn main() {
-    println!("{}", 3 + 2.5); // error: cannot add a float to an integer (Rust will not compile this)
-}
-```
-
-The compiler rejects this line before your program runs at all. Python's implicit coercion hides a type mismatch by quietly resolving it; Rust's refusal to coerce turns the same mismatch into a compile error you see immediately, before the program ever takes its first step.
+The compiler rejects that line before your program runs at all. Python's implicit coercion hides a type mismatch by quietly resolving it; Rust's refusal to coerce turns the same mismatch into a compile error you see immediately, before the program ever takes its first step.
 
 ## Evaluating Expressions by Hand
 

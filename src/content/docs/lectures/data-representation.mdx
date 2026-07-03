@@ -76,7 +76,7 @@ A type is not only a label the computer checks; it is also a claim on how much m
 
 **Dynamic typing** means a language decides whether a value's type makes sense for a given use only at the moment that use actually runs. Python is dynamically typed: it does not check the types on a line of code until the computer actually reaches that line while running the program. If an earlier line has a problem, Python will not notice until it gets there.
 
-You can see the difference directly. Combining a whole number and a decimal number is something Python allows without complaint, deciding on the fly that the result should be a float:
+You can see the difference directly. The exact same expression, `3 + 2.5`, mixing a whole number and a decimal number, runs cleanly in Python and refuses to compile in Rust:
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
@@ -85,9 +85,9 @@ print(3 + 2.5)
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="Combining a whole number and a decimal number"
+```rust title="Combining a whole number and a decimal number (will not compile)"
 fn main() {
-    println!("{}", 3.0 + 2.5);
+    println!("{}", 3 + 2.5); // error: cannot add a float to an integer (Rust will not compile this)
 }
 ```
 </TabItem>
@@ -95,19 +95,11 @@ fn main() {
 
 <WhatDiffers>
 <Fragment slot="differs">
-Python freely combines a whole number and a decimal number, resolving `3 + 2.5` to the float `5.5` the moment that line runs, without checking in advance whether the two types are allowed to mix. Rust checks every type before the program runs, so this example writes both values as floats (`3.0` and `2.5`) instead of mixing a whole number with a decimal number.
+Python resolves `3 + 2.5` to the float `5.5` the moment that line runs, coercing the whole number to a float on the fly, without checking in advance whether the two types are allowed to mix. Rust checks every type before the program runs, so the identical `3 + 2.5` never compiles at all: mixing a whole number with a decimal number is a type error it refuses to build.
 </Fragment>
 </WhatDiffers>
 
-Rust will not accept the mixed-type version Python allows:
-
-```rust title="Combining an integer literal with a float literal (will not compile)"
-fn main() {
-    println!("{}", 3 + 2.5); // error: cannot add a float to an integer (Rust will not compile this)
-}
-```
-
-The compiler rejects this line before your program runs at all. That is what static typing means in practice: Rust confirms every type is used consistently while compiling, before your program takes its first step, while Python only confirms it line by line, while the program is already running. You will see this same static-versus-dynamic split reappear later in this lecture, once you learn exactly how many bits each language sets aside for a value's type.
+The compiler rejects that line before your program runs at all. That is what static typing means in practice: Rust confirms every type is used consistently while compiling, before your program takes its first step, while Python only confirms it line by line, while the program is already running. You will see this same static-versus-dynamic split reappear later in this lecture, once you learn exactly how many bits each language sets aside for a value's type.
 
 ## Binary and Bits
 
@@ -143,12 +135,6 @@ fn main() {
 ```
 </TabItem>
 </Tabs>
-
-<WhatDiffers>
-<Fragment slot="differs">
-Rust's only extra requirement is wrapping the two lines in `fn main() { ... }` and printing through `println!` with a `{}` placeholder, rather than calling `print(...)` directly the way Python does.
-</Fragment>
-</WhatDiffers>
 
 ## Bytes and Memory as Addressable Boxes
 
@@ -193,12 +179,6 @@ fn main() {
 ```
 </TabItem>
 </Tabs>
-
-<WhatDiffers>
-<Fragment slot="differs">
-The visible difference is only in how each language spells the four print statements: Rust wraps them in `fn main() { ... }` and uses `println!` with a `{}` placeholder, while Python calls `print(...)` directly on each line.
-</Fragment>
-</WhatDiffers>
 
 ## Integer Sizes: Fixed Width Versus Arbitrary Precision
 
