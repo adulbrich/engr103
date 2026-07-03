@@ -25,9 +25,9 @@ advanced-extra lectures in week 10.
 
 ## 3. Foundations first-class; interactive tools used throughout
 
-- **A dedicated early lecture, L2 "Data representation and memory"** (binary,
-  bits, bytes, ASCII, memory-boxes, type sizes), before any type name means a
-  bit-width.
+- **A dedicated early lecture, L2 "Data representation and memory"** (values and
+  types; binary, bits, bytes, memory-boxes, type sizes), before any type name
+  means a bit-width. ASCII is deferred to L13, where characters are taught.
 - **Reusable interactive tools, embedded wherever the concept is live:** a
   **binary/bits visualizer** (L2); a **memory-box / address diagram** (L2, L4);
   and the **dual-language memory stepper** (Python aliasing vs Rust
@@ -40,8 +40,8 @@ advanced-extra lectures in week 10.
 | Wk | Slot | # | Lecture |
 |---|---|---|---|
 | 1 | Mon | 1 | How programs run |
-| 1 | Wed | 2 | **Data representation and memory** (binary, bits, bytes, ASCII, memory-boxes, sizes). Tools: binary visualizer + memory-box diagram |
-| 2 | Mon | 3 | Values, types, expressions (grounded by L2; operators, integer division; coercion; static vs dynamic typing; Python `int` vs Rust `i32`/`f64`) |
+| 1 | Wed | 2 | **Data representation and memory** (values and types; static vs dynamic typing; binary, bits, bytes, memory-boxes, sizes; Python `int` vs Rust `i32`/`f64`). Tools: binary visualizer + memory-box diagram. ASCII deferred to L13 |
+| 2 | Mon | 3 | Expressions and operators (arithmetic, precedence; integer vs float division and truncation, grounded in L2's types/sizes; coercion; evaluating by hand) |
 | 2 | Wed | 4 | Variables and state (`let`/`let mut`; initialization and uninitialized reads). Tool: memory stepper |
 | 3 | Mon | - | **NO CLASS (MLK holiday)** |
 | 3 | Wed | 5 | Functions I (define/call, parameters, arguments, return; arguments and parameters are separate memory, value copied). Tool: memory stepper |
@@ -53,7 +53,7 @@ advanced-extra lectures in week 10.
 | 6 | Wed | - | **Midterm** (paper, lectures 1 to 10: foundations, functions, scope, conditionals, errors, testing; no loops) |
 | 7 | Mon | 11 | **Loops** (`while`, counted `for`, termination; `do-while` as a C++-only "what differs") |
 | 7 | Wed | 12 | Loop patterns (accumulate, count, search, sentinel, validate-until-correct, nested) |
-| 8 | Mon | 13 | Strings and characters (encoding and ASCII grounded in L2; slicing, searching, building) |
+| 8 | Mon | 13 | Strings and characters (characters and ASCII introduced here, grounded in L2's bits/bytes; slicing, searching, building) |
 | 8 | Wed | 14 | Collections I: lists and vectors (indexing, iteration, mutating; out-of-bounds as `IndexError` vs Rust panic vs the C++ buffer-overflow danger) |
 | 9 | Mon | 15 | The memory model: aliasing and ownership (names as labels; Python aliasing vs Rust ownership/moves/borrows; the C++ danger as why safety matters). Tool: memory stepper. *Late because aliasing needs lists (L14) to exist first* |
 | 9 | Wed | 16 | Sharing and mutation (passing collections; when the caller sees changes; Rust `&`/`&mut`). Tool: memory stepper |

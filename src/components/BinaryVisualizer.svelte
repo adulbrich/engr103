@@ -64,7 +64,7 @@
   </div>
 
   <div class="print:hidden rounded-lg border border-[var(--sl-color-hairline)] bg-[var(--sl-color-bg-nav)] p-4">
-    <h3 class="m-0 mb-3 text-base font-semibold text-[var(--sl-color-white)]">Binary / bits visualizer</h3>
+    <h3 class="m-0 mb-3 text-base font-semibold text-[var(--sl-color-white)]">Binary / Bits Visualizer</h3>
 
     <div class="flex flex-wrap items-end gap-6">
       <div class="flex flex-col gap-1">
@@ -86,14 +86,14 @@
         <legend class="mb-1 text-xs font-semibold uppercase tracking-wide text-[var(--sl-color-gray-3)]">
           Width (bits)
         </legend>
-        <div class="flex gap-2">
+        <div class="flex gap-2 m-0">
           {#each WIDTHS as w (w)}
             <button
               type="button"
               aria-pressed={width === w}
               onclick={() => (width = w)}
               class={
-                'rounded-md border px-3 py-1.5 text-sm font-mono ' +
+                'rounded-md m-0 border px-3 py-1.5 font-mono ' +
                 (width === w
                   ? 'border-[var(--sl-color-accent)] bg-[var(--sl-color-accent-low)] text-[var(--sl-color-accent-high)]'
                   : 'border-[var(--sl-color-gray-5)] text-[var(--sl-color-gray-2)]')
