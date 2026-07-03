@@ -1,0 +1,205 @@
+---
+title: "Data Representation and Memory"
+description: "Learn how a computer stores every value as bits and bytes, how memory addresses locate those bytes, how ASCII turns characters into numbers, and what the 32 and 64 in i32 and f64 actually mean."
+sidebar:
+  order: 2
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+import WhatDiffers from '/src/components/WhatDiffers.astro';
+import BinaryVisualizer from '/src/components/BinaryVisualizer.svelte';
+import MemoryBoxes from '/src/components/MemoryBoxes.astro';
+
+{/* ai-summary
+type: lecture
+slug: data-representation
+order: 2
+covers: bits and binary; bytes and memory addresses; memory as a grid of addressable boxes; ASCII character encoding; fixed-size integers (i32, f64) versus Python's arbitrary-precision int; decoding what 32 and 64 mean in a type name
+prereq_lectures: how-programs-run
+followup_lectures: values-types-expressions
+glossary_terms: bit, byte, binary, ASCII, memory address, integer size, arbitrary precision
+*/}
+
+<LanguageVersions />
+
+A computer's memory does not hold words, pictures, or punctuation of its own. Every value a running program touches, a whole number, a price, a name typed by a user, ends up stored as a pattern of electrical switches inside a chip, and each of those switches can only ever be in one of two states. A person can write "seven," "7," or "VII" and mean the same thing three different ways; a computer has no such freedom, because nothing inside it is built to hold more than two states at a time. Before you can trust what a program prints, computes, or stores, you need to know the one alphabet every computer actually uses underneath everything else, and how that alphabet is organized into locations a running program can find its way back to.
+
+## Binary and Bits
+
+This section names the smallest unit a computer can store and the number system built from it.
+
+### Bits
+
+A **bit** is the smallest piece of information a computer can store: a single 0 or a single 1. Nothing smaller exists inside a computer's memory. A single bit on its own can tell you almost nothing: it can distinguish only two possibilities, such as on versus off, or yes versus no. Every value your program touches, whether a whole number, a decimal number, a true-or-false answer, or a piece of text, is ultimately stored as some longer pattern of these two symbols, strung together so that the pattern as a whole can represent far more than two possibilities.
+
+### Binary
+
+**Binary** is a number system that writes every value using only the two digits 0 and 1, the same two symbols a bit can hold. You already know a different number system by heart: the decimal system, which writes every value using ten digits, 0 through 9, where each position in a number is worth ten times the position to its right. The digit string "247" means 2 hundreds, plus 4 tens, plus 7 ones, because decimal positions are worth 100, 10, and 1. Binary works the same way, except each position is worth two times the position to its right instead of ten. The binary digit string `1000001` means one 64, plus one 1, with every other position worth 0, because binary positions (reading from the right) are worth 1, 2, 4, 8, 16, 32, 64, and so on: 64 plus 1 is 65. Binary is not a different kind of number, only a different way of writing the same whole numbers you already know, using an alphabet a computer's switches can actually hold.
+
+The visualizer below lets you type an ordinary decimal number and watch its binary digits appear, grouped into bytes of eight bits (the next section explains why eight). Try a small number first, then a larger one, and watch how many digits it takes to write each one in binary.
+
+<BinaryVisualizer client:visible />
+
+A binary numeral is still just a whole number, so both Python and Rust let you write a whole-number literal directly in binary, using a `0b` prefix, and it evaluates to the exact same value as writing the number out in decimal.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="The same whole number, decimal and binary"
+print(65)
+print(0b1000001)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="The same whole number, decimal and binary"
+fn main() {
+    println!("{}", 65);
+    println!("{}", 0b1000001);
+}
+```
+</TabItem>
+</Tabs>
+
+<WhatDiffers>
+<Fragment slot="differs">
+Both languages write a binary literal the same way, a `0b` prefix followed by the binary digits, and both evaluate `0b1000001` to the whole number 65, exactly like the plain decimal literal `65` above it. Rust's only extra requirement is wrapping the two lines in `fn main() { ... }` and printing through `println!` with a `{}` placeholder, rather than calling `print(...)` directly the way Python does.
+</Fragment>
+</WhatDiffers>
+
+## Bytes and Memory as Addressable Boxes
+
+Knowing that a computer stores everything as 0s and 1s is only half the picture. The other half is where those bits actually live while a program runs, and how much of them a program groups together as one unit.
+
+### Bytes
+
+A single bit is too small to describe anything useful on its own, so computers handle bits in a fixed group: a **byte** is a group of 8 bits handled together as one unit. A byte is the unit programmers actually use to talk about how much space something takes, and it is also the size of the smallest separately addressable location in a computer's memory, which the next part explains. Eight bits, each either 0 or 1, can be arranged in 256 different patterns, so a single byte can represent any whole number from 0 up to 255.
+
+### Memory Addresses
+
+A running program's memory is organized as a long row of byte-sized boxes, one after another. A **memory address** is the number that identifies one specific box in that row, the same way a house number identifies one specific house on a street. Just as a delivery driver needs a house number to find the right house, a running program needs an address to find the right byte, out of the millions of bytes memory actually contains. Addresses are usually shown in hexadecimal (base 16) rather than decimal or binary, because hexadecimal writes large addresses in far fewer digits, but the address is still, underneath, just a whole number that names one box.
+
+Here is what four consecutive bytes in memory might look like while a simple program runs, each holding a small whole number, each living at its own address one after the other:
+
+<MemoryBoxes boxes={[
+  { address: "0x00", value: "00000000" },
+  { address: "0x01", value: "00000001" },
+  { address: "0x02", value: "00000010" },
+  { address: "0x03", value: "00000011" },
+]} />
+
+Whatever value a program prints, computes, or holds while it runs sits inside memory exactly like this: as one or more bytes, each at its own address, each storing some pattern of bits.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="Four small whole numbers, one after another"
+print(0)
+print(1)
+print(2)
+print(3)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="Four small whole numbers, one after another"
+fn main() {
+    println!("{}", 0);
+    println!("{}", 1);
+    println!("{}", 2);
+    println!("{}", 3);
+}
+```
+</TabItem>
+</Tabs>
+
+<WhatDiffers>
+<Fragment slot="differs">
+The four values themselves are stored the same way underneath, as a byte each, regardless of which language printed them; storing bytes in memory is something the running program does, not something either language's syntax changes. The visible difference is only in how each language spells the four print statements: Rust wraps them in `fn main() { ... }` and uses `println!` with a `{}` placeholder, while Python calls `print(...)` directly on each line.
+</Fragment>
+</WhatDiffers>
+
+## ASCII: Characters as Numbers
+
+A computer's memory can only ever hold patterns of bits, so even a piece of text has to be turned into numbers before it can be stored. This section explains the mapping that makes that possible for ordinary English text.
+
+### ASCII
+
+**ASCII** (American Standard Code for Information Interchange) is a fixed table that assigns a whole number, from 0 to 127, to each of the common English letters, digits, and punctuation symbols. Under ASCII, the capital letter `A` is always the number 65, a lowercase `a` is always the number 97, and the digit character `0` (as a piece of text, not the whole number zero) is always the number 48. When a program stores or prints a piece of text, it is really storing and printing a sequence of these numbers, one byte per character, and only choosing to display each one as the shape of a letter instead of as a decimal digit string. The visualizer in the previous section shows this directly: type a decimal value from 0 to 127 and it shows you the ASCII character that value maps to.
+
+Neither Python nor Rust yet has a function available at this point in the course to convert a character into its ASCII number or back again; that conversion is covered once you have seen strings and characters in full, later in the course. For now, what matters is the idea: a character is not a special kind of data a computer treats differently from a number, it is a number, wearing the shape of a letter or symbol when it gets displayed on a screen.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="A character and the ASCII number it stands for"
+print("A")
+print(65)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="A character and the ASCII number it stands for"
+fn main() {
+    println!("{}", "A");
+    println!("{}", 65);
+}
+```
+</TabItem>
+</Tabs>
+
+<WhatDiffers>
+<Fragment slot="differs">
+Both languages print the letter `A` exactly as written and the number 65 exactly as written; neither shows, on its own, that the two are related. Rust's literal type for `"A"` is `&str`, the same string-slice type used for any piece of text, since Rust does not yet expose a Python-style string in this course; Python's literal type is `str`. Both wrap the numeric literal identically aside from Rust's usual `fn main() { ... }` and `println!` requirements.
+</Fragment>
+</WhatDiffers>
+
+## Integer Sizes: Fixed Width Versus Arbitrary Precision
+
+Every value a program stores needs a fixed amount of memory set aside for it before the program can use it, and Python and Rust make different choices about how that amount is decided. This is the section where the numbers you may have already noticed in type names like `i32` and `f64` finally get explained.
+
+### Integer Size
+
+An **integer size** is the number of bits a language sets aside to store one whole-number value. Rust's default whole-number type, `i32`, reserves exactly 32 bits, no more and no less, for every value of that type, whether the value being stored is 0, 7, or the largest number those 32 bits can represent. That fixed budget of 32 bits is exactly what the `32` in `i32` names: not a version number, not an arbitrary label, but the number of bits Rust always sets aside for a value of that type. Because 32 bits can only form so many distinct patterns of 0s and 1s, `i32` has a largest value it can hold, 2,147,483,647, and a smallest one; a whole number outside that range simply does not fit in 32 bits, and Rust's compiler refuses to build a program that tries to write one as a plain `i32` literal. Rust's default decimal type, `f64`, follows the same idea with a different width: the `64` names 64 bits, or 8 bytes, set aside for every value of that type, giving `f64` a much wider range than `i32` while still being a fixed budget rather than an unlimited one.
+
+### Arbitrary Precision
+
+Python's whole-number type, `int`, makes the opposite choice. It is **arbitrary-precision**: instead of a fixed number of bits, it uses however many bits its current value actually needs, growing as large as the value requires. There is no whole number too big for Python's `int` to hold, short of running out of the computer's memory entirely. This is the direct payoff of everything this lecture has covered: a value's bits live somewhere in memory as bytes at addresses, and Python's `int` is simply free to claim as many of those bytes as a given value needs, while Rust's `i32` and `f64` always claim exactly the same number of bytes, 4 and 8, no matter what value they hold.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="A huge whole number versus i32's largest value"
+print(99999999999999999999999999999)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="A huge whole number versus i32's largest value"
+fn main() {
+    println!("{}", 2147483647);
+}
+```
+</TabItem>
+</Tabs>
+
+<WhatDiffers>
+<Fragment slot="differs">
+Python's literal is simply the value written out, and since its `int` type has no upper limit beyond the computer's memory, this 29-digit whole number prints back exactly as written. Rust's literal must fit inside `i32`'s 32-bit budget, and 2,147,483,647 is the largest whole number that budget allows; a bare literal even one more than that fails to compile, because Rust checks a whole-number literal against its 32-bit budget before your program ever runs.
+</Fragment>
+</WhatDiffers>
+
+Here is that failure in practice. One whole number higher than `i32`'s largest value, and Rust's compiler refuses to build the program at all:
+
+```rust title="A literal one past i32's largest value (will not compile)"
+fn main() {
+    println!("{}", 2147483648); // error: literal out of range for `i32` (Rust will not compile this)
+}
+```
+
+Python has no equivalent failure here: because `int` grows to fit any value, no whole-number literal is ever too large for it to hold.
+
+## Takeaways
+
+Every value a running program touches, no matter its type, is ultimately a pattern of bits, the 0s and 1s a computer's switches can actually hold, grouped into bytes and stored at addresses inside memory, the way this lecture pictured memory as a long row of addressable boxes. Binary is only a different way of writing the same whole numbers decimal already writes, using the two-symbol alphabet bits are built from. ASCII extends that same idea to text, mapping each common character onto a whole number so that a computer, which can only ever store numbers, can store text too. Type sizes are the last piece: a type is not only a category of value, it is also a fixed or flexible claim on memory, which is exactly why Rust's `i32` and `f64` reserve a fixed 32 or 64 bits and stop at a largest representable value, while Python's `int` grows without a built-in limit. With bits, bytes, addresses, ASCII, and what a type's size actually costs all in view, a name like `i32` is no longer an arbitrary label: it is a precise statement about how many of memory's boxes a value of that type always occupies. The next lecture builds directly on this one, using these same storage ideas to explain what a value's type means for the four basic kinds of data every program works with: integers, floats, booleans, and strings.
+
+## Resources
+
+- [Rust integer types](https://doc.rust-lang.org/book/ch03-02-data-types.html#integer-types)
+- [Rust floating-point types](https://doc.rust-lang.org/book/ch03-02-data-types.html#floating-point-types)
+- [Rust integer literals](https://doc.rust-lang.org/reference/tokens.html#integer-literals)
+- [Python integers (arbitrary precision)](https://docs.python.org/3/library/stdtypes.html#numeric-types-int-float-complex)
+- [ASCII table reference](https://en.wikipedia.org/wiki/ASCII)
