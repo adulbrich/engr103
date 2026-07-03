@@ -107,8 +107,8 @@
     </div>
 
     <p class="mt-2 text-sm text-[var(--sl-color-gray-2)]">
-      Decimal: <span class="font-mono">{value}</span>
-      &mdash; a {width}-bit integer can hold values from 0 to <span class="font-mono">{maxForWidth}</span>.
+      Decimal: <span class="font-mono">{value}</span>.
+      A {width}-bit integer can hold values from 0 to <span class="font-mono">{maxForWidth}</span>.
     </p>
 
     <div class="mt-4">
