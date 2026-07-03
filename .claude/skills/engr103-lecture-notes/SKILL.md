@@ -39,7 +39,7 @@ Every ENGR 103 lecture teaches its concepts in Python and in Rust side by side, 
 Every concept section that introduces a new idea ends with two things, in this order:
 
 1. A `<Tabs syncKey="lang">` component with one `<TabItem>` for Python and one for Rust, in that order. Each tab's example is self-contained and paste-runnable: a reader can copy just that block into a file and run it, with no earlier scaffolding required.
-2. A `<WhatDiffers>` callout, filling the `differs` slot with what changed between the two renderings (syntax, keywords, what the compiler checks) and the `cannot` slot with what stayed the same no matter which language you read (the concept itself, the order things happen in, the underlying idea).
+2. A `<WhatDiffers>` callout, filling the `differs` slot with what changed between the two renderings: syntax, keywords, what each language requires that the other does not, what the compiler checks. It names **only the differences**. The shared concept is already explained in the lecture prose above the example, so do not restate it in the callout.
 
 `syncKey="lang"` keeps every `Tabs` component on a page (and across pages) switching together, so a reader who picks Rust once sees Rust everywhere.
 
@@ -65,15 +65,32 @@ fn main() {
 
 <WhatDiffers>
 <Fragment slot="differs">
-Python needs no keyword to create a variable; writing a name and a value is enough. Rust requires `let` before the name. Rust also wraps runnable code in a `fn main() { ... }` function; Python does not.
-</Fragment>
-<Fragment slot="cannot">
-In both languages, `num_students` is a name pointing at the value `10`, and printing the name reads the value back. Once assigned, both languages remember the value under that name until it is reassigned or goes out of scope.
+Python needs no keyword to create a variable; writing a name and a value is enough. Rust requires `let` before the name, and wraps runnable code in a `fn main() { ... }` function; Python does not.
 </Fragment>
 </WhatDiffers>
 ````
 
-Never end a concept section with only one language, and never skip the `<WhatDiffers>` callout: the contrast is where the deeper understanding lives, not the code alone.
+Never end a concept section with only one language, and never skip the `<WhatDiffers>` callout: seeing the same idea in two notations is what separates the concept from the syntax.
+
+## Show What Wrong Code Looks Like
+
+Correct code shows what to do; wrong code shows why. Wherever a mistake teaches, include a short example of code that is wrong, and **mark the offending line with an inline comment** saying what is wrong and, when it is a compile error, that it will not compile.
+
+This matters most in Rust, where the compiler is the teacher: showing the exact line the compiler rejects turns "Rust checks more for you" from a claim into something the reader can see. For example:
+
+```rust
+let x = 5;
+x = 6; // error: cannot assign twice to immutable variable `x` (Rust will not compile this)
+```
+
+Or a subtle logic mistake in either language:
+
+```python
+print(1 / 2)   # 0.5, not 0: Python's / always gives a float
+print(1 // 2)  # 0: // is the whole-number division you probably meant
+```
+
+Keep bad examples short and always commented, so a reader skimming the code never mistakes the wrong line for the right way. Never show wrong code without the comment that flags it. Run the accuracy pass on bad examples too: confirm the compile error or the wrong output is really what the comment claims.
 
 ## The Language-ladder Fence
 

@@ -1,17 +1,11 @@
 ---
-// A two-part call-out that pairs with a dual-language (Python/Rust) tabbed
-// example: what differs between the two languages, and what cannot differ.
-// Static, no client JS. Tailwind utilities with Starlight theme variables so it
-// adapts to light and dark automatically.
+// A call-out that pairs with a dual-language (Python/Rust) tabbed example and
+// names what differs between the two languages. The shared concept lives in the
+// lecture prose, not here. Static, no client JS. Tailwind utilities with
+// Starlight theme variables so it adapts to light and dark.
 ---
 
-<aside class="my-6 rounded-lg border border-[var(--sl-color-gray-5)] bg-[var(--sl-color-gray-6)] px-5 py-4" aria-label="What differs, what cannot differ">
-  <div>
-    <p class="mb-1 font-semibold text-[var(--sl-color-white)]"><span aria-hidden="true">&#8644;</span> What differs</p>
-    <slot name="differs" />
-  </div>
-  <div class="mt-3 border-t border-[var(--sl-color-gray-5)] pt-3">
-    <p class="mb-1 font-semibold text-[var(--sl-color-white)]"><span aria-hidden="true">&#8801;</span> What cannot differ</p>
-    <slot name="cannot" />
-  </div>
+<aside class="my-6 rounded-lg border border-[var(--sl-color-gray-5)] bg-[var(--sl-color-gray-6)] px-5 py-4" aria-label="What differs between Python and Rust">
+  <p class="mb-1 font-semibold text-[var(--sl-color-white)]"><span aria-hidden="true">&#8644;</span> What differs</p>
+  <slot name="differs" />
 </aside>

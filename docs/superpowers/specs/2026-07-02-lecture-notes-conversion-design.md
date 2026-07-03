@@ -48,8 +48,8 @@ section; build validation; length treated as a diagnostic, not a target.
 
 - **Dual-language spine.** Every concept section ends with a
   `<Tabs syncKey="lang">` Python then Rust example pair (each self-contained
-  and paste-runnable) and a `<WhatDiffers>` callout naming what differs and
-  what cannot differ between the two renderings.
+  and paste-runnable) and a `<WhatDiffers>` callout naming only what differs
+  between the two renderings (the shared concept lives in the prose).
 - **Plain-language audience.** The reader is a first-year who has never
   programmed and may not speak English as a first language: short sentences,
   common words, no idioms, every technical term defined in plain words at first

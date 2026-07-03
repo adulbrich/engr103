@@ -101,12 +101,14 @@ blocks, deleted before merge). No course content is authored in Foundation.
 `src/components/WhatDiffers.astro`. Static, zero client JS, following the
 existing `AssignmentRequirements` / `RubricTable` `.astro` pattern.
 
-- Two named slots: `differs` and `cannot`.
-- Renders a single card with two labeled regions: "What differs" and
-  "What cannot differ", visually matching the approved mockup (a bordered card,
-  a distinct marker per region, bullet lists inside each).
-- Styling uses Starlight's CSS custom properties so it inherits light/dark
-  themes automatically; no hard-coded colors.
+- One named slot: `differs`. (Originally two slots; the "what cannot differ" half
+  was dropped per instructor decision, since the shared concept is already in the
+  lecture prose and restating it in the callout read as redundant.)
+- Renders a single bordered card with one labeled region, "What differs", holding
+  a bullet list of the Python/Rust differences.
+- Styling uses Tailwind utility classes with Starlight CSS variables via arbitrary
+  values (`text-[var(--sl-color-gray-3)]`, `border-[var(--sl-color-gray-5)]`) for
+  theme-aware colors; no `<style>` block, no hard-coded colors.
 - Authoring shape:
 
   ```mdx
@@ -114,10 +116,6 @@ existing `AssignmentRequirements` / `RubricTable` `.astro` pattern.
     <Fragment slot="differs">
       - Python infers the type; Rust needs `: f64`.
       - `mut` vs. plain rebinding.
-    </Fragment>
-    <Fragment slot="cannot">
-      - Same formula, same result.
-      - The loop runs the same number of times.
     </Fragment>
   </WhatDiffers>
   ```

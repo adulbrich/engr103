@@ -548,7 +548,7 @@ to fit inside that budget, not to fill it:
 - **Summit problem:** optional and uncounted, so it never enters the budget.
 - **Pre-lecture reading:** each lecture's notes are sized to about 45 minutes,
   read primarily in the student's chosen language while skimming the other;
-  the "what differs, what cannot differ" call-out is the part read in full.
+  the "what differs" call-out is the part read in full.
 
 Exam-adjacent weeks are the pinch points (week 6 around the midterm, week 10
 around the Sol 100 capstone), so their assignments ship a **reduced** problem
@@ -767,7 +767,7 @@ programmed, and may not speak English as a first language. Concretely:
 Notes answer "what" and "why" in full paragraphs, read before class. Each
 concept section motivates the concept, defines it, shows it in both languages
 (examples must be self-contained: runnable as pasted, no project scaffolding),
-contrasts the two renderings in a "what differs, what cannot differ" call-out,
+contrasts the two renderings in a "what differs" call-out,
 and names the problem family where the concept will be exercised. Notes never
 give step-by-step instructions; explaining is their job, instructing is the
 how-to guides' job.
@@ -851,7 +851,7 @@ not required for the outcomes.** The term is correctness-first: the first half
 errors, and testing without iteration; loops and data come after the midterm.
 
 Notes are concept-first and dual-language throughout: every concept section ends
-with a tabbed Python/Rust example pair and a "what differs, what cannot differ"
+with a tabbed Python/Rust example pair and a "what differs"
 call-out. **The notes are read before class (the flipped model, section 7):
 class time is spent on activities, and only lecture 1 (and perhaps lecture 2)
 receives a full in-class walkthrough; every other lecture's exposition lives in
