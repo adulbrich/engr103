@@ -1,6 +1,6 @@
 ---
 title: "Data Representation and Memory"
-description: "Learn how a computer stores every value as bits and bytes, how memory addresses locate those bytes, how ASCII turns characters into numbers, and what the 32 and 64 in i32 and f64 actually mean."
+description: "Learn what a value and a type are, how Python and Rust decide a value's type at different times, and how a computer stores every value as bits and bytes, down to what the 32 and 64 in i32 and f64 actually mean."
 sidebar:
   order: 2
 ---
@@ -15,15 +15,105 @@ import MemoryBoxes from '/src/components/MemoryBoxes.astro';
 type: lecture
 slug: data-representation
 order: 2
-covers: bits and binary; bytes and memory addresses; memory as a grid of addressable boxes; ASCII character encoding; fixed-size integers (i32, f64) versus Python's arbitrary-precision int; decoding what 32 and 64 mean in a type name
+covers: values and literals; types (integer, float, boolean, string); static vs dynamic typing; bits and binary; bytes and memory addresses; memory as a grid of addressable boxes; fixed-size integers (i32, f64) versus Python's arbitrary-precision int; decoding what 32 and 64 mean in a type name
 prereq_lectures: how-programs-run
-followup_lectures: values-types-expressions
-glossary_terms: bit, byte, binary, ASCII, memory address, integer size, arbitrary precision
+followup_lectures: expressions-and-operators
+glossary_terms: value, type, static typing, dynamic typing, bit, byte, binary, memory address, integer size, arbitrary precision
 */}
 
 <LanguageVersions />
 
-A computer's memory does not hold words, pictures, or punctuation of its own. Every value a running program touches, a whole number, a price, a name typed by a user, ends up stored as a pattern of electrical switches inside a chip, and each of those switches can only ever be in one of two states. A person can write "seven," "7," or "VII" and mean the same thing three different ways; a computer has no such freedom, because nothing inside it is built to hold more than two states at a time. Before you can trust what a program prints, computes, or stores, you need to know the one alphabet every computer actually uses underneath everything else, and how that alphabet is organized into locations a running program can find its way back to.
+Suppose you ask a computer to compute 7 divided by 2. Is the answer 3, or is it 3.5? A person can answer either way depending on what the 7 and the 2 stand for: a whole count of items splits differently than a precise measurement does. A computer cannot guess which one you mean, because before it can add, divide, or compare two pieces of data, it needs to know exactly what kind of data each one is.
+
+Once the computer knows what kind of data it is holding, that data still has to live somewhere while the program runs. A computer's memory does not hold words, pictures, or punctuation of its own. Every value a running program touches, a whole number, a price, a name typed by a user, ends up stored as a pattern of electrical switches inside a chip, and each of those switches can only ever be in one of two states. A person can write "seven," "7," or "VII" and mean the same thing three different ways; a computer has no such freedom, because nothing inside it is built to hold more than two states at a time. Before you can trust what a program prints, computes, or stores, you need to know what a value and a type actually are, then the one alphabet every computer actually uses to store them underneath everything else, and how that alphabet is organized into locations a running program can find its way back to.
+
+## Values
+
+A program spends nearly all of its time holding, displaying, and combining small pieces of data. This section names that basic unit of data and the different kinds it comes in.
+
+### Values
+
+A **value** is a single piece of data that a program works with: the number 7, the number 3.14, the truth of a statement, or a short piece of text. A value is the simplest thing a running program can hold or produce. When you write a value directly into your code, such as typing the number 7, that value is called a **literal**: a value written out exactly as it is, rather than computed from something else.
+
+This lecture uses four kinds of value, the ones both Python and Rust make available from the very first line of code you write. An **integer** is a whole number, with no fractional part, such as 7 or negative 3. A **float**, short for "floating-point number," is a number that can have a fractional part, such as 3.14. A **boolean** is a value that is only ever one of two things: true or false; it gets its name from the mathematician George Boole, who studied logic built from exactly two values. A **string** is a short piece of text, such as a word or a sentence, treated by the computer as data rather than as code to run.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="Four kinds of values"
+print(7)
+print(3.14)
+print(True)
+print("hello")
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="Four kinds of values"
+fn main() {
+    println!("{}", 7);
+    println!("{}", 3.14);
+    println!("{}", true);
+    println!("{}", "hello");
+}
+```
+</TabItem>
+</Tabs>
+
+<WhatDiffers>
+<Fragment slot="differs">
+Rust wraps every runnable line inside a `fn main() { ... }` function; Python does not. Rust prints with `println!` and a placeholder marker `{}` that stands for the value; Python prints directly with `print(...)`. Python spells its boolean values `True` and `False`, with a capital letter; Rust spells them `true` and `false`, all lowercase.
+</Fragment>
+</WhatDiffers>
+
+## Types
+
+Knowing that 7 and 3.14 are both values is not enough on its own; the computer also needs to know what kind of value each one is, because that changes what can be done with it. This section names that label and the two different ways a language can decide it.
+
+### Types
+
+A **type** is a category that tells the computer what kind of value something is and what can be done with it. Knowing a value's type tells the computer how much space to use for it, how to display it, and which operations make sense on it: you can divide two numbers, but dividing two pieces of text makes no sense. Every value from the previous section already has a type: 7 is an integer, 3.14 is a float, `true` is a boolean, and `"hello"` is a string.
+
+A type is not only a label the computer checks; it is also a claim on how much memory a value takes up while the program runs. Later in this lecture, once you have seen how a computer actually stores a value as bits, you will see exactly how big a claim Python's whole-number type and Rust's whole-number type each make, and why the two languages make different ones.
+
+### Static Typing
+
+**Static typing** means a language works out the type of every value and checks that those types are used consistently before the program ever runs. Rust is statically typed: its compiler, the program that turns your source code into a runnable one, reads through your whole file and rejects it if a type does not fit where it is used, even in a line that would never actually execute. The check happens once, ahead of time, which is why it is called static.
+
+### Dynamic Typing
+
+**Dynamic typing** means a language decides whether a value's type makes sense for a given use only at the moment that use actually runs. Python is dynamically typed: it does not check the types on a line of code until the computer actually reaches that line while running the program. If an earlier line has a problem, Python will not notice until it gets there.
+
+You can see the difference directly. Combining a whole number and a decimal number is something Python allows without complaint, deciding on the fly that the result should be a float:
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="Combining a whole number and a decimal number"
+print(3 + 2.5)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="Combining a whole number and a decimal number"
+fn main() {
+    println!("{}", 3.0 + 2.5);
+}
+```
+</TabItem>
+</Tabs>
+
+<WhatDiffers>
+<Fragment slot="differs">
+Python freely combines a whole number and a decimal number, resolving `3 + 2.5` to the float `5.5` the moment that line runs, without checking in advance whether the two types are allowed to mix. Rust checks every type before the program runs, so this example writes both values as floats (`3.0` and `2.5`) instead of mixing a whole number with a decimal number.
+</Fragment>
+</WhatDiffers>
+
+Rust will not accept the mixed-type version Python allows:
+
+```rust title="Combining an integer literal with a float literal (will not compile)"
+fn main() {
+    println!("{}", 3 + 2.5); // error: cannot add a float to an integer (Rust will not compile this)
+}
+```
+
+The compiler rejects this line before your program runs at all. That is what static typing means in practice: Rust confirms every type is used consistently while compiling, before your program takes its first step, while Python only confirms it line by line, while the program is already running. You will see this same static-versus-dynamic split reappear later in this lecture, once you learn exactly how many bits each language sets aside for a value's type.
 
 ## Binary and Bits
 
@@ -116,42 +206,9 @@ The visible difference is only in how each language spells the four print statem
 </Fragment>
 </WhatDiffers>
 
-## ASCII: Characters as Numbers
-
-A computer's memory can only ever hold patterns of bits, so even a piece of text has to be turned into numbers before it can be stored. This section explains the mapping that makes that possible for ordinary English text.
-
-### ASCII
-
-**ASCII** (American Standard Code for Information Interchange) is a fixed table that assigns a whole number, from 0 to 127, to each of the common English letters, digits, and punctuation symbols. Under ASCII, the capital letter `A` is always the number 65, a lowercase `a` is always the number 97, and the digit character `0` (as a piece of text, not the whole number zero) is always the number 48. When a program stores or prints a piece of text, it is really storing and printing a sequence of these numbers, one byte per character, and only choosing to display each one as the shape of a letter instead of as a decimal digit string. The visualizer in the previous section shows this directly: type a decimal value from 0 to 127 and it shows you the ASCII character that value maps to.
-
-Neither Python nor Rust yet has a function available at this point in the course to convert a character into its ASCII number or back again; that conversion is covered once you have seen strings and characters in full, later in the course. For now, what matters is the idea: a character is not a special kind of data a computer treats differently from a number, it is a number, wearing the shape of a letter or symbol when it gets displayed on a screen.
-
-<Tabs syncKey="lang">
-<TabItem label="Python">
-```python title="A character and the ASCII number it stands for"
-print("A")
-print(65)
-```
-</TabItem>
-<TabItem label="Rust">
-```rust title="A character and the ASCII number it stands for"
-fn main() {
-    println!("{}", "A");
-    println!("{}", 65);
-}
-```
-</TabItem>
-</Tabs>
-
-<WhatDiffers>
-<Fragment slot="differs">
-Both languages print the letter `A` exactly as written and the number 65 exactly as written; neither shows, on its own, that the two are related. Rust's literal type for `"A"` is `&str`, the type Rust uses for text, since Rust does not yet expose a Python-style string in this course; Python's literal type is `str`. Both wrap the numeric literal identically aside from Rust's usual `fn main() { ... }` and `println!` requirements.
-</Fragment>
-</WhatDiffers>
-
 ## Integer Sizes: Fixed Width Versus Arbitrary Precision
 
-Every value a program stores needs a fixed amount of memory set aside for it before the program can use it, and Python and Rust make different choices about how that amount is decided. This is the section where the numbers you may have already noticed in type names like `i32` and `f64` finally get explained.
+Every value a program stores needs a fixed amount of memory set aside for it before the program can use it, and Python and Rust make different choices about how that amount is decided. Earlier in this lecture, the Types section previewed this difference without explaining it; this is the section where that preview, and the numbers you may have already noticed in type names like `i32` and `f64`, finally get decoded.
 
 ### Integer Size
 
@@ -194,7 +251,7 @@ Python has no equivalent failure here: because `int` grows to fit any value, no 
 
 ## Takeaways
 
-Every value a running program touches, no matter its type, is ultimately a pattern of bits, the 0s and 1s a computer's switches can actually hold, grouped into bytes and stored at addresses inside memory, the way this lecture pictured memory as a long row of addressable boxes. Binary is only a different way of writing the same whole numbers decimal already writes, using the two-symbol alphabet bits are built from. ASCII extends that same idea to text, mapping each common character onto a whole number so that a computer, which can only ever store numbers, can store text too. Type sizes are the last piece: a type is not only a category of value, it is also a fixed or flexible claim on memory, which is exactly why Rust's `i32` and `f64` reserve a fixed 32 or 64 bits and stop at a largest representable value, while Python's `int` grows without a built-in limit. With bits, bytes, addresses, ASCII, and what a type's size actually costs all in view, a name like `i32` is no longer an arbitrary label: it is a precise statement about how many of memory's boxes a value of that type always occupies. The next lecture builds directly on this one, using these same storage ideas to explain what a value's type means for the four basic kinds of data every program works with: integers, floats, booleans, and strings.
+Every value a program works with, an integer, a float, a boolean, or a string, has a type, and a type is more than a label: it tells the computer what can be done with a value and how much memory that value costs to hold. Python and Rust agree completely on what a value and a type are; they disagree on timing. Rust checks types statically, working out every type and confirming it fits before your program ever runs, which is why its compiler can reject a mixed-type line before your program takes a single step. Python checks types dynamically, only at the moment a line actually runs, which is why the same kind of mistake in Python would not surface until the program reached that line. Underneath both of these choices sits the same physical fact: every value a running program touches, no matter its type, is ultimately a pattern of bits, the 0s and 1s a computer's switches can actually hold, grouped into bytes and stored at addresses inside memory, the way this lecture pictured memory as a long row of addressable boxes. Binary is only a different way of writing the same whole numbers decimal already writes, using the two-symbol alphabet bits are built from. Type sizes are the last piece, and the direct payoff of the static-versus-dynamic split from earlier: a type is not only a category of value, it is also a fixed or flexible claim on memory, which is exactly why Rust's `i32` and `f64` reserve a fixed 32 or 64 bits and stop at a largest representable value, while Python's `int` grows without a built-in limit. With values, types, bits, bytes, addresses, and what a type's size actually costs all in view, a name like `i32` is no longer an arbitrary label: it is a precise statement about how many of memory's boxes a value of that type always occupies. The next lecture builds directly on this one, combining these same values into larger expressions with arithmetic operators, and evaluating those expressions by hand.
 
 ## Resources
 
@@ -202,4 +259,3 @@ Every value a running program touches, no matter its type, is ultimately a patte
 - [Rust floating-point types](https://doc.rust-lang.org/book/ch03-02-data-types.html#floating-point-types)
 - [Rust integer literals](https://doc.rust-lang.org/reference/tokens.html#integer-literals)
 - [Python integers (arbitrary precision)](https://docs.python.org/3/library/stdtypes.html#numeric-types-int-float-complex)
-- [ASCII table reference](https://en.wikipedia.org/wiki/ASCII)
