@@ -21,15 +21,11 @@ glossary_terms: expression, operator, operator precedence, integer division, imp
 
 <LanguageVersions />
 
-Suppose you ask a computer to compute 7 divided by 2. Is the answer 3, or is it 3.5? A person could answer either way, depending on whether the 7 and the 2 stand for a whole count of items or a precise measurement. As you will see in this lecture, Python and Rust do not leave that question open: each language picks one exact rule for what dividing two whole numbers produces, and the two rules do not agree with each other.
+Suppose you ask a computer to compute 7 divided by 2. Is the answer 3, or is it 3.5? A person could answer either way, depending on whether the 7 and the 2 stand for a whole count of items or a precise measurement. Python and Rust do not leave that question open: each language picks one exact rule for what dividing two whole numbers produces, and the two rules do not agree with each other.
 
-Division is only the sharpest example of a bigger question. The moment a program combines more than one value using a symbol like `+`, `-`, `*`, or `/`, something has to decide the order those combinations happen in, and exactly what kind of answer they produce. This lecture is about that machinery: the symbols that combine values into new values, the rule that decides which combination happens first, and the exact behavior each language falls back on when a division, or a mix of types, does not have one obviously correct answer.
+Division is only the sharpest example of a bigger question. The moment a program combines more than one value using a symbol like `+`, `-`, `*`, or `/`, something has to decide the order those combinations happen in and exactly what kind of answer they produce. Underneath every arithmetic expression sit three of these decisions: which symbols combine values into new values, which combination happens first, and what exact answer each language produces when a division, or a mix of types, has no single obviously correct result.
 
 ## Expressions
-
-A program spends nearly all of its time combining small pieces of data into new ones. This section names the piece of code that does that combining.
-
-### Expressions
 
 An **expression** is a piece of code that produces a value when the computer runs it. The simplest possible expression is a literal on its own, the kind of value the [Data Representation and Memory](/lectures/data-representation) lecture introduced: the code `7` is already an expression, and running it produces the value 7. You can also build a larger expression out of smaller ones by combining values with operators, symbols such as `+` that take one or more values and produce a new one; the next section looks closely at operators. For now, know only this: combining values always builds a bigger expression, and every expression evaluates to a value, never to anything else.
 
@@ -60,7 +56,7 @@ Rust wraps every runnable line inside a `fn main() { ... }` function; Python doe
 
 ## Operators and Operator Precedence
 
-A single value on its own is not very useful; programs become powerful once values can be combined into new ones. This section names the symbol that does the combining and the rule that decides which combination happens first.
+A single value on its own is not very useful; programs become powerful once values can be combined into new ones.
 
 ### Operators
 
@@ -97,11 +93,7 @@ Nothing about the arithmetic itself differs: the symbols `+`, `*`, and `(`...`)`
 
 ## Integer Versus Float Division
 
-Division deserves its own closer look, because it is the one arithmetic operator whose exact answer often cannot be represented as a whole number.
-
-### Integer Division
-
-Dividing two whole numbers raises a question that addition, subtraction, and multiplication do not: what happens when the exact answer is not itself a whole number? **Integer division** is division between two whole numbers that produces a whole-number result instead of the exact, possibly fractional, answer. Every language that performs integer division has to pick its own rule for which whole number to produce, and Python and Rust pick different rules.
+Division deserves its own closer look, because it is the one arithmetic operator whose exact answer often cannot be represented as a whole number. Dividing two whole numbers raises a question that addition, subtraction, and multiplication do not: what happens when the exact answer is not itself a whole number? **Integer division** is division between two whole numbers that produces a whole-number result instead of the exact, possibly fractional, answer. Every language that performs integer division has to pick its own rule for which whole number to produce, and Python and Rust pick different rules.
 
 Python's `/` operator always produces a float, even when both values are whole numbers; it is built to give the exact answer every time. Python has a separate operator, `//`, for integer division: it divides, then rounds down to the whole number below the exact answer.
 
@@ -139,7 +131,7 @@ print(9 // 4)  # 2: // is the whole-number division you probably meant
 
 ## Mixed-Type Expressions and Implicit Coercion
 
-An expression does not have to combine values of the same type. This section looks at what each language does when it does not, and names the automatic behavior Python relies on to make it work.
+An expression does not have to combine values of the same type, and what happens when it does not is where Python and Rust differ most sharply.
 
 ### Mixed-Type Expressions
 

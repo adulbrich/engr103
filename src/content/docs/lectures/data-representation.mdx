@@ -23,15 +23,11 @@ glossary_terms: value, type, static typing, dynamic typing, bit, byte, binary, m
 
 <LanguageVersions />
 
-Suppose you ask a computer to compute 7 divided by 2. Is the answer 3, or is it 3.5? A person can answer either way depending on what the 7 and the 2 stand for: a whole count of items splits differently than a precise measurement does. A computer cannot guess which one you mean, because before it can add, divide, or compare two pieces of data, it needs to know exactly what kind of data each one is.
+Every program is data in motion: a number being added, a name being printed, a yes-or-no answer being checked. A computer, though, cannot work with a piece of data the way you read it off a page. Before it can add, compare, or even store anything, it has to settle two questions a person never stops to think about: what kind of thing is this piece of data, and where, exactly, is it being kept?
 
-Once the computer knows what kind of data it is holding, that data still has to live somewhere while the program runs. A computer's memory does not hold words, pictures, or punctuation of its own. Every value a running program touches, a whole number, a price, a name typed by a user, ends up stored as a pattern of electrical switches inside a chip, and each of those switches can only ever be in one of two states. A person can write "seven," "7," or "VII" and mean the same thing three different ways; a computer has no such freedom, because nothing inside it is built to hold more than two states at a time. Before you can trust what a program prints, computes, or stores, you need to know what a value and a type actually are, then the one alphabet every computer actually uses to store them underneath everything else, and how that alphabet is organized into locations a running program can find its way back to.
+The computer's answers are stricter than a person's. You can write "seven," "7," or "VII" and mean the same number three ways, but every value a computer holds is ultimately a pattern of tiny switches, and each switch can only ever be in one of two states. This lecture works through both questions in order. First, what a value and its type are: the computer's answer to what kind of thing a piece of data is. Then, how that value is stored, as bits gathered into bytes and kept at numbered locations in memory: the computer's answer to where it lives. By the end, the numbers tucked inside type names like `i32` and `f64` will each mean something exact.
 
 ## Values
-
-A program spends nearly all of its time holding, displaying, and combining small pieces of data. This section names that basic unit of data and the different kinds it comes in.
-
-### Values
 
 A **value** is a single piece of data that a program works with: the number 7, the number 3.14, the truth of a statement, or a short piece of text. A value is the simplest thing a running program can hold or produce. When you write a value directly into your code, such as typing the number 7, that value is called a **literal**: a value written out exactly as it is, rather than computed from something else.
 
@@ -66,9 +62,7 @@ Rust wraps every runnable line inside a `fn main() { ... }` function; Python doe
 
 ## Types
 
-Knowing that 7 and 3.14 are both values is not enough on its own; the computer also needs to know what kind of value each one is, because that changes what can be done with it. This section names that label and the two different ways a language can decide it.
-
-### Types
+Knowing that 7 and 3.14 are both values is not enough on its own; the computer also needs to know what kind of value each one is, because that changes what can be done with it.
 
 A **type** is a category that tells the computer what kind of value something is and what can be done with it. Knowing a value's type tells the computer how much space to use for it, how to display it, and which operations make sense on it: you can divide two numbers, but dividing two pieces of text makes no sense. Every value from the previous section already has a type: 7 is an integer, 3.14 is a float, `true` is a boolean, and `"hello"` is a string.
 
@@ -117,7 +111,7 @@ The compiler rejects this line before your program runs at all. That is what sta
 
 ## Binary and Bits
 
-This section names the smallest unit a computer can store and the number system built from it.
+Values and their types describe *what* a program works with. The rest of this lecture is about how a computer actually holds that data, and it starts from the smallest thing memory can store.
 
 ### Bits
 
@@ -208,7 +202,7 @@ The visible difference is only in how each language spells the four print statem
 
 ## Integer Sizes: Fixed Width Versus Arbitrary Precision
 
-Every value a program stores needs a fixed amount of memory set aside for it before the program can use it, and Python and Rust make different choices about how that amount is decided. Earlier in this lecture, the Types section previewed this difference without explaining it; this is the section where that preview, and the numbers you may have already noticed in type names like `i32` and `f64`, finally get decoded.
+Every value a program stores needs a fixed amount of memory set aside for it, and this is where Python and Rust part ways. The Types section earlier promised that a type is also a claim on memory; now that bits and bytes are on the table, that claim, and the numbers sitting inside type names like `i32` and `f64`, can finally be made exact.
 
 ### Integer Size
 
