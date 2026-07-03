@@ -101,6 +101,12 @@ There is no "name the problem family where this will be exercised" clause in thi
 
 ## Structure
 
+### Language Versions on the Page
+
+Every lecture body opens with a `<LanguageVersions />` component, placed at the very top of the body, before the opening problem statement and before any other prose or component. It tells the reader exactly which Python and which Rust version the lecture's examples were written and verified against.
+
+The versions it displays come from a single source, `src/data/languageVersions.ts`. A lecture's prose never states a Python or Rust version directly; if a version number needs to appear at all, `<LanguageVersions />` is how it appears. This keeps every lecture on the site in agreement automatically: updating the one file updates every lecture at once, and no lecture can drift out of sync with another by hard-coding a number that then goes stale.
+
 ### Opening Paragraph (The Problem Statement)
 
 Every lecture opens with one or two paragraphs establishing why the concept matters, using a concrete, relatable problem, not a course-mechanics problem. The opening should:
@@ -201,6 +207,7 @@ Import only the components a lecture actually uses.
 
 ```mdx
 import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
 import WhatDiffers from '/src/components/WhatDiffers.astro';
 import Latex from '/src/components/Latex.astro';
 import AsciiTable from '/src/components/AsciiTable.astro';
@@ -208,6 +215,7 @@ import MemoryPoolDiagram from '/src/components/MemoryPoolDiagram.astro';
 import VariableLifecycleDiagram from '/src/components/VariableLifecycleDiagram.astro';
 ```
 
+- **`LanguageVersions`**: every lecture imports and renders this at the top of its body, before the opening problem statement. See Language Versions on the Page, above.
 - **`Tabs` / `TabItem`**: the dual-language example pair. Always `syncKey="lang"`, always Python first, Rust second.
 - **`WhatDiffers`**: the callout that follows every dual-language example pair. Use the `differs` and `cannot` slots as shown above.
 - **`Latex`**: for mathematical notation, when a concept genuinely needs it (floating-point representation, for example).
@@ -226,7 +234,7 @@ Do not import any assignment, activity, or recitation component. None exist for 
 - **Define acronyms at first use.** "CPU (central processing unit)," then "CPU" afterward.
 - **Tone.** Gentle and encouraging, calmer and plainer than a confident-expert voice aimed at a peer. The reader is nervous and new; the writing should never sound impatient or assume prior exposure, while still always explaining the why behind a rule, not just the rule itself.
 
-**Good:** "A variable's type never changes after it is created in Python, even though Python lets you reuse the name for a different type later. That is why we say Python is dynamically typed: the type lives with the value, not with the name."
+**Good:** "In Python a value carries its type; the name does not. `x = 10` makes `x` refer to an integer; a later `x = "hi"` rebinds `x` to a string. The type travels with the value, which is why Python is dynamically typed."
 
 **Too formal:** "Variables in Python are subject to dynamic type binding, wherein the type association is determined by the bound value rather than by a static declaration."
 
@@ -237,6 +245,17 @@ Do not import any assignment, activity, or recitation component. None exist for 
 A lecture runs roughly **1,800 to 3,500 words**, including its code examples. That range is much shorter than a full lecture in an adjacent course, because ENGR 103 notes are flipped material a first-year student reads in about 45 minutes before class.
 
 Length is a diagnostic, not a target. A lecture under 1,800 words usually means a concept was flattened or skipped; one over 3,500 words usually means tutorial-style or story material has crept in and needs to move out or be cut. Run `wc -w src/content/docs/lectures/<file>.mdx` after a substantial edit to sanity-check the count.
+
+## The Authoritative Accuracy Pass
+
+A lecture is not done until it has passed this check, and this check replaces any weaker "factual currency" habit from other courses: before a lecture ships, verify every factual claim it makes and execute every code example it shows.
+
+- **Verify every factual claim against official documentation.** For Python, that means docs.python.org; for Rust, that means doc.rust-lang.org. If the lecture states how a language feature behaves, what a function returns, what a keyword does, or what version introduced something, confirm that statement against the official docs before trusting it.
+- **Execute every code example in both languages.** Run each Python example with `python3` and each Rust example, as a single file, with `rustc`. Do this for every `<Tabs syncKey="lang">` pair in the lecture, not just the ones that look risky.
+- **Compare real output to claimed output.** Whatever the prose says the example prints, returns, evaluates to, or raises as an error, check it against what actually happened when you ran it: the real output, the real value, the real type, the real error message.
+- **Fix any mismatch.** If the text and the real behavior disagree, the text is wrong; correct the prose or the example until they agree.
+
+No claimed output or behavior ships unverified. A lecture that has not been run through this accuracy pass is not finished, regardless of how polished its prose reads.
 
 ## Validation
 
