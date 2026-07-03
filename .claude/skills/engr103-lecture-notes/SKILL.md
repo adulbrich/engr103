@@ -81,6 +81,19 @@ Every ENGR 103 example draws only on constructs the language ladder has already 
 
 Before writing an example, check the ladder for the lecture's week. If a natural example would need a construct not yet on the ladder (a dictionary in a week 4 lecture, say), simplify the example instead of reaching ahead. Link `/reference/language-ladder` in prose the first time a lecture depends on knowing what is and is not available yet; do not restate the ladder's table.
 
+## Legibility: Rest Only on What Has Been Taught
+
+The ladder fence governs syntax; this rule governs concepts. Every sentence of a lecture must be understandable by a student who has read only the lectures up to this one. An explanation may rest only on concepts already introduced, whether on the ladder or in an earlier lecture; it must never reach forward into a later lecture to justify something here.
+
+This is the trap that "it is factually true" hides. A statement can be perfectly correct and still illegible if it depends on a concept the student has not met. For example, in an early lecture, calling Rust's `i32` "a 32-bit integer" is true but illegible if bits and bytes have not been taught yet: the reader cannot decode the "32". When a construct's name carries a later concept and that concept has not been taught, either the concept belongs in this lecture (teach it, where the schedule places the foundation) or you name the construct as a plain label and defer its meaning with one short forward pointer ("we will see what the 32 means when we reach how numbers are stored"). Prefer teaching it where the schedule already grounds it.
+
+Two checks before a lecture is done:
+
+- Read it as a student who has seen only the earlier lectures, and flag any sentence that assumes a not-yet-taught concept.
+- For every technical term, and every digit or size baked into a type name, confirm the reader has the background to understand it here.
+
+The accuracy pass verifies the code is correct; this legibility pass verifies the prose is understandable given only what has been taught. Both are required.
+
 ## Glossary Discipline
 
 The lecture is the canonical home for a term's definition. The first time a lecture defines a term, give it a stable `##` or `###` heading (or make it the clear subject of one) so the definition has a durable anchor, for example `## Variables` or `### Assignment`.
