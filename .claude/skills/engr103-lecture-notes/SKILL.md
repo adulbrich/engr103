@@ -48,13 +48,13 @@ Every concept section that introduces a new idea ends with two things, in this o
 ````mdx
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python
+```python title="Naming a value"
 num_students = 10
 print(num_students)
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust
+```rust title="Naming a value"
 fn main() {
     let num_students = 10;
     println!("{}", num_students);
@@ -78,19 +78,29 @@ Correct code shows what to do; wrong code shows why. Wherever a mistake teaches,
 
 This matters most in Rust, where the compiler is the teacher: showing the exact line the compiler rejects turns "Rust checks more for you" from a claim into something the reader can see. For example:
 
-```rust
+```rust title="Reassigning an immutable value (will not compile)"
 let x = 5;
 x = 6; // error: cannot assign twice to immutable variable `x` (Rust will not compile this)
 ```
 
 Or a subtle logic mistake in either language:
 
-```python
+```python title="Division: / versus //"
 print(1 / 2)   # 0.5, not 0: Python's / always gives a float
 print(1 // 2)  # 0: // is the whole-number division you probably meant
 ```
 
 Keep bad examples short and always commented, so a reader skimming the code never mistakes the wrong line for the right way. Never show wrong code without the comment that flags it. Run the accuracy pass on bad examples too: confirm the compile error or the wrong output is really what the comment claims.
+
+## Code Block Titles
+
+Every fenced code block carries a `title` attribute (Expressive Code syntax). This is required for accessibility: screen readers announce the title, and it labels the example for anyone scanning the page. A code block without a title is incomplete.
+
+```python title="Area of a circle"
+print(3.14159 * 2 * 2)
+```
+
+Titles are short and say what the snippet shows. A Python and a Rust block inside the same `<Tabs>` pair may share one title. For a bad-code example, name it as such, for example `title="Reassigning an immutable value (will not compile)"`.
 
 ## The Language-ladder Fence
 
