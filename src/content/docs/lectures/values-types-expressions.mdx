@@ -35,7 +35,7 @@ A **value** is a single piece of data that a program works with: the number 7, t
 
 ### Types
 
-A **type** is a category that tells the computer what kind of value something is and what can be done with it. Knowing a value's type tells the computer how much space to use for it, how to display it, and which operations make sense on it: you can divide two numbers, but dividing two pieces of text makes no sense, and the computer needs to know which situation it is in.
+A **type** is a category that tells the computer what kind of value something is and what can be done with it. Knowing a value's type tells the computer how much space to use for it, how to display it, and which operations make sense on it: you can divide two numbers, but dividing two pieces of text makes no sense.
 
 This lecture uses four types, the ones both Python and Rust make available from the very first line of code you write:
 
@@ -43,7 +43,7 @@ An **integer** is a whole number, with no fractional part, such as 7 or negative
 
 ### Expressions
 
-An **expression** is a piece of code that produces a value when the computer runs it. The simplest possible expression is a literal on its own: the code `7` is already an expression, and running it produces the value 7. You can also build a larger expression out of smaller ones by combining values with **operators**, symbols such as `+` that take one or more values and produce a new one. The next section of this lecture looks closely at operators; for now, it is enough to know that combining values always builds a bigger expression, never something other than a value.
+An **expression** is a piece of code that produces a value when the computer runs it. The simplest possible expression is a literal on its own: the code `7` is already an expression, and running it produces the value 7. You can also build a larger expression out of smaller ones by combining values with **operators**, symbols such as `+` that take one or more values and produce a new one. A later section looks closely at operators; for now, know only this: combining values always builds a bigger expression, and every expression evaluates to a value, never to anything else.
 
 Printing a value, which you saw in the previous lecture, works by first evaluating an expression down to a single value, then displaying that value in the terminal. Every example in this lecture follows that same pattern: write an expression, then print what it evaluates to.
 
@@ -70,10 +70,7 @@ fn main() {
 
 <WhatDiffers>
 <Fragment slot="differs">
-Rust wraps every runnable line in a `fn main() { ... }` function and prints with `println!`, a placeholder marker `{}` standing in for the value; Python prints directly with `print(...)`. Python spells its boolean values `True` and `False`, with a capital letter; Rust spells them `true` and `false`, all lowercase. Rust also lets a literal carry an explicit type tag, such as `7i32` or `3.14f64`, though it is not required here because Rust already assumes a whole-number literal is of type `i32` and a decimal literal is of type `f64` unless told otherwise; the next section explains exactly what the `32` and `64` in those names mean.
-</Fragment>
-<Fragment slot="cannot">
-In both languages, each literal is an expression that stands for exactly one value of exactly one type: an integer, a float, a boolean, or a string. Running either program evaluates the same four expressions and prints the same four values, in the same order, no matter which language reads them.
+Rust wraps every runnable line inside a `fn main() { ... }` function; Python does not. Rust prints with `println!` and a placeholder marker `{}` that stands for the value; Python prints directly with `print(...)`. Python spells its boolean values `True` and `False`, with a capital letter; Rust spells them `true` and `false`, all lowercase. A Rust literal can also carry an explicit type tag, such as `7i32` or `3.14f64`; this example leaves the tag off because Rust already assumes a whole-number literal is `i32` and a decimal literal is `f64` unless told otherwise. A later section explains what the `32` and `64` in those names mean.
 </Fragment>
 </WhatDiffers>
 
@@ -87,11 +84,13 @@ A **bit** is the smallest piece of information a computer can store: a single 0 
 
 ### A Type Fixes Its Storage
 
-The Types section above defined a type as the category that tells the computer what kind of value something is and what can be done with it. The other half of that definition is how the computer lays the value out in bits. A type is a set of possible values together with a fixed scheme for storing any one of those values as a pattern of bits. Integers and floats use different schemes: an integer's bits spell out the whole number itself, while a float's bits are split between the digits of the number and where its decimal point sits, a scheme this course looks at more closely in a later lecture. That difference is why 7 and 7.0 are not stored the same way inside the computer, even though a person reading them side by side sees two versions of the same value.
+The Types section above defined a type as the category that tells the computer what kind of value something is and what can be done with it. Here is the other half of that definition: a type is also a fixed scheme for storing a value as a pattern of bits. Integers and floats use different schemes. An integer's bits spell out the whole number itself. A float's bits split between the digits of the number and where its decimal point sits, a scheme a later lecture looks at more closely. That difference is why 7 and 7.0 are not stored the same way inside the computer, even though a person reading them side by side sees two versions of the same value.
 
 ### Fixed Size Versus Arbitrary Precision
 
-Here is where Python and Rust part ways in a way that matters for the rest of this course. Python's whole-number type, `int`, is **arbitrary-precision**: it uses however many bits its current value actually needs, growing as large as it has to, so there is no whole number too big for Python's `int` to hold, short of running out of memory. Rust's default whole-number type, `i32`, instead reserves a **fixed size** for every value: exactly 32 bits, no more and no less, whether the value being stored is 0, 7, or the largest number 32 bits can represent. That fixed budget of 32 bits is exactly what the `32` in `i32` names: not a version number or an arbitrary label, but the number of bits Rust sets aside for every value of that type. Because 32 bits can only form so many distinct patterns of 0s and 1s, `i32` has a largest and a smallest value it can represent, 2,147,483,647 at the top; a whole number outside that range simply does not fit in 32 bits. Rust's default decimal type, `f64`, follows the same idea: the `64` names 64 bits, which is 8 bytes, set aside for every value of that type, a wider budget that lets `f64` represent a much larger range of decimal numbers than `i32` can represent of whole numbers, but a fixed budget all the same.
+Here Python and Rust make different choices, in a way that matters for the rest of this course. Python's whole-number type, `int`, is **arbitrary-precision**: it uses however many bits its current value needs, growing as large as it has to. There is no whole number too big for Python's `int` to hold, short of running out of memory. Rust's default whole-number type, `i32`, instead reserves a **fixed size** for every value: exactly 32 bits, no more and no less, whether the value being stored is 0, 7, or the largest number 32 bits can represent.
+
+That fixed budget of 32 bits is exactly what the `32` in `i32` names: not a version number, but the number of bits Rust sets aside for every value of that type. Because 32 bits can only form so many distinct patterns of 0s and 1s, `i32` has a largest and a smallest value it can hold; 2,147,483,647 is the largest. A whole number outside that range simply does not fit in 32 bits. Rust's default decimal type, `f64`, follows the same idea: the `64` names 64 bits, or 8 bytes, set aside for every value of that type. That wider budget lets `f64` represent a much larger range of decimal numbers than `i32` can represent of whole numbers, but it is still a fixed budget.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
@@ -110,12 +109,19 @@ fn main() {
 
 <WhatDiffers>
 <Fragment slot="differs">
-Python's literal is simply the value written out; the `int` type places no upper limit on it, only however much memory your computer has, so a whole number this long prints back exactly as written. Rust's literal must fit inside `i32`'s fixed 32 bits, and 2,147,483,647 is the largest whole number that type can hold. Writing a bare literal even one more than that would fail to compile, because Rust's default whole-number literal always has to fit inside the 32 bits it reserves.
-</Fragment>
-<Fragment slot="cannot">
-In both languages, an integer literal is still a whole number spelled out directly in your code, and printing it shows that same value back. What cannot differ is only how much space the type behind it is allowed to use: fixed in advance, in Rust, or free to grow as needed, in Python.
+Python's literal is simply the value written out. Its `int` type has no upper limit beyond your computer's memory, so a whole number this long prints back exactly as written. Rust's literal must fit inside `i32`'s 32 bits, and 2,147,483,647 is the largest whole number that type can hold. A bare literal one higher than that fails to compile, because Rust checks a whole-number literal against its 32-bit budget before your program ever runs.
 </Fragment>
 </WhatDiffers>
+
+Here is that failure in practice. One whole number higher than `i32`'s largest value, and Rust's compiler refuses to build the program at all:
+
+```rust
+fn main() {
+    println!("{}", 2147483648); // error: literal out of range for `i32` (Rust will not compile this)
+}
+```
+
+Python has no equivalent failure here: since `int` grows to fit any value, no whole-number literal is ever too large for it to hold.
 
 ## Static Typing and Dynamic Typing
 
@@ -150,12 +156,19 @@ fn main() {
 
 <WhatDiffers>
 <Fragment slot="differs">
-Python freely adds a whole number and a decimal number, resolving `3 + 2.5` to the float `5.5` the moment that line executes, without ever asking in advance whether the two types are allowed to mix. Rust settles each literal's type before the program runs, so the example instead writes each literal with its type already fixed (`7i32`, `3.14f64`) and adds two same-typed floats. If you instead try to compile Rust's version of `3 + 2.5` with one whole-number literal and one decimal literal, as Python does, the compiler stops you before the program ever runs, reporting that it cannot add a float to an integer.
-</Fragment>
-<Fragment slot="cannot">
-In both languages, a value's type is a real, fixed fact about that value, never something the programmer can ignore. The only difference is timing: Rust confirms every type is used consistently while compiling, before your program takes its first step; Python confirms it line by line, while the program is already running.
+Python freely adds a whole number and a decimal number, resolving `3 + 2.5` to the float `5.5` the moment that line runs, without asking in advance whether the two types are allowed to mix. Rust decides each literal's type before the program runs, so this example writes each literal's type up front (`7i32`, `3.14f64`) and adds two same-typed floats instead.
 </Fragment>
 </WhatDiffers>
+
+Rust will not accept the mixed-type version Python allows:
+
+```rust
+fn main() {
+    println!("{}", 3 + 2.5); // error: cannot add a float to an integer (Rust will not compile this)
+}
+```
+
+The compiler rejects this line before your program runs at all. That is what static typing means in practice: Rust confirms every type is used consistently while compiling, before your program takes its first step, while Python only confirms it line by line, while the program is already running.
 
 ## Operators and Operator Precedence
 
@@ -167,7 +180,7 @@ An **operator** is a symbol that combines one or more values to produce a new va
 
 ### Operator Precedence
 
-When an expression contains more than one operator, the computer needs a rule for which operation happens first. **Operator precedence** is the set of rules a language uses to decide that order. Both Python and Rust use the same order you likely already learned for ordinary arithmetic: multiplication and division happen before addition and subtraction, and parentheses around part of an expression force that part to be evaluated first, overriding the usual order.
+When an expression contains more than one operator, the computer needs a rule for which operation happens first. **Operator precedence** is the set of rules a language uses to decide that order. Both Python and Rust use the same order you likely already learned for ordinary arithmetic: multiplication and division happen before addition and subtraction, and parentheses around part of an expression force that part to be evaluated first, overriding the usual order. Take `3 + 4 * 2`: multiplication happens first, so `4 * 2` is 8, then `3 + 8` is 11, in both languages. Wrapping `3 + 4` in parentheses instead forces that addition to happen first, so `(3 + 4) * 2` becomes `7 * 2`, which is 14, again in both languages.
 
 This course tracks exactly which pieces of each language are available at each point in the term; the current list lives on the [language ladder](/reference/language-ladder) page, and this lecture stays within its first entry.
 
@@ -190,10 +203,7 @@ fn main() {
 
 <WhatDiffers>
 <Fragment slot="differs">
-Nothing about the arithmetic itself differs: the symbols `+`, `*`, and `(`...`)` are written the same way in both languages, and Rust's only extra requirement is wrapping the two lines in `fn main() { ... }`.
-</Fragment>
-<Fragment slot="cannot">
-The order of operations cannot differ. `3 + 4 * 2` evaluates to 11 in both languages, because multiplication happens before addition: `4 * 2` is 8 first, then `3 + 8` is 11. Adding parentheses around `3 + 4` forces that addition to happen first instead, so `(3 + 4) * 2` evaluates to 14 in both languages: `7 * 2`.
+Nothing about the arithmetic itself differs: the symbols `+`, `*`, and `(`...`)` are written the same way in both languages. Rust's only extra requirement is wrapping the two lines in `fn main() { ... }`.
 </Fragment>
 </WhatDiffers>
 
@@ -205,7 +215,9 @@ Division deserves its own closer look, because it is the one arithmetic operator
 
 Dividing two whole numbers raises a question that addition, subtraction, and multiplication do not: what happens when the answer is not itself a whole number? **Integer division** is division between two whole numbers that produces a whole-number result instead of the exact, possibly fractional answer. Every language that does integer division has to pick its own rule for which whole number to produce, and Python and Rust pick different rules.
 
-Python's `/` operator always produces a float, even when both values being divided are whole numbers, because it is designed to give you the precise mathematical answer. Python has a separate operator, `//`, for integer division: it divides and then rounds down to the next whole number below the exact answer. Rust takes the opposite default: its `/` operator performs integer division automatically whenever both values are whole numbers, discarding the fractional part; to get a precise, non-whole answer in Rust, at least one of the two values must already be a float.
+Python's `/` operator always produces a float, even when both values are whole numbers; it is designed to give the exact mathematical answer every time. Python has a separate operator, `//`, for integer division: it divides, then rounds down to the whole number below the exact answer.
+
+Rust takes the opposite default. Its `/` operator performs integer division automatically whenever both values are whole numbers, discarding the fractional part. To get a precise, non-whole answer in Rust, at least one of the two values must already be a float. In neither language is this discarding a bug: it is a direct consequence of asking for a whole-number answer to a question that does not always have one.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
@@ -226,12 +238,16 @@ fn main() {
 
 <WhatDiffers>
 <Fragment slot="differs">
-Python's plain `/` always gives the exact answer as a float, `3.5`, and its second operator `//` gives the integer version, `3`. Rust's plain `/` between two whole-number literals instead behaves like Python's `//`: `7 / 2` gives the whole number `3`, and getting the exact answer `3.5` requires writing both values as floats, `7.0 / 2.0`. There is one more, easy-to-miss difference for negative numbers: Python's `//` always rounds down, toward negative infinity, so `-7 // 2` gives `-4`; Rust's integer `/` instead always rounds toward zero, so `-7 / 2` gives `-3`.
-</Fragment>
-<Fragment slot="cannot">
-In both languages, it is only the operator built to produce a whole-number result that discards the fractional part: Python's `//`, and Rust's default `/` whenever both values are whole numbers. Python's plain `/` never discards it, always returning the exact answer as a float, even when both values being divided are whole numbers. That discarding, where it happens, is not a bug in either language: it is a direct consequence of asking for a whole-number answer to a question that does not always have one.
+Python's plain `/` always gives the exact answer as a float: `7 / 2` is `3.5`. Its second operator, `//`, gives the whole-number version: `7 // 2` is `3`. Rust's plain `/` between two whole-number literals behaves like Python's `//`: `7 / 2` gives the whole number `3`, and the exact answer `3.5` needs both values written as floats, `7.0 / 2.0`. One more difference is easy to miss: for negative numbers, Python's `//` always rounds down, toward negative infinity, so `-7 // 2` gives `-4`; Rust's integer `/` always rounds toward zero instead, so `-7 / 2` gives `-3`.
 </Fragment>
 </WhatDiffers>
+
+It is easy to write Python's `/` when you actually want a whole-number answer:
+
+```python
+print(9 / 4)   # 2.25, not 2: Python's / always gives a float
+print(9 // 4)  # 2: // is the whole-number division you probably meant
+```
 
 ## Evaluating Expressions by Hand
 
@@ -257,9 +273,6 @@ fn main() {
 <WhatDiffers>
 <Fragment slot="differs">
 Written out, the two expressions look identical. Python evaluates `10 / 4` as float division and prints `8.5`; Rust evaluates the same-looking `10 / 4` as integer division, since both 10 and 4 are whole-number literals, and prints `8`.
-</Fragment>
-<Fragment slot="cannot">
-Operator precedence itself cannot differ: both languages compute the two multiplications and divisions before the one addition. Hand-evaluating an expression always means applying precedence first and each language's own division rule second, in that order, regardless of which language you are reading.
 </Fragment>
 </WhatDiffers>
 
