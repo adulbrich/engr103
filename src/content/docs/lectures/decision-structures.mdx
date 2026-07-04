@@ -1,0 +1,491 @@
+---
+title: "Decision Structures"
+description: "Learn how an elif/else if chain extends if/else into a mutually exclusive multi-way decision, and how guard clauses and decision tables keep that decision correct."
+sidebar:
+  order: 8
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+import WhatDiffers from '/src/components/WhatDiffers.astro';
+
+{/* ai-summary
+type: lecture
+slug: decision-structures
+order: 8
+covers: elif/else if chains; mutual exclusivity; chains vs independent ifs; nesting vs flattening; guard clauses; decision tables; boundary bugs (gaps, off-by-one, ordering); Rust's match
+prereq_lectures: booleans-and-conditionals
+followup_lectures: errors-input-and-validation
+glossary_terms: else-if chain, mutual exclusivity, guard clause, decision table, match
+*/}
+
+<LanguageVersions />
+
+The `if`/`else` statement chooses between exactly two paths: one block when a condition is true, another when it is false. Many real decisions do not split so cleanly in two. A grade is A, B, C, D, or F. A temperature reading is cold, warm, or hot. A shipment qualifies for one of several discount tiers depending on how much was ordered. None of these are yes-or-no questions with a single boundary; each has several possible outcomes, and exactly one of them should apply at a time.
+
+You could try handling this with several separate `if` statements, one per outcome, but that is clumsy and quietly incorrect: separate `if` statements do not know about each other, so nothing stops more than one from running, and nothing stops the same boundary from being rechecked more than once. What you need instead is a single structure that checks its conditions in order and guarantees that only one outcome wins.
+
+## Else-If Chains
+
+An **else-if chain** extends `if`/`else` by inserting one or more additional conditions between them, each checked only if every condition before it was false. Python spells the added keyword `elif`, a single word. Rust spells the same idea `else if`, two separate keywords written one after another. Whichever language you are reading, the chain is checked top to bottom: the first condition that evaluates to `true` has its block run, and every condition after it is skipped entirely, whether or not they would also have been true.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="Classifying a temperature"
+temperature = 18
+if temperature < 10:
+    print("cold")
+elif temperature < 25:
+    print("warm")
+else:
+    print("hot")
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="Classifying a temperature"
+fn main() {
+    let temperature = 18;
+    if temperature < 10 {
+        println!("cold");
+    } else if temperature < 25 {
+        println!("warm");
+    } else {
+        println!("hot");
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+Both print `warm`, since `temperature` is `18`: not less than `10`, but less than `25`. Change `temperature` to `5` and both would print `cold`; change it to `30` and both would print `hot`. A chain can hold as many `elif`/`else if` conditions as the decision needs, and the final `else` is optional in both languages, exactly as it was for a plain `if`/`else`.
+
+<WhatDiffers>
+<Fragment slot="differs">
+Python spells the added keyword `elif`, one word. Rust spells the same idea `else if`, two keywords. Both chains here evaluate identically and print `warm`.
+</Fragment>
+</WhatDiffers>
+
+## Mutual Exclusivity
+
+**Mutual exclusivity** is the guarantee an else-if chain gives you: exactly one of its blocks runs, or, if the chain ends without a final `else`, at most one runs and it is possible none do. This holds no matter how the conditions relate to each other. A later condition is only ever checked once every condition before it has already failed, so even a condition that would, on its own, also be true never gets a chance to run once an earlier condition has already claimed the value.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="Only the first matching branch runs"
+x = 5
+if x < 10:
+    print("small")
+elif x < 20:
+    print("medium")
+elif x < 30:
+    print("large")
+print("done")
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="Only the first matching branch runs"
+fn main() {
+    let x = 5;
+    if x < 10 {
+        println!("small");
+    } else if x < 20 {
+        println!("medium");
+    } else if x < 30 {
+        println!("large");
+    }
+    println!("done");
+}
+```
+</TabItem>
+</Tabs>
+
+Both print `small` and then `done`. Notice `x < 20` and `x < 30` are also true when `x` is `5`, but neither block runs, because the chain stops at the first match. This chain also has no final `else`, so it demonstrates the "at most one" half of the guarantee too: change `x` to `50` and neither language prints anything from the chain, since none of the three conditions is true; both still print `done` afterward, since that line sits outside the chain and always runs.
+
+## Why a Chain Beats Separate Ifs
+
+A chain is not just a shorter way to write several `if` statements; it fixes a real correctness problem. Two independent `if` statements know nothing about each other, so nothing stops both from running, even when the conditions were only ever meant to cover complementary cases.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="Two independent ifs (works, but fragile)"
+grade = 82
+if grade < 60:
+    print("fail")
+if grade >= 60:  # a separate, independent if: nothing ties it to the one above
+    print("pass")
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="Two independent ifs (works, but fragile)"
+fn main() {
+    let grade = 82;
+    if grade < 60 {
+        println!("fail");
+    }
+    if grade >= 60 {  // a separate, independent if: nothing ties it to the one above
+        println!("pass");
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+Both print `pass` here, and nothing is wrong with the output yet, because `grade < 60` and `grade >= 60` happen to be exact complements today. But the two conditions are written and checked completely separately. If either boundary is ever edited alone, say the passing threshold moves to 65 in one of the two `if` statements but not the other, the two conditions stop being complements, and either both blocks can run for some grade, or neither can, without the language telling you anything is wrong. Rewriting the second `if` as a plain `else` removes the risk entirely: `grade >= 60` is never written at all, since the `else` branch already covers every grade the first condition does not, and there is only one boundary left to write and edit instead of two copies that have to be kept in sync by hand.
+
+## Nesting Versus Flattening
+
+Sometimes a decision genuinely depends on two conditions at once, and it is tempting to reach for a conditional inside another conditional to express that. A ticket price, for example, might depend on both whether the day is a weekend and whether the visitor is under 13.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="Nesting one if inside another"
+is_weekend = True
+age = 10
+
+if is_weekend:
+    if age < 13:
+        print(8)
+    else:
+        print(12)
+else:
+    if age < 13:
+        print(6)
+    else:
+        print(10)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="Nesting one if inside another"
+fn main() {
+    let is_weekend = true;
+    let age = 10;
+
+    if is_weekend {
+        if age < 13 {
+            println!("{}", 8);
+        } else {
+            println!("{}", 12);
+        }
+    } else {
+        if age < 13 {
+            println!("{}", 6);
+        } else {
+            println!("{}", 10);
+        }
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+Both print `8`, since `is_weekend` is `true` and `age` is less than `13`. This works, but it makes you read two levels of blocks to find any one of the four prices, and each level has its own pair of braces or indentation to track. The same four outcomes can be flattened into a single else-if chain instead, by combining the two conditions with `and`/`&&` directly in each branch.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="Flattening into one chain"
+is_weekend = True
+age = 10
+
+if is_weekend and age < 13:
+    print(8)
+elif is_weekend and age >= 13:
+    print(12)
+elif age < 13:
+    print(6)
+else:
+    print(10)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="Flattening into one chain"
+fn main() {
+    let is_weekend = true;
+    let age = 10;
+
+    if is_weekend && age < 13 {
+        println!("{}", 8);
+    } else if is_weekend && age >= 13 {
+        println!("{}", 12);
+    } else if age < 13 {
+        println!("{}", 6);
+    } else {
+        println!("{}", 10);
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+Both print `8` again, the same result as the nested version. Notice that the last two branches do not re-check `is_weekend` at all: once the first two branches have failed, the chain already knows `is_weekend` must be false, the same argument that let the previous section drop a redundant boundary check. A nested version can be easier to follow when each level answers one question at a time; a flattened chain avoids tracking multiple levels of blocks, at the cost of longer conditions. Neither is always better, but flattening is usually worth trying whenever a nested conditional's branches only ever check one combination each.
+
+## Guard Clauses
+
+A **guard clause** checks for a special or invalid case at the top of a function and returns immediately, so the rest of the function does not have to be nested inside an `else` just to reach the ordinary logic. Consider a function that computes a discount percentage from an order quantity, treating a quantity of zero or less as invalid.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="Without a guard clause: the ordinary logic sits inside an else"
+def discount_percent(quantity):
+    if quantity <= 0:
+        return 0
+    else:
+        if quantity < 10:
+            return 5
+        elif quantity < 50:
+            return 10
+        else:
+            return 15
+
+print(discount_percent(0))
+print(discount_percent(30))
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="Without a guard clause: the ordinary logic sits inside an else"
+fn discount_percent(quantity: i32) -> i32 {
+    if quantity <= 0 {
+        return 0;
+    } else {
+        if quantity < 10 {
+            return 5;
+        } else if quantity < 50 {
+            return 10;
+        } else {
+            return 15;
+        }
+    }
+}
+
+fn main() {
+    println!("{}", discount_percent(0));
+    println!("{}", discount_percent(30));
+}
+```
+</TabItem>
+</Tabs>
+
+Both print `0` and then `10`. The result is correct, but the three-way chain handling the normal case is indented one level deeper than it needs to be, just because it lives inside the `else` of the invalid-quantity check. A guard clause removes that extra level: since `return` immediately exits the function, the invalid case can simply return on its own line, with no `else` at all.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="With a guard clause: the invalid case exits immediately"
+def discount_percent(quantity):
+    if quantity <= 0:
+        return 0
+
+    if quantity < 10:
+        return 5
+    elif quantity < 50:
+        return 10
+    else:
+        return 15
+
+print(discount_percent(0))
+print(discount_percent(30))
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="With a guard clause: the invalid case exits immediately"
+fn discount_percent(quantity: i32) -> i32 {
+    if quantity <= 0 {
+        return 0;
+    }
+
+    if quantity < 10 {
+        return 5;
+    } else if quantity < 50 {
+        return 10;
+    } else {
+        return 15;
+    }
+}
+
+fn main() {
+    println!("{}", discount_percent(0));
+    println!("{}", discount_percent(30));
+}
+```
+</TabItem>
+</Tabs>
+
+Both still print `0` and then `10`, identical to the nested version. The difference is in how the code reads: the special case is dismissed in the first few lines, and the main chain that follows only has to reason about a valid quantity, with no surrounding `else` and no extra indentation. A guard clause works because `return`, introduced in an earlier lecture, ends the function's execution the moment it runs.
+
+## Decision Tables
+
+Once a decision depends on two or more separate conditions, it becomes easy to lose track of which combination produces which outcome just by staring at nested or chained code. A **decision table** lists every combination of the relevant conditions in rows, alongside the outcome each combination should produce, so the whole decision can be checked for completeness and correctness before any code is written.
+
+Suppose a plant should be watered only when its soil is dry, unless it is currently raining, in which case watering should be skipped no matter how dry the soil is. Two boolean conditions, whether the soil is dry and whether it is raining, produce four combinations:
+
+| Soil is dry | It is raining | Outcome |
+|---|---|---|
+| false | false | wait |
+| false | true | skip |
+| true | false | water now |
+| true | true | skip |
+
+Laying out all four rows makes a detail visible that is easy to miss while writing code directly: two different combinations, both with rain, both produce the same outcome, `skip`, regardless of the soil. That collapses naturally into an else-if chain, checking rain first and letting it take priority over the soil reading.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="Turning a decision table into a chain"
+is_soil_dry = True
+is_raining = False
+
+if is_raining:
+    print("skip")
+elif is_soil_dry:
+    print("water now")
+else:
+    print("wait")
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="Turning a decision table into a chain"
+fn main() {
+    let is_soil_dry = true;
+    let is_raining = false;
+
+    if is_raining {
+        println!("skip");
+    } else if is_soil_dry {
+        println!("water now");
+    } else {
+        println!("wait");
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+Both print `water now`, matching the table's third row: soil dry, not raining. Writing the table first, before any code, is what let you notice that the rain condition should come first in the chain: had you started coding straight from the plain-language description, checking soil dryness first, you could easily have skipped past the fact that a dry, raining state still needs to skip watering. The table forces every combination onto the page at once, where a missing or wrong outcome is much easier to spot than it is buried inside nested conditionals.
+
+## Common Boundary Bugs
+
+Even with a chain and a decision table, the boundaries between branches are where mistakes still creep in most often. Three patterns account for nearly all of them.
+
+The first is getting the order of branches wrong. Because a chain runs its conditions top to bottom and stops at the first match, a broad condition placed too early can catch cases that were meant for a more specific branch further down.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="A broad condition placed first (wrong output)"
+grade = 95
+if grade >= 50:  # too broad, and checked first: catches every passing grade
+    print("pass")
+elif grade >= 70:
+    print("merit")
+elif grade >= 90:
+    print("distinction")
+else:
+    print("fail")
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="A broad condition placed first (wrong output)"
+fn main() {
+    let grade = 95;
+    if grade >= 50 {  // too broad, and checked first: catches every passing grade
+        println!("pass");
+    } else if grade >= 70 {
+        println!("merit");
+    } else if grade >= 90 {
+        println!("distinction");
+    } else {
+        println!("fail");
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+A grade of `95` should earn `distinction`, but both languages print `pass`, because `grade >= 50` is checked first and is already true. The `distinction` branch further down is never reached for any grade at all, since every grade that would satisfy it also satisfies `grade >= 50`. The fix is to swap the order, checking `grade >= 90` first, then `grade >= 70`, then `grade >= 50`, so the most specific threshold always gets first refusal and nothing broader can intercept a case meant for it.
+
+The second pattern is a gap at a boundary caused by using `<`/`>` where `<=`/`>=` was intended, or the reverse. A single wrong comparison operator can leave a specific value belonging to no branch you intended.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="An off-by-one boundary (wrong output)"
+grade = 90
+if grade > 90:  # should be >=, so exactly 90 falls through to the wrong branch
+    print("distinction")
+elif grade >= 70:
+    print("merit")
+else:
+    print("pass")
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="An off-by-one boundary (wrong output)"
+fn main() {
+    let grade = 90;
+    if grade > 90 {  // should be >=, so exactly 90 falls through to the wrong branch
+        println!("distinction");
+    } else if grade >= 70 {
+        println!("merit");
+    } else {
+        println!("pass");
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+A grade of exactly `90` was meant to earn `distinction`, but `grade > 90` is `false` for `90` itself, so the chain falls through to `merit` instead; both languages print `merit`. Changing `grade > 90` to `grade >= 90` closes the gap, so a grade of exactly `90` prints `distinction` as intended. Neither the ordering bug nor this off-by-one bug produces an error of any kind. The program runs to completion and prints something plausible-looking every time, which is exactly what makes both mistakes easy to miss without deliberately checking the values that sit right at a boundary.
+
+The third pattern is a gap or an overlap spanning more than one value: two ranges written so that a whole span falls into neither branch, or so a whole span satisfies two branches at once. Checking boundary values by hand, the same way a decision table checks every combination of conditions, is the most reliable way to catch all three patterns before a reader trusts the output.
+
+## Rust's match
+
+Rust offers a second way to write a multi-way decision when the choice comes down to comparing one value against a fixed set of possibilities: the **match** expression. A `match` takes a value and a list of patterns, each followed by `=>` and the result for that pattern; Rust checks the patterns in order and uses the result of the first one that matches.
+
+```rust title="Matching a day number to a name"
+fn main() {
+    let day = 3;
+
+    let name = match day {
+        1 => "Monday",
+        2 => "Tuesday",
+        3 => "Wednesday",
+        4 => "Thursday",
+        5 => "Friday",
+        6 => "Saturday",
+        7 => "Sunday",
+        _ => "not a valid day number",
+    };
+
+    println!("{}", name);
+}
+```
+
+This prints `Wednesday`, since `day` is `3`. The underscore `_` is a catch-all pattern, matching any value not already listed above it, the same role Python's `elif`/`else` chain gives its final `else`. Unlike an `else if` chain, though, Rust's compiler checks that a `match` is exhaustive: every possible value of `day` must be covered by some pattern, or the code will not compile at all.
+
+```rust title="A match missing its catch-all (will not compile)"
+fn main() {
+    let day = 3;
+
+    let name = match day {
+        1 => "Monday",
+        2 => "Tuesday",
+        3 => "Wednesday",
+        4 => "Thursday",
+        5 => "Friday",
+        6 => "Saturday",
+        7 => "Sunday",
+        // no catch-all pattern here: will not compile
+    };
+
+    println!("{}", name);
+}
+```
+
+Rust rejects this with `error[E0004]: non-exhaustive patterns`, naming the ranges of `day` no pattern covers. An `else if` chain with no final `else` is legal in both languages and simply does nothing when no condition matches; a Rust `match` missing a catch-all for a type with more values than are listed does not compile at all, since the compiler cannot prove every case is handled. Reach for `match` whenever a decision is really a lookup, one fixed value in, one result out, rather than a series of range comparisons. Python has its own `match` statement too, but the `elif` chain remains the form you will see in this course's Python examples.
+
+## Takeaways
+
+An else-if chain extends `if`/`else` into a structure that checks its conditions in order and guarantees mutual exclusivity: exactly one branch runs when a final `else` is present, at most one when it is not, regardless of whether a later condition would also have been true on its own. That guarantee is what makes a chain safer than several independent `if` statements, which know nothing about each other and can drift out of sync the moment one boundary is edited without the other. The same guarantee lets you flatten a nested conditional into a single chain whenever its branches only test one combination of conditions each, trading two levels of blocks for longer individual conditions. A guard clause uses `return` to dismiss a special or invalid case in the first few lines of a function, so the function's main logic never has to sit nested inside an `else`. A decision table lists every combination of conditions and its outcome before any code is written, turning a decision that is easy to get subtly wrong into one you can check row by row. The most common bugs in a chain, an earlier branch that is too broad and steals cases from a later one, and a boundary written with the wrong comparison operator that leaves a gap, rarely announce themselves with an error; they simply produce a plausible wrong answer, which is why checking boundary values deliberately matters. Rust's `match` gives you a second tool for the specific case of comparing one value against a fixed set of possibilities, with the compiler itself refusing to accept a `match` that leaves some value uncovered. The next lecture turns to what happens when a value going into one of these decisions cannot be trusted yet: values read in from outside the program, and what a language does when that value turns out to be invalid.
+
+## Resources
+
+- [Python language reference: The if statement](https://docs.python.org/3/reference/compound_stmts.html#the-if-statement)
+- [The Rust Book: Control Flow](https://doc.rust-lang.org/book/ch03-05-control-flow.html)
+- [The Rust Book: The match Control Flow Construct](https://doc.rust-lang.org/book/ch06-02-match.html)
+- [Rust reference: Match expressions](https://doc.rust-lang.org/reference/expressions/match-expr.html)
