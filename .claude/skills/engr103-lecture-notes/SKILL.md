@@ -187,14 +187,37 @@ Strong section openers, which teach or connect immediately:
 - "A bit is the smallest piece of information a computer can store: a single 0 or a single 1."
 - "Knowing that everything is stored as bits is only half the picture; the other half is where those bits actually live."
 
-### Concept Depth
+### Depth: Teach the Mechanism, Not the Shape
 
-Every technical term is explained in full when it first appears:
+The most common failure of a lecture is staying on the surface: it defines a term, shows the syntax in both languages, and moves on. That teaches a reader what a thing is called and how to spell it, not how it works or why. Every concept must go deeper than its shape. The bar: a reader should finish a section able to explain how the thing works and why it behaves as it does, not merely name it.
 
-1. Define it in plain language.
-2. Explain how it works, at the depth appropriate for a first-year reader.
-3. Give a concrete example.
-4. Explain why it matters: what it makes possible, or what goes wrong without it.
+For each concept, the prose must do all of the following (as flowing explanation, never as a checklist on the page):
+
+1. **Define it precisely** in plain language. Where a term has a real technical meaning (an interpreter, a stack frame, a `Result`), give the real definition, not a vague gesture at it.
+2. **Explain the mechanism:** what actually happens, step by step, underneath the behavior. Not "the interpreter runs your code" but how it runs it, in what order, and what it does at each step. Where it helps, connect down to what an earlier lecture established (bits and bytes, memory, the call stack).
+3. **Walk one concrete example through, step by step.** Trace a specific input to a specific result, naming what happens at each step, rather than only showing code and stating its output.
+4. **Show how to actually run it, and what the tools print.** A reader must be able to reproduce it: give the real command (`python3 area.py`; `rustc area.rs` then `./area`) and the exact output, including the error text when the point of the example is an error.
+5. **Name the why and the failure mode:** what the concept makes possible, and what specifically goes wrong without it or when it is misused.
+
+The discriminating test for every section, applied honestly: **does a reader come away understanding how and why this works, or just what it is called and its syntax?** If it is the latter, the section is not done, no matter how cleanly it reads.
+
+**Dual-language does not mean saying everything twice.** The deep material, the mechanism, the why, the step-by-step trace, the connection to memory or hardware, is almost always language-agnostic: it belongs in rich prose (and asides), written once. The `<Tabs>` pair carries only the two syntaxes for the same idea. This is how a lecture reaches real depth without the two-language format consuming all its room: go deep in shared prose, and let the tabs stay short.
+
+### Depth Through Asides
+
+Starlight callout asides are the tool for depth that would otherwise break the main thread: an under-the-hood detail, a common gotcha, a boundary case, a "what really happens here" that a first read does not need but a curious reader wants. Use them.
+
+```mdx
+:::note[What actually happens]
+The interpreter does not read the whole file first; it ...
+:::
+
+:::caution[A common mistake]
+Forgetting to ... produces ...
+:::
+```
+
+Reach for `:::note`, `:::tip`, and `:::caution` to hold mechanism, gotchas, and deeper dives that would clutter the main line of explanation. A short, genuinely interesting piece of real-world or historical context (why a language works the way it does) is welcome as optional seasoning, but it is not what "depth" means and never substitutes for explaining the mechanism. Being story-agnostic (below) forbids the course's problem-family narratives, not rich technical context or real examples.
 
 ### Prose Over Lists
 
@@ -301,9 +324,9 @@ Do not import any assignment, activity, or recitation component. None exist for 
 
 ## Length Calibration
 
-A lecture runs roughly **1,800 to 3,500 words**, including its code examples. That range is much shorter than a full lecture in an adjacent course, because ENGR 103 notes are flipped material a first-year student reads in about 45 minutes before class.
+Length is an output of teaching a concept properly, never a target to hit. Teach the mechanism, walk one example through step by step, show how to run it and what it prints, and name the failure mode (see "Depth" above); the length is then whatever that takes. Do not pad to reach a number, and never cut mechanism to stay under one.
 
-Length is a diagnostic, not a target. A lecture under 1,800 words usually means a concept was flattened or skipped; one over 3,500 words usually means tutorial-style or story material has crept in and needs to move out or be cut. Run `wc -w src/content/docs/lectures/<file>.mdx` after a substantial edit to sanity-check the count.
+As a rough sanity check only, a flipped ENGR 103 note tends to land around **2,500 to 4,500 words** including code. Landing well under that is the warning sign to watch for: it almost always means a concept was flattened, its mechanism skipped, or an example left un-traced, and the fix is to deepen it, not to stretch it with filler. Landing well over usually means genuine tutorial hand-holding or problem-family story material has crept in and should move out. Run `wc -w src/content/docs/lectures/<file>.mdx` after a substantial edit to catch the thin case, not to enforce a ceiling.
 
 ## The Authoritative Accuracy Pass
 
