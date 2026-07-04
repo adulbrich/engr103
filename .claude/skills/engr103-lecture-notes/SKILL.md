@@ -106,6 +106,36 @@ print(3.14159 * 2 * 2)
 
 Titles are short and say what the snippet shows. A Python and a Rust block inside the same `<Tabs>` pair may share one title. For a bad-code example, name it as such, for example `title="Reassigning an immutable value (will not compile)"`.
 
+## Terminal Commands and Output
+
+When a lecture shows a command run in the terminal, or the output a program prints, use the terminal frame, and split the command a reader types from the output it produces into two separate blocks.
+
+- **A command goes in its own block using a shell language** (```` ```bash ````), which Expressive Code renders as a terminal and gives the reader a copy button that copies exactly the command. **Never put a `$` or `#` prompt character in front of a command.** The prompt is not part of the command: including it means the copy button hands the reader a string that will not run, and a screen reader announces a meaningless symbol before every command.
+- **The program's output goes in a separate block** marked ```` ```text frame="terminal" ````, so it reads as a terminal result and is never mixed in with the command that produced it. The reader can then copy the command on its own, without dragging the output along.
+
+Wrong, a prompt character with the command and its output mixed into one block:
+
+````text
+```text
+$ python3 area.py
+78.5
+```
+````
+
+Right, the command copyable on its own and the output separate and terminal-framed:
+
+````text
+```bash title="Run the program"
+python3 area.py
+```
+
+```text frame="terminal" title="Output"
+78.5
+```
+````
+
+This applies to every command (`python3 ...`, `rustc ...`, `./program`) and every captured run of a program, error output included. Source-code examples that are not terminal sessions keep their normal `python`/`rust` code blocks inside `<Tabs>`.
+
 ## The Language-ladder Fence
 
 Every ENGR 103 example draws only on constructs the language ladder has already introduced for that lecture's week. The ladder lives at `/reference/language-ladder` and grows one week at a time; a construct allowed in week 3 stays allowed in every later week, but nothing appears in an example before its week arrives.

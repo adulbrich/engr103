@@ -76,16 +76,22 @@ fn main() {
 
 To run the Python file, you hand it to the Python interpreter, named `python3`, on the command line, and it prints the result immediately:
 
-```text title="Running the Python program"
-$ python3 hello.py
+```bash title="Run the Python program"
+python3 hello.py
+```
+
+```text frame="terminal" title="Output"
 Hello, World!
 ```
 
 The Rust file takes an extra step, because the compiler has to build an executable before there is anything to run. You first invoke the compiler, `rustc`, which reads `hello.rs` and, if it passes every check, produces an executable file named `hello`. You then run that executable:
 
-```text title="Compiling and running the Rust program"
-$ rustc hello.rs
-$ ./hello
+```bash title="Compile and run the Rust program"
+rustc hello.rs
+./hello
+```
+
+```text frame="terminal" title="Output"
 Hello, World!
 ```
 
@@ -126,8 +132,11 @@ fn main() {
 
 Run the Python file and it prints its first line before failing on the second:
 
-```text title="Running start.py"
-$ python3 start.py
+```bash title="Run start.py"
+python3 start.py
+```
+
+```text frame="terminal" title="Output"
 Starting up...
 Traceback (most recent call last):
   File "start.py", line 2, in <module>
@@ -140,8 +149,11 @@ Trace why. Python's interpreter reaches line 1 first, translates it, and runs it
 
 Now compile the Rust file:
 
-```text title="Compiling start.rs"
-$ rustc start.rs
+```bash title="Compile start.rs"
+rustc start.rs
+```
+
+```text frame="terminal" title="Output"
 error[E0277]: cannot add `&str` to `{integer}`
  --> start.rs:3:22
 ```
@@ -176,13 +188,13 @@ fn main() {
 
 Running the Python file reports the unclosed parenthesis and stops before printing anything:
 
-```text title="Python's syntax error"
+```text frame="terminal" title="Python's syntax error"
 SyntaxError: '(' was never closed
 ```
 
 Compiling the Rust file reports the missing semicolon, pointing at the exact spot where one statement should have ended before the next began:
 
-```text title="Rust's syntax error"
+```text frame="terminal" title="Rust's syntax error"
 error: expected `;`, found `println`
 ```
 
