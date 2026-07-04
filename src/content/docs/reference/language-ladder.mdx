@@ -11,20 +11,20 @@ This ladder lists the Python and Rust constructs allowed each week. It grows cum
 
 | Week | Newly allowed in Python | Newly allowed in Rust | Still fenced off |
 |---|---|---|---|
-| 1 | `print`; int, float, bool, str literals; arithmetic operators and precedence; `//` vs `/` division | `println!` with `{}` placeholders; `i32`, `f64`, `bool`, `&str`; arithmetic and precedence | variables, functions |
-| 2 | variables and assignment; `UPPER_CASE` constants; basic f-strings; `def` functions with parameters and return | `let`, `let mut`, shadowing; `const`; `fn` free functions with typed params and return | conditionals, loops |
-| 3 | comparisons; `and`, `or`, `not`; `if`/`elif`/`else` | comparisons; `&&`, `\|\|`, `!`; `if`/`else if`/`else`; `match` | loops |
-| 4 | `while`; `for` over `range` | `while`; `for` over ranges | collections |
-| 5 | local scope; `list`; indexing; `len`; iteration; `append` | scope and the call stack; `Vec`; indexing; `.len()`; iteration; `push` | string methods |
-| 6 | strings as sequences; characters; slicing; searching; building strings | `String` and `&str` method subset; `char`; slicing; building strings | the memory model, references |
-| 7 | aliasing (two names, one list) | `&` references; moves; borrowing-lite | traits, lifetimes, generics (always) |
-| 8 | `input`; `try`/`except`; `int()`, `float()` parsing; comparing floats with a tolerance | `read_line`; `.parse()`; `Result`; `?`; comparing floats with a tolerance | dictionaries and maps |
-| 9 | `dict`; `assert`; test functions | `HashMap`; `assert!`; test functions | nothing new |
-| 10 | synthesis only, no new constructs | synthesis only, no new constructs | nothing new |
+| 1 | `print`; int, float, bool, str literals; binary literals; arithmetic operators (`+ - * /`) and precedence | `println!` with `{}` placeholders and the `fn main` wrapper; `i32`, `f64`, `bool`, `&str`; binary literals; arithmetic and precedence | variables, functions, conditionals, loops |
+| 2 | integer division `//` and truncation; `%`; implicit coercion; variables and assignment; `UPPER_CASE` constants | integer division and truncation; `%`; `let`, `let mut`, shadowing; `const` | functions, conditionals, loops |
+| 3 | `def` functions with parameters and return | `fn` functions with typed params and return; calling functions | conditionals, loops |
+| 4 | local and function scope; comparisons; `and`, `or`, `not`; `if`/`else` | scope, nested `{ }` blocks, the call stack; comparisons; `&&`, `\|\|`, `!`; `if`/`else` | `elif`/`else if` chains, loops, collections |
+| 5 | `elif` chains; `input`; `try`/`except`; `int()`/`float()` parsing; comparing floats with a tolerance | `else if` chains; `match`; `read_line`; `.parse()`; `Result`; comparing floats with a tolerance | loops, collections |
+| 6 | `assert`; test functions | `assert!`; test functions | loops, collections |
+| 7 | `while`; `for` over `range`; `break`/`continue`; nested loops | `while`; `for` over ranges; `break`/`continue`; nested loops | collections |
+| 8 | strings (indexing, slicing, searching, building); characters; `list`; indexing; `len`; iteration; `append` | `String`/`&str` method subset; `char`; `Vec`; indexing; `.len()`; iteration; `push` | the memory model, references, dictionaries |
+| 9 | aliasing (two names, one list); passing lists to functions | `&`/`&mut` references; moves; borrowing-lite; passing `Vec` to functions | dictionaries and maps |
+| 10 | `dict` (advanced extra) | `HashMap` (advanced extra) | nothing new required |
 
 ## Fenced off for the whole course
 
 These constructs never appear in course examples or take-home work, even after the week their topic is reached.
 
 - **Python:** comprehensions, lambdas, and f-string format specs beyond the basics.
-- **Rust:** traits, lifetimes, and generics; and any borrowing before week 7.
+- **Rust:** traits, lifetimes, and generics; and any borrowing before week 9.
