@@ -1,0 +1,361 @@
+---
+title: "Collections II: Dictionaries and Maps"
+description: "Learn how a dictionary, or hash map, stores each value under a key you choose so you can look it up by a meaningful name instead of a position, how a missing key surfaces as a KeyError in Python and an Option in Rust, and how to count how often each item appears."
+sidebar:
+  order: 17
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+import WhatDiffers from '/src/components/WhatDiffers.astro';
+
+{/* ai-summary
+type: lecture
+slug: collections-ii
+order: 17
+covers: key-value stores; keys vs positions; create/insert/look up/update; missing keys as KeyError vs Option; contains_key; list vs map; frequency counting; iterating pairs
+prereq_lectures: sharing-and-mutation
+followup_lectures: computing-with-judgment
+glossary_terms: dictionary, hash map, key, value, key-value pair, frequency counting
+*/}
+
+<LanguageVersions />
+
+Suppose you are keeping track of how old each of your friends is. A list can hold the ages, one after another, but a list only lets you reach an age by its position: the age at position 0, the age at position 1. To find how old Alice is, you would have to remember that her age sits at position 3, or search the whole list from the front, checking each entry until you reach hers. What you really want is to look her age up by her name directly, the way a phone book finds a number from a person's name rather than by counting entries from the top of the page. A dictionary is the collection built for exactly that. It stores each value under a name you choose, so you can ask for Alice's age by writing her name, not by knowing where in a sequence it happened to land.
+
+## A dictionary maps keys to values
+
+A **dictionary** is a collection that stores values, each one filed under a name you pick. Rust calls the same collection a **hash map**, written `HashMap`, and both names describe one idea: a set of pairs, where each pair joins a name to a value. The name you look something up by is called the **key**, the thing stored under it is called the **value**, and the two together are a **key-value pair**. In the ages example, `"alice"` is a key, `30` is the value stored under it, and `"alice"` paired with `30` is one key-value pair the dictionary holds.
+
+This is the real difference from the list of the earlier lecture, and it is worth stating precisely. A list indexes by **position**: the elements are laid out in order, and you reach one by the count of steps from the front, `0`, `1`, `2`. A dictionary indexes by **key**: there is no first or second pair to count to, and you reach a value by naming its key, whatever you chose that key to be. A key can be a piece of text like `"alice"` or a number like `2024`; you pick whatever names the value most meaningfully. Looking up a key does not walk through the pairs one by one comparing names, the way searching a list would. It goes more or less straight to the value, and it stays about that fast whether the dictionary holds ten pairs or ten million.
+
+:::note[Why the lookup stays fast: hashing]
+The word "hash" in "hash map" names the trick that makes the lookup quick. When you store or look up a key, the dictionary runs the key through a small computation called a **hash function**, which turns the key into a number. That number tells the dictionary roughly where to keep, or where to find, the matching value, so it can jump close to the right spot instead of scanning every pair from the start. Because the key points almost directly at its value this way, a lookup takes about the same short time no matter how many pairs the dictionary holds. You do not need the details of how a hash function is built to use a dictionary; it is enough to know that the fast lookup is what a dictionary buys you over searching a list.
+:::
+
+You create a dictionary and put pairs into it slightly differently in each language. In Python you can write the pairs directly between curly braces, each key and value joined by a colon, as in `{"alice": 30, "bob": 25}`, and you add another pair later by assigning to a new key, `ages["carol"] = 27`. In Rust you start from an empty `HashMap` with `HashMap::new()`, which needs the line `use std::collections::HashMap;` at the top of the file to bring the type into view, and you add each pair with `.insert`, passing the key and the value. Once the pairs are stored, you look one up by its key: Python writes `ages["alice"]`, and Rust reads it back with `.get("alice")`.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="Storing ages under names"
+ages = {"alice": 30, "bob": 25}
+ages["carol"] = 27
+print(ages["alice"])
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="Storing ages under names"
+use std::collections::HashMap;
+
+fn main() {
+    let mut ages = HashMap::new();
+    ages.insert("alice", 30);
+    ages.insert("bob", 25);
+    ages.insert("carol", 27);
+    println!("{:?}", ages.get("alice"));
+}
+```
+</TabItem>
+</Tabs>
+
+Both programs store the same three pairs and then ask for the value filed under `"alice"`. Python hands the value straight back, so it prints `30`. Rust's `.get` hands back an Option instead, the same Some-or-None wrapper the strings lecture used: it wraps the found value as `Some(30)` rather than returning a bare `30`, because a key you ask for might not be in the map at all, and the wrapper is how Rust makes room for that possibility. The next section is where that wrapper earns its place.
+
+```bash title="Run the Python program"
+python3 ages.py
+```
+
+```text frame="terminal" title="Output"
+30
+```
+
+```bash title="Compile and run the Rust program"
+rustc ages.rs
+./ages
+```
+
+```text frame="terminal" title="Output"
+Some(30)
+```
+
+<WhatDiffers>
+<Fragment slot="differs">
+Python writes a dictionary as pairs between curly braces, `{"alice": 30, "bob": 25}`, and looks a value up with `ages["alice"]`, which returns the value directly. Rust builds a `HashMap` with `HashMap::new()` (needing `use std::collections::HashMap;`), fills it with `.insert`, and looks a value up with `.get`, which returns an Option: `Some(30)` when the key is present, wrapping the value so the absent case has somewhere to go.
+</Fragment>
+</WhatDiffers>
+
+## When a key is missing
+
+Asking for a key the dictionary does not hold is the mistake you will meet most, and it is where the two languages part ways sharply. It is an easy mistake to make: a key can be missing because of a typo, because the pair was never added, or because a person typed a name you never stored. What a language does at that moment is one of the clearest ways to see the difference in how each one treats things that might not be there.
+
+Python, asked for a key it does not hold with the square-bracket lookup, stops the program with a **`KeyError`**, a run-time error naming the key it could not find. This is the same kind of stop as the out-of-bounds `IndexError` from the lists lecture: the program was running fine until the exact instant it reached a lookup it could not answer, and then it halts. Python also offers a gentler way to ask, the `.get` method, which never stops the program: `ages.get("dave")` hands back the special value `None` when the key is missing, and you can pass a second argument to choose a different fallback, so `ages.get("dave", 0)` hands back `0` instead. You reach for `.get` when a missing key is an ordinary possibility you want to handle, not a crash you want.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="A key that is not there"
+ages = {"alice": 30, "bob": 25}
+print(ages["dave"])
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="A key that is not there"
+use std::collections::HashMap;
+
+fn main() {
+    let mut ages = HashMap::new();
+    ages.insert("alice", 30);
+    ages.insert("bob", 25);
+    match ages.get("dave") {
+        Some(age) => println!("dave is {}", age),
+        None => println!("no entry for dave"),
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+Run the Python version and it stops on the lookup, naming the key it could not find:
+
+```bash title="Run the Python program"
+python3 missing.py
+```
+
+```text frame="terminal" title="Output"
+Traceback (most recent call last):
+  File "missing.py", line 2, in <module>
+    print(ages["dave"])
+          ~~~~^^^^^^^^
+KeyError: 'dave'
+```
+
+Rust cannot stop this way, because its `.get` does not return a bare value that a missing key could leave empty. It returns an Option, which is either `Some(value)` when the key is present or `None` when it is absent, so the missing case is a value you receive, not a crash you suffer. To read it you use `match`, the same tool the errors lecture used on a `Result`: the `Some` arm runs when the key was found and binds its value, and the `None` arm runs when it was not. Because the key `"dave"` was never inserted, `.get("dave")` is `None`, so the `None` arm runs:
+
+```bash title="Compile and run the Rust program"
+rustc missing.rs
+./missing
+```
+
+```text frame="terminal" title="Output"
+no entry for dave
+```
+
+The contrast is the whole reason a dictionary looks different in the two languages. Python's square-bracket lookup trusts you to know the key is there and stops the program loudly if you were wrong, while its `.get` lets you opt into a calm answer. Rust folds that choice into the type: `.get` always returns an Option, so the compiler will not let you use the value without first saying, in a `match`, what to do when there is nothing there. You cannot forget to handle the missing key, because the code does not compile until you have.
+
+<WhatDiffers>
+<Fragment slot="differs">
+Python's `ages["dave"]` stops the program with a `KeyError` when the key is absent, a run-time error like the lists lecture's `IndexError`; its `ages.get("dave")` instead returns `None`, or a fallback you name with `ages.get("dave", 0)`. Rust's `.get` never stops the program and has no square-bracket form here: it always returns an Option, `None` for a missing key, which you must open with a `match` on `Some` and `None` before you can use the value.
+</Fragment>
+</WhatDiffers>
+
+## Updating a value and checking for a key
+
+Storing a value under a key that already has one does not add a second pair; it replaces the value that was there. This is why the same operation that first inserts a pair also updates it. Assigning `ages["alice"] = 31` in Python stores `31` under `"alice"`, and because `"alice"` already held `30`, the `30` is simply overwritten and the key still appears once. Rust's `.insert` behaves the same way: calling `ages.insert("alice", 31)` when `"alice"` is already present replaces the old value rather than creating a duplicate. A dictionary holds each key at most once, so "insert" and "update" are the same act, told apart only by whether the key was there already.
+
+Before changing or reading a value, you often want to know whether a key is present at all, without triggering the missing-key stop from the previous section. Python answers with the `in` operator, `"bob" in ages`, which is `True` when the key is a key of the dictionary and `False` when it is not. Rust answers with the `.contains_key` method, `ages.contains_key("bob")`, which returns a plain `true` or `false`. Both check for a key without reading its value and without any risk of stopping the program.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="Overwriting a value and testing for a key"
+ages = {"alice": 30, "bob": 25}
+ages["alice"] = 31
+print(ages["alice"])
+print("bob" in ages)
+print("dave" in ages)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="Overwriting a value and testing for a key"
+use std::collections::HashMap;
+
+fn main() {
+    let mut ages = HashMap::new();
+    ages.insert("alice", 30);
+    ages.insert("bob", 25);
+    ages.insert("alice", 31);
+    println!("{}", ages["alice"]);
+    println!("{}", ages.contains_key("bob"));
+    println!("{}", ages.contains_key("dave"));
+}
+```
+</TabItem>
+</Tabs>
+
+Trace the values. Both programs start with `"alice"` at `30` and `"bob"` at `25`. Overwriting `"alice"` with `31` replaces the `30`, so the first print shows `31`. Then `"bob"` is a key, so the membership check is true, and `"dave"` was never stored, so its check is false.
+
+```bash title="Run the Python program"
+python3 update.py
+```
+
+```text frame="terminal" title="Output"
+31
+True
+False
+```
+
+```bash title="Compile and run the Rust program"
+rustc update.rs
+./update
+```
+
+```text frame="terminal" title="Output"
+31
+true
+false
+```
+
+The Rust version reads `ages["alice"]` back with square brackets here rather than `.get`, and that is a deliberate choice: square-bracket indexing on a `HashMap` returns the value directly, like Python's, but it stops the program if the key is absent, exactly as Python's square brackets do. It is safe to use only when you are certain the key is present, as it is right after inserting it. When a key might be missing, `.get` and its Option are the tool that keeps the program from stopping, which is why the previous section used them.
+
+## Choosing a list or a map
+
+A list and a dictionary can each hold many values, so a fair question is which one a given job wants. The answer follows from the one difference that separates them: a list reaches its values by position, and a dictionary reaches them by a key you chose. Whenever you find yourself asking "which one should I use," ask instead how you will later reach the values back out, because that is what decides it.
+
+Use a list when the order of the values is part of the meaning and you expect to walk through all of them. A record of temperature readings taken once an hour is a list: the readings have a natural order, the third reading really is the one after the second, and the typical thing you do is visit every reading in turn, to add them up or find the highest. Nothing about a reading is better named than "the reading at this position," so position is the right way to reach it.
+
+Use a dictionary when each value has a meaningful name you will look it up by, and you rarely care about any order among them. A table of capital cities is a dictionary: you store `"France"` with `"Paris"`, `"Japan"` with `"Tokyo"`, and what you do with it is look up one country's capital by naming the country, not by asking for "the fourth capital." The country name is the natural way to reach the capital, and there is no useful sense in which one country comes before another. When the value you want is best found by a name rather than by a count, a dictionary is the collection that matches how you think about the data.
+
+## Counting how often each value appears
+
+A dictionary shines at a task that is awkward with anything else: counting how many times each distinct item appears in some data, such as how often each letter shows up in a word. This is called **frequency counting**, and it extends the count pattern from the loop patterns lecture. That pattern kept a single counter and added one to it each time a condition held, answering "how many." Frequency counting keeps not one counter but a counter for every distinct item at once, and a dictionary is what holds them: the keys are the items you are counting, and the value under each key is that item's running count.
+
+The mechanism is the count pattern with the dictionary standing in for the counter. Start with an empty dictionary, then walk through the data one item at a time. For each item, ask whether it is already a key. If it is, the dictionary already holds a running count for it, so add one to that count and store the larger number back. If it is not, this is the first time you have seen the item, so start its count at one. After the walk, each key's value is the number of times that item appeared. The example counts the letters of the word `banana`.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="Counting the letters of a word"
+word = "banana"
+counts = {}
+for letter in word:
+    if letter in counts:
+        counts[letter] = counts[letter] + 1
+    else:
+        counts[letter] = 1
+print(counts["a"])
+print(counts["b"])
+print(counts["n"])
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="Counting the letters of a word"
+use std::collections::HashMap;
+
+fn main() {
+    let word = "banana";
+    let mut counts = HashMap::new();
+    for letter in word.chars() {
+        if counts.contains_key(&letter) {
+            counts.insert(letter, counts[&letter] + 1);
+        } else {
+            counts.insert(letter, 1);
+        }
+    }
+    println!("{}", counts[&'a']);
+    println!("{}", counts[&'b']);
+    println!("{}", counts[&'n']);
+}
+```
+</TabItem>
+</Tabs>
+
+Trace the dictionary as the walk goes through `b`, `a`, `n`, `a`, `n`, `a`. It starts empty. The first letter `b` is not yet a key, so its count starts at `1`. Next `a` is not a key either, so it starts at `1`. Then `n` starts at `1`. Now the second `a` arrives, and this time `a` is already a key holding `1`, so its count becomes `2`. The second `n` lifts `n` from `1` to `2`. The last `a` lifts `a` from `2` to `3`. The walk ends with `a` at `3`, `b` at `1`, and `n` at `2`, which is exactly how many times each letter appears in `banana`.
+
+You may notice the Rust version writes `&letter` and `&'a'` with a leading `&`, where the earlier sections passed a key like `"alice"` with none. Rust's `contains_key` and its square-bracket lookup take the key by reference, written with a `&`. A string literal such as `"alice"` is already a reference, so you pass it as it is; a `char` such as the one in `letter`, or the letter `'a'` written directly, is a plain value, so you write `&letter` and `&'a'` to hand these methods a reference to it. The `&` is not a new idea, only the same reference mark from earlier lectures showing up where the key is a value rather than already a reference.
+
+```bash title="Run the Python program"
+python3 counts.py
+```
+
+```text frame="terminal" title="Output"
+3
+1
+2
+```
+
+```bash title="Compile and run the Rust program"
+rustc counts.rs
+./counts
+```
+
+```text frame="terminal" title="Output"
+3
+1
+2
+```
+
+:::tip[Shorter ways to write the same count]
+Both languages offer a shortcut for the "add one, starting from zero if new" step, so you can skip the `if` that checks whether the key exists. In Python, `counts[letter] = counts.get(letter, 0) + 1` uses the fallback form of `.get` from earlier: it reads the current count, treating a missing key as `0`, and stores one more. In Rust, `*counts.entry(letter).or_insert(0) += 1` does the same in one line, inserting a `0` the first time a key is seen and then adding one. Either shortcut produces the identical counts; the longer `if` version above is written out so the mechanism is visible.
+:::
+
+## Visiting every key and value
+
+Sometimes you want not one value but all of them, walking through every key-value pair the dictionary holds, to print each one or combine them. A `for` loop does this, the same loop that walked a list, but a dictionary hands the loop two things on each pass, a key and its value, rather than a single element. In Python you call `.items()` on the dictionary and unpack each pair into two loop variables, `for fruit, price in prices.items()`. In Rust you loop over a reference to the map and unpack each pair the same way, `for (fruit, price) in &prices`, with the `&` keeping the map usable after the loop just as it did for a list.
+
+One honest difference decides how you use this. Python's dictionary remembers the order you inserted its pairs, and has since version 3.7, so a loop over `.items()` visits them in that same insertion order every time. Rust's `HashMap` makes no such promise: because the hash of each key decides where it sits, the loop visits the pairs in an order that has nothing to do with insertion and can even come out differently each time you run the program. So a loop that simply prints every pair is reproducible in Python but not in Rust. To print Rust's pairs in a predictable order, collect them, sort them, and then loop, which is what the Rust example below does; Python needs no such step.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="Printing every pair"
+prices = {"apple": 3, "banana": 1, "cherry": 4}
+for fruit, price in prices.items():
+    print(fruit, price)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="Printing every pair, sorted for a predictable order"
+use std::collections::HashMap;
+
+fn main() {
+    let mut prices = HashMap::new();
+    prices.insert("apple", 3);
+    prices.insert("banana", 1);
+    prices.insert("cherry", 4);
+    let mut pairs: Vec<_> = prices.iter().collect();
+    pairs.sort();
+    for (fruit, price) in pairs {
+        println!("{} {}", fruit, price);
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+The Python loop prints the three pairs in the order they were inserted, apple then banana then cherry. The Rust program gathers the pairs into a vector with `.iter().collect()`, sorts that vector so the keys come out in alphabetical order, and then loops over it, so its output matches Python's regardless of how the `HashMap` happened to arrange the pairs inside.
+
+```bash title="Run the Python program"
+python3 pairs.py
+```
+
+```text frame="terminal" title="Output"
+apple 3
+banana 1
+cherry 4
+```
+
+```bash title="Compile and run the Rust program"
+rustc pairs.rs
+./pairs
+```
+
+```text frame="terminal" title="Output"
+apple 3
+banana 1
+cherry 4
+```
+
+:::note[Looping a HashMap directly gives an unpredictable order]
+The plain loop `for (fruit, price) in &prices`, with no sorting, is a perfectly valid way to visit every pair, and you use it whenever the order does not matter, for example when adding up all the values. What it does not give you is a predictable order: run a program that prints the pairs this way three times and you may well see three different orderings, because a `HashMap` arranges keys by their hash, not by when they arrived. The sort in the example above exists only to make the printed order something this page can show honestly; the visiting itself is the same either way.
+:::
+
+<WhatDiffers>
+<Fragment slot="differs">
+Python loops over pairs with `for fruit, price in prices.items()` and visits them in insertion order, a guarantee since Python 3.7. Rust loops with `for (fruit, price) in &prices` but visits them in an arbitrary order set by each key's hash, one that can differ from run to run, so producing a predictable printout takes an extra step: collect the pairs into a vector with `.iter().collect()`, `sort` it, then loop over that.
+</Fragment>
+</WhatDiffers>
+
+## Takeaways
+
+A dictionary, called a hash map in Rust, stores each value under a key you choose, which is the one idea everything else follows from. Where a list indexes by position and you reach an element by counting from the front, a dictionary indexes by key and you reach a value by naming it, and the lookup stays fast at any size because the key is hashed to point near its value rather than searched for pair by pair. You create one as `{"alice": 30}` in Python or with `HashMap::new()` and `.insert` in Rust, and you look a value up with `ages["alice"]` or `.get("alice")`. Storing under a key that already exists overwrites its value rather than adding a duplicate, so insert and update are the same act, and you test for a key without reading it using `in` or `.contains_key`. The sharpest difference between the languages is what a missing key does: Python's square-bracket lookup stops the program with a `KeyError`, while its `.get` returns `None` or a fallback, and Rust's `.get` always returns an Option that a `match` must open, so the compiler will not let you forget the absent case. Choosing between a list and a dictionary comes down to how you will reach the values back out: a list when order matters and you walk every value, a dictionary when each value has a meaningful name you look it up by. Frequency counting is where a dictionary pays off, extending the count pattern to hold a separate running count for every distinct item at once, its keys the items and its values the counts. And you visit every pair with a `for` loop that unpacks a key and a value each pass, `for fruit, price in prices.items()` or `for (fruit, price) in &prices`, remembering that Python keeps insertion order and Rust does not. This is the last of the course's collections: with a value, a list, and now a dictionary, you can hold a single thing, an ordered sequence of things, and a set of named things, which together cover most of the data a program needs to keep. The next lecture turns from storing data to weighing it, computing with judgment about what the numbers you have gathered actually mean.
+
+## Resources
+
+- [Python: Dictionaries](https://docs.python.org/3/tutorial/datastructures.html#dictionaries)
+- [Python: `dict` reference](https://docs.python.org/3/library/stdtypes.html#dict)
+- [The Rust Book: Storing Keys with Associated Values in Hash Maps](https://doc.rust-lang.org/book/ch08-03-hash-maps.html)
