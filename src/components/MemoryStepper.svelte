@@ -102,7 +102,7 @@
       Code
     </div>
     <div
-      class="overflow-auto rounded-md border border-[var(--sl-color-gray-5)] bg-[var(--sl-color-bg-inline-code)] font-mono text-sm"
+      class="mt-0 overflow-auto rounded-md border border-[var(--sl-color-gray-5)] bg-[var(--sl-color-bg-inline-code)] font-mono text-sm"
       role="group"
       aria-label="Program code, current line highlighted"
     >
@@ -110,7 +110,7 @@
         {@const isActive = activeLine === i + 1}
         <div
           class={[
-            'flex gap-3 px-3 py-0.5 leading-6',
+            'mt-0 flex gap-3 px-3 py-0.5 leading-6',
             isActive
               ? 'bg-[var(--sl-color-accent-low)] text-[var(--sl-color-white)]'
               : 'text-[var(--sl-color-gray-2)]',
@@ -172,8 +172,8 @@
     <div class="mt-4 mb-1 text-xs font-semibold uppercase tracking-wide text-[var(--sl-color-gray-3)]">
       In scope
     </div>
-    <div class="overflow-x-auto rounded-md border border-[var(--sl-color-gray-5)]">
-      <table class="w-full border-collapse text-sm">
+    <div class="mt-0 overflow-x-auto rounded-md border border-[var(--sl-color-gray-5)]">
+      <table class="mt-0 w-full border-collapse text-sm">
         <thead>
           <tr class="text-left">
             <th class="px-3 py-2 font-mono text-xs font-medium uppercase tracking-wide text-[var(--sl-color-gray-3)]">Name</th>
@@ -225,7 +225,7 @@
       <div class="mt-4 mb-1 text-xs font-semibold uppercase tracking-wide text-[var(--sl-color-gray-3)]">
         In memory
       </div>
-      <div class="flex flex-wrap gap-2">
+      <div class="mt-0 flex flex-wrap gap-2">
         {#each currentObjects as obj (obj.id)}
           <div class="rounded-md border border-dashed border-[var(--sl-color-accent)] bg-[var(--sl-color-accent-low)] px-3 py-1.5 font-mono text-sm text-[var(--sl-color-white)]">
             <span class="text-[var(--sl-color-accent-high)]">{prettyId(obj.id)}</span>&nbsp;&nbsp;{obj.value}

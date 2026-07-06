@@ -158,22 +158,27 @@ rustc quarter.rs
 2.25
 ```
 
-Step through the trace below to watch `quarter(9)` and see why the two functions never confuse their variables. Each frame is a private set of boxes; the name in parentheses says which frame a box belongs to. Watch the frames push on as calls are made and pop off as calls return.
+Step through the trace below to watch the whole program run `quarter(9)`, and see why the two functions never confuse their variables. Watch the highlighted line jump up into each function as it is called and back down as it returns, and watch the frames push on and pop off with it. Each frame is a private set of boxes; the name in parentheses says which frame a box belongs to.
 
 <MemoryStepper
   client:visible
   title="The call stack: quarter(9) calls half(n)"
-  code={`quarter(9)
-    half(n)      # inside quarter
-        result = n / 2   # inside half
-    # half returns 4.5
-# quarter returns 2.25`}
+  code={`def half(n):
+    result = n / 2
+    return result
+
+def quarter(n):
+    result = half(n) / 2
+    return result
+
+print(quarter(9))`}
   steps={[
-    { line: 1, caption: "Calling quarter pushes its stack frame, holding one box for its parameter n = 9.", names: [{ name: "n (quarter)", value: "9" }], objects: [] },
-    { line: 2, caption: "Inside quarter, half(n) pushes a second frame on top. quarter's frame waits beneath, unchanged, while half's frame runs with its own n = 9.", names: [{ name: "n (half)", value: "9" }, { name: "n (quarter)", value: "9" }], objects: [] },
-    { line: 3, caption: "Inside half, result = n / 2 computes 4.5 and stores it in a second box belonging to half's own frame.", names: [{ name: "n (half)", value: "9" }, { name: "result (half)", value: "4.5" }, { name: "n (quarter)", value: "9" }], objects: [] },
-    { line: 4, caption: "half returns 4.5 and its frame is popped, taking both of its boxes. Control resumes in quarter's frame, now holding the returned value.", names: [{ name: "n (quarter)", value: "9" }, { name: "result (quarter)", value: "4.5" }], objects: [] },
-    { line: 5, caption: "quarter divides 4.5 by 2 to get 2.25 and returns it; its frame is popped in turn, and the program is back where the call started.", names: [], objects: [] },
+    { line: 9, caption: "The program calls quarter(9). The argument 9 is copied into quarter's parameter n, control jumps up into quarter, and quarter's frame is pushed.", names: [{ name: "n (quarter)", value: "9" }], objects: [] },
+    { line: 6, caption: "Inside quarter, computing half(n) / 2 begins by calling half(n). 9 is copied into half's parameter n, control jumps into half, and a second frame is pushed on top. quarter's frame waits beneath, unchanged.", names: [{ name: "n (half)", value: "9" }, { name: "n (quarter)", value: "9" }], objects: [] },
+    { line: 2, caption: "Now inside half, result = n / 2 computes 4.5 and stores it in a box belonging to half's own frame.", names: [{ name: "n (half)", value: "9" }, { name: "result (half)", value: "4.5" }, { name: "n (quarter)", value: "9" }], objects: [] },
+    { line: 3, caption: "return result hands 4.5 back. half's frame is popped, taking its n and result with it, and control jumps back down into quarter on line 6.", names: [{ name: "n (quarter)", value: "9" }], objects: [] },
+    { line: 6, caption: "Back in quarter, half(n) was 4.5, so 4.5 / 2 is 2.25, stored in quarter's own result.", names: [{ name: "n (quarter)", value: "9" }, { name: "result (quarter)", value: "2.25" }], objects: [] },
+    { line: 9, caption: "quarter returns 2.25; its frame is popped in turn, and print shows 2.25. The stack is empty again.", names: [], objects: [] },
   ]}
 />
 
