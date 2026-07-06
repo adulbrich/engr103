@@ -346,7 +346,9 @@ deliberately excluded during sessions: its messaging is a live channel).
 `ARCHITECTURE.md` specifies the full setup. Fallback if machines are
 unavailable: locked-down laptops or a paper-based contingency version of the
 problem set (each recitation is authored with a paper variant for DAS and
-make-up cases anyway).
+make-up cases anyway). Whether that paper variant should instead become the
+primary format, replacing the locked-down machines entirely, is an open
+question (section 12).
 
 ### Scope and difficulty
 
@@ -959,6 +961,19 @@ Alignment checks built into the table:
   week 1, including running the filter in log-only mode during mock sessions
   to pin the real hostname list (`ARCHITECTURE.md`).
   The paper-variant contingency per recitation is the hedge.
+- **Paper-based recitations as the primary format (alternative, deferred).**
+  Rather than locked-down lab machines with paper only as a fallback,
+  recitations could run entirely on paper, the way the exams already do,
+  promoting the existing paper variant to the main delivery mode. The appeal,
+  raised in colleague discussion, is that it removes the lab-logistics long
+  pole above outright: no machine imaging, no on-device allowlist, no
+  seat-capacity-per-machine, and proctoring as simple as an exam. The cost is
+  that a paper recitation no longer certifies that a student can drive the real
+  toolchain and the `check` loop under test conditions, which is part of what
+  the locked-down format exists to prove, and it narrows what a problem can ask
+  (no running code, no live test feedback, tighter time budget). If adopted, the
+  assessment-tier table in section 2 and the recitation format in section 5 both
+  change. Revisit before finalizing recitation logistics.
 - **Rust in week 1** is a bet. The mitigations are the restricted subset (no
   borrowing until week 7) and Python as the always-available softer on-ramp;
   monitor week 2 to 3 pre-checks and be ready to let struggling students go
