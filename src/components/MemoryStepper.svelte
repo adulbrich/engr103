@@ -7,9 +7,14 @@
   reliable. Pure client-side, no network, no external libraries.
 
   Layout: a single vertical flow, code (full width) -> step explanation ->
-  controls (previous / next / scrubber) -> a "names in scope" table -> the heap
+  controls (previous / next / scrubber) -> a "variables" table -> the heap
   objects those names point at. Names sharing an object show the same reference,
   which is how aliasing is made visible.
+
+  Names that appeared in an earlier step but are gone from the current one (a
+  function's locals after it returns, say) are tracked automatically and can be
+  shown, greyed and struck through, so the reader can see what used to exist and
+  has now fallen out of scope. A checkbox toggles them.
 -->
 <script>
   let {
@@ -24,6 +29,9 @@
 
   let stepIndex = $state(0);
 
+  // Whether to also show variables that have gone out of scope.
+  let showOutOfScope = $state(true);
+
   // Keep the index inside the valid range even if `steps` changes length.
   const safeIndex = $derived(
     stepCount === 0 ? 0 : Math.min(Math.max(stepIndex, 0), stepCount - 1)
@@ -36,6 +44,35 @@
 
   // 1-based highlighted line for the current step.
   const activeLine = $derived(currentStep && typeof currentStep.line === 'number' ? currentStep.line : -1);
+
+  // The set of names in scope right now.
+  const currentNameSet = $derived(new Set(currentNames.map((nm) => nm && nm.name)));
+
+  // Every name seen from the first step through the current one, keeping its most
+  // recent appearance (so an out-of-scope name shows its last known value).
+  const seenNames = $derived.by(() => {
+    const map = new Map();
+    const upto = Math.min(safeIndex, stepCount - 1);
+    for (let i = 0; i <= upto; i++) {
+      const names = Array.isArray(steps[i]?.names) ? steps[i].names : [];
+      for (const nm of names) {
+        if (nm && nm.name != null) map.set(nm.name, nm);
+      }
+    }
+    return map;
+  });
+
+  // Names that existed earlier but are not in scope now.
+  const outOfScopeNames = $derived.by(() => {
+    const gone = [];
+    for (const [name, nm] of seenNames) {
+      if (!currentNameSet.has(name)) gone.push(nm);
+    }
+    return gone;
+  });
+
+  const showOutOfScopeRows = $derived(showOutOfScope && outOfScopeNames.length > 0);
+  const tableIsEmpty = $derived(currentNames.length === 0 && !showOutOfScopeRows);
 
   function goPrev() {
     if (safeIndex > 0) stepIndex = safeIndex - 1;
@@ -168,9 +205,13 @@
       />
     </div>
 
-    <!-- Names currently in scope -->
-    <div class="mt-4 mb-1 text-xs font-semibold uppercase tracking-wide text-[var(--sl-color-gray-3)]">
-      In scope
+    <!-- Variables -->
+    <div class="mt-4 mb-1 flex flex-wrap items-center justify-between gap-2">
+      <span class="text-xs font-semibold uppercase tracking-wide text-[var(--sl-color-gray-3)]">Variables</span>
+      <label class="m-0 flex items-center gap-1.5 text-xs text-[var(--sl-color-gray-2)]">
+        <input type="checkbox" bind:checked={showOutOfScope} class="m-0" />
+        Show variables that are out of scope
+      </label>
     </div>
     <div class="mt-0 overflow-x-auto rounded-md border border-[var(--sl-color-gray-5)]">
       <table class="mt-0 w-full border-collapse text-sm">
@@ -211,9 +252,24 @@
               </td>
             </tr>
           {/each}
-          {#if currentNames.length === 0}
+
+          {#if showOutOfScopeRows}
+            {#each outOfScopeNames as nm (nm.name)}
+              <tr class="border-t border-[var(--sl-color-gray-5)] opacity-60">
+                <td class="px-3 py-2 font-mono font-semibold text-[var(--sl-color-gray-4)] line-through">{nm.name}</td>
+                <td class="px-3 py-2 font-mono text-[var(--sl-color-gray-4)] line-through">
+                  {#if nm.points != null}<span aria-hidden="true">&rarr;</span> {prettyId(nm.points)}{:else}{nm.value ?? '??'}{/if}
+                </td>
+                <td class="px-3 py-2">
+                  <span class="inline-block rounded-full bg-[var(--sl-color-gray-6)] px-2 py-0.5 font-mono text-xs text-[var(--sl-color-gray-4)]">out of scope</span>
+                </td>
+              </tr>
+            {/each}
+          {/if}
+
+          {#if tableIsEmpty}
             <tr>
-              <td class="px-3 py-2 text-sm italic text-[var(--sl-color-gray-3)]" colspan="3">No names in scope.</td>
+              <td class="px-3 py-2 text-sm italic text-[var(--sl-color-gray-3)]" colspan="3">No variables yet.</td>
             </tr>
           {/if}
         </tbody>
