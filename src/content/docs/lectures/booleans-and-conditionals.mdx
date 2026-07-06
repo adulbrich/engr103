@@ -13,7 +13,7 @@ import WhatDiffers from '/src/components/WhatDiffers.astro';
 type: lecture
 slug: booleans-and-conditionals
 order: 7
-covers: booleans as yes/no values; comparison operators; logical operators and/or/not vs &&/||/!; short-circuit evaluation; the if/else statement; building a condition from a specification; Rust's bool-only if vs Python truthy values; floating-point tolerance
+covers: booleans as yes/no values; comparison operators; logical operators; short-circuit evaluation; the if/else statement; Rust bool-only if vs Python truthy; comparing floats with a tolerance
 prereq_lectures: scope-and-the-call-stack
 followup_lectures: decision-structures
 glossary_terms: boolean, comparison operator, logical operator, short-circuit evaluation, conditional, floating-point tolerance
@@ -27,15 +27,23 @@ Making that choice takes two things a program does not have yet. First, a way to
 
 ## Booleans
 
-A **boolean** is a value that is only ever one of two things, true or false. The [Data Representation and Memory](/lectures/data-representation) lecture already introduced it as one of the four kinds of value a program works with, alongside integers, floats, and strings. What sets a boolean apart from the others is not how it is stored but what it is for: an integer answers "how many," a string answers "what text," and a boolean answers a plain yes-or-no question. That question does not have to be typed in by a person. A program can produce a boolean itself, the moment it runs, by comparing two values, checking a computed result against a limit, or combining several yes-or-no answers together. The rest of this lecture is about how a program builds that yes-or-no answer, and what it does once it has one.
+A **boolean** is a value that is only ever one of two things, true or false. The [Data Representation and Memory](/lectures/data-representation) lecture already introduced it as one of the four kinds of value a program works with, alongside integers, floats, and strings. What sets a boolean apart from the others is not how it is stored but what it is for: an integer answers "how many," a string answers "what text," and a boolean answers a plain yes-or-no question. It is the value a program computes when the thing it needs to know has exactly two possible answers, and nothing in between.
+
+That question does not have to be typed in by a person. A program can produce a boolean itself, the moment it runs, by comparing two values, checking a computed result against a limit, or combining several yes-or-no answers together. This is the important shift: a boolean is rarely written into your code as a plain `true` or `false`, the way you might write the number `5`. It is almost always the *result* of a small computation the program performs while it runs, and the operators in the next two sections are the machinery that performs it. The rest of this lecture is about how a program builds that yes-or-no answer, and what it does once it has one.
+
+:::note[Two states, but a whole byte to hold them]
+A boolean carries only one bit of information: one of two possibilities, which is the least a value can distinguish at all. Yet a computer's memory is organized into bytes, groups of eight bits, and the smallest chunk it can hand a value its own address is one whole byte, not one bit. So a boolean is stored in a full byte even though it uses only a single one of that byte's eight bits, with the other seven left unused. The waste is deliberate: a value that lives at its own memory address, as the [Data Representation and Memory](/lectures/data-representation) lecture described, has to occupy at least a byte for the machine to point at it at all.
+:::
 
 ## Comparison Operators
 
 A **comparison operator** takes two values and produces a boolean by asking how they relate to each other: whether they are equal, or which one is larger. Both languages provide the same six: `==` (equal to), `!=` (not equal to), `<` (less than), `>` (greater than), `<=` (less than or equal to), and `>=` (greater than or equal to). Each one takes the values on its left and right and evaluates to `true` or `false`, exactly the way an arithmetic operator like `+` takes two values and evaluates to a number.
 
+A comparison is a reduction step, the same kind of step the [Expressions and Operators](/lectures/expressions-and-operators) lecture described, where the computer replaces a sub-expression with the single value it computes to. The only difference from arithmetic is the kind of value that comes out: `+` reduces two numbers to a number, and a comparison reduces two values to a boolean. Trace `5 < 3` through that one step. The computer already holds both operands, `5` and `3`; it applies the `<` operator, which checks whether the left value is smaller than the right; `5` is not smaller than `3`, so the whole expression `5 < 3` is replaced with the single boolean `false`, and there is nothing left to reduce. `5 == 5` runs the same way and lands on `true`. A comparison is never left half-finished: it always collapses to exactly one of the two booleans before anything else uses it.
+
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python title="Comparing values"
+```python title="compare.py"
 print(5 == 5)
 print(5 != 3)
 print(5 < 3)
@@ -43,7 +51,7 @@ print(5 >= 5)
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="Comparing values"
+```rust title="compare.rs"
 fn main() {
     println!("{}", 5 == 5);
     println!("{}", 5 != 3);
@@ -60,15 +68,44 @@ Both languages evaluate every one of these comparisons identically: true, true, 
 </Fragment>
 </WhatDiffers>
 
-A comparison is not limited to two plain numbers written directly in the code; either side can be any expression that produces a comparable value, including a variable, a function call, or a longer calculation. The comparison operator does not care where its two values came from, only what they are once evaluated.
+Run the Python file and each comparison prints its reduced boolean, spelled Python's way:
+
+```bash title="Run the Python program"
+python3 compare.py
+```
+
+```text frame="terminal" title="Output"
+True
+True
+False
+True
+```
+
+Compile and run the Rust version and the four booleans are the same, spelled Rust's way, all lowercase:
+
+```bash title="Compile and run the Rust program"
+rustc compare.rs
+./compare
+```
+
+```text frame="terminal" title="Output"
+true
+true
+false
+true
+```
+
+A comparison is not limited to two plain numbers written directly in the code; either side can be any expression that produces a comparable value, including a variable, a function call, or a longer calculation. The comparison operator does not care where its two values came from, only what they are once evaluated: it waits for each side to reduce to a value, then compares those two values and reduces itself to a boolean.
 
 ## Logical Operators
 
-A single comparison can only ask one question at a time, but many real conditions are really two or more yes-or-no questions joined together. A **logical operator** takes one or two booleans and combines them into a single new boolean. Python spells these operators as words: `and`, `or`, and `not`. Rust spells the same three ideas with symbols: `&&`, `||`, and `!`. `and`/`&&` produces `true` only when both of its operands are `true`. `or`/`||` produces `true` when at least one of its operands is `true`. `not`/`!` takes a single boolean and flips it, turning `true` into `false` and `false` into `true`.
+A single comparison can only ask one question at a time, but many real conditions are really two or more yes-or-no questions joined together. A **logical operator** takes one or two booleans and combines them into a single new boolean. Python spells these operators as words: `and`, `or`, and `not`. Rust spells the same three ideas with symbols: `&&`, `||`, and `!`.
+
+Each one is defined by what it produces from the booleans it is given, and the definitions are worth stating exactly, because a logical operator is another reduction step: it consumes booleans and hands back one boolean. `and`/`&&` produces `true` only when both of its operands are `true`, and `false` the moment either one is `false`. It is the strict operator: everything it joins has to hold at once. `or`/`||` is the lenient one: it produces `true` when at least one of its operands is `true`, and `false` only when both are `false`. `not`/`!` takes a single boolean and flips it, turning `true` into `false` and `false` into `true`. So `x == 1 or x == 5` reduces by first computing each comparison to a boolean, then applying `or` to the two results: with `x` being `5`, the left comparison is `false` and the right is `true`, and `or` of `false` and `true` is `true`.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python title="Combining comparisons"
+```python title="combine.py"
 x = 5
 print(x == 1 or x == 5)
 print(x < 0 and x > 100)
@@ -76,7 +113,7 @@ print(not (x == 5))
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="Combining comparisons"
+```rust title="combine.rs"
 fn main() {
     let x = 5;
     println!("{}", x == 1 || x == 5);
@@ -93,7 +130,30 @@ Python spells the three logical operators as the words `and`, `or`, and `not`. R
 </Fragment>
 </WhatDiffers>
 
-Combining comparisons with a logical operator matters most when a condition genuinely needs more than one check. To ask whether a number `x` is between 1 and 10, you have to write both boundary comparisons out in full and join them with `and`/`&&`.
+The three lines print the same three booleans in both languages. The Python run spells them its way:
+
+```bash title="Run the Python program"
+python3 combine.py
+```
+
+```text frame="terminal" title="Output"
+True
+False
+False
+```
+
+```bash title="Compile and run the Rust program"
+rustc combine.rs
+./combine
+```
+
+```text frame="terminal" title="Output"
+true
+false
+false
+```
+
+Combining comparisons with a logical operator matters most when a condition genuinely needs more than one check. To ask whether a number `x` is between 1 and 10, you have to write both boundary comparisons out in full and join them with `and`/`&&`, so that the whole condition is `true` only when `x` clears both ends at once.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
@@ -112,17 +172,19 @@ fn main() {
 </TabItem>
 </Tabs>
 
+Both print `True`/`true`, since `5` is at least `1` and at most `10`, so each half is `true` and `and`/`&&` of two `true` values is `true`.
+
 It is tempting to write this the way mathematics would, as a single chained comparison, `1 <= x <= 10`. Python happens to accept this and evaluates it correctly, but Rust does not, which makes the chained form worth avoiding in either language: relying on it means your code stops working the moment you translate it from one to the other.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python title="A chained comparison"
+```python title="chained.py"
 x = 5
 print(1 <= x <= 10)
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="A chained comparison (will not compile)"
+```rust title="chained.rs (will not compile)"
 fn main() {
     let x = 5;
     println!("{}", 1 <= x <= 10);
@@ -133,19 +195,42 @@ fn main() {
 
 <WhatDiffers>
 <Fragment slot="differs">
-Python treats `1 <= x <= 10` as shorthand for checking both `1 <= x` and `x <= 10`, and correctly prints `True`. Rust's compiler rejects the identical line outright: `error: comparison operators cannot be chained`. Rust has no chained-comparison shorthand at all, so the two boundary checks must always be written out separately and joined with `&&`, exactly as the version above does.
+Python treats `1 <= x <= 10` as shorthand for checking both `1 <= x` and `x <= 10`, and correctly prints `True`. Rust's compiler rejects the identical line outright, with no chained-comparison shorthand at all, so the two boundary checks must always be written out separately and joined with `&&`, exactly as the version above does.
 </Fragment>
 </WhatDiffers>
 
+Python accepts the chained form and prints the same answer as the spelled-out range check:
+
+```bash title="Run the Python program"
+python3 chained.py
+```
+
+```text frame="terminal" title="Output"
+True
+```
+
+Rust's compiler refuses the identical line and builds nothing, naming the exact rule the chain breaks:
+
+```bash title="Compile the Rust program"
+rustc chained.rs
+```
+
+```text frame="terminal" title="Output"
+error: comparison operators cannot be chained
+ --> chained.rs:3:22
+```
+
 ### Short-Circuit Evaluation
 
-Both languages evaluate a logical operator's left operand first, and in some cases that is enough to know the final answer without ever looking at the right operand. **Short-circuit evaluation** is this behavior: an operator skips evaluating its right operand whenever the left operand alone already determines the result. `and`/`&&` short-circuits when its left operand is `false`, since a false left side already means the whole expression must be `false` no matter what the right side is. `or`/`||` short-circuits when its left operand is `true`, since a true left side already means the whole expression must be `true`.
+A logical operator does not always look at both of its operands. Both languages evaluate the left operand first, and for `and`/`&&` and `or`/`||` there are cases where that one boolean already fixes the answer, so the right operand is never evaluated at all. **Short-circuit evaluation** is this behavior: the operator computes its left operand, and if that value alone settles the result, it stops there and skips the right operand entirely.
 
-This is more than a performance detail: it means a right operand that would otherwise run is sometimes never run at all. You can see this directly by putting a function call, one that prints a message every time it runs, on the right side of a logical operator.
+Work through why each operator can stop early. `and`/`&&` is `true` only when both operands are `true`, so the instant its left operand comes out `false`, the whole expression is already `false` no matter what the right operand would be; there is nothing the right side could do to rescue it, so evaluating it would be wasted, and the operator skips it. `or`/`||` is the mirror image: it is `true` when at least one operand is `true`, so the instant its left operand comes out `true`, the whole expression is already `true` regardless of the right side, and again the right operand is skipped. The rule in one sentence: `and`/`&&` short-circuits on a `false` left operand, `or`/`||` short-circuits on a `true` left operand.
+
+This is more than a way to save a little work. Skipping the right operand means any effect that operand would have had never happens. You can see the skip directly by putting a function call on the right side, one that prints a message every single time it runs, and checking whether the message appears.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python title="Watching short-circuit evaluation happen"
+```python title="shortcircuit.py"
 def print_and_return_true():
     print("checked")
     return True
@@ -155,7 +240,7 @@ print(True or print_and_return_true())
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="Watching short-circuit evaluation happen"
+```rust title="shortcircuit.rs"
 fn print_and_return_true() -> bool {
     println!("checked");
     true
@@ -169,15 +254,42 @@ fn main() {
 </TabItem>
 </Tabs>
 
-Neither call to `print_and_return_true` ever prints `checked`: both languages print only `False`/`false` and then `True`/`true`, with no `checked` in between either line. The first line's left operand, `false`, already settles `and`/`&&` at `false`, so the function is never called. The second line's left operand, `true`, already settles `or`/`||` at `true`, so the function is never called there either. This behaves identically in both languages: short-circuiting is not a Python habit or a Rust habit, it is how `and`/`&&` and `or`/`||` are defined everywhere they appear.
+The word `checked` never appears. Trace the first line: its left operand is `false`, which already settles `and`/`&&` at `false`, so `print_and_return_true` on the right is never called, and its `print("checked")` never runs; the line prints only `False`. The second line's left operand is `true`, which already settles `or`/`||` at `true`, so the function on the right is skipped there too, and the line prints only `True`. If either right operand had actually run, a `checked` would sit between the two result lines; the run proves it does not.
+
+```bash title="Run the Python program"
+python3 shortcircuit.py
+```
+
+```text frame="terminal" title="Output"
+False
+True
+```
+
+```bash title="Compile and run the Rust program"
+rustc shortcircuit.rs
+./shortcircuit
+```
+
+```text frame="terminal" title="Output"
+false
+true
+```
+
+This behaves identically in both languages: short-circuiting is not a Python habit or a Rust habit, it is how `and`/`&&` and `or`/`||` are defined everywhere they appear.
+
+:::note[Short-circuiting can guard a risky right operand]
+Because the right operand runs only when the left one does not already settle the answer, you can deliberately put a check that must pass *first* on the left, and an operation that is only safe when it passes on the right. A condition written as "the count is above zero `and` the average is at least ten" evaluates the count check first; if the count is zero, the whole expression is already `false` and the average, which might be undefined when there is nothing to average, is never computed. Ordering the two operands so the guard sits on the left turns short-circuiting from a curiosity into a tool for not running an operation that would misbehave.
+:::
 
 ## The if/else Statement
 
-Booleans and the operators that produce them only answer a yes-or-no question; something still has to act on that answer. A **conditional** is a statement that runs one block of code when a condition is `true` and a different block when it is `false`. The `if`/`else` statement is the conditional both languages provide: `if` is followed by a condition and a block of code to run when that condition is `true`, and an optional `else` gives a second block to run when it is `false`.
+Booleans and the operators that produce them only answer a yes-or-no question; something still has to act on that answer. So far every program you have written runs each of its statements in order, top to bottom, with no statement ever skipped. A **conditional** breaks that straight line: it is a statement that runs one block of code when a condition is `true` and a different block when it is `false`, so which statements actually run now depends on a value computed while the program is running. The `if`/`else` statement is the conditional both languages provide: `if` is followed by a condition and a block of code to run when that condition is `true`, and an optional `else` gives a second block to run when it is `false`.
+
+The mechanism is exact, and it is worth being precise about, because it is the heart of every decision a program makes. When execution reaches an `if`, the program first evaluates the condition, reducing it all the way down to a single boolean, exactly as the earlier sections reduced comparisons and logical operators to one value. Then it looks at that one boolean and does exactly one of two things: if the boolean is `true`, it runs the `if` block and skips the `else` block entirely; if the boolean is `false`, it skips the `if` block entirely and runs the `else` block. One branch always runs and the other never does; they are never both run and, when an `else` is present, never both skipped. After whichever block runs finishes, the program continues with whatever comes after the whole `if`/`else`.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python title="Choosing between two paths"
+```python title="battery.py"
 battery_level = 15
 if battery_level < 20:
     print("Charge soon")
@@ -186,7 +298,7 @@ else:
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="Choosing between two paths"
+```rust title="battery.rs"
 fn main() {
     let battery_level = 15;
     if battery_level < 20 {
@@ -199,13 +311,32 @@ fn main() {
 </TabItem>
 </Tabs>
 
-Both print `Charge soon`, since `battery_level` is `15`, which is less than `20`. Change `battery_level` to `50` and both would print `Battery is fine` instead. The `else` block is optional in both languages: leaving it out simply means nothing runs when the condition is `false`, and the program moves on to whatever comes after the `if`. Rust's `if` and `else` blocks are ordinary `{ }` blocks, the same kind the [Scope and the Call Stack](/lectures/scope-and-the-call-stack) lecture introduced, so a variable created inside one of them exists only until that block ends.
+Trace it. `battery_level` holds `15`, so the condition `battery_level < 20` reduces to `true`; the program runs the `if` block, printing `Charge soon`, and skips the `else` block, so `Battery is fine` never prints. Change `battery_level` to `50` and the condition would reduce to `false` instead, the `if` block would be skipped, and only `Battery is fine` would print. Exactly one line of output either way.
+
+```bash title="Run the Python program"
+python3 battery.py
+```
+
+```text frame="terminal" title="Output"
+Charge soon
+```
+
+```bash title="Compile and run the Rust program"
+rustc battery.rs
+./battery
+```
+
+```text frame="terminal" title="Output"
+Charge soon
+```
+
+The `else` block is optional in both languages: leaving it out simply means nothing extra runs when the condition is `false`, and the program moves straight on to whatever comes after the `if`. Rust's `if` and `else` blocks are ordinary `{ }` blocks, the same kind the [Scope and the Call Stack](/lectures/scope-and-the-call-stack) lecture introduced, so a variable created inside one of them exists only until that block's closing brace, and cannot be read after the `if`/`else` ends.
 
 Writing a condition often means translating a plain-language rule into a boolean expression built from comparisons and logical operators. Suppose the rule is: a sensor reading counts as valid only when it falls between 0 and 100, inclusive on both ends. Turning that sentence into code means naming its two boundary checks and joining them with `and`/`&&`, exactly as the range check earlier in this lecture did, and then handing the whole expression to an `if`.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python title="Building a condition from a specification"
+```python title="valid.py"
 reading = 42
 valid = reading >= 0 and reading <= 100
 if valid:
@@ -215,7 +346,7 @@ else:
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="Building a condition from a specification"
+```rust title="valid.rs"
 fn main() {
     let reading = 42;
     let valid = reading >= 0 && reading <= 100;
@@ -229,20 +360,30 @@ fn main() {
 </TabItem>
 </Tabs>
 
-Storing the condition in a variable first, `valid`, is not required; the comparison could be written directly inside the `if` line instead. Naming it, though, often makes a condition easier to read, especially once it combines more than one comparison.
+With `reading` at `42`, both boundary checks are `true`, so `valid` holds `true`, and the `if` runs its first block:
 
-Rust and Python disagree on what an `if` is allowed to check at all. Rust requires the condition after `if` to already be a `bool`; any other type is rejected before the program runs. Python has no such restriction: it treats many non-boolean values as either truthy or falsy on their own, so a plain number can sit directly in an `if` without ever being compared to anything.
+```bash title="Run the Python program"
+python3 valid.py
+```
+
+```text frame="terminal" title="Output"
+valid reading
+```
+
+Storing the condition in a variable first, `valid`, is not required; the comparison could be written directly inside the `if` line instead. Naming it, though, often makes a condition easier to read, especially once it combines more than one comparison, and it lets the `if` line read almost like the plain-language rule it came from.
+
+Rust and Python disagree on what an `if` is allowed to check at all, and the disagreement is the static-versus-dynamic split from earlier in the course showing up again. Rust requires the condition after `if` to already be a `bool`; the compiler checks the condition's type while reading the file, and rejects any other type before the program runs. Python has no such compile-time check: it treats many non-boolean values as either truthy or falsy on their own, deciding at run time, so a plain number can sit directly in an `if` without ever being compared to anything. Python's rule is that `0` and the empty forms of a value (an empty string, for instance) count as falsy, and every other value counts as truthy.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python title="A non-boolean condition"
+```python title="truthy.py"
 count = 5
 if count:
     print("there are items")
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="A non-boolean condition (will not compile)"
+```rust title="truthy.rs (will not compile)"
 fn main() {
     let count = 5;
     if count {
@@ -255,40 +396,88 @@ fn main() {
 
 <WhatDiffers>
 <Fragment slot="differs">
-Python's `if count:` runs without a single comparison anywhere: it treats `count` as truthy because it is a nonzero number, and prints `there are items`. Python treats `0` as falsy and every other number as truthy, and it extends the same idea to other types as well, treating an empty string or an empty collection as falsy. Rust's compiler rejects the identical line: `error[E0308]: mismatched types, expected bool, found integer`. Rust never treats a number as standing in for `true` or `false`; the condition must already be a `bool`, which usually means writing an explicit comparison such as `count > 0`.
+Python's `if count:` runs without a single comparison anywhere: it treats `count` as truthy because it is a nonzero number, and prints `there are items`. Python treats `0` as falsy and every other number as truthy, and it extends the same idea to other types as well, treating an empty string or an empty collection as falsy. Rust's compiler rejects the identical line, reporting error `E0308`, mismatched types, because it never treats a number as standing in for `true` or `false`; the condition must already be a `bool`, which usually means writing an explicit comparison such as `count > 0`.
 </Fragment>
 </WhatDiffers>
 
+Python applies its truthiness rule at run time and prints the line, since `5` is a nonzero number:
+
+```bash title="Run the Python program"
+python3 truthy.py
+```
+
+```text frame="terminal" title="Output"
+there are items
+```
+
+Rust never gets that far. The compiler sees a non-`bool` where a condition must be a `bool` and refuses to build the program:
+
+```bash title="Compile the Rust program"
+rustc truthy.rs
+```
+
+```text frame="terminal" title="Output"
+error[E0308]: mismatched types
+ --> truthy.rs:3:8
+```
+
 ## Comparing Floats with a Tolerance
 
-Comparison operators work the same on floats as on any other value, with one exception that catches nearly every programmer at least once. The [Data Representation and Memory](/lectures/data-representation) lecture explained that a computer stores a float as an approximation rather than an exact value, and the [Expressions and Operators](/lectures/expressions-and-operators) lecture showed that doing arithmetic on floats can shift a result by a tiny amount away from the mathematically exact answer. Put those two facts together, and comparing two computed floats with `==` becomes unreliable: two values that are mathematically equal can come out of a calculation differing by a sliver too small to matter for any practical purpose, yet still large enough to make `==` report `false`.
+Comparison operators work the same on floats as on any other value, with one exception that catches nearly every programmer at least once. The [Data Representation and Memory](/lectures/data-representation) lecture explained that a computer stores a float as an approximation rather than an exact value, because a fixed pattern of bits cannot record most decimal fractions exactly. The [Expressions and Operators](/lectures/expressions-and-operators) lecture then showed that doing arithmetic on floats can shift a result by a tiny amount away from the mathematically exact answer, since each stored operand is already slightly off and the operation carries that error into its result. Put those two facts together, and comparing two computed floats with `==` becomes unreliable: two values that are mathematically equal can come out of a calculation differing by a sliver too small to matter for any practical purpose, yet still large enough to make `==` report `false`.
+
+The classic case is `0.1 + 0.2` against `0.3`. Neither `0.1`, `0.2`, nor `0.3` can be stored exactly, so each is kept as the nearest float the bits can represent. Adding the stored `0.1` to the stored `0.2` produces a result whose own nearest-float value is not the same as the nearest-float value stored for `0.3`: the sum lands at `0.30000000000000004`, a hair above `0.3`. That trailing `...04` is the accumulated approximation error made visible.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python title="Floats that should be equal, and are not"
+```python title="floatequal.py"
 a = 0.1 + 0.2
 b = 0.3
 print(a == b)
+print(a)
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="Floats that should be equal, and are not"
+```rust title="floatequal.rs"
 fn main() {
     let a: f64 = 0.1 + 0.2;
     let b: f64 = 0.3;
     println!("{}", a == b);
+    println!("{}", a);
 }
 ```
 </TabItem>
 </Tabs>
 
-Both print `False`/`false`. Mathematically, `0.1 + 0.2` is exactly `0.3`, but the float stored in `a` and the float stored in `b` differ by an amount far too small to see in ordinary output, and `==` treats any difference at all, no matter how small, as not equal.
+The comparison prints `False`/`false`, and printing `a` on the next line shows exactly why: the stored sum is `0.30000000000000004`, not `0.3`, and `==` treats any difference at all, no matter how small, as not equal.
 
-The fix is to stop asking whether two floats are exactly equal and instead ask whether they are close enough. A **floating-point tolerance** is a small margin you decide on ahead of time; if the difference between two floats falls within that margin, you treat them as equal for your purposes. A tolerance of `0.000000001` (written `1e-9`) is far smaller than any error ordinary arithmetic accumulates, yet large enough to absorb it.
+```bash title="Run the Python program"
+python3 floatequal.py
+```
+
+```text frame="terminal" title="Output"
+False
+0.30000000000000004
+```
+
+```bash title="Compile and run the Rust program"
+rustc floatequal.rs
+./floatequal
+```
+
+```text frame="terminal" title="Output"
+false
+0.30000000000000004
+```
+
+:::note[The trap is `==`, not floats]
+It is easy to walk away from this thinking floats are broken or untrustworthy. They are not: the stored value `0.30000000000000004` is the correct nearest float to the true sum, and for any real measurement it is more than accurate enough. What breaks is the specific act of testing two computed floats for *exact* equality with `==`, because `==` demands they agree in every last bit, and approximation makes that last bit unreliable. The floats are fine; asking them the wrong question is the mistake.
+:::
+
+The fix is to stop asking whether two floats are exactly equal and instead ask whether they are close enough. A **floating-point tolerance** is a small margin you decide on ahead of time; if the difference between two floats falls within that margin, you treat them as equal for your purposes. A tolerance of `0.000000001` (written `1e-9`) is far smaller than any error ordinary arithmetic accumulates, yet large enough to absorb it. In practice you compute the difference of the two floats and check that it sits within that margin of zero.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python title="Comparing floats with a tolerance"
+```python title="tolerance.py"
 a = 0.1 + 0.2
 b = 0.3
 difference = a - b
@@ -296,7 +485,7 @@ print(difference < 1e-9 and difference > -1e-9)
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="Comparing floats with a tolerance"
+```rust title="tolerance.rs"
 fn main() {
     let a: f64 = 0.1 + 0.2;
     let b: f64 = 0.3;
@@ -307,7 +496,26 @@ fn main() {
 </TabItem>
 </Tabs>
 
-Both print `True`/`true`. The tolerance check keeps `difference` on either side of zero in view, since a computed float can land slightly above or slightly below the value it was supposed to match; requiring it to sit strictly between `-1e-9` and `1e-9` accepts both directions of error while still rejecting a difference large enough to mean something. Whenever a condition depends on comparing floats that came out of a calculation rather than being written directly as literals, reach for a tolerance instead of `==`.
+Both print `True`/`true`. The `difference` here is a minuscule positive number, roughly `0.00000000000000006`, far smaller than the `1e-9` margin, so both halves of the check hold and the whole condition is `true`.
+
+```bash title="Run the Python program"
+python3 tolerance.py
+```
+
+```text frame="terminal" title="Output"
+True
+```
+
+```bash title="Compile and run the Rust program"
+rustc tolerance.rs
+./tolerance
+```
+
+```text frame="terminal" title="Output"
+true
+```
+
+The check compares `difference` against both `1e-9` and `-1e-9` on purpose, because a computed float can land slightly above or slightly below the value it was supposed to match. Requiring `difference` to sit strictly between `-1e-9` and `1e-9` accepts an error in either direction while still rejecting a difference large enough to mean something real. Whenever a condition depends on comparing floats that came out of a calculation rather than being written directly as literals, reach for a tolerance instead of `==`.
 
 ## Takeaways
 
