@@ -13,7 +13,7 @@ import WhatDiffers from '/src/components/WhatDiffers.astro';
 type: lecture
 slug: expressions-and-operators
 order: 3
-covers: expressions; arithmetic operators and precedence; integer vs float division; truncation; implicit coercion; mixed-type expressions; evaluating expressions by hand
+covers: expressions and step-by-step evaluation; operators and precedence; integer vs float division; truncation vs floor; implicit coercion; mixed-type expressions; evaluating by hand
 prereq_lectures: data-representation
 followup_lectures: variables-and-state
 glossary_terms: expression, operator, operator precedence, integer division, implicit coercion
@@ -27,19 +27,23 @@ Division is only the sharpest example of a bigger question. The moment a program
 
 ## Expressions
 
-An **expression** is a piece of code that produces a value when the computer runs it. The simplest possible expression is a literal on its own, the kind of value the [Data Representation and Memory](/lectures/data-representation) lecture introduced: the code `7` is already an expression, and running it produces the value 7. You can also build a larger expression out of smaller ones by combining values with operators, symbols such as `+` that take one or more values and produce a new one; the next section looks closely at operators. For now, know only this: combining values always builds a bigger expression, and every expression evaluates to a value, never to anything else.
+An **expression** is a piece of code that produces a value when the computer runs it. The simplest possible expression is a literal on its own, the kind of value the [Data Representation and Memory](/lectures/data-representation) lecture introduced: the code `7` is already an expression, and running it produces the value 7. You build a larger expression out of smaller ones by joining values with operators, symbols such as `+` that take one or more values and produce a new one; the next section looks closely at operators. For now, hold on to one fact that everything else in this lecture rests on: every expression evaluates to a single value, never to anything else, and a bigger expression is made only by combining smaller ones.
 
-Printing a value, which you saw in the previous lecture, works by first evaluating an expression down to a single value, then displaying that value in the terminal. Every example in this lecture follows that same pattern: write an expression, then print what it evaluates to.
+The word "evaluate" names a definite mechanism, not a vague act of the computer figuring out an answer. **Evaluation** is reduction by replacement: the computer finds a sub-expression it can compute, computes it, replaces that sub-expression with its single resulting value, and repeats, shrinking the expression one step at a time until nothing is left but one value. Each step turns a longer expression into a shorter one that stands for the exact same value, the way simplifying an arithmetic problem on paper turns `2 + 3 + 4` into `5 + 4` into `9`, each line equal to the last. When only a single value remains, evaluation is finished, and that value is what the whole expression produced.
+
+Trace a small one all the way down. The expression `3 + 4` has two literals and one operator. The computer already has both values it needs, 3 and 4, so it applies `+` to them, computes 7, and replaces the whole expression `3 + 4` with the single value `7`. One step, and the expression is reduced to one value. A literal like `7` on its own is the end state of that process before it even begins: there is nothing left to reduce, so evaluating `7` produces `7` immediately.
+
+Printing a value, which you saw in the previous lecture, is what happens after this reduction finishes: the computer first evaluates the expression inside the print all the way down to a single value, and only then displays that one value in the terminal. Every example in this lecture follows that pattern: write an expression, let it reduce to a value, and print what remains.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python title="A literal expression and a combined expression"
+```python title="combine.py"
 print(7)
 print(3 + 4)
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="A literal expression and a combined expression"
+```rust title="combine.rs"
 fn main() {
     println!("{}", 7);
     println!("{}", 3 + 4);
@@ -48,29 +52,64 @@ fn main() {
 </TabItem>
 </Tabs>
 
+Running either version prints each expression's final value, the literal `7` unchanged and the combined `3 + 4` reduced to `7`:
+
+```bash title="Run the Python program"
+python3 combine.py
+```
+
+```text frame="terminal" title="Output"
+7
+7
+```
+
 ## Operators and Operator Precedence
 
-A single value on its own is not very useful; programs become powerful once values can be combined into new ones.
+A single value on its own is not very useful; a program earns its power from combining values into new ones, and the operator is the tool that does the combining while the reduction from the previous section carries it out.
 
 ### Operators
 
-An **operator** is a symbol that combines one or more values to produce a new value. The familiar arithmetic operators, `+`, `-`, `*`, and `/`, take two number values and produce a new number: `3 + 4` is an expression built from the operator `+` and the two values 3 and 4, and it evaluates to the value 7.
+An **operator** is a symbol that combines one or more values to produce a new value. The familiar arithmetic operators, `+`, `-`, `*`, and `/`, each take two number values, called its operands, and produce a new number. In `3 + 4`, the operator is `+` and its two operands are the values 3 and 4; applying the operator to those operands is the single reduction step that replaces `3 + 4` with `7`. An operator is what a reduction step actually performs: it consumes the values on either side of it and hands back one value in their place.
 
 ### Operator Precedence
 
-When an expression contains more than one operator, the computer needs a rule for which operation happens first. **Operator precedence** is the set of rules a language uses to decide that order. Both Python and Rust use the same order you likely already learned for ordinary arithmetic: multiplication and division happen before addition and subtraction, and parentheses around part of an expression force that part to be evaluated first, overriding the usual order. Take `3 + 4 * 2`: multiplication happens first, so `4 * 2` is 8, then `3 + 8` is 11, in both languages. Wrapping `3 + 4` in parentheses instead forces that addition to happen first, so `(3 + 4) * 2` becomes `7 * 2`, which is 14, again in both languages.
+The moment an expression holds more than one operator, reduction faces a choice, because the operators sit next to each other and only one can go first. Look at `3 + 4 * 2`. The `4` is an operand of both the `+` on its left and the `*` on its right, so the computer could reduce `3 + 4` first, or reduce `4 * 2` first, and the two orders give different answers: `7 * 2` is 14, but `3 + 8` is 11. An expression that could mean either 14 or 11 is useless, so a language cannot leave the order to chance.
+
+**Operator precedence** is the set of rules a language uses to decide that order, and its entire purpose is to guarantee that every expression reduces to exactly one value, with no ambiguity about which. Both Python and Rust use the same precedence you already learned for ordinary arithmetic: multiplication and division are done before addition and subtraction. Precedence does not change what an operator does; it only fixes which reduction step happens first when several are possible.
+
+Walk `3 + 4 * 2` through its full reduction under that rule. Precedence says `*` outranks `+`, so the first step reduces `4 * 2`, replacing it with 8 and leaving `3 + 8`. Now only one operator remains, so the second step reduces `3 + 8` to `11`, and reduction is finished:
+
+```text title="Reducing 3 + 4 * 2"
+3 + 4 * 2
+3 + 8        (4 * 2 reduced first, because * outranks +)
+11           (3 + 8 reduced last)
+```
+
+Parentheses give you a way to override the default order: a language always reduces the contents of a pair of parentheses before treating the result as a single operand of whatever surrounds it. Wrapping the addition in parentheses, `(3 + 4) * 2`, forces that addition to reduce first, which flips the order of the two steps:
+
+```text title="Reducing (3 + 4) * 2"
+(3 + 4) * 2
+7 * 2        (3 + 4 inside the parentheses reduced first)
+14           (7 * 2 reduced last)
+```
+
+The two expressions differ by nothing but a pair of parentheses, yet they reduce to 11 and 14 because the parentheses change which step comes first. Both reductions run identically in Python and Rust, since the two languages share this precedence.
+
+:::note[When two operators have equal precedence]
+Precedence settles `*` against `+`, but not two operators of the same rank sitting side by side, such as the two divisions in `100 / 5 / 2`. That tie is broken by **associativity**: the arithmetic operators here are left-associative, meaning equal-precedence operators reduce left to right. So `100 / 5 / 2` reduces `100 / 5` first, to 20, then `20 / 2`, to 10, and not `100 / (5 / 2)`. Left-to-right is why `10 / 4 * 2` reduces as `(10 / 4) * 2`, a detail that matters once division can truncate, as the next section shows.
+:::
 
 This course tracks exactly which pieces of each language are available at each point in the term; the current list lives on the [language ladder](/reference/language-ladder) page, and this lecture stays within its first entry.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python title="Order of operations, with and without parentheses"
+```python title="order.py"
 print(3 + 4 * 2)
 print((3 + 4) * 2)
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="Order of operations, with and without parentheses"
+```rust title="order.rs"
 fn main() {
     println!("{}", 3 + 4 * 2);
     println!("{}", (3 + 4) * 2);
@@ -79,23 +118,44 @@ fn main() {
 </TabItem>
 </Tabs>
 
+Running either version prints the two final values the reductions above worked out by hand:
+
+```bash title="Run the Python program"
+python3 order.py
+```
+
+```text frame="terminal" title="Output"
+11
+14
+```
+
 ## Integer Versus Float Division
 
-Division deserves its own closer look, because it is the one arithmetic operator whose exact answer often cannot be represented as a whole number. Dividing two whole numbers raises a question that addition, subtraction, and multiplication do not: what happens when the exact answer is not itself a whole number? **Integer division** is division between two whole numbers that produces a whole-number result instead of the exact, possibly fractional, answer. Every language that performs integer division has to pick its own rule for which whole number to produce, and Python and Rust pick different rules.
+Division deserves its own closer look, because it is the one arithmetic operator whose exact answer often cannot be represented as a whole number. Add, subtract, or multiply two whole numbers and the result is always another whole number; divide them and the exact answer, like `7 / 2` being `3.5`, may have a fractional part with nowhere to go. **Integer division** is division between two whole numbers that produces a whole-number result instead of the exact, possibly fractional, answer.
 
-Python's `/` operator always produces a float, even when both values are whole numbers; it is built to give the exact answer every time. Python has a separate operator, `//`, for integer division: it divides, then rounds down to the whole number below the exact answer.
+To see why integer division must discard something, connect it back to the [Data Representation and Memory](/lectures/data-representation) lecture. There you saw that an integer is stored in a fixed pattern of bits that represents a whole number and has no place to record a fractional part: an `i32` holds `3` or `4`, but there is simply no `i32` pattern for `3.5`. So if both operands of a division are integers and the result must also be an integer, the exact answer `3.5` cannot be what comes back; the fractional `.5` has no representation to live in and must be dropped. Integer division is not division done carelessly. It is division whose answer is forced into the integer type, and forcing a possibly-fractional number into an integer means throwing the fraction away. What is left is a genuine choice, because dropping the fraction of a number like `3.5` could reasonably land on either `3` or `4`, and every language that does integer division has to fix which. Python and Rust fix it differently.
 
-Rust takes the opposite default. Its `/` operator performs integer division automatically whenever both values are whole numbers, and it does so by **truncation**: throwing away the fractional part of the exact answer and keeping only the whole-number part that is left, without rounding further up or down. To get the exact, possibly fractional, answer in Rust, at least one of the two values must already be a float, a type the [Data Representation and Memory](/lectures/data-representation) lecture covered. In neither language is discarding a fractional part a bug: it is a direct consequence of asking for a whole-number answer to a question that does not always have one.
+Python keeps the two jobs on two separate operators, so you say which you want. Python's `/` operator always produces a float, even when both operands are whole numbers, so it never has to discard anything: `7 / 2` is the exact `3.5`. For integer division Python gives you a second operator, `//`, which computes the exact answer and then takes the **floor**: the largest whole number that is less than or equal to it. For `7 // 2` the exact answer is `3.5` and the largest whole number not exceeding it is `3`.
+
+Rust folds the choice into the operand types instead. Its `/` operator looks at what it is dividing: give it two whole numbers and it performs integer division automatically, and it does so by **truncation**, throwing away the fractional part of the exact answer and keeping only the whole-number part already there, without moving up or down at all. For `7 / 2` truncation drops the `.5` from `3.5` and keeps `3`. To get the exact fractional answer in Rust, at least one operand must already be a float, so `7.0 / 2.0` gives `3.5`. This is the no-implicit-coercion rule the next section examines, seen through division: the operand types, not a second operator, decide which kind of division you get.
+
+For `7 / 2`, floor and truncate agree: both give `3`, which is why the two rules look interchangeable at first. They are not. They only ever disagree when the exact answer is negative, and that is the subtle case worth working through by hand.
+
+Take `-7` divided by `2`. The exact answer is `-3.5`, sitting on the number line between the whole numbers `-4` and `-3`. Rust's `/` truncates toward zero: it keeps the whole-number part `-3` and discards the `.5`, moving the result closer to zero, so `-7 / 2` is `-3`. Python's `//` floors toward negative infinity: it takes the largest whole number that is still less than or equal to `-3.5`, and since `-3` is greater than `-3.5`, the floor must step down to `-4`, so `-7 // 2` is `-4`. Same exact answer of `-3.5`, two different whole numbers, because truncation moves toward zero and flooring moves toward negative infinity, and for a negative number those are opposite directions. For a positive number like `+3.5` both directions land on `3`, which is exactly why the difference stays hidden until a negative value exposes it.
+
+:::note[Modulo is the remainder that matches the division]
+Integer division has a partner operator, `%`, called modulo, which gives the remainder left over after the division, and it exists because the two together let you recover the original number: the quotient times the divisor plus the remainder equals what you started with. That identity is what forces each language's `%` to follow its own division rule. Python floors, so Python pairs it with a remainder that keeps the identity true, making `-7 % 2` equal to `1`; Rust truncates, so its matching remainder makes `-7 % 2` equal to `-1`. You do not need modulo yet, and this lecture builds no example on it; note only that its behavior on negatives is inherited straight from floor-versus-truncate, not a separate rule to memorize.
+:::
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python title="Float division versus integer division"
+```python title="divide.py"
 print(7 / 2)
 print(7 // 2)
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="Float division versus integer division"
+```rust title="divide.rs"
 fn main() {
     println!("{}", 7 / 2);
     println!("{}", 7.0 / 2.0);
@@ -106,15 +166,38 @@ fn main() {
 
 <WhatDiffers>
 <Fragment slot="differs">
-Python's plain `/` always gives the exact answer as a float: `7 / 2` is `3.5`. Its second operator, `//`, gives the whole-number version: `7 // 2` is `3`. Rust's plain `/` between two whole-number literals behaves like Python's `//` for positive numbers: `7 / 2` gives the whole number `3`, and the exact answer `3.5` needs both values written as floats, `7.0 / 2.0`. One difference is easy to miss: for negative numbers, Python's `//` always rounds down, toward negative infinity, so `-7 // 2` gives `-4`; Rust's integer `/` always truncates toward zero instead, so `-7 / 2` gives `-3`, discarding the fractional `-0.5` rather than rounding past it.
+Python's plain `/` always gives the exact answer as a float, so `7 / 2` is `3.5`, and its separate `//` operator floors to a whole number, so `7 // 2` is `3`. Rust's plain `/` between two whole-number literals is already integer division, so `7 / 2` is the whole number `3`, and the exact `3.5` needs both operands written as floats, `7.0 / 2.0`. The rules diverge on negatives: Python's `//` floors toward negative infinity, so `-7 // 2` is `-4`, while Rust's `/` truncates toward zero, so `-7 / 2` is `-3`.
 </Fragment>
 </WhatDiffers>
 
-It is easy to write Python's `/` when you actually want a whole-number answer:
+Running the two programs prints the values just traced, and the outputs differ because the two languages answer `7 / 2` differently. Python gives the exact float and then the floored whole number:
+
+```bash title="Run the Python program"
+python3 divide.py
+```
+
+```text frame="terminal" title="Output"
+3.5
+3
+```
+
+Rust gives the truncated whole number from the integer division, then the exact float once both operands are floats:
+
+```bash title="Compile and run the Rust program"
+rustc divide.rs
+./divide
+```
+
+```text frame="terminal" title="Output"
+3
+3.5
+```
+
+The gap between `/` and `//` is easy to fall into in Python, where writing `/` out of habit when you wanted a whole number silently gives you a float instead:
 
 ```python title="Division: / versus //"
 print(9 / 4)   # 2.25, not 2: Python's / always gives a float
-print(9 // 4)  # 2: // is the whole-number division you probably meant
+print(9 // 4)  # 2: // floors to the whole-number division you probably meant
 ```
 
 ## Mixed-Type Expressions and Implicit Coercion
@@ -123,20 +206,22 @@ An expression does not have to combine values of the same type, and what happens
 
 ### Mixed-Type Expressions
 
-Python freely combines a whole number and a decimal number in the same expression, deciding on the fly what type the answer should have. Rust requires every value in an expression to already share the same type, so combining a whole-number literal with a decimal literal has to be fixed before a Rust program compiles at all. This difference is a direct consequence of the static-versus-dynamic split covered in the [Data Representation and Memory](/lectures/data-representation) lecture: Rust checks that every type is used consistently before your program takes a single step, so a mismatched pair of types cannot even reach the point of running, while Python only checks a line's types once that line actually runs.
+An operator like `+` needs both of its operands to be the same kind of value before it can combine them, because adding two whole numbers and adding two floats are physically different operations on differently stored bits. So an expression that mixes a whole number and a decimal number, such as `3 + 2.5`, poses a problem: the two operands are not the same type, and something has to happen before `+` can reduce them to one value. Python and Rust take opposite paths at exactly this point, and the split is the static-versus-dynamic timing difference from the [Data Representation and Memory](/lectures/data-representation) lecture showing up in arithmetic. Python decides on the fly, as the line runs, what to do about the mismatch. Rust settles every type before the program takes a single step, so a mismatched pair of operands cannot even reach the moment of running.
 
 ### Implicit Coercion
 
-**Implicit coercion** is when a language automatically converts a value from one type to another so that an operation can proceed, without you writing any conversion yourself. Python's `+` coerces a whole number into a float automatically whenever the other value in the expression is already a float: running `3 + 2.5` treats the 3 as `3.0` behind the scenes, producing the float `5.5`. Rust never coerces a value's type automatically. If you want to add a whole number and a decimal number in Rust, you have to write both values with the same type yourself; there is no automatic conversion waiting to rescue a mismatched expression.
+**Implicit coercion** is a language automatically converting a value from one type to another so that an operation can proceed, without you writing any conversion yourself. Python resolves a mixed-type `3 + 2.5` by coercing: when its `+` sees one integer operand and one float operand, it first converts the integer to the matching float, turning the `3` into `3.0`, so that both operands are now floats, and only then adds the two floats to get `5.5`. The reduction really has an extra hidden step in it, `3 + 2.5` becoming `3.0 + 2.5` becoming `5.5`, and Python always coerces toward the more precise type, promoting the whole number to a float rather than chopping the float down to a whole number, so that no information is lost in the conversion.
+
+Rust never performs this coercion. Its compiler checks that both operands of `+` already share one type, and if they do not, it does not convert anything to patch the mismatch; it reports a type error and refuses to build the program. Adding a whole number and a decimal number in Rust means writing both operands as the same type yourself, for instance making the integer a float, `3.0 + 2.5`. There is no automatic promotion waiting to rescue `3 + 2.5`, so the identical expression that Python quietly resolves is one Rust will not compile.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python title="Adding a whole number and a decimal number"
+```python title="mix.py"
 print(3 + 2.5)
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="Adding a whole number and a decimal number (will not compile)"
+```rust title="mix.rs (will not compile)"
 fn main() {
     println!("{}", 3 + 2.5); // error: cannot add a float to an integer (Rust will not compile this)
 }
@@ -150,22 +235,63 @@ Python coerces the whole number `3` into the float `3.0` the moment the line run
 </Fragment>
 </WhatDiffers>
 
-The compiler rejects that line before your program runs at all. Python's implicit coercion hides a type mismatch by quietly resolving it; Rust's refusal to coerce turns the same mismatch into a compile error you see immediately, before the program ever takes its first step.
+Run the Python file and the coercion happens silently, leaving only the final float on the screen:
+
+```bash title="Run the Python program"
+python3 mix.py
+```
+
+```text frame="terminal" title="Output"
+5.5
+```
+
+Compile the Rust file and there is no program to run, only the compiler naming the mismatched types it refused to combine:
+
+```bash title="Compile the Rust program"
+rustc mix.rs
+```
+
+```text frame="terminal" title="Output"
+error[E0277]: cannot add a float to an integer
+ --> mix.rs:2:22
+```
+
+Python's implicit coercion hides a type mismatch by quietly resolving it, at the cost that the extra conversion is invisible in the code you wrote; Rust's refusal to coerce turns the same mismatch into a compile error you see immediately, before the program ever takes its first step.
 
 ## Evaluating Expressions by Hand
 
-Reading an expression and working out its value in your head, or on paper, without running any code, is a skill worth building deliberately. It lets you predict what a program will do before you run it, catch a mistake in your own reasoning before it becomes a bug, and check a program's output against what you expected. Evaluating by hand means applying the same two rules from this lecture, in order: operator precedence decides which operation happens first, and each language's own division rule decides what kind of answer a division produces.
+Reading an expression and working out its value on paper, without running any code, is a skill worth building deliberately. It lets you predict what a program will do before you run it, catch a mistake in your reasoning before it becomes a bug, and check a program's actual output against what you expected. Doing it is nothing more than carrying out the reduction from the start of this lecture by hand, one step at a time, using precedence to choose each step and each language's own division rule to compute it.
 
-Take the expression `10 / 4 + 3 * 2`. Operator precedence says the multiplication and the division both happen before the addition, so you work out `10 / 4` and `3 * 2` first, then add the results. In Rust, `10 / 4` divides two whole numbers, so it truncates, giving `2`; `3 * 2` is `6`; adding them gives `8`. In Python, the same `10 / 4` is Python's float-producing division, so it gives `2.5`; `3 * 2` is still `6`; adding them gives `8.5`. The two languages read the exact same expression and, because of their different division rules, land on two different final values.
+Take `10 / 4 + 3 * 2`, and reduce it the way each language would. Precedence puts `/` and `*` ahead of `+`, and left-associativity puts the leftmost of the two equal-ranked operators, the `/`, first, so the order of steps is: reduce `10 / 4`, then reduce `3 * 2`, then add the two results. Every step is identical between the languages except the very first, `10 / 4`, and that one step is where their division rules split the final answer.
+
+In Python, `/` is float division, so `10 / 4` reduces to the exact `2.5`, `3 * 2` reduces to `6`, and `2.5 + 6` reduces to `8.5`:
+
+```text title="Reducing 10 / 4 + 3 * 2 in Python"
+10 / 4 + 3 * 2
+2.5 + 3 * 2      (10 / 4 is float division: 2.5)
+2.5 + 6          (3 * 2 is 6)
+8.5              (2.5 + 6)
+```
+
+In Rust, the same `10 / 4` divides two whole-number literals, so it is integer division and truncates `2.5` to `2`; `3 * 2` is still `6`, and `2 + 6` reduces to `8`:
+
+```text title="Reducing 10 / 4 + 3 * 2 in Rust"
+10 / 4 + 3 * 2
+2 + 3 * 2        (10 / 4 is integer division: truncates 2.5 to 2)
+2 + 6            (3 * 2 is 6)
+8                (2 + 6)
+```
+
+The two reductions run the same steps in the same order over the same-looking expression, yet one lands on `8.5` and the other on `8`, entirely because that first division means something different in each language. That is the whole lecture in one expression: same operators, same precedence, same reduction, and a final value that still depends on which language's rules you applied.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python title="Evaluating 10 / 4 + 3 * 2 by hand"
+```python title="byhand.py"
 print(10 / 4 + 3 * 2)
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="Evaluating 10 / 4 + 3 * 2 by hand"
+```rust title="byhand.rs"
 fn main() {
     println!("{}", 10 / 4 + 3 * 2);
 }
@@ -179,9 +305,30 @@ Written out, the two expressions look identical. Python evaluates `10 / 4` as fl
 </Fragment>
 </WhatDiffers>
 
+Running each confirms the hand reductions, and confirms that the two agree on every step but the division. Python prints the float result:
+
+```bash title="Run the Python program"
+python3 byhand.py
+```
+
+```text frame="terminal" title="Output"
+8.5
+```
+
+Rust prints the truncated result:
+
+```bash title="Compile and run the Rust program"
+rustc byhand.rs
+./byhand
+```
+
+```text frame="terminal" title="Output"
+8
+```
+
 ## Takeaways
 
-An expression is any piece of code, from a single literal to a combination built with operators, that evaluates down to one value; every operator you have seen in this lecture takes one or more values and produces a new one. Operator precedence gives both languages the same order of operations you already know from arithmetic, so an expression with more than one operator evaluates the same way in either language, once you know each language's own rule for what dividing two whole numbers produces. That rule is where Python and Rust genuinely part ways: Python's `/` always gives the exact, possibly fractional, answer, while Rust's `/` truncates whenever both values are whole numbers, discarding the fractional part instead of rounding toward it. Mixed-type expressions expose the same static-versus-dynamic split the Data Representation and Memory lecture introduced: Python's implicit coercion quietly converts a whole number into a float so an expression like `3 + 2.5` can run, while Rust never coerces, and rejects the same mismatch before your program takes a single step. Practicing hand evaluation, working out an expression's value before running it, turns all of these rules into a skill you can use to predict, and later debug, real programs. The next lecture builds directly on this one: it looks at how to give a value a name, so that it can be reused and changed instead of rewritten every time it is needed.
+An expression is any piece of code, from a single literal to a combination built with operators, that a language evaluates by reduction: it computes one sub-expression, replaces it with its value, and repeats until a single value remains. Operator precedence exists so that reduction has exactly one order to follow and every expression therefore has one unambiguous value; both languages use the same precedence you already know from arithmetic, with parentheses forcing an inner reduction first. The order of the steps is shared, but the value each step produces is not always, because dividing two whole numbers forces a fractional answer into an integer, and each language picks a different rule for which whole number survives. Python keeps float division on `/` and gives you `//` to floor toward negative infinity, while Rust makes `/` truncate toward zero whenever both operands are whole numbers; the two rules agree on positive results and split only on negatives, which is why `-7 // 2` is `-4` in Python but `-7 / 2` is `-3` in Rust. Mixed-type expressions expose the same static-versus-dynamic split the Data Representation and Memory lecture introduced: Python resolves `3 + 2.5` by implicitly coercing the `3` to `3.0` as the line runs, adding a hidden step to the reduction, while Rust coerces nothing and rejects the mismatched types before your program takes a single step. Carrying a reduction out by hand, choosing each step by precedence and computing it by the right division rule, turns all of these into a skill you can use to predict a program's output and to debug it when the output is not what you expected. The next lecture builds directly on this one: it looks at how to give a value a name, so that it can be reused and changed instead of rewritten every time it is needed.
 
 ## Resources
 
