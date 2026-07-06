@@ -13,7 +13,7 @@ import WhatDiffers from '/src/components/WhatDiffers.astro';
 type: lecture
 slug: testing
 order: 10
-covers: test cases derived from a specification, not from code; typical, boundary, and error/unusual cases; assert and assert!/assert_eq!; failing assertions (AssertionError vs panic); test functions; float results need a tolerance, not ==
+covers: test cases derived from a specification not the code; typical, boundary, and error cases; assert and assert!/assert_eq!; failing assertions; test functions; float results need a tolerance, not ==
 prereq_lectures: errors-input-and-validation
 followup_lectures: loops
 glossary_terms: test case, assertion, boundary case, test function
@@ -21,7 +21,7 @@ glossary_terms: test case, assertion, boundary case, test function
 
 <LanguageVersions />
 
-You can write a function, run it once with some input you picked, and look at what came back. If it looks right, it is tempting to move on. But a function that gives the right answer for the one input you happened to try can still be wrong for every other input it will ever receive. Running a function once and eyeballing the result tells you the function worked for that one case; it tells you nothing about the cases you did not try, and those are exactly the cases that turn up later, usually when you have already moved on to something else and least expect a bug to appear.
+You can write a function, run it once with an input you chose yourself, and look at what comes back. If it looks right, moving on is tempting. But a function that returns the right answer for the one input you happened to try can still be wrong for every other input it will ever receive. A single run exercises a single path through the function: the one comparison your input landed on, the one branch it took. Every other input, and every other branch, stays untested, and a mistake you never triggered is still sitting there, waiting. Running a function once and reading the result by eye tells you the function worked for that one case and nothing more, and the cases you skipped are exactly the ones that surface later, usually after you have moved on and stopped expecting a bug at all.
 
 ## Test Cases
 
@@ -60,9 +60,11 @@ From that specification alone, before reading a single line of the function's bo
 
 ## Deriving Test Cases from a Specification
 
-A test case has to come from the specification, not from the code you are testing. If you read the function's body first and then write test cases that match whatever the code already does, a mistake in the code simply gets copied into the test, and the test passes even though the function is wrong. Testing only proves something when the expected output is decided independently of the implementation, from the plain-language description of what the function is supposed to do.
+A test case has to come from the specification, not from the code you are testing. This is the single discipline that decides whether a passing test means anything at all. If you read the function's body first and then write test cases that match whatever the code already does, a mistake in the code is copied straight into the test, and the test passes even though the function is wrong. A test built that way is not checking the code against what it should do; it is checking the code against itself, and code always agrees with itself.
 
-This matters most for a function you did not write yourself, or one you wrote a while ago and no longer remember the details of. The specification tells you what counts as correct; the code is only one attempt at meeting it. Reading the code first and testing against it checks that the function agrees with itself, which it always will.
+Make that concrete with the cap. Suppose the person who wrote `coupon_discount` slipped and compared against `301` instead of `300`, so a coupon of exactly 301 is returned unchanged as 301 rather than capped down to 300. If you write your test by reading that code, you will watch it return 301 for an input of 301 and dutifully record that `coupon_discount(301)` must return `301`. Your test then passes, because it is asking the code to agree with itself, and the bug sails through untouched. Derive the same case from the specification instead, which says the discount is never larger than 300, and you write that `coupon_discount(301)` must return `300`. That test fails against the buggy code, which is the entire point: it disagrees with the implementation because it was never allowed to agree with it in the first place. Testing proves something only when the expected value is decided independently of the code, from the plain-language description of what the function is supposed to do.
+
+This matters most for a function you did not write yourself, or one you wrote a while ago and no longer remember the details of. The specification tells you what counts as correct; the code is only one attempt at meeting it, and possibly a flawed one. Reading the code first and testing against it checks that the function agrees with itself, which it always will, bug and all.
 
 ### Typical Cases
 
@@ -70,11 +72,13 @@ A **typical case** is an input from the middle of the range a function is meant 
 
 ### Boundary Cases
 
-A **boundary case** is an input at the very edge of what a function's specification treats specially, such as 0, a stated maximum, or the exact value that sits on one side of a `<` comparison in the rule being tested. Boundaries matter because this is where a specification's wording, and the comparisons that implement it, are easiest to get subtly wrong.
+A **boundary case** is an input at the very edge of what a function's specification treats specially: 0, a stated maximum, or the exact value that sits on one side of a comparison in the rule being tested. Boundaries matter because the edge is where a specification's wording, and the comparison that implements it, are easiest to get subtly wrong by a single step.
 
-The `coupon_discount` specification says the cap is 300 cents, so 300 itself is a boundary: is it inside the ordinary range, or already over the cap? The specification says the store never applies a discount larger than 300, which means 300 is still allowed at full value, and only a coupon of 301 or more gets capped down to 300. Two test cases sit right on either side of that edge: `coupon_discount(300)` must return `300`, and `coupon_discount(301)` must return `300` as well, this time because it was capped. A boundary test case on each side of a rule is worth more than several typical cases in the middle, because a mistake in a comparison, writing `>=` where the specification means `>`, usually only shows up right at the edge, never in the middle of the range.
+The `coupon_discount` specification says the cap is 300 cents, so the edge sits between 300 and 301. The specification says the store never applies a discount larger than 300, which means 300 itself is still allowed at full value, and only a coupon of 301 or more is capped. Two test cases bracket that edge: `coupon_discount(300)` must return `300`, the last value allowed in full, and `coupon_discount(301)` must return `300`, the first value that gets capped.
 
-The same idea applies at zero. The specification treats a negative coupon as invalid and returns 0 for it, but 0 itself is not negative: it is the smallest coupon that still counts as an ordinary value. `coupon_discount(0)` must return `0` for that reason alone, not because it was caught by the negative check.
+Here is the mechanism that makes an edge case worth more than several from the middle. Imagine the cap comparison were written one step off, `cents > 301` instead of `cents > 300`. A typical coupon of 500 is still far above either threshold, so it is capped to 300 either way and never reveals the mistake, and the same is true of every large value in the middle of the capped range. Only 301, sitting exactly one step past the intended edge, behaves differently: the correct code caps it to 300, while the off-by-one code lets it slip through unchanged as 301. The boundary case is the single input that can tell the two versions apart, which is exactly why a wrong comparison hides safely in the middle of the range and shows itself only at the edge.
+
+The same reasoning reaches down to zero. The specification treats a negative coupon as invalid and returns 0 for it, but 0 itself is not negative: it is the smallest coupon that still counts as an ordinary value, applied in full. `coupon_discount(0)` must return `0` for that reason, as an ordinary value passing straight through, not because the negative check caught it.
 
 ### Error and Unusual Cases
 
@@ -86,11 +90,13 @@ Between typical, boundary, and error cases, five test cases now describe `coupon
 
 ## Assertions
 
-An **assertion** is a single line of code that states what a value must be and stops the program loudly the moment it is not. Comparing two numbers by eye does not scale, and it is easy to misread a printed result or forget to check one; an assertion turns "I expect this value to be 150" into a check the computer performs for you, every time the code runs.
+An **assertion** is a single line of code that states what a value must be and stops the program the moment it is not. Comparing numbers by eye does not scale past a handful, and it is easy to misread a printed result or forget to check one; an assertion turns "I expect this value to be 150" into a check the computer performs for you, exactly and every time the code runs.
 
-Python's `assert` is a keyword followed by a condition: `assert condition`. If the condition is `True`, nothing visible happens and the program continues; if it is `False`, Python raises an `AssertionError` immediately, stopping the program at that exact line unless something catches it. An optional message after a comma, `assert condition, "message"`, becomes part of that error, which is useful for saying what the check was actually verifying.
+Underneath, an assertion is a conditional, the same kind of true-or-false test from the decision structures lecture, with one fixed job attached to its false side. It evaluates its condition; if the condition is true it does nothing at all and lets the program continue to the next line, and if the condition is false it stops the program right there, loudly, so a broken expectation cannot slip past unnoticed. That asymmetry is deliberate. A check you never see is a check that held, and the only time an assertion makes itself known is the moment reality has diverged from what you claimed it would be.
 
-Rust splits the same idea into two macros. `assert!(condition)` checks a single true-or-false condition, the same way Python's `assert` does. `assert_eq!(actual, expected)` is a shortcut for the common case of checking that two values are equal; it panics with a message showing both values, `left` and `right`, when they differ, which is more informative than a bare `assert!(actual == expected)` would be on its own.
+Python's `assert` is a keyword followed by a condition: `assert condition`. When the condition is `True`, nothing visible happens and the program continues; when it is `False`, Python raises an `AssertionError`, one of the exceptions from the previous lecture, which stops the program at that exact line unless something catches it. An optional message after a comma, `assert condition, "message"`, is carried inside that error, which is useful for recording what the check was actually verifying.
+
+Rust splits the same idea into two macros. `assert!(condition)` checks a single true-or-false condition, exactly as Python's `assert` does, and stops the program with a panic if the condition is false. `assert_eq!(actual, expected)` is a specialized form for the common case of checking that two values are equal. It is worth preferring over a bare `assert!(actual == expected)` for equality, because when the two values differ it panics with a message that prints both of them, labelled `left` and `right`, so you see what you got and what you expected without having to print either one yourself. A plain `assert!(actual == expected)` would only report that the condition was false, leaving you to go dig up the two numbers on your own.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
@@ -135,7 +141,24 @@ fn main() {
 </TabItem>
 </Tabs>
 
-Running either version prints a single line, `all asserts passed`, and nothing else: every assertion held, so every one of them ran silently and the program reached the `print`/`println!` at the end. That silence is the point. An assertion that never fails is designed to be invisible; the moment you notice one at all is the moment something is wrong.
+```bash title="Run the Python program"
+python3 check_discount.py
+```
+
+```text frame="terminal" title="Output"
+all asserts passed
+```
+
+```bash title="Compile and run the Rust program"
+rustc check_discount.rs
+./check_discount
+```
+
+```text frame="terminal" title="Output"
+all asserts passed
+```
+
+Either version prints a single line, `all asserts passed`, and nothing else. Every assertion held, so every one of them ran silently and execution reached the `print`/`println!` at the end. That silence is the point. An assertion that never fails is designed to be invisible; the moment you notice one at all is the moment something is wrong.
 
 `assert!` is worth seeing on its own too, since not every check is an equality. Testing that a discount never exceeds the store's cap, no matter how large the coupon, reads naturally as a condition rather than an equality:
 
@@ -152,19 +175,71 @@ assert!(coupon_discount(500) <= 300);
 </TabItem>
 </Tabs>
 
-Now see what a failing assertion actually looks like, using a deliberately wrong expected value: testing that the cap is 299 instead of the 300 the specification actually states.
+Now watch what a failing assertion actually looks like, using a deliberately wrong expected value: a test that claims the cap is 299 when the specification plainly states 300.
 
+<Tabs syncKey="lang">
+<TabItem label="Python">
 ```python title="A deliberately wrong test case (fails on purpose)"
+def coupon_discount(cents):
+    if cents < 0:
+        return 0
+    elif cents > 300:
+        return 300
+    else:
+        return cents
+
 assert coupon_discount(300) == 299, "expected the cap to be 300, not 299"  # wrong on purpose: the cap is 300
 ```
-
-Running this prints a traceback ending in `AssertionError: expected the cap to be 300, not 299`, and the program stops on that line; nothing after it runs.
-
+</TabItem>
+<TabItem label="Rust">
 ```rust title="A deliberately wrong test case (fails on purpose)"
-assert_eq!(coupon_discount(300), 299, "expected the cap to be 300, not 299"); // wrong on purpose: the cap is 300
+fn coupon_discount(cents: i32) -> i32 {
+    if cents < 0 {
+        return 0;
+    } else if cents > 300 {
+        return 300;
+    } else {
+        return cents;
+    }
+}
+
+fn main() {
+    assert_eq!(coupon_discount(300), 299, "expected the cap to be 300, not 299"); // wrong on purpose: the cap is 300
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 wrong_expected.py
 ```
 
-Running this panics with `assertion `left == right` failed: expected the cap to be 300, not 299`, followed by `left: 300` and `right: 299`, and the program stops. Rust's `assert_eq!` message shows both sides automatically, which is why it is usually preferred over `assert!(actual == expected)` for equality checks: you get the actual and expected values for free the moment the check fails, without printing them yourself first.
+```text frame="terminal" title="Output"
+Traceback (most recent call last):
+  File "wrong_expected.py", line 9, in <module>
+    assert coupon_discount(300) == 299, "expected the cap to be 300, not 299"  # wrong on purpose: the cap is 300
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: expected the cap to be 300, not 299
+```
+
+```bash title="Compile and run the Rust program"
+rustc wrong_expected.rs
+./wrong_expected
+```
+
+```text frame="terminal" title="Output"
+thread 'main' panicked at wrong_expected.rs:12:5:
+assertion `left == right` failed: expected the cap to be 300, not 299
+  left: 300
+ right: 299
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+Both stop on the failing line and nothing after it runs. Python raises an `AssertionError` carrying your message and prints a traceback naming the exact line. Rust panics, and here is where `assert_eq!` earns its place: without being asked, it reports `left: 300` and `right: 299`, the actual value the function returned against the value the test expected. That is the extra information a bare `assert!(coupon_discount(300) == 299)` would have thrown away, and it is why `assert_eq!` is the better tool whenever the check is an equality: the moment it fails, you already have both numbers in front of you.
+
+:::caution[Python can be told to skip every assert]
+Running a Python file with the `-O` flag, `python3 -O program.py`, removes every `assert` statement before the program runs, so a failing check simply does not fire and the program continues as if the assertion were not there. That is fine for a test file you run deliberately, but it is a real trap if you ever lean on `assert` to guard against bad data in a program that might one day be run with `-O`. Use assertions to test that code is correct, not as the thing that keeps a running program safe; for rejecting a bad value at run time, reach for the ordinary conditionals and error handling from earlier lectures, which cannot be switched off by a flag.
+:::
 
 <WhatDiffers>
 <Fragment slot="differs">
@@ -174,9 +249,9 @@ Python has one keyword, `assert condition`, optionally followed by a message; a 
 
 ## Test Functions
 
-Five separate assertions sitting loose in a file work, but nothing groups them as belonging together, and nothing lets you run just those checks on their own. A **test function** is an ordinary function whose body is a sequence of assertions checking a function's test cases; calling the test function runs every assertion inside it in order, and the test function completing without stopping means every case it checked has passed.
+Five separate assertions sitting loose in a file do the checking, but nothing groups them as belonging together, and nothing lets you run just those checks on their own. A **test function** is an ordinary function whose body is a sequence of assertions checking a function's test cases; calling the test function runs every assertion inside it in order, and the test function reaching its end without stopping means every case it checked has passed.
 
-A test function is not a new kind of function; it is defined and called exactly like any other function from the Functions lecture, just with assertions as its body instead of a calculation. Grouping the checks this way names them as a unit, one you can call by name whenever you want to re-run every case for `coupon_discount`, instead of scattering bare assertions through the rest of the program.
+A test function is not a new kind of function. It is defined and called exactly like any other function from the Functions lecture, with the one difference that its body is a run of assertions instead of a calculation that returns a value. Grouping the checks this way names them as a single unit, one you can call by name whenever you want to re-run every case for `coupon_discount`, instead of scattering bare assertions through the rest of the program and hoping you remember where they all are.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
@@ -228,7 +303,32 @@ fn main() {
 </TabItem>
 </Tabs>
 
-Running either version prints `all tests passed`. Notice that the Rust version still calls `test_coupon_discount()` from `fn main`, the same way it calls any other function; nothing about testing changes how a function gets called. Real projects usually reach for a dedicated tool instead of writing this by hand, Python's `pytest` or Rust's built-in `cargo test`, both of which discover test functions automatically and report which ones passed or failed, but the idea underneath either tool is exactly the test function you just wrote.
+```bash title="Run the Python program"
+python3 test_discount.py
+```
+
+```text frame="terminal" title="Output"
+all tests passed
+```
+
+```bash title="Compile and run the Rust program"
+rustc test_discount.rs
+./test_discount
+```
+
+```text frame="terminal" title="Output"
+all tests passed
+```
+
+Both versions print `all tests passed`. Notice that the Rust version still calls `test_coupon_discount()` from `fn main`, the same way it calls any other function; nothing about testing changes how a function is called. Real projects usually reach for a dedicated tool instead of writing this by hand, Python's `pytest` or Rust's built-in `cargo test`, both of which discover test functions automatically and report which ones passed or failed, but the idea underneath either tool is exactly the test function you just wrote.
+
+:::note[A passing test suite is evidence, not proof]
+A test function that ends without stopping tells you the function is correct for the cases it checked, and only those. It cannot say anything about an input you did not include. Passing five well-chosen cases is strong evidence that `coupon_discount` is right, because those five were picked to probe every rule and every edge in the specification, but it is not a proof that the function is correct for all four billion whole numbers it could receive. Good test cases make that gap small; they never close it entirely, which is why a passing suite should raise your confidence without ever making you stop thinking about the inputs you left out.
+:::
+
+:::note[Testing finds a bug; debugging locates it]
+A failing test tells you a bug exists and hands you the exact case that exposes it, but it does not tell you where in the function the mistake lives or how to fix it. That is the job of the debugging method from the very first lecture: read the failure, form one hypothesis about the cause, make a single change, and re-run the test to see whether the hypothesis held. Testing and debugging are two halves of one habit. The test is what makes the bug visible and reproducible; debugging is how you track it down once the test has caught it.
+:::
 
 ## Testing a Function That Returns a Float
 
@@ -250,37 +350,105 @@ fn average(a: f64, b: f64) -> f64 {
 </TabItem>
 </Tabs>
 
-The specification for `average(0.1, 0.2)` says the answer is 0.15, and testing that with `==` looks like the natural thing to do. It is exactly the floating-point trap the Booleans and Conditionals lecture warned about: a float is stored as an approximation, and `0.1` and `0.2` cannot be represented exactly in that format, so their sum is not exactly `0.3` and half of it is not exactly `0.15`.
+The specification for `average(0.1, 0.2)` says the answer is 0.15, and checking that with `==` looks like the obvious thing to do. It walks straight into the floating-point trap the Booleans and Conditionals lecture warned about. A float is stored as a binary approximation, and `0.1` and `0.2` cannot be represented exactly in that format, so their sum is not exactly `0.3` and half of it is not exactly `0.15`. The stored result is a hair away from the value you wrote, and `==` demands they be identical bit for bit, so the comparison is false even though the answer is right in every way that matters.
 
+<Tabs syncKey="lang">
+<TabItem label="Python">
 ```python title="Testing a float with == (fails on purpose)"
+def average(a, b):
+    return (a + b) / 2
+
+print(average(0.1, 0.2))
 assert average(0.1, 0.2) == 0.15  # fails: 0.1 + 0.2 is not exactly 0.3 as a float
 ```
-
-Running this raises `AssertionError`, even though `average(0.1, 0.2)` is correct in every practical sense; printing it shows `0.15000000000000002`, off from `0.15` by a sliver far too small to matter for any real use.
-
+</TabItem>
+<TabItem label="Rust">
 ```rust title="Testing a float with assert_eq! (fails on purpose)"
-assert_eq!(average(0.1, 0.2), 0.15); // fails: 0.1 + 0.2 is not exactly 0.3 as a float
+fn average(a: f64, b: f64) -> f64 {
+    (a + b) / 2.0
+}
+
+fn main() {
+    println!("{}", average(0.1, 0.2));
+    assert_eq!(average(0.1, 0.2), 0.15); // fails: 0.1 + 0.2 is not exactly 0.3 as a float
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 average_eq.py
 ```
 
-Running this panics the same way, reporting `left: 0.15000000000000002` against `right: 0.15`. The fix is the one already introduced for comparing floats: check that the difference between the actual and expected result is smaller than a tolerance, rather than demanding they be identical.
+```text frame="terminal" title="Output"
+0.15000000000000002
+Traceback (most recent call last):
+  File "average_eq.py", line 5, in <module>
+    assert average(0.1, 0.2) == 0.15  # fails: 0.1 + 0.2 is not exactly 0.3 as a float
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError
+```
+
+```bash title="Compile and run the Rust program"
+rustc average_eq.rs
+./average_eq
+```
+
+```text frame="terminal" title="Output"
+0.15000000000000002
+thread 'main' panicked at average_eq.rs:7:5:
+assertion `left == right` failed
+  left: 0.15000000000000002
+ right: 0.15
+```
+
+Both print `0.15000000000000002` first, the value the function actually returned, and then fail the equality check. That trailing `...02` is the whole story: the stored result is off from `0.15` by a sliver far too small to matter for any real use, yet more than enough to make `==` report `False`. Rust's panic lays the mismatch out plainly, `left: 0.15000000000000002` against `right: 0.15`, showing the gap the comparison tripped over.
+
+The fix is the one already introduced for comparing floats: instead of demanding the two values be identical, check that the distance between the actual and expected result is smaller than a tiny tolerance. If the difference is below that margin, the answer is close enough to count as correct.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
 ```python title="Testing a float with a tolerance"
+def average(a, b):
+    return (a + b) / 2
+
 assert abs(average(0.1, 0.2) - 0.15) < 1e-9
 print("tolerance test passed")
 ```
 </TabItem>
 <TabItem label="Rust">
 ```rust title="Testing a float with a tolerance"
-assert!((average(0.1, 0.2) - 0.15).abs() < 1e-9);
-println!("tolerance test passed");
+fn average(a: f64, b: f64) -> f64 {
+    (a + b) / 2.0
+}
+
+fn main() {
+    assert!((average(0.1, 0.2) - 0.15).abs() < 1e-9);
+    println!("tolerance test passed");
+}
 ```
 </TabItem>
 </Tabs>
 
-Both versions print `tolerance test passed`, using the same margin of `1e-9` from the earlier lecture on comparing floats. Whenever a function's specification promises a float result, test it with a tolerance from the start; reaching for `==` first and only fixing it after a confusing failure is a detour worth skipping entirely.
+```bash title="Run the Python program"
+python3 average_tol.py
+```
+
+```text frame="terminal" title="Output"
+tolerance test passed
+```
+
+```bash title="Compile and run the Rust program"
+rustc average_tol.rs
+./average_tol
+```
+
+```text frame="terminal" title="Output"
+tolerance test passed
+```
+
+Both versions print `tolerance test passed`, using the same margin of `1e-9` from the earlier lecture on comparing floats. Python spells the absolute value as the function `abs(...)` wrapped around the difference, while Rust spells it as the method `.abs()` called on the difference, but the check is identical: the gap between what the function returned and what the specification promised is far below `1e-9`, so the assertion holds. Whenever a function's specification promises a float result, test it with a tolerance from the start; reaching for `==` first and only fixing it after a confusing failure is a detour worth skipping entirely.
 
 ## Takeaways
 
-A test case ties one input to the exact output a function's specification promises for it, and writing test cases from the specification, rather than from whatever the code already does, is what makes a passing test mean something. Typical cases confirm the ordinary path works, boundary cases sit at the edges the specification calls out by name, zero, a stated maximum, or the exact value a `<` comparison turns on, and error or unusual cases check that inputs outside the expected range are handled the way the specification actually says, rather than left to guesswork. An assertion, Python's `assert` or Rust's `assert!`/`assert_eq!`, turns a written-down expectation into a check the computer performs every time the code runs, stopping loudly, an `AssertionError` in Python, a panic in Rust, the moment reality disagrees with the specification. Packaging several assertions into a test function names that whole set of checks as a single, callable unit, one you can rerun whenever the function under test changes, without retyping every case by hand. A function that returns a float needs one adjustment to all of this: comparing its result with `==` reopens the exact floating-point trap from earlier in the course, so a float result is always checked against a tolerance instead. None of this replaces the debugging method from the very first lecture; testing is what tells you a bug exists and exactly which case exposes it, and debugging is still how you track that bug down once a test has found it.
+A test case ties one input to the exact output a function's specification promises for it, and writing test cases from the specification, rather than from whatever the code already does, is what makes a passing test mean something: a test copied from buggy code only ever confirms the bug. Typical cases confirm the ordinary path works, boundary cases sit at the edges the specification calls out by name, zero, a stated maximum, or the exact value a comparison turns on, where an off-by-one mistake hides from every middle-of-the-range value and shows itself only at the edge, and error or unusual cases check that inputs outside the expected range are handled the way the specification actually says, rather than left to guesswork. An assertion, Python's `assert` or Rust's `assert!`/`assert_eq!`, is a conditional whose false branch stops the program, turning a written-down expectation into a check the computer performs every time the code runs and reporting loudly, an `AssertionError` in Python, a panic in Rust, the moment reality disagrees with the specification. Packaging several assertions into a test function names that whole set of checks as a single, callable unit you can rerun whenever the function under test changes, though a passing suite is only evidence for the cases it covered, never a proof of full correctness. A function that returns a float needs one adjustment to all of this: comparing its result with `==` reopens the exact floating-point trap from earlier in the course, so a float result is always checked against a tolerance instead. None of this replaces the debugging method from the very first lecture; testing is what tells you a bug exists and exactly which case exposes it, and debugging is still how you track that bug down once a test has found it.
