@@ -8,7 +8,7 @@ sidebar:
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 import LanguageVersions from '/src/components/LanguageVersions.astro';
 import WhatDiffers from '/src/components/WhatDiffers.astro';
-import MemoryBoxes from '/src/components/MemoryBoxes.astro';
+import MemoryStepper from '/src/components/MemoryStepper.svelte';
 
 {/* ai-summary
 type: lecture
@@ -296,21 +296,26 @@ fn main() {
 </TabItem>
 </Tabs>
 
-Trace the call `double_it(x)` through the same four steps, watching the boxes. Step one evaluates the argument `x` to its value, `5`. Step two, the copy, is the one that matters here: the value `5` is copied into the parameter `n`, so `x` and `n` are now two separate boxes that happen to hold the same number.
+Step through the trace below to watch the call `double_it(x)` through the same four steps. Step one evaluates the argument `x` to its value, `5`. Step two, the copy, is the one that matters here: the value `5` is copied into the parameter `n`, so `x` and `n` become two separate boxes that happen to hold the same number. Step three runs the body: `n = n * 2` rebinds only `n`, and the box named `x` in the caller is never touched. Step four returns, and `x` still holds the `5` it held before the call.
 
-<MemoryBoxes boxes={[
-  { name: "x", value: "5" },
-  { name: "n", value: "5" },
-]} />
+<MemoryStepper
+  client:visible
+  title="A function call: argument copied into parameter"
+  code={`x = 5
+result = double_it(x)
+    # inside double_it: n = n * 2
+print(result)
+print(x)`}
+  steps={[
+    { line: 1, caption: "In the caller, x is bound to 5.", names: [{ name: "x (caller)", value: "5" }], objects: [] },
+    { line: 2, caption: "The call copies the argument's value into the parameter n, so x and n are separate boxes holding the same number.", names: [{ name: "x (caller)", value: "5" }, { name: "n (double_it)", value: "5" }], objects: [] },
+    { line: 3, caption: "Inside the function, n = n * 2 rebinds only n to 10; x in the caller is never named by this line and does not change.", names: [{ name: "x (caller)", value: "5" }, { name: "n (double_it)", value: "10" }], objects: [] },
+    { line: 4, caption: "double_it returns 10, so result is bound to 10; the function's frame and its n are gone.", names: [{ name: "x (caller)", value: "5" }, { name: "result (caller)", value: "10" }], objects: [] },
+    { line: 5, caption: "x still holds the 5 it held before the call was ever made.", names: [{ name: "x (caller)", value: "5" }, { name: "result (caller)", value: "10" }], objects: [] },
+  ]}
+/>
 
-Step three runs the body. The line `n = n * 2` evaluates `n * 2` to `10` and rebinds `n` to it, an ordinary reassignment from the previous lecture. It touches only the box named `n`; the box named `x`, back in the caller, is never named by this line and never changes:
-
-<MemoryBoxes boxes={[
-  { name: "x", value: "5" },
-  { name: "n", value: "10" },
-]} />
-
-Step four returns `n`, which is now `10`, and the call `double_it(x)` reduces to `10`, so `result` is bound to `10`. The variable `x` still holds the `5` it held before the call was ever made. Both languages print `10`, then `5`:
+Both languages print `10`, then `5`:
 
 ```bash title="Run the Python program"
 python3 double_it.py

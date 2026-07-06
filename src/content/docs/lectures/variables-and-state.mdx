@@ -8,7 +8,7 @@ sidebar:
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 import LanguageVersions from '/src/components/LanguageVersions.astro';
 import WhatDiffers from '/src/components/WhatDiffers.astro';
-import MemoryBoxes from '/src/components/MemoryBoxes.astro';
+import MemoryStepper from '/src/components/MemoryStepper.svelte';
 
 {/* ai-summary
 type: lecture
@@ -65,11 +65,18 @@ python3 naming.py
 10
 ```
 
-Picture a variable as a small labeled box: the label is the name, and the box holds whatever value was last stored in it. The box below is named `num_students` and holds 10.
+Picture a variable as a small labeled box: the label is the name, and the box holds whatever value was last stored in it. Step through the trace below to watch the name `num_students` get bound to the value 10 and then looked up by name.
 
-<MemoryBoxes boxes={[
-  { name: "num_students", value: "10" },
-]} />
+<MemoryStepper
+  client:visible
+  title="Binding a name to a value"
+  code={`num_students = 10
+print(num_students)`}
+  steps={[
+    { line: 1, caption: "Assignment binds the name num_students to the value 10.", names: [{ name: "num_students", value: "10" }], objects: [] },
+    { line: 2, caption: "Using the name looks up the value it is bound to, 10, and prints it.", names: [{ name: "num_students", value: "10" }], objects: [] },
+  ]}
+/>
 
 A name matters because it lets one stored value stand in for itself everywhere it is needed. Without variables, a value used in five places would have to be written out, identically, in all five places, and updating it later would mean finding and changing every single copy by hand. A variable lets you write the value once and reuse the name as many times as you like.
 
@@ -148,17 +155,22 @@ python3 reassign.py
 6
 ```
 
-The two boxes below show `count` before and after the reassignment. Before the line `count = 6` runs, the box named `count` holds 5:
+Step through the trace below to watch `count` before and after the reassignment. Reassignment does not create a second box beside the first; it overwrites what the one box holds, so once the name is rebound to 6, the old 5 is gone and no later code can read it back.
 
-<MemoryBoxes boxes={[
-  { name: "count", value: "5" },
-]} />
-
-After it runs, the same box, the same name, now holds 6, and the 5 is nowhere: reassignment does not create a second box beside the first, it overwrites what the one box holds. Once the name is rebound to 6, the old 5 is gone, and no later code can read it back.
-
-<MemoryBoxes boxes={[
-  { name: "count", value: "6" },
-]} />
+<MemoryStepper
+  client:visible
+  title="Reassigning a variable"
+  code={`count = 5
+print(count)
+count = 6
+print(count)`}
+  steps={[
+    { line: 1, caption: "Initialization binds count to 5.", names: [{ name: "count", value: "5" }], objects: [] },
+    { line: 2, caption: "Reading count looks up its current value, 5, and prints it.", names: [{ name: "count", value: "5" }], objects: [] },
+    { line: 3, caption: "Reassignment rebinds the same name to 6; the old 5 is overwritten and gone.", names: [{ name: "count", value: "6" }], objects: [] },
+    { line: 4, caption: "Reading count now looks up 6.", names: [{ name: "count", value: "6" }], objects: [] },
+  ]}
+/>
 
 :::note[A second `let` is not a change]
 Rust offers a second way to reuse a name that looks like reassignment but is not. Writing `let` again with a name that already exists, such as `let count = 5;` followed by `let count = count + 3;`, is called **shadowing**: the second `let` creates a brand new binding that happens to reuse the name, rather than changing the value the first binding held. Because each `let` makes its own immutable binding, this compiles even without `mut`. Reassignment (`count = 6`) changes what one binding refers to and needs `mut`; shadowing (`let count = ...`) introduces a new binding and does not. They are different operations that read similarly, and telling them apart matters once you see both in real Rust code.

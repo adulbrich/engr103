@@ -8,7 +8,7 @@ sidebar:
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 import LanguageVersions from '/src/components/LanguageVersions.astro';
 import WhatDiffers from '/src/components/WhatDiffers.astro';
-import MemoryBoxes from '/src/components/MemoryBoxes.astro';
+import MemoryStepper from '/src/components/MemoryStepper.svelte';
 
 {/* ai-summary
 type: lecture
@@ -158,33 +158,26 @@ rustc quarter.rs
 2.25
 ```
 
-Tracing what happens when the program calls `quarter(9)` shows why the two functions never confuse their variables. Calling `quarter` pushes its stack frame, holding one box for its parameter `n`:
+Step through the trace below to watch `quarter(9)` and see why the two functions never confuse their variables. Each frame is a private set of boxes; the name in parentheses says which frame a box belongs to. Watch the frames push on as calls are made and pop off as calls return.
 
-<MemoryBoxes boxes={[{ name: "n (quarter's frame)", value: "9" }]} />
+<MemoryStepper
+  client:visible
+  title="The call stack: quarter(9) calls half(n)"
+  code={`quarter(9)
+    half(n)      # inside quarter
+        result = n / 2   # inside half
+    # half returns 4.5
+# quarter returns 2.25`}
+  steps={[
+    { line: 1, caption: "Calling quarter pushes its stack frame, holding one box for its parameter n = 9.", names: [{ name: "n (quarter)", value: "9" }], objects: [] },
+    { line: 2, caption: "Inside quarter, half(n) pushes a second frame on top. quarter's frame waits beneath, unchanged, while half's frame runs with its own n = 9.", names: [{ name: "n (half)", value: "9" }, { name: "n (quarter)", value: "9" }], objects: [] },
+    { line: 3, caption: "Inside half, result = n / 2 computes 4.5 and stores it in a second box belonging to half's own frame.", names: [{ name: "n (half)", value: "9" }, { name: "result (half)", value: "4.5" }, { name: "n (quarter)", value: "9" }], objects: [] },
+    { line: 4, caption: "half returns 4.5 and its frame is popped, taking both of its boxes. Control resumes in quarter's frame, now holding the returned value.", names: [{ name: "n (quarter)", value: "9" }, { name: "result (quarter)", value: "4.5" }], objects: [] },
+    { line: 5, caption: "quarter divides 4.5 by 2 to get 2.25 and returns it; its frame is popped in turn, and the program is back where the call started.", names: [], objects: [] },
+  ]}
+/>
 
-Inside `quarter`, the call `half(n)` runs next. This pushes a second frame on top of the first. `quarter`'s frame, still holding `n = 9`, waits beneath, unreachable and unchanged:
-
-<MemoryBoxes boxes={[{ name: "n (quarter's frame, waiting)", value: "9" }]} />
-
-while `half`'s frame, stacked on top and currently running, gets a box of its own:
-
-<MemoryBoxes boxes={[{ name: "n (half's frame, running)", value: "9" }]} />
-
-Inside `half`, the line `result = n / 2` computes 4.5 and stores it in a second box belonging to `half`'s own frame:
-
-<MemoryBoxes boxes={[
-  { name: "n (half's frame)", value: "9" },
-  { name: "result (half's frame)", value: "4.5" },
-]} />
-
-When `half` returns 4.5, its frame is popped, and both of its boxes go with it. The program jumps back to `quarter`'s frame, which resumes exactly where it paused, now holding the value `half` returned:
-
-<MemoryBoxes boxes={[
-  { name: "n (quarter's frame)", value: "9" },
-  { name: "result (quarter's frame)", value: "4.5" },
-]} />
-
-`quarter` then divides that value by 2, producing 2.25, and returns it. `quarter`'s own frame is popped in turn, and the program is back where the call started, this time holding `quarter`'s return value instead of a call still in progress. At no point could `half` see or change `quarter`'s `n`, or the reverse, because each `n` lived in a different frame the whole time.
+At no point could `half` see or change `quarter`'s `n`, or the reverse, because each `n` lived in a different frame the whole time.
 
 :::note[The stack is not infinite]
 The stack has a limited size. Each call pushes another frame on top, and normally each return pops one back off, so the pile stays small. But if a function keeps calling more functions without ever returning, frames pile up and are never removed, and the stack eventually runs out of room. The program then stops with an error usually called a **stack overflow**. In everyday code the stack never comes close to filling, but it is worth knowing the pile has a ceiling.
