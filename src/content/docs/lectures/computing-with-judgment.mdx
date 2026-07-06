@@ -1,0 +1,295 @@
+---
+title: "Computing with Judgment"
+description: "How to evaluate code you did not write, a peer's, a library's, or an AI's, by reconstructing its specification, tracing it, testing it at the edges, and asking whom it leaves out, then drawing the whole term together into one skill."
+sidebar:
+  order: 18
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+import WhatDiffers from '/src/components/WhatDiffers.astro';
+
+{/* ai-summary
+type: lecture
+slug: computing-with-judgment
+order: 18
+covers: judging code you did not write; reconstructing a spec; plausible-but-wrong code found at a boundary; failure modes of generated and library code; algorithmic exclusion; responsible engineering
+prereq_lectures: collections-ii
+followup_lectures:
+glossary_terms: code review, plausible-but-wrong, failure mode, algorithmic exclusion, responsible engineering
+*/}
+
+<LanguageVersions />
+
+You will spend far more of your working life reading code than writing it, and most of the code you read will be code you did not write. A teammate hands you a function to finish. A library you install does the hard part of a calculation for you. A tool suggests a whole block of code in an instant, complete and confident. In every one of these moments you face the same quiet question: can you trust this code? It is tempting to answer by how the code looks. Well written code, neatly formatted code, or code a fast tool produced without hesitation all feel trustworthy. None of that is evidence. Code is trustworthy when it does the right thing on every input it will meet, including the strange ones, and the only way to know that is to judge the code the same way you would judge your own. This is the one skill that outlasts any language or tool: you remain the person responsible for what the code does, no matter who or what wrote it.
+
+## Reviewing Code You Did Not Write
+
+**Code review** is the practice of reading a piece of code carefully, on purpose, to decide whether it is correct and whether it fits the job you need it for, before you rely on it. It is not skimming for style. It is the same act of judgment you have been building all term, now pointed at code whose author was someone or something else. The author's identity does not change the standard. A peer can be careless, a library can carry a bug, and a generated block of code can be fluent and wrong at the same time. Reviewing is how you find out.
+
+The review follows four moves, in order:
+
+1. **Find or reconstruct the specification.** Decide what the code is supposed to do, including what should happen at the edges and on bad input, before you judge whether it does that.
+2. **Read it and trace it by hand.** Follow the code step by step on one concrete input, playing the part of the machine, so you understand what it actually does rather than what you assume it does.
+3. **Test it against the specification.** Turn the specification into test cases, especially boundary and error cases, and run them, exactly as the Testing lecture described.
+4. **When a test fails, debug systematically.** Read the failure, form one hypothesis, make a single change, and re-run, the same loop the very first lecture introduced.
+
+The first move is the one that separates judging someone else's code from judging your own, so it deserves the most care. When you write a function yourself, you carry its specification in your head; you know a coupon over the cap should be capped, because you decided that. When you inherit a function, that knowledge is missing. You have the code, but not the intent behind it, and the code alone cannot tell you whether it is right, because a bug looks exactly like a decision. So you reconstruct the specification from whatever you have: a comment, a function name, the surrounding code, the documentation, or a plain question to whoever asked for it. Reconstructing the specification is not a formality. It is where you notice the cases the original author may never have decided at all, and those forgotten cases are where bugs live.
+
+The Testing lecture made the same point from the other side: a test case must come from the specification, never from the code, because a test copied from buggy code only confirms the bug. Reviewing inherited code raises the stakes, because now you may not have been handed a specification either. You have to build one first, and only then can you write a test that means anything.
+
+## A Function That Looks Right
+
+Here is a function that averages a list of sensor readings. Read it before reading on, and decide whether you would trust it.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="average.py"
+def average(readings):
+    total = 0.0
+    count = 0
+    for r in readings:
+        total += r
+        count += 1
+    return total / count
+
+print(average([10, 20, 30]))
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="average.rs"
+fn average(readings: &Vec<f64>) -> f64 {
+    let mut total = 0.0;
+    let mut count = 0.0;
+    for r in readings {
+        total += r;
+        count += 1.0;
+    }
+    total / count
+}
+
+fn main() {
+    let sample = vec![10.0, 20.0, 30.0];
+    println!("{}", average(&sample));
+}
+```
+</TabItem>
+</Tabs>
+
+Nothing looks wrong. The loop adds up every reading and counts how many there were, and the function divides the total by the count, which is exactly what an average is. Run it on three numbers and it behaves:
+
+```bash title="Run the Python program"
+python3 average.py
+```
+
+```text frame="terminal" title="Output"
+20.0
+```
+
+```bash title="Compile and run the Rust program"
+rustc average.rs
+./average
+```
+
+```text frame="terminal" title="Output"
+20
+```
+
+Both report the average of 10, 20, and 30: Python prints `20.0` and Rust prints `20`, the same value shown two ways. This is the point where a hurried reviewer stops, satisfied. The code is clean, it reads like the definition of an average, and it produced the right answer for the input tried. Every one of those is the kind of surface signal that feels like evidence and is not. This is **plausible-but-wrong** code: code that looks correct, reads correctly, and passes a casual glance, yet fails on an input nobody thought to try. The plausibility is exactly what makes it dangerous, because it invites you to stop looking before you have found the input that breaks it.
+
+To find that input, do the first move of the review: reconstruct the specification. What should `average` do? Its ordinary job is clear, add the readings and divide by how many there are. But the specification is not finished until it covers the edges, and there is one obvious edge here that the code never mentions: what should the average of an *empty* list be? A list of sensor readings can certainly be empty; a sensor that has reported nothing yet hands you exactly that. The original author appears to have made no decision about it. A reasonable specification says that the average of no readings is 0.0, a safe default that a caller can check for. Now you have a boundary case, and it came from the specification, not from the code, which never considered it at all.
+
+Turn that boundary into a test and run it, alongside a typical case to keep it honest:
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="average_test.py"
+def average(readings):
+    total = 0.0
+    count = 0
+    for r in readings:
+        total += r
+        count += 1
+    return total / count
+
+assert average([10, 20, 30]) == 20   # typical case: passes
+assert average([]) == 0.0            # boundary case: the empty list
+print("all tests passed")
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="average_test.rs"
+fn average(readings: &Vec<f64>) -> f64 {
+    let mut total = 0.0;
+    let mut count = 0.0;
+    for r in readings {
+        total += r;
+        count += 1.0;
+    }
+    total / count
+}
+
+fn main() {
+    let sample = vec![10.0, 20.0, 30.0];
+    assert_eq!(average(&sample), 20.0);   // typical case: passes
+    let empty: Vec<f64> = vec![];
+    assert_eq!(average(&empty), 0.0);     // boundary case: the empty list
+    println!("all tests passed");
+}
+```
+</TabItem>
+</Tabs>
+
+The typical case passes in both. The boundary case is where the two languages part, and the difference is worth watching closely, because it is the whole reason to test at the edge.
+
+:::note[Why `==` is safe on these particular values]
+`average` returns a float, and the Testing lecture warned that a float result should be checked against a small tolerance, not with `==`, because most floats are stored as a binary approximation that is a hair off from the value you wrote. The typical case above uses `==` anyway, and it is safe only because 20.0 and 0.0 are among the few values a float can represent exactly, so there is no approximation to trip over. If the specification promised an average like 20.15, the tolerance check from the Testing lecture would be required here too. The rule still holds; this example simply landed on the exact values where `==` happens to be safe.
+:::
+
+```bash title="Run the Python program"
+python3 average_test.py
+```
+
+```text frame="terminal" title="Output"
+Traceback (most recent call last):
+  File "average_test.py", line 10, in <module>
+    assert average([]) == 0.0            # boundary case: the empty list
+           ~~~~~~~^^^^
+  File "average_test.py", line 7, in average
+    return total / count
+           ~~~~~~^~~~~~~
+ZeroDivisionError: division by zero
+```
+
+```bash title="Compile and run the Rust program"
+rustc average_test.rs
+./average_test
+```
+
+```text frame="terminal" title="Output"
+thread 'main' panicked at average_test.rs:15:5:
+assertion `left == right` failed
+  left: NaN
+ right: 0.0
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+Trace what happened, because the two failures are not the same kind of failure. When the list is empty, the loop body never runs, so `count` stays at its starting value of zero, and the function reaches `total / count` with `count` equal to zero. Dividing by zero is where the languages diverge, in exactly the way the How Programs Run lecture set up. In Python, dividing by zero is a run-time error: the interpreter reaches that line, finds it cannot divide by zero, and stops with a `ZeroDivisionError`. The crash is loud, and it points straight at the line that failed. The test did not even get to compare against 0.0; the function blew up before returning anything, which is itself the answer, the function has no behavior at all for an empty list.
+
+Rust does something quieter and, for a reviewer, more alarming. Dividing the floating point number 0.0 by the floating point number 0.0 does not crash; it produces a special floating point value named `NaN`, short for "not a number", the result floating point arithmetic gives back when a calculation has no meaningful answer. So Rust's `average` returns `NaN` for an empty list, calmly, with no error at all. The only reason you see a failure here is that your test caught it: `assert_eq!` compared the returned `NaN` against the expected 0.0, they differ, and the assertion panicked, reporting `left: NaN` against `right: 0.0`. Without that test, the wrong value would have flowed silently into whatever used it. This is a logic error in the sense the first lecture gave the term: the program ran to completion and produced a wrong answer with no complaint. It is the most dangerous of the three kinds of error precisely because nothing announces it, and here the boundary test is the only thing that did.
+
+The fix is small, once the failing case has shown you exactly what is missing. Guard the function against the empty list before the division, returning the specified default:
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="average_fixed.py"
+def average(readings):
+    if len(readings) == 0:
+        return 0.0
+    total = 0.0
+    count = 0
+    for r in readings:
+        total += r
+        count += 1
+    return total / count
+
+assert average([10, 20, 30]) == 20
+assert average([]) == 0.0
+print("all tests passed")
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="average_fixed.rs"
+fn average(readings: &Vec<f64>) -> f64 {
+    if readings.len() == 0 {
+        return 0.0;
+    }
+    let mut total = 0.0;
+    let mut count = 0.0;
+    for r in readings {
+        total += r;
+        count += 1.0;
+    }
+    total / count
+}
+
+fn main() {
+    let sample = vec![10.0, 20.0, 30.0];
+    assert_eq!(average(&sample), 20.0);
+    let empty: Vec<f64> = vec![];
+    assert_eq!(average(&empty), 0.0);
+    println!("all tests passed");
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the fixed Python program"
+python3 average_fixed.py
+```
+
+```text frame="terminal" title="Output"
+all tests passed
+```
+
+```bash title="Compile and run the fixed Rust program"
+rustc average_fixed.rs
+./average_fixed
+```
+
+```text frame="terminal" title="Output"
+all tests passed
+```
+
+That is the entire method in one worked case. The code looked right and gave a right answer on the input a casual reader would try. Judgment was reconstructing the specification carefully enough to notice the empty list, deriving the boundary test from that specification rather than from the code, running it, reading the failure, and making one small change. Nothing about who wrote the original function would have changed a single step. A peer, a library, and a generated block of code would all have earned exactly this review, and all would have failed it the same way.
+
+<WhatDiffers>
+<Fragment slot="differs">
+On the empty list both versions divide by zero, but the two languages fail differently. Python treats division by zero as a run-time error and stops immediately with a `ZeroDivisionError`, a loud crash. Rust's floating point division by zero does not crash; it returns the special value `NaN`, so the wrong answer flows on silently, and only the test catches it. The same missing case surfaces as a loud run-time error in one language and a quiet logic error in the other.
+</Fragment>
+</WhatDiffers>
+
+## Failure Modes of Generated and Library Code
+
+A **failure mode** is a specific way a piece of code can be wrong: not the bug itself, but the shape of the mistake, the kind of gap it falls into. Naming the common failure modes of code you did not write turns the review from a vague suspicion into a set of concrete questions you can ask. Generated code, meaning code produced by an AI tool from a prompt, and library code, meaning a function someone else wrote and packaged for reuse, each fall into recognizable ones.
+
+The first and most disarming failure mode is being **confidently wrong**. A generated function arrives complete, fluent, and formatted like something a careful engineer wrote, and none of that fluency is connected to whether it works. The tool that produced it was built to generate text that looks like correct code, which is not the same as code that is correct, and it has no way to run the function or check it against a specification you never gave it. The empty-list `average` above is exactly this shape: a tool could produce it in an instant, and it would look every bit as trustworthy as the fixed version. Confidence is the failure mode because it is the one that most successfully talks you out of reviewing.
+
+The second is being **subtly off at the edge**. The code is right for typical inputs and wrong only at a boundary: an off-by-one on the last element of a list, a cap compared with the wrong operator so that the exact limit slips through, or the empty-list case you just saw. This is the failure mode that boundary testing exists to catch, because, as the Testing lecture showed, a wrong comparison hides safely in the middle of a range and reveals itself only at the precise edge. A single typical input will never find it.
+
+The third is being **plausible but unsuited to your actual specification**. The code is not buggy at all; it correctly solves a slightly different problem than the one you have. A function that rounds to the nearest cent when your specification requires always rounding down, or one that sorts names in the ordering of one language when your users write in another, is correct by its own lights and wrong for you. No amount of reading the code for internal correctness will catch this, because the mistake is in the match between the code and your need, not in the code itself. Only your reconstructed specification reveals it.
+
+The fourth is resting on an **assumption that does not hold** in your situation. The code was written for inputs that fit in a certain range, or for a list that is never empty, or for text that is always in a particular alphabet, and it works perfectly as long as that hidden assumption is true. A library is not exempt from any of this. A library is code someone else wrote and reviewed, which raises the odds it is correct but never guarantees it: libraries carry bugs, and, more often, they carry assumptions and a specification that are a poor fit for the exact thing you are doing. The library's documentation is where its real specification lives, and reading it is part of the review, not a step you get to skip because the code came from a package instead of a person. In every one of these modes the remedy is the same. You stay the responsible judge: reconstruct what the code must do, test it at the edges, and read its failures as information.
+
+## Who Our Tools Leave Out
+
+Judging code for correctness asks whether it does what its specification says. There is a second, larger question that a correct program can still fail: whom does it serve, and whom does it leave out? A program does exactly what its code says, and no more, which means it silently encodes every assumption its author made about the people who would use it. When those assumptions do not fit a real person, the program does not bend to accommodate them the way a human clerk might. It refuses, or misfires, with the same literal indifference that makes a computer follow a buggy instruction to the letter. **Algorithmic exclusion** is this effect: a computing tool that works for the people its builders had in mind and fails the people they did not, not by malice, but by an assumption baked into the code.
+
+The examples are concrete, and each traces back to a specific line someone wrote. A form that validates a name by rejecting anything with an apostrophe or a hyphen will reject a person named O'Brien or Nguyen-Tran, because a programmer decided, in one comparison, that a "valid" name contains only plain letters. A person with a single legal name, a mononym, meets a required-last-name field that a programmer marked mandatory, and cannot proceed at all. A system that assumes every name is written in the Latin alphabet mangles or refuses a name written in another script, because the code that stores and checks it was tested only on the alphabet its author happened to use. None of these programs is buggy in the sense of the earlier sections; each does exactly what its specification says. The specification itself was too narrow, written for a slice of people mistaken for all of them.
+
+The same narrowness reaches beyond names. A model trained to recognize faces, or to judge who counts as a strong loan applicant, learns only from the data it was given, and if that data over-represents some groups and under-represents others, the model is accurate for the well-represented and unreliable for the rest, having never seen enough of them to learn. An interface built and tested on a fast, always-connected office network can be effectively unusable for someone on a slow, metered mobile connection, not because it was designed to exclude them, but because the possibility of a slow connection never entered the assumptions the code was built on. In each case the tool is not neutral. It carries its builders' picture of a normal user, and everyone outside that picture pays for the gap.
+
+This connects directly to the engineer's responsibility, and it is why the review in this lecture does not end at correctness. The question "does this code do what its specification says" has to be joined by a harder one: "whose needs did this specification quietly leave out, and what happens to those people when they meet this tool?" You will not always have the answer, but an engineer who never asks the question guarantees the exclusion, because a program will faithfully carry out a narrow assumption forever without ever noticing it is narrow.
+
+## Responsible Engineering
+
+**Responsible engineering** is the stance that ties the two halves of this lecture together: you, the engineer, remain accountable for what your code does and whom it affects, regardless of who or what produced it. A tool can write a function, a library can supply one, a teammate can hand you one, and none of that transfers the responsibility away from the person who chose to rely on it. When code you shipped fails, "the library had a bug" and "the tool generated it" are explanations, not excuses, because the decision to trust that code without reviewing it was yours.
+
+This is a demanding standard, and it is also a freeing one. It means you never have to take any code on faith, because you have a method that works on all of it. Correctness you establish by reconstructing the specification, tracing the code, and testing it at its edges. Fitness you establish by asking whether the specification the code meets is the one you actually need. Fairness you establish by asking whom the specification leaves out. A tool that generates code fluently does not weaken your position under this standard; it strengthens it, because you can accept the tool's speed and still apply your own judgment to everything it produces. The point of this course was never to keep you from using such tools. It was to make you the kind of engineer who can judge their output, and everyone else's, and own the result.
+
+## The Whole Term as One Skill
+
+Everything the term built points at this one ability. The first lecture showed that a processor has no judgment of its own: it runs machine code exactly as written, and a translator, an interpreter or a compiler, stands between your source code and that literal machine. Because the machine does precisely what it is told, understanding what it was told is the whole game. The next lectures went underneath your values to how they are stored, as bits and bytes in memory, so that a number's limits and a float's tiny imprecision stopped being mysteries and became consequences of a representation you could reason about. Variables gave those values names; functions packaged steps so they could be named, tested, and trusted as units; scope and the call stack made it possible to trace exactly which name meant which value at any moment. Booleans and conditionals, then loops and their patterns, gave you control over which steps run and how often, so that you could follow any path a program might take. Strings, lists, and dictionaries gave you the shapes data comes in, and the memory model showed what it really means for two names to point at the same value and why a change through one is seen through the other.
+
+Woven through all of it were two languages chosen to disagree. Seeing each idea in Python, which checks almost nothing until it runs, and again in Rust, which checks almost everything before it runs, is what pried the concept loose from the syntax. A loop is a loop, an average is an average, a boundary is a boundary, whichever spelling you meet it in; the parts that differed between the two languages were never the idea, only the notation, and knowing which was which is what lets you carry the idea to a third language, or a fourth, that this course never taught. That is the through-line, and it is the reason the two-language lens mattered: an engineer who understands the machinery, how a value is stored, how a name points at it, how control moves through the steps, and how the same idea survives a change of language, can judge any code, in any language, from any source, because judging code is nothing more than understanding precisely what it tells the machine to do and holding that against what it should do.
+
+## Takeaways
+
+Code you did not write earns the same review as code you did, and the review does not care who or what produced it. You reconstruct the specification first, because inherited code comes without the intent behind it and the forgotten edges of that specification are where bugs hide; you trace the code on a concrete input; you derive test cases from the specification, especially at the boundaries, and run them; and when one fails you debug with the same one-hypothesis-at-a-time loop from the first lecture. The worked `average` made the payoff plain: code that looked right and gave a right answer still had no correct behavior on an empty list, and only a boundary test derived from the specification exposed it, as a loud crash in Python and a silent wrong `NaN` in Rust. Generated and library code fail in nameable ways, confidently wrong, subtly off at an edge, correct for a different specification than yours, or resting on an assumption that does not hold, and naming them turns review into concrete questions. Correctness is not the only question, either: a program faithfully encodes its builders' assumptions about who will use it, so an engineer has to ask whom those assumptions exclude, from a name a form will not accept to a connection an interface cannot survive. Through all of it you stay the responsible judge, accountable for what you rely on. That is what the whole term was for: not to memorize two languages, but to understand the machine well enough to judge any code that runs on it, and to own what it does.
+
+## Resources
+
+- [Python: Errors and Exceptions](https://docs.python.org/3/tutorial/errors.html)
+- [Rust: `f64::NAN` and floating point special values](https://doc.rust-lang.org/std/primitive.f64.html)
+- [W3C: Accessibility, an introduction](https://www.w3.org/WAI/fundamentals/accessibility-intro/)
+- [Falsehoods programmers believe about names](https://www.kalzumeus.com/2010/06/17/falsehoods-programmers-believe-about-names/)
