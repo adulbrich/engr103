@@ -1,7 +1,7 @@
 {
   "name": "engr103",
   "type": "module",
-  "version": "2026.WI.2",
+  "version": "2026.SU.0",
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",

@@ -83,7 +83,7 @@ rustc scalar.rs
 5
 ```
 
-This is exactly why the [Functions I](/lectures/functions) lecture could treat passing a scalar as passing a copy: for these small values, a second name really does behave like an independent copy, in both languages. The interesting question, the one that lecture promised to return to, is what happens when the value is not small.
+This is exactly why the [Functions](/lectures/functions) lecture could treat passing a scalar as passing a copy: for these small values, a second name really does behave like an independent copy, in both languages. The interesting question, the one that lecture promised to return to, is what happens when the value is not small.
 
 :::note[Every Python name is a reference, even to a number]
 The picture above says a small value sits directly where the name is, and for Rust that is literally true: an `i32` is stored inline, and `let b = a` duplicates its bits. Python is stricter with itself: there, a name *always* refers to an object, and even the number `5` is an object somewhere in memory. What makes a whole number behave like a copy in Python is not that it is copied, but that it cannot be changed in place. `b = b + 1` cannot alter the `5` that `a` still refers to; it can only build a new `6` and point `b` at it. Because you can never modify a number where it sits, the sharing is impossible to observe, and the name behaves exactly as if it held its own copy. The real dividing line in Python is whether a value can be changed in place. A number cannot; a list, as you are about to see, can.

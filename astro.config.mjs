@@ -5,15 +5,11 @@ import starlight from "@astrojs/starlight";
 import tailwindcss from "@tailwindcss/vite";
 import mermaid from 'astro-mermaid';
 import svelte from "@astrojs/svelte";
-// import starlightPageActions from 'starlight-page-actions'
-import starlightLinksValidator from 'starlight-links-validator'
-// import { unified } from '@astrojs/markdown-remark';
+import starlightPageActions from 'starlight-page-actions';
+import starlightLinksValidator from 'starlight-links-validator';
 
 // https://astro.build/config
 export default defineConfig({
-  // markdown: {
-  //   processor: unified(),
-  // },
   vite: {
     plugins: [tailwindcss()],
   },
@@ -27,18 +23,18 @@ export default defineConfig({
     starlight({
       plugins: [
         starlightLinksValidator(),
-        // starlightPageActions({
-        //   baseUrl: "https://engr103.alexulbrich.com",
-        //   actions: {
-        //     markdown: false,
-        //     custom: {
-        //       grok: {
-        //         label: "Open in Grok",
-        //         href: "https://grok.com/?q=",
-        //       },
-        //     },
-        //   },
-        // })
+        starlightPageActions({
+          baseUrl: "https://engr103.alexulbrich.com",
+          actions: {
+            markdown: false,
+            // custom: {
+            //   grok: {
+            //     label: "Open in Grok",
+            //     href: "https://grok.com/?q=",
+            //   },
+            // },
+          },
+        })
       ],
       title: "ENGR 103 Engineering Computation and Algorithmic Thinking",
       social: [
