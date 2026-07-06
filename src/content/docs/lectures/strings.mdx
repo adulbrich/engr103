@@ -1,266 +1,472 @@
 ---
-title: "Strings"
-description: "Learn about strings in C++ and how to work with them effectively. This guide covers string basics, comparing strings, reading strings with >> and std::getline(), and handling user input in your programs."
+title: "Strings and Characters"
+description: "Learn how a computer stores text as a sequence of characters, each character a whole number by the ASCII mapping, and how to index, slice, search, and build strings in Python and Rust."
 sidebar:
-  order: 17
+  order: 13
 ---
 
-A **string** is a sequence of characters, and a **string literal** is simply text enclosed in quotation marks `""`. You've encountered string literals many times, even in a basic “Hello, World!” program, where the printed text is enclosed as a string literal:
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+import WhatDiffers from '/src/components/WhatDiffers.astro';
+import AsciiTable from '/src/components/AsciiTable.astro';
 
-```cpp title="Hello World Example"
-std::cout << "Hello, World!" << std::endl;
+{/* ai-summary
+type: lecture
+slug: strings
+order: 13
+covers: strings as sequences of characters; character encoding and ASCII; ord/chr and char casts; indexing and Rust's byte-vs-char rule; length in bytes vs characters; slicing; searching with in/find/contains; building strings by concatenation and in a loop; equality
+prereq_lectures: loop-patterns
+followup_lectures: collections-i
+glossary_terms: string, character, character encoding, ASCII, index, slice, substring
+*/}
+
+<LanguageVersions />
+
+Almost every program eventually works with text: a name typed by a person, a word to search for, a message to print. Yet an earlier lecture established that a computer stores every value as a number, a pattern of bits in memory, with no notion of a letter at all. So a plain question sits underneath all text handling: how does a machine that only holds numbers store the word `cat`, and how do you then reach into that word to pull out a single letter, measure how long it is, or check whether it contains `at`? This lecture answers both halves. First it shows what text actually is to a computer, one number standing for each character. Then it shows the operations that let you take text apart and put it back together: reaching a character by its position, measuring length, slicing out a piece, searching for a smaller piece, and building a longer string up from smaller ones.
+
+## Strings as sequences of characters
+
+A **string** is an ordered sequence of characters: the pieces of text you have already printed many times, now looked at closely enough to take apart. A **character** is a single one of those pieces, one letter, digit, space, or symbol. The word `cat` is a string of three characters, `c` then `a` then `t`, and the order is part of what the string is: `cat` and `act` hold the same three characters but are different strings, because a string remembers not just which characters it contains but the sequence they come in.
+
+Each of those characters is stored, underneath, as a whole number. The data representation lecture showed that every value a program holds is ultimately bits in memory, and text is no exception: the computer keeps a string as a run of numbers, one number for each character, laid out in order. The letter `c` is not stored as some special "letter" thing; it is stored as the particular number that stands for `c`, and the next section is entirely about which number that is and who decides. For now the shape is what matters: a string is a sequence, its characters sit in a fixed order, and each character is really a number in disguise.
+
+Because a string is a sequence, its characters have positions, counted from zero exactly the way a `for` loop's range counted from zero in an earlier lecture: the first character is at position 0, the second at position 1, the third at position 2. That position is called an **index**, and it is how you name one character out of the sequence later in this lecture. A string written directly in your code, inside quotation marks, is a **string literal**, a fixed piece of text marked as text rather than as code to run. Strings are the only sequence this lecture uses; a more general sequence, the list, arrives in a later lecture, and the [language ladder](/reference/language-ladder) records what is available when.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="A string is a sequence of characters"
+word = "cat"
+print(word)
 ```
-
-While strings may seem simple, they are actually more complex than they appear. 
-
-## String Basics
-
-Like other data types, **string values** can be stored in variables. However, in C++, strings are not primitive data types; they belong to a more complex type known as a **class**. To use strings, you need to include the appropriate header file. The string data type in C++ is called `std::string`, and to access it, you must add the following directive at the top of your program:
-
-```cpp title="Including the String Header"
-#include <string>
-```
-
-The `std::string` class is part of the C++ Standard Library, which places it in the `std` namespace. As a result, you need to prefix it with `std::` (e.g., `std::string`). This requirement might feel unusual because, until now, you've only worked with primitive, built-in data types that don't require namespace prefixes.
-
-Here's an example of defining a string variable called `my_cool_string` that stores the text “Hello”:
-
-```cpp
-// string_basics.cpp
-#include <string>
-
-int main() 
-{
-    std::string my_cool_string = "Hello";
-    return 0;
+</TabItem>
+<TabItem label="Rust">
+```rust title="A string is a sequence of characters"
+fn main() {
+    let word = "cat";
+    println!("{}", word);
 }
 ```
+</TabItem>
+</Tabs>
 
-If you are already including the `<iostream>` header file, you don't need to explicitly include `<string>`, as `<iostream>` indirectly includes it. However, it's generally a good practice to include `<string>` explicitly for clarity.
+## Character encoding and ASCII
 
-### Comparing Strings
+If every character is stored as a number, then something has to decide which number stands for which character, and that decision cannot be private to one program. When you save the letter `A` and another program reads it back, both have to agree that the same number means `A`, or the text turns to nonsense. A **character encoding** is exactly that shared agreement: a fixed mapping that says which whole number stands for each character. It is an agreed-upon table, nothing more, but because everyone agrees on it, a number written by one program is read as the right character by another.
 
-Strings can be compared for **equality** using the `==` operator:
+The oldest such agreement still in everyday use is **ASCII** (American Standard Code for Information Interchange), a mapping that covers the common characters of written English: the uppercase and lowercase letters, the digits `0` through `9`, punctuation, the space, and a handful of control codes. ASCII assigns each of these a number from 0 to 127. A capital `A` is 65, a lowercase `a` is 97, and the digit character `0` is 48. That last one is worth pausing on: the character `0` is not the number 0. It is the number 48, the code ASCII assigned to the shape you draw for a zero, which is a different thing from the quantity zero.
 
-```cpp title="String Comparison Example"
-if (some_string == some_other_string) {
-    std::cout << "The two strings are equal!" << std::endl;
+These numbers connect straight back to the bits and bytes of the data representation lecture. The number 65 is, in binary, the byte `01000001`, and that is literally what sits in memory for a stored `A`: eight bits, the same byte the binary visualizer in that lecture showed a letter appearing at. A character is not stored as anything more mysterious than one of the whole numbers you already learned to write in binary; ASCII is just the key that says which number is which letter. The full table below gives every ASCII character and its number, in decimal and in hexadecimal, so you can look up any one of them.
+
+<AsciiTable />
+
+Both languages let you cross between a character and its number in both directions, which makes the mapping something you can see rather than take on faith. In Python, the built-in function `ord` takes a single character and returns its ASCII number, and `chr` takes a number and returns the character it stands for. In Rust, a single character has its own type, `char`, written with single quotes (`'A'`), and you turn a character into its number with the cast `as u32`, the same `as` conversion you have seen between number types. To go the other way, from a number back to a character, Rust casts a byte-sized number with `as char`: `65u8 as char` gives `'A'`, and reading `65u8` as "the byte whose value is 65" ties the conversion directly to that `01000001` in memory.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="A character and its number, both directions"
+print(ord('A'))
+print(ord('a'))
+print(ord('0'))
+print(chr(65))
+print(chr(97))
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="A character and its number, both directions"
+fn main() {
+    println!("{}", 'A' as u32);
+    println!("{}", 'a' as u32);
+    println!("{}", '0' as u32);
+    println!("{}", 65u8 as char);
+    println!("{}", 97u8 as char);
 }
 ```
+</TabItem>
+</Tabs>
 
-The comparison evaluates to `true` only if every character in both strings matches exactly. Comparisons are case-sensitive, so "hello" and "Hello" are considered unequal. Additionally, two strings with different lengths are not equal, even if one is a prefix or substring of the other (e.g., "goodbye" vs. "goodby").
+Running either version prints the numbers for `A`, `a`, and the digit character `0`, then turns 65 and 97 back into the letters they encode:
 
-### Empty Strings
-
-A `std::string` variable can hold any sequence of zero or more characters, including no characters. A string with no characters is called an **empty string**. To check if a string is empty, you can compare it directly to an empty string literal:
-
-```cpp title="Empty String Check"
-if (my_cool_string == "") {
-    std::cout << "The string variable is empty!" << std::endl;
-}
+```bash title="Run the Python program"
+python3 code.py
 ```
 
-While there are other methods to check for an empty string, the above approach is straightforward and effective.
-
-### Printing Strings
-
-You can print the value of a `std::string` variable to the terminal using `std::cout`, just as you would with other variables. For example, here's a “Hello, World!” program that stores the text in a string variable:
-
-```cpp title="Hello World with Strings"
-#include <iostream>
-#include <string>
-
-int main() 
-{
-    std::string greeting = "Hello, World!";
-    std::cout << greeting << std::endl;
-    return 0;
-}
+```text frame="terminal" title="Output"
+65
+97
+48
+A
+a
 ```
 
-## Reading Strings with `>>`
+<WhatDiffers>
+<Fragment slot="differs">
+Python has no separate character type: a single character is just a string of length 1, written with the same quotation marks as any other string, and you convert with the functions `ord` and `chr`. Rust makes a character a distinct type, `char`, written with single quotes, kept separate from a string written with double quotes, and you convert with the `as` cast rather than a function. Rust's reverse cast goes from a byte-sized number (`65u8`) to `char`; casting a wider number straight to `char` with `as` is not allowed, because not every number is a valid character.
+</Fragment>
+</WhatDiffers>
 
-You can read strings from user input via `std::cin`, but understanding how it interacts with the input buffer is crucial.
-
-When a user types input into the terminal during program execution, all characters they provide are stored in an input buffer. This is a temporary memory area that records the input sequence. When your program reads data using `std::cin`, it retrieves the data from this buffer. As the data is read, it is removed from the buffer (i.e., it's “moved” into your program's variables).
-
-The `>>` operator processes the input buffer in a specific way when handling text with whitespace (spaces, newlines, tabs, etc.):
-
-1. **Skipping Leading Whitespace**: If the user's input starts with whitespace, the operator ignores it.
-2. **Reading Until a Stopping Character**: After skipping leading whitespace, the operator extracts characters one by one until it encounters:
-    - A non-viable character for the data type being read.
-    - A whitespace character.
-
-What constitutes a “non-viable character” depends on the data type. For instance:
-
-  - When reading into an `int` variable, characters like a period (`.`) are non-viable because integers cannot contain decimal points.
-  - When reading into a `std::string`, there are no non-viable characters; however, the operator stops at **whitespace**.
-
-Any characters that remain after the operator stops are left in the input buffer, ready for the next read operation.
-
-Consider this program:
-
-```cpp title="Reading an Integer with >>"
-std::cout << "Enter an integer: ";
-int number;
-std::cin >> number;
-```
-
-If the user enters `3.5`, the `>>` operator reads the `3` (the part of the input valid for an `int`) and stops when it encounters the period (`.`), which is non-viable for an `int`. The result is:
-
-- `number` stores `3`.
-- The remaining input (`.5`) stays in the input buffer.
-
-If the program subsequently reads more input, it will process the leftover `.5` without waiting for new input.
-
-Here's an extended version of the program:
-
-```cpp
-// leftover_data.cpp
-std::cout << "Enter an integer: ";
-int number;
-std::cin >> number;
-
-double leftover_data;
-std::cin >> leftover_data;
-
-std::cout << "Number is: " << number << std::endl;
-std::cout << "Leftover data is: " << leftover_data << std::endl;
-```
-
-If the user enters `3.5`:
-
-- `number` is assigned `3`.
-- The leftover `.5` is read into `leftover_data`.
-
-The output will be:
-
-```plaintext frame="terminal" title="Output of leftover_data.cpp"
-Number is: 3
-Leftover data is: 0.5
-```
-
-When reading into a `std::string` variable, there are no non-viable characters, as strings can store any sequence of characters. However, the `>>` operator stops at whitespace, even though strings can store whitespace characters.
-
-Thus, when using `>>` to read a string, only a single “word” is extracted at a time.
-
-Consider this program:
-
-```cpp
-// leftover_data_string.cpp
-#include <iostream>
-#include <string>
-
-int main() 
-{
-    std::cout << "Enter a sequence of characters: ";
-    std::string sequence_of_characters;
-    std::cin >> sequence_of_characters;
-
-    std::cout << "You entered the following: " 
-              << sequence_of_characters << std::endl;
-
-    return 0;
-}
-```
-
-If the user enters the famous English pangram:
-
-```plaintext frame="terminal" title="User Input Example"
-the quick brown fox jumps over the lazy dog
-```
-
-The `>>` operator stops at the first space, leaving the rest of the input in the buffer. The program will output:
-
-```plaintext frame="terminal" title="Output of leftover_data_string.cpp"
-Enter a sequence of characters: the quick brown fox jumps over the lazy dog
-You entered the following: the
-```
-
-If the program attempts to read another string using `std::cin`, it will start where it left off, reading the next word (“quick”) and stopping at the following space.
-
-## Reading Strings with `std::getline()`
-
-If you want to read an entire sentence or line of text from the user--capturing every character up until they press the Enter key--you'll need a method other than the `>>` operator. The `>>` operator stops reading at whitespace, as explained previously, making it unsuitable for this purpose. Instead, C++ provides the `std::getline()` function, which is designed specifically for reading entire lines of text.
-
-The `std::getline()` function is part of the `<string>` header file. It takes two arguments:
-
-1. The stream to read from (e.g., `std::cin`).
-2. The string variable to store the input.
-
-When called, `std::getline()` reads all characters from the input buffer up to the first newline character and stores them in the specified string variable.
-
-Here's an example of how you can use `std::getline()`:
-
-```cpp
-// getline_example.cpp
-#include <iostream>
-#include <string>
-
-int main() 
-{
-    std::cout << "Enter a sequence of characters: ";
-    std::string sequence_of_characters;
-    std::getline(std::cin, sequence_of_characters);
-
-    std::cout << "You entered the following: " 
-              << sequence_of_characters << std::endl;
-
-    return 0;
-}
-```
-
-```plaintext frame="terminal" title="User Input with std::getline()"
-Enter a sequence of characters: the quick brown fox jumps over the lazy dog
-You entered the following: the quick brown fox jumps over the lazy dog
-```
-
-Unlike the `>>` operator, `std::getline()` captures the entire line, including spaces.
-
-You may notice that the `std::getline(std::cin, sequence_of_characters)` call directly modifies the value of `sequence_of_characters`. This behavior might seem odd since parameters are usually **copies** of arguments and cannot modify them.
-
-The key lies in how `std::getline()` is designed. Its second parameter is a **reference parameter**, meaning it refers directly to the original argument rather than creating a copy. As a result, any modifications made to the parameter within `std::getline()` affect the original variable.
-
-You don't need to worry about the technical details for now. Just note that reference parameters allow functions like `std::getline()` to modify their arguments directly. We'll discuss reference parameters more thoroughly later in the term.
-
-Be cautious when combining `>>` and `std::getline()` in the same program. These two input mechanisms interact differently with the input buffer, which can cause unexpected behavior.
-
-- Stream Extraction Operator (`>>`)
-  - Skips leading whitespace (e.g., spaces, tabs, newlines).
-  - Stops at the first trailing whitespace or non-viable character, leaving the rest in the buffer.
-- `std::getline()` Function
-  - Does not skip leading whitespace. It reads all characters, including leading spaces, and stops at the newline character.
-  - Skips the newline character at the end of the line.
-
-If you use `>>` to extract input and then call `std::getline()` afterward, the leftover newline character from the previous input may cause `std::getline()` to read an empty line. For example:
-
-```cpp
-// cin_getline_risk.cpp
-std::cin >> number;
-std::getline(std::cin, text);
-```
-
-In this case, `std::getline()` may capture just the leftover newline, resulting in an *empty* text variable.
-To fix this, you can use `std::cin.ignore()` to discard the leftover characters (like the newline) from the input buffer before calling `std::getline()`.
-
-```cpp title="Using std::cin.ignore()"
-std::cin >> number;
-std::cin.ignore(); // Discard the newline character left by >>
-std::getline(std::cin, text);
-```
-
-`std::cin.ignore()` without arguments discards exactly one character in the input buffer, which is typically the newline left by the `>>` operator. This allows `std::getline()` to function as intended, reading the user's input without interference from leftover characters.
-
-:::tip[Extra Safe `std::cin.ignore()`]
-If you want to be extra safe (for example, if the user might type extra characters after the number), you can ignore *everything up to the next newline* instead of just one character:
-
-```cpp title="Extra Safe std::cin.ignore()"
-#include <limits>
-
-std::cin >> number;
-std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-std::getline(std::cin, text);
-```
-
-The first argument is the number of characters to ignore, and the second argument is the delimiter at which to stop ignoring.
+:::note[Beyond ASCII: Unicode and UTF-8]
+ASCII only ever covers 128 characters, enough for English but not for accented letters, other alphabets, or symbols like an emoji. Modern text uses **Unicode**, a much larger mapping that gives a number to well over a hundred thousand characters from writing systems all over the world, and it is built so that its first 128 numbers are exactly ASCII: every ASCII character keeps the same number under Unicode. The usual way to store Unicode text is an encoding called **UTF-8**, and its key property matters for the rest of this lecture: a character that is not plain ASCII is stored using more than one byte. A plain English letter is still a single byte, just as in ASCII, but an accented letter like `é` takes two. You do not need the details of UTF-8 here, only that one character is no longer guaranteed to be one byte, a fact that shapes how Rust treats strings below.
 :::
+
+## Indexing and characters
+
+Since a string keeps its characters in order, the natural next question is how to reach one of them by its position. Using an index to pull a single character out of a string is called **indexing**, and the index is the position, counted from zero as described above. Reaching for index 0 gives the first character, index 1 the second, and so on. This is where the two languages diverge more sharply than anywhere else in the lecture, and the reason traces directly back to UTF-8.
+
+In Python, indexing is written with square brackets: `s[0]` is the character at position 0 of the string `s`. It reads the way you would hope, one bracketed number giving one character.
+
+The very same square-bracket indexing on a Rust string does not compile at all. It is worth seeing the identical code accepted by one language and rejected by the other, because the rejection is the lesson:
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="Reading one character by position"
+s = "cat"
+print(s[0])
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="Reading one character by position (will not compile)"
+fn main() {
+    let s = "cat";
+    println!("{}", s[0]); // error: a string cannot be indexed by an integer (Rust will not compile this)
+}
+```
+</TabItem>
+</Tabs>
+
+Compiling the Rust version produces no program, only a refusal that even suggests what to use instead:
+
+```bash title="Compile the Rust program"
+rustc index.rs
+```
+
+```text frame="terminal" title="Output"
+error[E0277]: the type `str` cannot be indexed by `{integer}`
+ --> index.rs:3:22
+  |
+3 |     println!("{}", s[0]);
+  |                      ^ string indices are ranges of `usize`
+  |
+  = note: you can use `.chars().nth()` or `.bytes().nth()`
+```
+
+The refusal is not Rust being awkward for its own sake. A Rust string is stored as UTF-8 bytes, and the note about UTF-8 above is why `s[0]` has no clear meaning: position 0 could reasonably mean "the first byte" or "the first character," and for text with any non-ASCII character those are not the same thing. Rather than silently pick one and sometimes hand back half of a character, Rust refuses the ambiguous request and makes you say which you meant. To ask for a character, you call `.chars()`, which walks the string as characters rather than bytes, and then `.nth(i)` for the character at position `i`.
+
+That call gives back its answer wrapped in an **Option**, a value that is either `Some(value)`, holding the thing that was found, or `None`, meaning there was nothing at that position. It is the close cousin of the `Result` the input lecture introduced: where `Result` reports success or failure with `Ok` and `Err`, `Option` reports presence or absence with `Some` and `None`. Asking for position 0 of `cat` yields `Some('c')`, because there is a character there; asking for a position past the end would yield `None` instead of crashing. To print an `Option`, you use `{:?}` in place of the usual `{}`: the `{:?}` is a debugging format that knows how to display a wrapped value like `Some('c')`, which the plain `{}` cannot.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="Reaching characters by index"
+s = "cat"
+print(s[0])
+print(s[2])
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="Reaching characters by index"
+fn main() {
+    let s = "cat";
+    println!("{:?}", s.chars().nth(0));
+    println!("{:?}", s.chars().nth(2));
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 index.py
+```
+
+```text frame="terminal" title="Output"
+c
+t
+```
+
+```bash title="Compile and run the Rust program"
+rustc nth.rs
+./nth
+```
+
+```text frame="terminal" title="Output"
+Some('c')
+Some('t')
+```
+
+<WhatDiffers>
+<Fragment slot="differs">
+Python indexes a string directly with `s[0]` and hands back the character. Rust rejects integer indexing on a string entirely, because its UTF-8 storage makes "position 0" ambiguous between a byte and a character; you reach a character with `s.chars().nth(0)` instead, which returns an `Option` (`Some('c')` when a character is there, `None` when the position is past the end) rather than the bare character. Printing that `Option` needs `{:?}`, not `{}`.
+</Fragment>
+</WhatDiffers>
+
+## Length
+
+A string's **length** is the count of characters in it, and asking for it is one of the most common things you do with text: to loop over every character, to check that input is not empty, to reject a password that is too short. For plain English text the count is exactly what you expect, but the UTF-8 detail from before makes one language draw a distinction the other hides.
+
+In Python, `len(s)` returns the number of characters in the string, so `len("cat")` is 3. In Rust, the method `.len()` returns something subtly different: the number of **bytes** the string occupies, not the number of characters. For text that is entirely ASCII these are the same number, because each ASCII character is exactly one byte, so `"cat".len()` is also 3 and the distinction never shows. To count characters regardless of how many bytes each takes, Rust offers `.chars().count()`, which walks the string as characters and counts them.
+
+The gap between the two opens up the moment a character takes more than one byte. The string `café` has four characters, but its `é` is stored as two bytes under UTF-8, so it occupies five bytes in all.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="Length in characters"
+print(len("cat"))
+print(len("café"))
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="Length: bytes versus characters"
+fn main() {
+    println!("{}", "cat".len());
+    println!("{}", "café".len());
+    println!("{}", "café".chars().count());
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 length.py
+```
+
+```text frame="terminal" title="Output"
+3
+4
+```
+
+```bash title="Compile and run the Rust program"
+rustc length.rs
+./length
+```
+
+```text frame="terminal" title="Output"
+3
+5
+4
+```
+
+<WhatDiffers>
+<Fragment slot="differs">
+Python's `len` counts characters, so `len("café")` is 4. Rust's `.len()` counts bytes, so `"café".len()` is 5, because the `é` takes two bytes under UTF-8; `"café".chars().count()` counts characters and gives 4. For all-ASCII text the two Rust methods agree, since every ASCII character is one byte, which is why `"cat".len()` is 3 either way.
+</Fragment>
+</WhatDiffers>
+
+:::note[Why Rust exposes bytes at all]
+It can seem odd that Rust's most obvious length method counts bytes rather than characters. The reason is honesty about cost: the number of bytes is how much memory the string actually uses and is instant to report, while counting characters means walking the whole string to see where each one starts and ends. Rust names the cheap, exact measurement `.len()` and makes you spell out `.chars().count()` when you want the more expensive character count. As long as your text is ASCII, the two coincide and you can use whichever reads more clearly.
+:::
+
+## Slicing and substrings
+
+Reaching one character is useful, but often you want a whole run of them: the first three letters, the middle word, everything after a marker. A piece of a string taken out as its own smaller string is a **substring**, and the act of taking one by giving a range of positions is called **slicing**. A slice is described by two indices, a start and an end, and it follows the very same half-open convention as the ranges in the loops lecture: it includes the character at the start index and runs up to but does not include the character at the end index.
+
+In Python, a slice is written `s[1:4]`: start at index 1, stop just before index 4. In Rust, you slice with a range inside square brackets and an `&`, written `&s[1..4]`, using the same `..` range you used to drive a `for` loop and the same half-open meaning. Because a Rust slice is taken by byte position, it is exact and safe on ASCII text, where one character is one byte; the caveat from before still applies, so slicing in the middle of a multi-byte character is a boundary Rust checks, but on ASCII every position is a clean character boundary.
+
+Trace `s[1:4]` on the string `engineer`. Its characters sit at indices 0 through 7: `e` at 0, `n` at 1, `g` at 2, `i` at 3, `n` at 4, and so on. The slice starts at index 1, so it includes `n`; it takes index 2, `g`, and index 3, `i`; then it reaches index 4 and stops, because 4 is the end index and a half-open slice excludes its end. The result is the three characters `n`, `g`, `i`, the substring `ngi`.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="Slicing out a substring"
+s = "engineer"
+print(s[1:4])
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="Slicing out a substring"
+fn main() {
+    let s = "engineer";
+    println!("{}", &s[1..4]);
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 slice.py
+```
+
+```text frame="terminal" title="Output"
+ngi
+```
+
+```bash title="Compile and run the Rust program"
+rustc slice.rs
+./slice
+```
+
+```text frame="terminal" title="Output"
+ngi
+```
+
+<WhatDiffers>
+<Fragment slot="differs">
+Both languages slice with the same half-open range, taking the start index and stopping just before the end index. Python writes it `s[1:4]` with a colon between the two indices; Rust writes it `&s[1..4]`, reusing the `..` range from `for` loops and requiring the leading `&`. Rust's slice is by byte position, exact on ASCII where one character is one byte.
+</Fragment>
+</WhatDiffers>
+
+## Searching
+
+A very common question about a string is whether it contains a smaller string somewhere inside it: does this sentence mention `cat`, does this filename end in a particular word. Both languages answer it two ways, a plain yes-or-no and a where-is-it, and the where-is-it version shows the same presence-or-absence idea that indexing did.
+
+For the yes-or-no, Python uses the word `in`: the expression `"cat" in s` is a boolean, `True` when the substring `cat` appears anywhere in `s` and `False` when it does not. Rust uses a method, `s.contains("cat")`, returning the same kind of boolean. For the where-is-it, both offer `find`, but they report a missing substring differently, and the difference is a genuine trap. Python's `s.find("cat")` returns the index where the substring starts, or `-1` when it is not present. That `-1` looks like an ordinary index but is a signal for "not found," and code that forgets to check for it can misread the failure as a real position. Rust's `s.find("cat")` returns an `Option` instead, `Some(index)` when the substring is found and `None` when it is not, the same wrapped answer that `.chars().nth` gave, so the "not found" case cannot be mistaken for a position.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="Does the string contain a substring, and where"
+s = "the cat sat"
+print("cat" in s)
+print("dog" in s)
+print(s.find("cat"))
+print(s.find("dog"))
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="Does the string contain a substring, and where"
+fn main() {
+    let s = "the cat sat";
+    println!("{}", s.contains("cat"));
+    println!("{}", s.contains("dog"));
+    println!("{:?}", s.find("cat"));
+    println!("{:?}", s.find("dog"));
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 search.py
+```
+
+```text frame="terminal" title="Output"
+True
+False
+4
+-1
+```
+
+```bash title="Compile and run the Rust program"
+rustc search.rs
+./search
+```
+
+```text frame="terminal" title="Output"
+true
+false
+Some(4)
+None
+```
+
+In both runs, `cat` starts at index 4 of `the cat sat`: the characters `t`, `h`, `e`, and the space fill positions 0 through 3, and the `c` of `cat` is at position 4. Searching for `dog`, which is absent, is where the two part: Python reports `-1` and Rust reports `None`.
+
+<WhatDiffers>
+<Fragment slot="differs">
+For the yes-or-no test, Python uses the `in` keyword (`"cat" in s`) and Rust uses a method (`s.contains("cat")`), both giving a boolean. For the position, both call `find`, but a missing substring is reported differently: Python returns `-1`, a value that looks like an index but means "not found," while Rust returns an `Option`, `Some(4)` when found and `None` when not, so absence cannot be confused with a real position. Printing Rust's result needs `{:?}`.
+</Fragment>
+</WhatDiffers>
+
+## Building strings
+
+Taking strings apart is half the job; the other half is putting them together. Joining two strings end to end into a longer one is called **concatenation**, and building a longer string a piece at a time, inside a loop, is just the accumulate pattern from the loop-patterns lecture applied to text: start with a running result and add to it on each pass, exactly as you accumulated a running total with numbers, only now the running value is a string.
+
+Python concatenates with `+`: `"Hello, " + "World"` is one string, `Hello, World`. To drop a value into the middle of a string, Python offers an **f-string**, a string literal with an `f` before the opening quote, where anything inside curly braces is replaced by its value: `f"Hello, {name}!"` builds a greeting with the value of `name` spliced in. Rust keeps a fixed string literal separate from a string you can grow. A literal in double quotes has a fixed size decided when you write it and cannot be extended. When you need to build text up, Rust gives you a growable string type called `String`: `String::new()` makes an empty one, and `.push_str("ab")` adds text to its end. Rust's equivalent of an f-string is the `format!` macro, which builds a new string from a template with `{}` placeholders, `format!("Hello, {}!", name)`, using the same `{}` you already write inside `println!`.
+
+The loop case is where the accumulate pattern shows through most clearly. Starting from an empty string and adding `ab` on each of three passes builds `ababab`, one join at a time.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="Concatenating and building in a loop"
+greeting = "Hello, " + "World"
+print(greeting)
+
+name = "Ada"
+print(f"Hello, {name}!")
+
+word = ""
+for i in range(3):
+    word = word + "ab"
+print(word)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="Concatenating and building in a loop"
+fn main() {
+    let name = "Ada";
+    println!("{}", format!("Hello, {}!", name));
+
+    let mut word = String::new();
+    for _ in 0..3 {
+        word.push_str("ab");
+    }
+    println!("{}", word);
+}
+```
+</TabItem>
+</Tabs>
+
+Trace the loop. `word` starts as the empty string. The first pass adds `ab`, making `ab`; the second pass adds `ab` to that, making `abab`; the third pass adds `ab` once more, making `ababab`. After the loop, that accumulated string is printed.
+
+```bash title="Run the Python program"
+python3 build.py
+```
+
+```text frame="terminal" title="Output"
+Hello, World
+Hello, Ada!
+ababab
+```
+
+```bash title="Compile and run the Rust program"
+rustc build.rs
+./build
+```
+
+```text frame="terminal" title="Output"
+Hello, Ada!
+ababab
+```
+
+<WhatDiffers>
+<Fragment slot="differs">
+Python treats all strings alike: `+` concatenates them, an f-string (`f"...{name}..."`) splices values in, and a plain variable can be reassigned to a longer string in a loop. Rust separates a fixed string literal, which cannot grow, from a `String`, which can: you make one with `String::new()`, add to it with `.push_str(...)`, and build one from a template with the `format!` macro in place of an f-string. The `for _ in 0..3` uses `_` for the loop variable because the loop body never reads it.
+</Fragment>
+</WhatDiffers>
+
+## Comparing strings for equality
+
+Checking whether two strings are the same comes up constantly, whenever you compare typed input against an expected answer, and both languages spell it the same way you compared numbers: the `==` operator. Two strings are equal when they hold the same characters in the same order, and the comparison is case-sensitive, so `cat` and `Cat` are not equal, because `c` and `C` are different characters with different ASCII numbers (99 and 67).
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="String equality is case-sensitive"
+print("cat" == "cat")
+print("cat" == "Cat")
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="String equality is case-sensitive"
+fn main() {
+    println!("{}", "cat" == "cat");
+    println!("{}", "cat" == "Cat");
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 equal.py
+```
+
+```text frame="terminal" title="Output"
+True
+False
+```
+
+Both print `True` (Rust's `true`) for the identical strings and `False` for the pair that differs only in case, since `==` compares character by character and treats an uppercase letter as distinct from its lowercase form.
+
+## Takeaways
+
+A string is an ordered sequence of characters, and each character is stored as a whole number by a shared agreement called a character encoding. ASCII is the foundational encoding, giving the common English characters numbers from 0 to 127, so that `A` is 65, `a` is 97, and the digit character `0` is 48, each of those numbers being one of the same bytes the data representation lecture taught you to read in binary. Python and Rust let you cross between a character and its number, Python with the functions `ord` and `chr`, Rust with `as` casts on its distinct `char` type. Modern text extends ASCII with Unicode, stored as UTF-8, where a character can take more than one byte, and that single fact drives the deepest split in this lecture: Python treats a string as a plain sequence of characters you can index with `s[0]`, measure with `len`, and slice with `s[1:4]`, while Rust, storing text as UTF-8 bytes, refuses integer indexing as ambiguous and asks you to walk the string with `.chars().nth(i)`, counts bytes with `.len()` and characters with `.chars().count()`, and slices by byte range with `&s[1..4]`. Searching a string is the same idea in both, a yes-or-no with Python's `in` and Rust's `contains` and a where-is-it with `find`, though Python signals a miss with `-1` and Rust with `None` inside an `Option`, the presence-or-absence twin of the `Result` you already knew. Building strings runs the accumulate pattern on text: Python joins with `+` and splices with f-strings, while Rust grows a `String` with `push_str` and builds from a template with `format!`. Under all of it, the half-open range and zero-based positions carry straight over from loops, and the equality operator carries over from numbers. The next lecture generalizes the sequence itself, moving from a string, a sequence of characters, to a list, a sequence of any values, and the indexing, slicing, and searching you learned here reappear there almost unchanged.
+
+## Resources
+
+- [Python: Text Sequence Type `str`](https://docs.python.org/3/library/stdtypes.html#text-sequence-type-str)
+- [Python: `ord`](https://docs.python.org/3/library/functions.html#ord) and [`chr`](https://docs.python.org/3/library/functions.html#chr)
+- [The Rust Book: Storing UTF-8 Encoded Text with Strings](https://doc.rust-lang.org/book/ch08-02-strings.html)
+- [The Rust Book: The `char` type](https://doc.rust-lang.org/book/ch03-02-data-types.html#the-character-type)
