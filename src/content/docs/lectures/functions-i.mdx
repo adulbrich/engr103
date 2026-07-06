@@ -14,7 +14,7 @@ import MemoryBoxes from '/src/components/MemoryBoxes.astro';
 type: lecture
 slug: functions-i
 order: 5
-covers: defining functions with def and fn; function signatures and typed parameters; calling a function and matching arguments to parameters; return values and function calls as expressions; arguments copied into parameters
+covers: defining functions with def and fn; signatures; typed vs untyped parameters; tracing a call step by step; return values; function calls as expressions; arguments copied into parameters
 prereq_lectures: variables-and-state
 followup_lectures: scope-and-the-call-stack
 glossary_terms: function, parameter, argument, return value, function signature
@@ -26,19 +26,23 @@ A variable lets a single value be written once and reused by name; a function ex
 
 ## Functions
 
-A function is a named, reusable block of code that carries out a computation and produces a result. Once a function exists, any other part of the program can run it, or **call** it, by writing its name, without repeating the steps it performs. This should feel familiar from arithmetic: a math function like <span>f(x) = 3x + 7</span> names a computation once, and you can then ask for f(2) or f(10) without rewriting "3 times the input, plus 7" every time. A programming function works the same way, except its computation can be as short or as long as you like, and it can do far more than evaluate a single formula.
+A function is a named, reusable block of code that carries out a computation and produces a result. Once a function exists, any other part of the program can run it, or **call** it, by writing its name, without repeating the steps it performs. The [Variables and State](/lectures/variables-and-state) lecture put a name on a single value so you could reuse the value; a function puts a name on a sequence of steps so you can reuse the computation. The two are the same move applied to different things: give a thing a name, and you can refer to it later instead of writing it out again.
 
-Grouping steps under one name matters for more than saving keystrokes. A function is also a unit a program can be organized around: instead of one long list of statements, a program becomes a set of named, understandable pieces, each responsible for one computation, that call one another as needed.
+This should feel familiar from arithmetic. A math function like <span>f(x) = 3x + 7</span> names a computation once, and you can then ask for f(2) or f(10) without rewriting "3 times the input, plus 7" every time. The `x` in that definition is a stand-in: it holds the place of whatever number you supply, so that f(2) means "take the recipe and use 2 wherever `x` appears," giving 13. A programming function works the same way, except its computation can be as short or as long as you like, and it can do far more than evaluate a single formula. The stand-in, the value you supply, and the answer that comes back are the three pieces this lecture makes precise.
+
+Grouping steps under one name matters for more than saving keystrokes. A function is also a unit a program can be organized around: instead of one long list of statements, a program becomes a set of named, understandable pieces, each responsible for one computation, that call one another as needed. When one of those pieces is wrong, you fix it in the one place it is defined, and every call to it is corrected at once.
 
 ## Defining a Function
 
-Before a function can be called, it has to be defined. Defining a function fixes three things: the function's **name**, the **parameters** it accepts as input, and the type of value it produces as output. A **parameter** is a placeholder, listed in the function's definition, for a value the function will receive each time it is called; it works exactly like a variable inside the function, except its value comes from outside rather than from an assignment written in the function's own body. Together, a function's name, its parameters, and its return type make up the function's **function signature**, the part of the definition that says what the function needs and what it gives back, before you ever look at how it computes that result.
+Before a function can be called, it has to be defined, and the definition does its work in a fixed order: it settles what the function looks like from the outside before a single line of its body ever runs. Defining a function fixes three things: the function's **name**, the **parameters** it accepts as input, and the type of value it produces as output. A **parameter** is a placeholder, listed in the function's definition, for a value the function will receive each time it is called; it is the `x` from the math function, made concrete. A parameter works exactly like a variable inside the function, the same kind of name introduced in the previous lecture, except its value comes from outside, supplied at the call, rather than from an assignment written in the function's own body.
 
-Python writes a function definition with the keyword `def`, followed by the function's name, a parenthesized list of parameter names, and a colon; the function's body is indented beneath it, and a `return` statement sends back the result. Rust writes a function definition with the keyword `fn`, followed by the function's name, a parenthesized list of parameters, an arrow `->` and the return type, and a body in curly braces.
+Together, a function's name, its parameters, and its return type make up the function's **function signature**: the part of the definition that says what the function needs and what it gives back, before you ever look at how it computes that result. Read a signature left to right and it answers three questions in order. What is this function called, so I can refer to it? What must I hand it, and in what order? What kind of value will it hand back? Everything after the signature, the body, is the recipe; the signature alone is the contract, and it is fixed the moment the definition is read, before the body runs even once.
+
+Python writes a function definition with the keyword `def`, followed by the function's name, a parenthesized list of parameter names, and a colon; the function's body is indented beneath it, and a `return` statement sends back the result. Rust writes a function definition with the keyword `fn`, followed by the function's name, a parenthesized list of parameters, an arrow `->` and the return type, and a body in curly braces. The difference between the two runs deeper than spelling, and it is the same static-versus-dynamic split you have already seen. Rust demands a type on every parameter and after the arrow because its compiler checks the whole file before running anything, and it cannot check that `area` is used correctly everywhere unless it already knows, from the signature alone, that `area` takes one `f64` and returns an `f64`. Python attaches no type to a parameter at all: the type of `radius` is decided by whatever value arrives when the function is called, the same dynamic typing you saw for variables, so the signature can stay silent about types because nothing is checked until the call actually runs.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python title="Defining and calling a function"
+```python title="area.py"
 def area(radius):
     return 3.14159 * radius * radius
 
@@ -47,7 +51,7 @@ print(result)
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="Defining and calling a function"
+```rust title="area.rs"
 fn area(radius: f64) -> f64 {
     return 3.14159 * radius * radius;
 }
@@ -62,21 +66,62 @@ fn main() {
 
 <WhatDiffers>
 <Fragment slot="differs">
-Python's `def area(radius):` names the parameter but attaches no type to it, and no type to what the function returns; the type of `radius` is decided by whatever value it receives when the function is called, the same dynamic typing you saw with variables. Rust's `fn area(radius: f64) -> f64` requires an explicit type on every parameter, `f64` here, and an explicit return type after the arrow; the compiler will not infer either one for you, so a function definition without them is rejected before the program ever runs.
+Python's `def area(radius):` names the parameter but attaches no type to it and no type to what the function returns. Rust's `fn area(radius: f64) -> f64` requires an explicit type on every parameter, `f64` here, and an explicit return type after the arrow, `-> f64`; the compiler will not infer either one for you, so a function definition without them is rejected before the program runs.
 </Fragment>
 </WhatDiffers>
+
+Run either version and the call `area(2.0)` produces the area of a circle of radius 2, which the next section traces step by step:
+
+```bash title="Run the Python program"
+python3 area.py
+```
+
+```text frame="terminal" title="Output"
+12.56636
+```
+
+The Rust file takes the compile-then-run pair from the [How Programs Run](/lectures/how-programs-run) lecture, and prints the same value:
+
+```bash title="Compile and run the Rust program"
+rustc area.rs
+./area
+```
+
+```text frame="terminal" title="Output"
+12.56636
+```
+
+:::note[When a function returns nothing]
+Not every function hands a value back. A function whose job is only to print, for example, does its work and returns nothing useful. In Python such a function reaches the end of its body without a `return`, and the call still produces a value, a special "nothing" value named `None`. In Rust a function with no `-> type` in its signature returns the empty value written `()`, called the unit type. Rust also lets you return a value by writing it as the last line of the body with no semicolon and no `return` keyword, called a trailing expression, so `area` could end with `3.14159 * radius * radius` instead of `return 3.14159 * radius * radius;`. This lecture always writes an explicit `return` so the point where a value is handed back is easy to see, but you will meet the trailing-expression form in real Rust code.
+:::
 
 A clear signature is not only good style. Later in this course, the work you submit for a grade is a set of functions that an automated grader calls directly, supplying the arguments and checking what comes back, while the surrounding program's `main` and its input and output are already written for you. A function whose signature states exactly what it needs and what it produces is one the grader, or anyone else, can call correctly without reading a single line of what happens inside it.
 
 ## Calling a Function
 
-Once a function is defined, calling it means running its body by writing its name followed by parentheses that hold one value for each of its parameters. The values supplied inside those parentheses are called **arguments**: an argument is the actual value a function receives at a particular call, as opposed to a parameter, which is only the placeholder named in the function's definition. Each argument is matched to a parameter by position, left to right: the first argument becomes the first parameter, the second argument becomes the second parameter, and so on, no matter what either one happens to be named.
+Once a function is defined, calling it means writing its name followed by parentheses that hold one value for each of its parameters. The values supplied inside those parentheses are called **arguments**: an argument is the actual value a function receives at a particular call, as opposed to a parameter, which is only the placeholder named in the function's definition. Parameter and argument are two ends of the same connection. The parameter is the named slot the definition sets up; the argument is the value the call drops into that slot.
 
-Position matters because it decides which value lands in which parameter, and swapping two arguments can change the result. Take a function that subtracts one number from another:
+A call looks like one small step, `area(2.0)`, but underneath it is four steps that always happen in the same order, and seeing them is what turns a function call from magic into mechanism. Trace the call `area(2.0)` from the program above, one step at a time.
+
+First, each argument expression is evaluated to a single value, using the reduction from the [Expressions and Operators](/lectures/expressions-and-operators) lecture. Here the argument is the literal `2.0`, which already is a single value, so this step is immediate; had you written `area(1.0 + 1.0)`, this is the step where `1.0 + 1.0` would reduce to `2.0` before anything else happened. Arguments are ordinary expressions, and they are fully evaluated before the function is entered.
+
+Second, each argument value is copied into its matching parameter, by position, left to right. The first argument value goes into the first parameter, the second into the second, and so on, no matter what either one is named. For `area(2.0)` there is one argument and one parameter, so the value `2.0` is copied into `radius`. From this instant, `radius` is a variable holding `2.0`, living inside the function.
+
+Third, control jumps into the function body, which runs with the parameters holding those values. The line `return 3.14159 * radius * radius` runs with `radius` standing for `2.0`, so it reduces `3.14159 * 2.0 * 2.0` to the single value `12.56636`, exactly the by-hand reduction from the expressions lecture.
+
+Fourth, the `return` hands that one value back and control jumps back to the call site, where the whole call expression is replaced by the returned value. This is the key connection: a function call is itself an expression, and like every expression it reduces to a single value, its return value. So `area(2.0)` reduces to `12.56636` in the surrounding code, and the assignment `result = area(2.0)` becomes `result = 12.56636`. Nothing outside the function can tell that `12.56636` arrived from a call rather than being typed directly; a call is just one more expression that reduces to a value.
+
+:::note[A call is an expression, and reduction goes down and back up]
+The four steps are reduction crossing into a function and returning. The argument reduces to a value on the way in (steps one and two), the body reduces to a value while inside (step three), and that value replaces the call on the way out (step four). This is why a function call can sit anywhere a value can: it is an expression whose reduction happens to take a detour through the function's body before producing its one value.
+:::
+
+### Argument Order and Positional Matching
+
+Step two matches arguments to parameters strictly by position, and that positional rule is not a detail to skim past: it decides which value lands in which parameter, so swapping two arguments can change the result even though the call runs the same function. Take a function that subtracts one number from another, where the two parameters play genuinely different roles.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python title="Argument order changes the result"
+```python title="difference.py"
 def difference(minuend, subtrahend):
     return minuend - subtrahend
 
@@ -85,7 +130,7 @@ print(difference(3, 10))
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="Argument order changes the result"
+```rust title="difference.rs"
 fn difference(minuend: i32, subtrahend: i32) -> i32 {
     return minuend - subtrahend;
 }
@@ -98,21 +143,32 @@ fn main() {
 </TabItem>
 </Tabs>
 
-Both calls run the same function, but swapping the two arguments swaps which one lands in `minuend` and which lands in `subtrahend`, so the first call prints 7 and the second prints -7.
+Both lines call the same function, so both run `minuend - subtrahend`. The only difference is what step two copies where. In `difference(10, 3)`, position puts `10` into `minuend` and `3` into `subtrahend`, so the body computes `10 - 3`, which is `7`. In `difference(3, 10)`, the same positional rule puts `3` into `minuend` and `10` into `subtrahend`, so the body computes `3 - 10`, which is `-7`. The names `minuend` and `subtrahend` do not steer the arguments; position alone does, and swapping the two arguments swaps which parameter each one fills:
 
-Because a call must supply exactly one argument for every parameter, calling a function with the wrong number of arguments is an error in both languages, though each one catches it differently. Python does not check this until the call actually runs; Rust checks it while compiling, before the program takes a single step.
+```bash title="Run the Python program"
+python3 difference.py
+```
+
+```text frame="terminal" title="Output"
+7
+-7
+```
+
+### Calling With the Wrong Number of Arguments
+
+Because step two needs exactly one argument for every parameter, a call that supplies the wrong number has no consistent way to fill the slots, and both languages treat that as an error. They differ only in when they catch it, and the difference is once again the interpreter-versus-compiler split: Python does not check the count until the call actually runs, while Rust checks it while compiling, before the program takes a single step.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python title="Calling area with no arguments"
+```python title="noarg.py"
 def area(radius):
     return 3.14159 * radius * radius
 
-print(area())  # TypeError: area() missing 1 required positional argument: 'radius' (raised only when this line runs)
+print(area())  # TypeError when this line runs: area() missing 1 required positional argument: 'radius'
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="Calling area with no arguments (will not compile)"
+```rust title="noarg.rs (will not compile)"
 fn area(radius: f64) -> f64 {
     return 3.14159 * radius * radius;
 }
@@ -124,19 +180,46 @@ fn main() {
 </TabItem>
 </Tabs>
 
+Run the Python file and it fails only when execution reaches the call, because there is no parameter for the missing argument to fill:
+
+```bash title="Run the Python program"
+python3 noarg.py
+```
+
+```text frame="terminal" title="Output"
+Traceback (most recent call last):
+  File "noarg.py", line 4, in <module>
+    print(area())
+          ~~~~^^
+TypeError: area() missing 1 required positional argument: 'radius'
+```
+
+Compile the Rust file and there is no program to run at all; the compiler names exactly how many arguments the function takes and how many were supplied, and refuses to build an executable:
+
+```bash title="Compile the Rust program"
+rustc noarg.rs
+```
+
+```text frame="terminal" title="Output"
+error[E0061]: this function takes 1 argument but 0 arguments were supplied
+ --> noarg.rs:6:20
+```
+
 <WhatDiffers>
 <Fragment slot="differs">
-Python's missing-argument mistake is a `TypeError` raised the moment that call runs, consistent with Python checking things line by line as the program executes. Rust's compiler rejects the same mistake before the program ever runs, reporting exactly how many arguments the function takes and how many were supplied.
+Python's missing-argument mistake is a `TypeError` raised the moment the call runs, so the program can start and produce other output before failing on this line. Rust's compiler rejects the same mistake before the program runs, reporting the exact argument count in error `E0061` and building nothing.
 </Fragment>
 </WhatDiffers>
 
 ## Return Values
 
-Calling a function is only useful if you can do something with what it produces. A **return value** is the value a function's `return` statement sends back to wherever the function was called. A function call is itself an expression: its type is the function's return type, and its value is whatever that call returned, so it can be used anywhere an expression of that type is allowed, stored in a variable, printed directly, or combined with other values inside a larger expression.
+Step four of a call hands one value back, and a program earns its power from what it can then do with that value. A **return value** is the value a function's `return` statement sends back to wherever the function was called. Because the call expression is replaced by its return value, that value can be used anywhere an expression of its type is allowed: stored in a variable, printed directly, or combined with other values inside a larger expression, exactly like a literal or a variable of the same type.
+
+Combining a call with other values is where the "a call is an expression" rule earns its keep. Consider adding the areas of two circles in a single line.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python title="Using a return value inside a larger expression"
+```python title="sum.py"
 def area(radius):
     return 3.14159 * radius * radius
 
@@ -144,7 +227,7 @@ print(area(1.0) + area(2.0))
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="Using a return value inside a larger expression"
+```rust title="sum.rs"
 fn area(radius: f64) -> f64 {
     return 3.14159 * radius * radius;
 }
@@ -156,15 +239,36 @@ fn main() {
 </TabItem>
 </Tabs>
 
-Both calls to `area` finish before the `+` is ever evaluated, so this line adds two ordinary numbers, 3.14159 and 12.56636, and prints their sum, 15.70795. Nothing about the outer expression needs to know that either value came from a function call rather than a variable or a literal; a return value behaves like any other value the moment it comes back.
+The `+` cannot add two function calls; it adds two values. So each call must reduce to its return value first, and only then does the `+` combine what is left, the same reduction-by-replacement you traced for arithmetic, now with calls as the sub-expressions. Walk `area(1.0) + area(2.0)` down: the call `area(1.0)` reduces to `3.14159`, the call `area(2.0)` reduces to `12.56636`, and the line becomes an ordinary addition of two floats:
+
+```text title="Reducing area(1.0) + area(2.0)"
+area(1.0) + area(2.0)
+3.14159 + area(2.0)      (area(1.0) returned 3.14159)
+3.14159 + 12.56636       (area(2.0) returned 12.56636)
+15.70795                 (3.14159 + 12.56636)
+```
+
+By the time `+` runs, both calls are gone, replaced by the numbers they returned, so the line adds `3.14159` and `12.56636` and prints their sum:
+
+```bash title="Run the Python program"
+python3 sum.py
+```
+
+```text frame="terminal" title="Output"
+15.70795
+```
+
+Nothing about the outer expression needs to know that either value came from a function call rather than a variable or a literal. A return value behaves like any other value the moment it comes back, which is exactly what "a call is an expression that reduces to its return value" means in practice.
 
 ## Why Changing a Parameter Doesn't Change the Argument
 
-Every time you call a function, each argument's value is copied into its matching parameter, and that parameter is then a variable of its own, living inside the function, entirely separate from wherever the argument came from. This follows the same rule as any other variable: in Rust, a parameter is immutable by default, just like a variable created with plain `let`, so changing a parameter's value inside the function body requires marking it `mut` in the function's own definition, not in the caller.
+Step two of a call was quiet but decisive: each argument value is *copied* into its matching parameter. Copied, not shared. The parameter is a brand new variable, living inside the function, that merely starts out holding the same value the argument had. That one word is the whole reason a function cannot reach back and change the value the caller passed in, and it is worth watching happen.
+
+Because the parameter is a variable of its own, it follows every rule from the previous lecture. In Rust a parameter is immutable by default, just like a variable created with plain `let`, so a function that wants to change its parameter's value inside the body must mark it `mut` in the function's own signature, `fn double_it(mut n: i32)`, not in the caller. Python parameters can always be reassigned, matching Python variables generally. Either way, whatever the body does to the parameter happens to the copy.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python title="Changing a parameter does not change the argument"
+```python title="double_it.py"
 def double_it(n):
     n = n * 2
     return n
@@ -176,7 +280,7 @@ print(x)
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="Changing a parameter does not change the argument"
+```rust title="double_it.rs"
 fn double_it(mut n: i32) -> i32 {
     n = n * 2;
     return n;
@@ -192,27 +296,42 @@ fn main() {
 </TabItem>
 </Tabs>
 
-Both languages print 10, then 5. The call `double_it(x)` copies the value of `x` into `n`; from that point on, `n` and `x` are two separate boxes that happen to start out holding the same value.
+Trace the call `double_it(x)` through the same four steps, watching the boxes. Step one evaluates the argument `x` to its value, `5`. Step two, the copy, is the one that matters here: the value `5` is copied into the parameter `n`, so `x` and `n` are now two separate boxes that happen to hold the same number.
 
 <MemoryBoxes boxes={[
   { name: "x", value: "5" },
   { name: "n", value: "5" },
 ]} />
 
-Inside the function, the line `n = n * 2` changes only the box named `n`. The box named `x`, back in the caller, is never touched:
+Step three runs the body. The line `n = n * 2` evaluates `n * 2` to `10` and rebinds `n` to it, an ordinary reassignment from the previous lecture. It touches only the box named `n`; the box named `x`, back in the caller, is never named by this line and never changes:
 
 <MemoryBoxes boxes={[
   { name: "x", value: "5" },
   { name: "n", value: "10" },
 ]} />
 
-When `double_it` returns, `result` is set to whatever `n` held at that point, 10, while `x` still holds the 5 it held before the call was ever made.
+Step four returns `n`, which is now `10`, and the call `double_it(x)` reduces to `10`, so `result` is bound to `10`. The variable `x` still holds the `5` it held before the call was ever made. Both languages print `10`, then `5`:
 
-This copying rule is scoped to the simple values you have used so far: integers, floats, and booleans. Each of those is small enough that copying it is just copying a number. Later in the course you will meet larger values built from many parts, and passing one of those to a function raises a more subtle question about what gets shared and what gets copied; that question belongs to the memory model lecture later on. For now, every argument you pass is one of these simple values, and every one of them is copied in full.
+```bash title="Run the Python program"
+python3 double_it.py
+```
+
+```text frame="terminal" title="Output"
+10
+5
+```
+
+The reason `x` survives untouched is the copy in step two, and nothing else. Had `n` been the same box as `x` rather than a copy of its value, `n = n * 2` would have overwritten `x`, and the second line would print `10`. It prints `5` precisely because the parameter is a separate box that the argument's value was copied into.
+
+:::note[Copying a scalar is cheap]
+Copying might sound wasteful, as if every call duplicated work. For the values used here it is not: an integer, a float, or a boolean is a small, fixed-size pattern of bits, so copying one is just copying that handful of bits into another box, which a processor does in a single quick step. The copy costs almost nothing precisely because these values are small, which is part of why passing them by copy is a sensible default.
+:::
+
+This copying rule is scoped to the simple values you have used so far: integers, floats, and booleans. Each of those is small enough that copying it is just copying a number. Later in the course you will meet larger values built from many parts, and passing one of those to a function raises a more subtle question about what gets shared and what gets copied; that question belongs to the memory model lecture later on. For now, every argument you pass is one of these simple values, and every one of them is copied in full. And because the graded work in this course calls your functions directly with arguments it chooses, this rule is not academic: a function that quietly expected to change the caller's value would fail against a grader that passes its own copies in and reads only what you return.
 
 ## Takeaways
 
-A function packages a computation under a name, the way a variable packages a value under a name, so the computation can be reused by calling the name instead of retyping the steps. Defining a function fixes its signature: a name, a list of typed parameters in Rust or untyped parameters in Python, and a return type, all decided before the function's body ever runs. Calling a function matches each argument to a parameter by position, and both languages insist that the number of arguments match the number of parameters, though Python only discovers a mismatch when the call actually runs while Rust catches it while compiling. A function call is an expression, so its return value can be stored, printed, or folded into a bigger expression exactly like any other value of that type. Underneath all of this sits one more idea: calling a function copies each argument's value into its own parameter, so the function works on a private copy and cannot reach back and change the value the caller passed in, at least for the simple scalar values covered so far. The next lecture builds on this by asking where a parameter, and any other variable inside a function, actually lives while the function is running, and what happens to it once the function returns.
+A function packages a computation under a name, the way a variable packages a value under a name, so the computation can be reused by calling the name instead of retyping the steps. Defining a function fixes its signature first of all: a name, a list of parameters, and a return type, all settled before the body ever runs. Rust demands a type on every parameter and on the return because its compiler checks the whole file before running it and needs those types to do so, while Python leaves the types off and lets each parameter take on the type of whatever value arrives at the call. Calling a function is four ordered steps: evaluate each argument to a value, copy each value into its matching parameter by position, run the body with the parameters holding those values, and replace the whole call with the single value that `return` hands back. That last step is why a function call is an expression, one that reduces to its return value and can therefore be stored, printed, or folded into a larger expression like any other value; it is also why `area(1.0) + area(2.0)` adds two plain numbers, each call having reduced to its result before the `+` runs. Both languages insist the number of arguments match the number of parameters, though Python only discovers a mismatch when the call runs while Rust catches it while compiling. Underneath all of it sits the copy in step two: because each argument's value is copied into its own parameter, a function works on a private copy and cannot reach back to change the value the caller passed in, at least for the simple scalar values covered so far. The next lecture builds on this by asking where a parameter, and every other variable inside a function, actually lives while the function is running, and what happens to it the moment the function returns.
 
 ## Resources
 
