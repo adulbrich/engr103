@@ -1,0 +1,155 @@
+---
+title: "Predicting and Fixing Expressions"
+description: "Predict, compare, and debug short arithmetic expressions in Python and Rust to lock in precedence, integer versus float division, and the systematic method."
+sidebar:
+  order: 3
+draft: true
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import Reveal from '/src/components/Reveal.astro';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+import WhatDiffers from '/src/components/WhatDiffers.astro';
+
+{/* ai-summary
+type: activity
+slug: expressions-and-operators
+order: 3
+paired_lecture: expressions-and-operators
+practices: predicts the value of a mixed-operator expression before running it, using precedence and float division; names what changes and what stays fixed between Python's // and Rust's integer / across the two languages; diagnoses a silent precedence bug in an average from a wrong result using the systematic method
+prereq_activities:
+block_types: predict-then-run; same-program-two-languages; live-debugging
+output: a reconciled prediction, a named cross-language difference, and a corrected average expression for each of the three blocks
+*/}
+
+<LanguageVersions />
+
+This activity puts into practice the [Expressions and Operators](/lectures/expressions-and-operators/) lecture. You will predict the value of a mixed-operator expression before running it, compare how Python and Rust divide the same two whole numbers, and hunt down a silent precedence bug in an average. By the end, you will be able to evaluate an expression by hand using precedence and each language's division rule, and to catch a wrong answer that never raised an error.
+
+## Block 1: Predict the Value
+
+Precedence decides the order of an expression's reduction, and Python's `/` always hands back a float even when both operands are whole numbers. Together those two rules make the value of a mixed-operator expression hard to guess. You commit to an answer first, then run the program to check it.
+
+Read the program below and write down, on paper or in a comment, the exact value you expect each line to print. Do not run it yet. Reduce each expression one step at a time: apply precedence to choose which operator goes first, remember that Python's `/` produces a float, and only then settle on the final value.
+
+```python title="predict.py"
+print(10 / 4 + 3 * 2)
+print(2 + 3 * 2)
+```
+
+<Reveal label="Reveal the real output and reconcile it with your prediction">
+```bash title="Run the Python program"
+python3 predict.py
+```
+
+```text frame="terminal" title="Output"
+8.5
+8
+```
+
+The first line reduces `10 / 4 + 3 * 2`. Precedence runs `/` and `*` before `+`, and left-associativity takes the leftmost of the two equal-ranked operators first, so the order of steps is `10 / 4`, then `3 * 2`, then the addition. Python's `/` is float division, so `10 / 4` is the exact `2.5`, not `2`; then `3 * 2` is `6`, and `2.5 + 6` is `8.5`. If you predicted `8`, you almost certainly reduced `10 / 4` to a whole number: that is the Rust rule, not Python's.
+
+The second line has no division to surprise you, so it isolates precedence alone. `3 * 2` reduces first to `6`, then `2 + 6` reduces to `8`. Predicting `10` here means you added left to right and ignored that `*` outranks `+`.
+</Reveal>
+
+---
+
+## Block 2: The Same Division, Two Languages
+
+Python and Rust both divide `7` by `2`, and they disagree on the answer. Studying the two renderings side by side is how you keep the two division rules straight instead of blurring them into one. You read both tabs and name what genuinely changes and what stays fixed across the languages.
+
+Study the two programs below. They compute the same idea, dividing `7` by `2` two ways, once to keep the fraction and once to force a whole number. Before opening the reveal, write down the four values you expect, then name one thing that is truly different between the languages and one thing that is the same.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="divide.py"
+print(7 / 2)
+print(7 // 2)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="divide.rs"
+fn main() {
+    println!("{}", 7 / 2);
+    println!("{}", 7.0 / 2.0);
+}
+```
+</TabItem>
+</Tabs>
+
+<Reveal label="Reveal the outputs and what differs">
+```bash title="Run the Python program"
+python3 divide.py
+```
+
+```text frame="terminal" title="Output"
+3.5
+3
+```
+
+```bash title="Compile and run the Rust program"
+rustc divide.rs
+./divide
+```
+
+```text frame="terminal" title="Output"
+3
+3.5
+```
+
+<WhatDiffers>
+<Fragment slot="differs">
+Python chooses the kind of division with the operator: `/` always gives the exact float, so `7 / 2` is `3.5`, and `//` floors to a whole number, so `7 // 2` is `3`. Rust chooses with the operand types: `7 / 2` divides two whole-number literals, so it is integer division and truncates to `3`, and getting the exact `3.5` needs both operands written as floats, `7.0 / 2.0`. What stays fixed is that both languages produce one value per line, both share the same precedence, and both must resolve the whole-number case to a whole number by dropping the fraction; only the way you ask for each kind of division changes.
+</Fragment>
+</WhatDiffers>
+
+The two rules happen to agree here, `3` either way, because `7 / 2` is positive. They split only on negatives: Python's `//` floors toward negative infinity, so `-7 // 2` is `-4`, while Rust's `/` truncates toward zero, so `-7 / 2` is `-3`.
+</Reveal>
+
+---
+
+## Block 3: Find the Silent Bug
+
+A precedence bug does not crash. The program runs, prints a number, and lies: the number is simply wrong. The average below is meant to be `(8 + 4) / 2`, which is `6.0`, but it prints something else. You find the bug with the systematic method: read the symptom, form a hypothesis, test it.
+
+The program is meant to average the two scores `8` and `4`. The correct average is `6.0`. Run it, see what it actually prints, then work out why the value is wrong and how one change fixes it.
+
+```python title="average.py"
+print(8 + 4 / 2)
+```
+
+<Reveal label="Reveal the diagnosis and the fix">
+```bash title="Run the buggy program"
+python3 average.py
+```
+
+```text frame="terminal" title="Output"
+10.0
+```
+
+**Symptom.** There is no error message; the program runs and prints `10.0`, but the average of `8` and `4` should be `6.0`. The wrong output is the only signal you get.
+
+**Hypothesis.** The value `10.0` is what you get from `8 + (4 / 2)`, that is `8 + 2.0`, not from averaging. So the guess is a precedence bug: `/` outranks `+`, so `4 / 2` reduces first and only `4` gets halved, leaving the `8` untouched. The expression never adds the two scores before dividing.
+
+**Test.** Force the addition to happen first by wrapping it in parentheses, so the whole sum is divided by `2`:
+
+```python title="average.py (fixed)"
+print((8 + 4) / 2)
+```
+
+```bash title="Run the fixed program"
+python3 average.py
+```
+
+```text frame="terminal" title="Output"
+6.0
+```
+
+The parentheses reduce `8 + 4` to `12` before the division, so `12 / 2` gives the intended `6.0`. The fix is a single set of parentheses. The lesson is that a precedence mistake produces a plausible number, not a crash, so hand-evaluation and a known expected value are what catch it.
+</Reveal>
+
+---
+
+## Bridge
+
+These three reps feed the Launch Window family in recitation: arithmetic with units and time, where a mixed expression has to reduce to exactly one right value and a stray precedence slip or the wrong division rule quietly produces a wrong window. The expressions-and-types work you just practiced by hand is the guided first rung of that ladder.
