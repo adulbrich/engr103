@@ -21,7 +21,7 @@ So an ENGR 103 activity is a set of short, mixed-type guided exercises, not one 
 
 **The tension to resolve.** Activities are designed for class, but a student who misses class must be able to do them independently, so the content must stand alone. Two sub-tensions, resolved:
 
-1. **Pairing.** VISION already says "solo or in pairs," so pairing is a *delivery mode*, not a content dependency. Every activity is authored for one individual ("you predict…", "you run…"). Pairing appears once as an instructor-facing note, never inside a step. A solo at-home student reads the same page unchanged.
+1. **Pairing.** VISION already says "solo or in pairs," so pairing is a *delivery mode*, not a content dependency. Every activity is authored for one individual ("you predict…", "you run…"), with **no pairing mention on the page at all**. An in-class pair and a solo at-home student read the exact same individual-facing exercise; whether to pair up is the instructor's in-the-room call, not something the page states.
 2. **Live resolution.** Several block types are resolved live by the instructor ("then resolve it live"; peer-instruction voting; debugging as a class). An absent student misses that. **Resolution: hidden reveals.** Each block's resolution lives on the page behind a collapsible closed by default. In class the instructor resolves live and reveals stay shut, preserving the commit-before-you-see pedagogy; at home the student attempts, then opens the reveal to self-resolve. One artifact serves both audiences.
 
 ---
@@ -50,7 +50,6 @@ One page per lecture that has an in-class session, paired via `paired_lecture`.
 - **`ai-summary` block** (MDX comment after imports):
   - `type: activity`, `slug`, `order`, `paired_lecture` (one real lecture slug), `practices` (concepts as student actions), `prereq_activities` (comma-separated slugs or empty), `block_types` (the three chosen), `output` (what the student ends up having predicted, fixed, or traced).
 - **Opening paragraph** (no heading, 2 to 3 sentences): names the paired lecture with a link, says what the student will do across the session, states what they will be able to do by the end. No concept exposition.
-- **Instructor/solo note** (one top `<Aside type="note">`): "In class, work with a neighbor and compare before revealing; on your own, attempt each block, then open the reveal to check." This is the only mention of pairing.
 - **Three block sections** (`##` each, `---` between), one per chosen block type. Each: 1 to 2 sentences of prose framing the problem, the prompt (a `<Steps>` sequence, a code block, or a `<Tabs>` pair), then a `<Reveal>` holding the resolution. Authored for the individual.
 - **Bridge** (final short `##`): one or two sentences naming the recitation problem family this session fed (the escalator VISION describes).
 
