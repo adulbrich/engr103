@@ -9,6 +9,7 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
 import LanguageVersions from '/src/components/LanguageVersions.astro';
 import WhatDiffers from '/src/components/WhatDiffers.astro';
 import MemoryStepper from '/src/components/MemoryStepper.svelte';
+import Latex from '/src/components/Latex.astro';
 
 {/* ai-summary
 type: lecture
@@ -28,7 +29,7 @@ A variable lets a single value be written once and reused by name; a function ex
 
 A function is a named, reusable block of code that carries out a computation and produces a result. Once a function exists, any other part of the program can run it, or **call** it, by writing its name, without repeating the steps it performs. The [Variables and State](/lectures/variables-and-state) lecture put a name on a single value so you could reuse the value; a function puts a name on a sequence of steps so you can reuse the computation. The two are the same move applied to different things: give a thing a name, and you can refer to it later instead of writing it out again.
 
-This should feel familiar from arithmetic. A math function like <span>f(x) = 3x + 7</span> names a computation once, and you can then ask for f(2) or f(10) without rewriting "3 times the input, plus 7" every time. The `x` in that definition is a stand-in: it holds the place of whatever number you supply, so that f(2) means "take the recipe and use 2 wherever `x` appears," giving 13. A programming function works the same way, except its computation can be as short or as long as you like, and it can do far more than evaluate a single formula. The stand-in, the value you supply, and the answer that comes back are the three pieces this lecture makes precise.
+This should feel familiar from arithmetic. A math function like <Latex formula="f(x) = 3x + 7" /> names a computation once, and you can then ask for <Latex formula="f(2)" /> or <Latex formula="f(10)" /> without rewriting "3 times the input, plus 7" every time. The `x` in that definition is a stand-in: it holds the place of whatever number you supply, so that <Latex formula="f(2)" /> means "take the recipe and use 2 wherever `x` appears," giving 13. A programming function works the same way, except its computation can be as short or as long as you like, and it can do far more than evaluate a single formula. The stand-in, the value you supply, and the answer that comes back are the three pieces this lecture makes precise.
 
 Grouping steps under one name matters for more than saving keystrokes. A function is also a unit a program can be organized around: instead of one long list of statements, a program becomes a set of named, understandable pieces, each responsible for one computation, that call one another as needed. When one of those pieces is wrong, you fix it in the one place it is defined, and every call to it is corrected at once.
 
