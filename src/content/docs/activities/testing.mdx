@@ -1,0 +1,325 @@
+---
+title: "Predicting, Deriving, and Fixing Tests"
+description: "Predict where a test function stops, derive test cases from a specification, and fix a function whose failing boundary test exposes an off-by-one bug."
+sidebar:
+  order: 10
+draft: true
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import Reveal from '/src/components/Reveal.astro';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+
+{/* ai-summary
+type: activity
+slug: testing
+order: 10
+paired_lecture: testing
+practices: predicts whether a test function passes silently or which assertion stops it, and reads the resulting AssertionError or assert_eq! panic; derives typical, boundary, and error test cases from a plain-language specification before any code exists; debugs a function whose failing boundary test exposes an off-by-one comparison and fixes the code so every case passes
+prereq_activities:
+block_types: predict-then-run, paper-tracing, live-debugging
+output: a reconciled prediction of a failing assertion, a derived set of test cases, and a corrected function that passes its test
+*/}
+
+<LanguageVersions />
+
+This activity puts into practice the [Testing](/lectures/testing/) lecture. You will predict whether a test function passes in silence or stops on a failing assertion, derive a full set of test cases from a specification before any code exists, and fix a function whose failing test has exposed a real bug. By the end, you will be able to read an `AssertionError` or an `assert_eq!` panic, turn a plain-language specification into typical, boundary, and error cases, and tell whether a red test blames the test or the code.
+
+## Warm-up
+
+A quick refresher before the blocks. An assertion that holds produces no output at all: it lets the program continue, and only the `print` at the end shows on screen. Here is the smallest possible check in both languages, one function, one assertion that passes, one line of output.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="warmup.py"
+def double(n):
+    return n * 2
+
+assert double(4) == 8
+print("assertion held")
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="warmup.rs"
+fn double(n: i32) -> i32 {
+    n * 2
+}
+
+fn main() {
+    assert_eq!(double(4), 8);
+    println!("assertion held");
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 warmup.py
+```
+
+```text frame="terminal" title="Output"
+assertion held
+```
+
+The assertion runs, holds, and stays silent; the only line you see is the `print`. Rust behaves identically, with `assert_eq!` in place of `assert`. That silence is the pieces you need fresh: an assertion makes itself known only when it fails.
+
+## Block 1: Predict Where the Test Stops
+
+A test function runs its assertions in order and stops the instant one of them is false. Everything after the failing line, including the final `print`, never runs. You predict where this test lands before running it.
+
+Read the program below. The function `clamp_reading` follows this specification: a sensor reading below 0 is noise and clamps to `0`, a reading above 100 clamps to `100`, and any reading from 0 to 100 passes through unchanged. Decide, on paper or in a comment, whether the test prints `all tests passed` or stops on a failing assertion. If it stops, name which assertion fails and write down the exact output you expect.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="predict.py"
+def clamp_reading(value):
+    if value < 0:
+        return 0
+    elif value > 100:
+        return 100
+    else:
+        return value
+
+def test_clamp_reading():
+    assert clamp_reading(50) == 50
+    assert clamp_reading(0) == 0
+    assert clamp_reading(150) == 100
+    assert clamp_reading(-8) == -8
+    assert clamp_reading(100) == 100
+    print("all tests passed")
+
+test_clamp_reading()
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="predict.rs"
+fn clamp_reading(value: i32) -> i32 {
+    if value < 0 {
+        return 0;
+    } else if value > 100 {
+        return 100;
+    } else {
+        return value;
+    }
+}
+
+fn test_clamp_reading() {
+    assert_eq!(clamp_reading(50), 50);
+    assert_eq!(clamp_reading(0), 0);
+    assert_eq!(clamp_reading(150), 100);
+    assert_eq!(clamp_reading(-8), -8);
+    assert_eq!(clamp_reading(100), 100);
+    println!("all tests passed");
+}
+
+fn main() {
+    test_clamp_reading();
+}
+```
+</TabItem>
+</Tabs>
+
+<Reveal label="Reveal the real output and reconcile it with your prediction">
+```bash title="Run the Python program"
+python3 predict.py
+```
+
+```text frame="terminal" title="Output"
+Traceback (most recent call last):
+  File "predict.py", line 17, in <module>
+    test_clamp_reading()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "predict.py", line 13, in test_clamp_reading
+    assert clamp_reading(-8) == -8
+           ^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError
+```
+
+```bash title="Compile and run the Rust program"
+rustc predict.rs
+./predict
+```
+
+```text frame="terminal" title="Output"
+thread 'main' panicked at predict.rs:15:5:
+assertion `left == right` failed
+  left: 0
+ right: -8
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+The test stops on the fourth assertion, `clamp_reading(-8)`. The function is correct: a reading of `-8` is below 0, so it clamps to `0`, exactly as the specification says. The assertion is the part that is wrong. It expects `-8` to pass through unchanged, which contradicts the rule that negatives clamp to 0. Python raises a bare `AssertionError` and its traceback names line 13, the failing assertion, reached through the call on line 17. Rust's `assert_eq!` prints `left: 0` against `right: -8`, the value the function actually returned against the value the test demanded, so you see the mismatch without printing anything yourself. The two assertions after it, and the final message, never run.
+
+A red test does not always mean the function is broken. Here the expected value should read `== 0`, and the correct move is to fix the test to match the specification, not to touch the function.
+</Reveal>
+
+---
+
+## Block 2: Derive the Test Cases
+
+Good test cases come from the specification, not the code, and the specification is all you get here: there is no function to read. You derive the cases by hand, on paper, before any code exists.
+
+A function `is_plausible(reading)` decides whether a single temperature reading from a noisy sensor is a real measurement or noise to discard. The sensor's plausible range is `-40` to `120` degrees, inclusive. The function returns `True` (Python) or `true` (Rust) when the reading falls inside that range, and `False`/`false` when it falls outside. Write down one typical case, the boundary cases that bracket each edge of the range, and one error case for a clearly impossible reading. Each case is an input paired with the exact answer the specification demands.
+
+<Reveal label="Reveal the derived test cases">
+Six cases describe `is_plausible` from its specification alone:
+
+| Input | Expected | Kind and why |
+|---|---|---|
+| `is_plausible(20)` | `True` | Typical: comfortably inside the range, nowhere near an edge. |
+| `is_plausible(-40)` | `True` | Boundary: the lowest value still inside, because the range is inclusive. |
+| `is_plausible(-41)` | `False` | Boundary: the first value past the low edge. |
+| `is_plausible(120)` | `True` | Boundary: the highest value still inside, because the range is inclusive. |
+| `is_plausible(121)` | `False` | Boundary: the first value past the high edge. |
+| `is_plausible(1000)` | `False` | Error: a wildly impossible reading, obvious noise to reject. |
+
+The typical case confirms the ordinary path works. The four boundary cases bracket both edges: `-40` and `120` are inside because the range is stated as inclusive, while `-41` and `121` are the first values outside. Those four are exactly the cases that would catch an edge comparison written with `<` where the specification calls for `<=`, a mistake every middle-of-the-range value like `20` sails past without noticing. The error case checks that obvious noise, a reading of `1000` degrees, is rejected rather than quietly accepted.
+
+Each case maps straight onto an assertion once the function exists: `assert is_plausible(20)` for a case that must be true, `assert not is_plausible(-41)` for one that must be false, and so on for the rest. The discipline is that the derivation comes first and the code second, so the expected answers are decided by the specification and never copied from whatever the code happens to do.
+</Reveal>
+
+---
+
+## Block 3: Fix the Function the Test Caught
+
+Now the test cases are correct, derived from the specification, and the function is the suspect. A failing test tells you a bug exists and hands you the exact input that exposes it; the debugging method from the first lecture is how you turn that into a fix.
+
+The function `clamp_flow` follows this specification: a flow-rate reading below 0 clamps to `0`, a reading above 60 clamps to `60`, and any reading from 0 to 60 passes through unchanged. The test below is derived correctly from that specification. Run the program, read the failure, form one hypothesis about the cause, change a single line of the function, and run it again until it prints `all tests passed`. Do not change the test.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="debug_flow.py"
+def clamp_flow(rate):
+    if rate < 0:
+        return 0
+    elif rate > 61:
+        return 60
+    else:
+        return rate
+
+def test_clamp_flow():
+    assert clamp_flow(30) == 30
+    assert clamp_flow(-5) == 0
+    assert clamp_flow(75) == 60
+    assert clamp_flow(61) == 60
+    assert clamp_flow(60) == 60
+    print("all tests passed")
+
+test_clamp_flow()
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="debug_flow.rs"
+fn clamp_flow(rate: i32) -> i32 {
+    if rate < 0 {
+        return 0;
+    } else if rate > 61 {
+        return 60;
+    } else {
+        return rate;
+    }
+}
+
+fn test_clamp_flow() {
+    assert_eq!(clamp_flow(30), 30);
+    assert_eq!(clamp_flow(-5), 0);
+    assert_eq!(clamp_flow(75), 60);
+    assert_eq!(clamp_flow(61), 60);
+    assert_eq!(clamp_flow(60), 60);
+    println!("all tests passed");
+}
+
+fn main() {
+    test_clamp_flow();
+}
+```
+</TabItem>
+</Tabs>
+
+<Reveal label="Reveal the diagnosis and the fix">
+```bash title="Run the buggy Python program"
+python3 debug_flow.py
+```
+
+```text frame="terminal" title="Output"
+Traceback (most recent call last):
+  File "debug_flow.py", line 17, in <module>
+    test_clamp_flow()
+    ~~~~~~~~~~~~~~~^^
+  File "debug_flow.py", line 13, in test_clamp_flow
+    assert clamp_flow(61) == 60
+           ^^^^^^^^^^^^^^^^^^^^
+AssertionError
+```
+
+```bash title="Compile and run the buggy Rust program"
+rustc debug_flow.rs
+./debug_flow
+```
+
+```text frame="terminal" title="Output"
+thread 'main' panicked at debug_flow.rs:15:5:
+assertion `left == right` failed
+  left: 61
+ right: 60
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+**Symptom.** The test stops on `clamp_flow(61)`. Rust's panic makes the gap explicit: `left: 61` against `right: 60`, so the function returned `61` where the specification demands `60`. The three assertions before it passed, so the ordinary path and the floor at zero both work.
+
+**Hypothesis.** A reading of `61` is above the cap of `60` and must clamp to `60`, but the function returned it unchanged. Reading the function, the cap branch tests `rate > 61`, so `61` itself slips past that comparison into the `else` and comes back as-is. The comparison is one step off: it should be `rate > 60`. This is exactly the off-by-one that a middle-of-the-range value like `75` hides, because `75` is above either threshold and clamps to `60` either way, and only the boundary case `61` exposes.
+
+**Test.** Change the single comparison from `> 61` to `> 60`:
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="debug_flow.py (fixed)"
+def clamp_flow(rate):
+    if rate < 0:
+        return 0
+    elif rate > 60:
+        return 60
+    else:
+        return rate
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="debug_flow.rs (fixed)"
+fn clamp_flow(rate: i32) -> i32 {
+    if rate < 0 {
+        return 0;
+    } else if rate > 60 {
+        return 60;
+    } else {
+        return rate;
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the fixed Python program"
+python3 debug_flow.py
+```
+
+```text frame="terminal" title="Output"
+all tests passed
+```
+
+```bash title="Compile and run the fixed Rust program"
+rustc debug_flow.rs
+./debug_flow
+```
+
+```text frame="terminal" title="Output"
+all tests passed
+```
+
+With the edge moved back to `60`, a reading of `61` is now above the cap and clamps to `60`, and every case passes. The fix was a single character. Notice the division of labor: the test found the bug and named the case, `clamp_flow(61)`, but locating the wrong comparison and correcting it was debugging, not testing.
+</Reveal>
+
+---
+
+## Bridge
+
+These three reps feed the recitation family that takes each reading arriving from a noisy stream, decides whether it is valid, and clamps or rejects it against a stated range before anything is summarized. Today you drilled the per-reading rung of that family: deciding what a single reading should become and proving it with assertions. The full stream, many readings folded into one summary in a single pass, waits on the loops introduced next week. Running through all three blocks, this session also consolidates the skill built cumulatively across the course: turning a plain-language specification into concrete, checkable test cases, independent of whatever the code happens to do.

@@ -1,0 +1,232 @@
+---
+title: "Reading, Parsing, and Validating Input"
+description: "Predict, compare, and debug short programs that read a typed value, parse it into a number, and check it before trusting it, in Python and Rust."
+sidebar:
+  order: 9
+draft: true
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import Reveal from '/src/components/Reveal.astro';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+import WhatDiffers from '/src/components/WhatDiffers.astro';
+
+{/* ai-summary
+type: activity
+slug: errors-input-and-validation
+order: 9
+paired_lecture: errors-input-and-validation
+practices: predicts the exact terminal output of a program that reads and parses a piped console value before running it; names what changes and what stays fixed between Python's try/except and Rust's Result-and-match on the same parse; diagnoses a validation whose boolean condition lets an out-of-range value through, using the systematic method
+prereq_activities:
+block_types: predict-then-run, same-program-two-languages, live-debugging
+output: a reconciled prediction, a named cross-language difference at the parse boundary, and a corrected range check for each of the three blocks
+*/}
+
+<LanguageVersions />
+
+This activity puts into practice the [Errors, Input, and Validation](/lectures/errors-input-and-validation/) lecture. You will predict the exact output of a program that reads and parses a typed value, compare how Python and Rust each handle a bad parse, and hunt down a range check that quietly accepts a value it should reject. By the end, you will be able to trace a read-parse-validate program by hand and catch a validation bug that never raised an error.
+
+## Warm-up
+
+A quick refresher before the blocks. The smallest piece this lecture rests on is reading one line of console input and getting it back into a variable. Each program below reads a word and prints it. Because a real keystroke stream is not reproducible, the run pipes the text in with `printf`, exactly as if you had typed it and pressed Enter.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="echo.py"
+word_text = input("Enter a word: ")
+print(word_text)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="echo.rs"
+use std::io;
+
+fn main() {
+    println!("Enter a word: ");
+    let mut word_text = String::new();
+    io::stdin()
+        .read_line(&mut word_text)
+        .expect("failed to read line");
+    println!("{}", word_text.trim());
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+printf 'duck\n' | python3 echo.py
+```
+
+```text frame="terminal" title="Output"
+Enter a word: duck
+```
+
+```bash title="Compile and run the Rust program"
+rustc echo.rs
+printf 'duck\n' | ./echo
+```
+
+```text frame="terminal" title="Output"
+Enter a word: 
+duck
+```
+
+Piped input is not echoed to the screen, so the typed `duck` shows up only where the program prints it. Python's `input` writes its prompt with no trailing newline, so `duck` lands on the same line; Rust's `println!` ends the prompt with a newline, so `duck` lands below it. Rust also calls `.trim()` to drop the newline `read_line` leaves attached. With those pieces fresh, the blocks below read, parse, and check typed values.
+
+## Block 1: Predict the Output
+
+Reading a value is only step one; the moment you parse it, the printed form can differ from the characters that were typed. You commit to the exact output first, then run the program to check it.
+
+Read the program below. It reads a temperature, parses it to a decimal number with `float`, and reports it. The run pipes in `98.60`. Write down, on paper or in a comment, the exact line the terminal will show. Predict two things: where the prompt and the reported value sit relative to each other, and the exact digits of the number that prints. Do not run it yet.
+
+```python title="reading.py"
+temp_text = input("Enter a temperature: ")
+temp = float(temp_text)
+print("Temperature is", temp, "degrees.")
+```
+
+```bash title="Run the Python program"
+printf '98.60\n' | python3 reading.py
+```
+
+<Reveal label="Reveal the real output and reconcile it with your prediction">
+```text frame="terminal" title="Output"
+Enter a temperature: Temperature is 98.6 degrees.
+```
+
+Two things surprise most predictions. First, the whole line is one line: the piped `98.60` is never echoed, and `input` prints its prompt without a newline, so the `print` output continues on the same line right after `Enter a temperature: `. Second, the value prints as `98.6`, not `98.60`. Parsing turned the text `"98.60"` into the number it represents, and the trailing zero was never part of that number; it was just a character you typed. Once the string became a `float`, the digits you get back are the number's own, not the ones you happened to write. If you predicted `98.60` on its own line, you were still thinking of the input as text rather than as the value it parsed into.
+</Reveal>
+
+---
+
+## Block 2: The Same Bad Parse, Two Languages
+
+A person can always type something that is not a number, and the two languages route that failure to your code in genuinely different ways. Seeing the two side by side is how you keep the exception model and the `Result` model from blurring together. You read both tabs and name what truly differs and what stays the same.
+
+Study the two programs below. Each reads a line, parses it to a whole number, and reports either the parsed value or that it was not a whole number. Before opening the reveal, predict what each prints for the input `42` and for the input `xyz`, then name one thing that is genuinely different between the languages and one thing that is the same.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="parse.py"
+value_text = input("Enter a whole number: ")
+
+try:
+    value = int(value_text)
+    print("Parsed:", value)
+except ValueError:
+    print("Not a whole number.")
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="parse.rs"
+use std::io;
+
+fn main() {
+    println!("Enter a whole number: ");
+    let mut value_text = String::new();
+    io::stdin()
+        .read_line(&mut value_text)
+        .expect("failed to read line");
+
+    match value_text.trim().parse::<i32>() {
+        Ok(value) => println!("Parsed: {}", value),
+        Err(_) => println!("Not a whole number."),
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+<Reveal label="Reveal the outputs and what differs">
+```bash title="Run the Python program"
+printf '42\n' | python3 parse.py
+printf 'xyz\n' | python3 parse.py
+```
+
+```text frame="terminal" title="Output"
+Enter a whole number: Parsed: 42
+Enter a whole number: Not a whole number.
+```
+
+```bash title="Compile and run the Rust program"
+rustc parse.rs
+printf '42\n' | ./parse
+printf 'xyz\n' | ./parse
+```
+
+```text frame="terminal" title="Output"
+Enter a whole number: 
+Parsed: 42
+Enter a whole number: 
+Not a whole number.
+```
+
+<WhatDiffers>
+<Fragment slot="differs">
+Python's `int` interrupts the program when the text is not a number: it raises a `ValueError` partway through the `try` block, abandons the rest of that block, and control jumps to the matching `except ValueError`. Rust's `parse` never interrupts anything; it always finishes and hands back a `Result`, and the `match` reads whichever value it produced, `Ok(42)` or an `Err`, and picks a branch from the value already in hand. One model catches a failure after it has broken the flow; the other inspects a value that describes the outcome. What stays fixed is the set of outcomes: both programs turn `42` into a reported number and both answer `xyz` with the same rejection message, and both must `.trim()` in Rust because the newline is not part of a number.
+</Fragment>
+</WhatDiffers>
+
+The reason both good runs put `Parsed: 42` on the prompt line in Python but below it in Rust is the same warm-up detail: `input` omits the trailing newline on its prompt and `println!` does not.
+</Reveal>
+
+---
+
+## Block 3: The Validation That Lets a Bad Value Through
+
+A parse can succeed and still hand you a number that makes no sense: `200` is a perfectly valid whole number, but no age is `200`. Validation is the range check that rejects it, and a validation with the wrong boolean condition does not crash; it just quietly accepts what it was meant to reject. You find the bug with the systematic method: read the symptom, form a hypothesis, test it.
+
+The program below is meant to reject any age below `0` or above `130`. Run it with the input `200`, which should be rejected, then work out why it is accepted instead and how one change fixes it.
+
+```python title="validate.py"
+age_text = input("Enter your age: ")
+
+try:
+    age = int(age_text)
+    if age < 0 and age > 130:
+        print("That age is out of range.")
+    else:
+        print("You are", age, "years old.")
+except ValueError:
+    print("That is not a whole number.")
+```
+
+<Reveal label="Reveal the diagnosis and the fix">
+```bash title="Run the buggy program"
+printf '200\n' | python3 validate.py
+```
+
+```text frame="terminal" title="Output"
+Enter your age: You are 200 years old.
+```
+
+**Symptom.** There is no error message. `200` parses cleanly, and the program reports it as an age instead of rejecting it. The wrong path was taken silently.
+
+**Hypothesis.** The guard is `age < 0 and age > 130`. With `and`, both comparisons must be true at once, but no single number is both below `0` and above `130`, so the guard can never be true. Every value, in range or not, falls through to the `else`. The condition should be true when the age is below `0` *or* above `130`, so it needs `or`, not `and`.
+
+**Test.** Change the one word and rerun with the same input, plus an in-range value and a non-number to confirm the other paths still work:
+
+```python title="validate.py (fixed)"
+    if age < 0 or age > 130:
+```
+
+```bash title="Run the fixed program"
+printf '200\n' | python3 validate.py
+printf '21\n' | python3 validate.py
+printf 'abc\n' | python3 validate.py
+```
+
+```text frame="terminal" title="Output"
+Enter your age: That age is out of range.
+Enter your age: You are 21 years old.
+Enter your age: That is not a whole number.
+```
+
+Now `200` is rejected as out of range, `21` still reports normally, and `abc` still fails at the parse and never reaches the range check. The fix is a single word, `and` to `or`. The lesson is that a boolean mistake in a range check produces no error at all; only a test with a value that should be rejected reveals it, which is why you check validation with a value you expect to fail, not just one you expect to pass.
+</Reveal>
+
+---
+
+## Bridge
+
+These three reps feed the recitation family that reads a stream of noisy typed values, rejects the ones that fail to parse or fall outside a sensible range, and summarizes only the ones that survive. Predicting a parsed value's printed form, choosing how a bad parse is handled, and writing a range check that actually rejects what it should are the guided first rung of that ladder, where a single wrong operator or an unhandled bad value quietly corrupts the summary.

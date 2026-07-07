@@ -1,0 +1,320 @@
+---
+title: "Tracing and Fixing Decision Chains"
+description: "Predict which branch of an else-if chain runs, trace a two-condition interlock into a decision table, and fix a silent boundary bug in Python and Rust."
+sidebar:
+  order: 8
+draft: true
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import Reveal from '/src/components/Reveal.astro';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+import WhatDiffers from '/src/components/WhatDiffers.astro';
+
+{/* ai-summary
+type: activity
+slug: decision-structures
+order: 8
+paired_lecture: decision-structures
+practices: predicts which single branch of a range else-if chain runs when several conditions are true, using mutual exclusivity; traces a two-condition interlock into a decision table and confirms an else-if chain matches it row by row; diagnoses a silent boundary bug where a strict comparison was written where an inclusive one was meant, from a plausible wrong answer
+prereq_activities:
+block_types: predict-then-run, paper-tracing, live-debugging
+output: a reconciled single-line prediction, a completed decision table confirmed against its chain, and a corrected boundary comparison for each of the three blocks
+*/}
+
+<LanguageVersions />
+
+This activity puts into practice the [Decision Structures](/lectures/decision-structures/) lecture. You will predict the output of an else-if chain whose conditions overlap, trace a two-condition interlock into a decision table before checking it against code, and hunt down a silent boundary bug that prints a plausible wrong answer. By the end, you will be able to reason about which single branch of a chain wins, build a decision table to order that chain correctly, and catch an off-by-one comparison that never raises an error.
+
+## Warm-up
+
+A quick refresher before the blocks. A comparison is an expression that reduces to a boolean, and a chain's conditions are just such expressions. Here are two comparisons, a bare boolean, and the plain `if`/`else` the chain extends, in both languages.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="warmup.py"
+print(5 < 10)
+print(10 >= 10)
+ready = True
+print(ready)
+if ready:
+    print("go")
+else:
+    print("wait")
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="warmup.rs"
+fn main() {
+    println!("{}", 5 < 10);
+    println!("{}", 10 >= 10);
+    let ready = true;
+    println!("{}", ready);
+    if ready {
+        println!("go");
+    } else {
+        println!("wait");
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 warmup.py
+```
+
+```text frame="terminal" title="Output"
+True
+True
+True
+go
+```
+
+Rust prints the same values, except each boolean is spelled `true` rather than `True`. With comparisons and a plain `if`/`else` fresh, the blocks below extend that single decision into a chain.
+
+## Block 1: Predict Which Branch Wins
+
+An else-if chain checks its conditions top to bottom and stops at the first one that is true, so overlapping conditions do not each get a turn. This is the mechanism that is easiest to misread, so you commit to a prediction first, then run the program to check it.
+
+Read the program below and write down, on paper or in a comment, the exact output you expect. Do not run it yet. Notice that `8` is less than `25`, less than `50`, and less than `75` all at once, so more than one condition is true. Decide what that means for how many lines actually print.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="level.py"
+percent = 8
+if percent < 25:
+    print("low")
+elif percent < 50:
+    print("fair")
+elif percent < 75:
+    print("good")
+else:
+    print("full")
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="level.rs"
+fn main() {
+    let percent = 8;
+    if percent < 25 {
+        println!("low");
+    } else if percent < 50 {
+        println!("fair");
+    } else if percent < 75 {
+        println!("good");
+    } else {
+        println!("full");
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+<Reveal label="Reveal the real output and reconcile it with your prediction">
+```bash title="Run the Python program"
+python3 level.py
+```
+
+```text frame="terminal" title="Output"
+low
+```
+
+```bash title="Compile and run the Rust program"
+rustc level.rs
+./level
+```
+
+```text frame="terminal" title="Output"
+low
+```
+
+Only `low` prints. If you predicted `low fair good`, you read the chain as three independent `if` statements, each free to run on its own. It is one decision, not three. The condition `percent < 25` is checked first and is `true`, so its block runs, and the chain then skips every remaining condition without evaluating it. The `elif percent < 50` and `elif percent < 75` are never even looked at, even though both would be `true` for `8`, because the first match ended the decision. That skip-the-rest rule is the whole point of a chain: exactly one branch runs.
+</Reveal>
+
+---
+
+## Block 2: Trace an Interlock Into a Table
+
+When a decision depends on two conditions, staring at the code makes it easy to miss a combination. A decision table lists every combination first, which both fixes the outcomes and reveals which condition has to be checked before the other. You build the table, then confirm the chain matches it.
+
+A press motor should run only when the safety guard is closed and the start button is pressed. If the guard is open, the machine must refuse and print `close guard`, no matter what the button says, because safety overrides everything. If the guard is closed but the button is not pressed, it prints `ready`. Fill in the outcome for all four combinations of the two booleans.
+
+<Steps>
+
+1. Copy this table and write the outcome (`close guard`, `ready`, or `run`) in each blank row.
+
+   | `is_guard_closed` | `is_start_pressed` | Outcome |
+   |---|---|---|
+   | false | false | ? |
+   | false | true | ? |
+   | true | false | ? |
+   | true | true | ? |
+
+2. Look at which rows share an outcome. That collapse tells you which condition to check first in the chain.
+
+3. Read the chain below and confirm it produces your table's outcome for every row.
+
+</Steps>
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="press.py"
+is_guard_closed = True
+is_start_pressed = True
+if not is_guard_closed:
+    print("close guard")
+elif is_start_pressed:
+    print("run")
+else:
+    print("ready")
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="press.rs"
+fn main() {
+    let is_guard_closed = true;
+    let is_start_pressed = true;
+    if !is_guard_closed {
+        println!("close guard");
+    } else if is_start_pressed {
+        println!("run");
+    } else {
+        println!("ready");
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+<Reveal label="Reveal the completed table and confirm the chain">
+The completed table:
+
+| `is_guard_closed` | `is_start_pressed` | Outcome |
+|---|---|---|
+| false | false | close guard |
+| false | true | close guard |
+| true | false | ready |
+| true | true | run |
+
+The top two rows collapse to `close guard`: when the guard is open, the button reading does not matter. That collapse is why the chain checks `not is_guard_closed` first, so an open guard wins before the button is ever considered. Confirm the chain row by row: for the top two rows `not is_guard_closed` is `true`, so both print `close guard`; for the third row the guard is closed and `is_start_pressed` is `false`, so the chain falls to the `else` and prints `ready`; for the last row `is_start_pressed` is `true`, so it prints `run`. The code with `is_guard_closed` and `is_start_pressed` both `true` matches that last row.
+
+```bash title="Run the Python program"
+python3 press.py
+```
+
+```text frame="terminal" title="Output"
+run
+```
+
+```bash title="Compile and run the Rust program"
+rustc press.rs
+./press
+```
+
+```text frame="terminal" title="Output"
+run
+```
+
+<WhatDiffers>
+<Fragment slot="differs">
+Python negates with the word `not` and Rust with the `!` symbol, so `not is_guard_closed` becomes `!is_guard_closed`. The chain, the table it matches, and the printed `run` are identical across both languages.
+</Fragment>
+</WhatDiffers>
+</Reveal>
+
+---
+
+## Block 3: Find the Silent Boundary Bug
+
+A boundary bug does not crash. The program runs, prints a tier, and lies: the value that sits exactly on a threshold lands in the wrong branch. The store below gives free shipping at a total of `50` or more, but a cart of exactly `50` prints something else. You find the bug with the systematic method: read the symptom, form a hypothesis, test it.
+
+An order total of exactly `50` should qualify for free shipping. Run the program, see what it actually prints, then work out why `50` misses the tier it belongs to and how one change fixes it.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="shipping.py"
+total = 50
+if total > 50:
+    print("free shipping")
+elif total >= 25:
+    print("reduced shipping")
+else:
+    print("standard shipping")
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="shipping.rs"
+fn main() {
+    let total = 50;
+    if total > 50 {
+        println!("free shipping");
+    } else if total >= 25 {
+        println!("reduced shipping");
+    } else {
+        println!("standard shipping");
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+<Reveal label="Reveal the diagnosis and the fix">
+```bash title="Run the buggy Python program"
+python3 shipping.py
+```
+
+```text frame="terminal" title="Output"
+reduced shipping
+```
+
+**Symptom.** There is no error message; the program runs and prints `reduced shipping`, but a total of exactly `50` was meant to earn `free shipping`. The wrong tier is the only signal you get.
+
+**Hypothesis.** The first condition is `total > 50`, and `50 > 50` is `false`, so `50` skips the free-shipping block and falls through to `total >= 25`, which is `true`, printing `reduced shipping`. The guess is that the comparison is one notch too strict: `> 50` excludes the boundary value `50` itself, opening a one-value gap that the next branch swallows.
+
+**Test.** Change the strict `>` to an inclusive `>=`, so the threshold value counts as qualifying:
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="shipping.py (fixed)"
+total = 50
+if total >= 50:
+    print("free shipping")
+elif total >= 25:
+    print("reduced shipping")
+else:
+    print("standard shipping")
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="shipping.rs (fixed)"
+fn main() {
+    let total = 50;
+    if total >= 50 {
+        println!("free shipping");
+    } else if total >= 25 {
+        println!("reduced shipping");
+    } else {
+        println!("standard shipping");
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the fixed Python program"
+python3 shipping.py
+```
+
+```text frame="terminal" title="Output"
+free shipping
+```
+
+Now `total >= 50` is `true` for `50`, so the boundary value lands in the tier it belongs to. The fix is a single character. The lesson is that a boundary mistake produces a plausible tier, not a crash, so the way to catch it is to feed the chain the exact value sitting on each boundary, the `50` here, and check that it lands where you intended.
+</Reveal>
+
+---
+
+## Bridge
+
+These three reps feed the decision-tables-and-interlocks family in recitation, where several conditions combine into one decision that must produce exactly one right outcome, and a stolen case, a missed combination, or a boundary written with the wrong comparison quietly yields the wrong result. The chain-tracing and table-building you just practiced by hand are the guided first rung of that ladder.
