@@ -42,9 +42,7 @@ happens in a room we control.
 
 ### One problem family, four altitudes
 
-The course is organized around six recurring **problem families** (named and
-mapped in section 8: Launch Window, Airlock, Rover, Comms, Telemetry,
-Manifest). A family is a concept skeleton, not a story. Each family appears
+The course is organized around six recurring **problem families** (mapped in section 8): arithmetic with units and time, decision tables and interlocks, loops over state and grids, encoding and decoding sequences, validating and summarizing a noisy stream, and key-value lookup and counting. A family is a concept skeleton, not a story. Each family appears
 four times, at escalating stakes (difficulty rises gently from activity to
 assignment, then holds), wearing a different story line at each tier:
 
@@ -630,18 +628,17 @@ The six skeletons and their two faces:
 
 | Family (skeleton) | Rubber Duck face (assignments) | Mission Ares face (recitations, exams) | Core topics | Weeks |
 |---|---|---|---|---|
-| **Launch Window** — arithmetic with units and time | Duck-race countdown timers, novelty-mug fill volumes | Sols vs Earth days, fuel mass fractions, delta-v budgets | Expressions, types, variables, functions | 1 to 3 |
-| **Airlock** — decision tables and interlocks | Hot-tub controller: temperature, occupancy, and timer cutoff rules | Never both doors open, pressure thresholds, suit checks | Booleans, conditionals, decision tables | 3 to 4 |
-| **Rover** — loops over state and grids | Warehouse duckbot fetching parts, ASCII duck-parade rendering | Drive commands, battery budget, terrain rendering | Loops, loop patterns, nested loops, functions | 4 to 6 |
-| **Comms** — encode, decode, clean a sequence | Garbled customer order codes, novelty-pager messages | Ciphers, checksums, packet buffers | Strings, lists/vectors, memory model, sharing | 6 to 8 |
-| **Telemetry** — validate and summarize a noisy stream | The smart bathtub's water-level sensor returns nonsense | Dust-storm sensor streams, tolerance alarms | Errors, input validation, floating point, RNG noise | 8 to 9 |
-| **Manifest** — key-value lookup and counting | Duck SKU inventory after a warehouse mix-up | Cargo inventory, resupply planning (the Rust pun is intended) | Dictionaries/hashmaps, choosing structures | 9 to 10 |
+| **Arithmetic with units and time** | Duck-race countdown timers, novelty-mug fill volumes | Sols vs Earth days, fuel mass fractions, delta-v budgets | Expressions, types, variables, functions | 1 to 3 |
+| **Decision tables and interlocks** | Hot-tub controller: temperature, occupancy, and timer cutoff rules | Never both doors open, pressure thresholds, suit checks | Booleans, conditionals, decision tables | 3 to 4 |
+| **Loops over state and grids** | Warehouse duckbot fetching parts, ASCII duck-parade rendering | Drive commands, battery budget, terrain rendering | Loops, loop patterns, nested loops, functions | 4 to 6 |
+| **Encode, decode, clean a sequence** | Garbled customer order codes, novelty-pager messages | Ciphers, checksums, packet buffers | Strings, lists/vectors, memory model, sharing | 6 to 8 |
+| **Validate and summarize a noisy stream** | The smart bathtub's water-level sensor returns nonsense | Dust-storm sensor streams, tolerance alarms | Errors, input validation, floating point, RNG noise | 8 to 9 |
+| **Key-value lookup and counting** | Duck SKU inventory after a warehouse mix-up | Cargo inventory, resupply planning (the Rust pun is intended) | Dictionaries/hashmaps, choosing structures | 9 to 10 |
 
 The **Weeks** column above reflects the pre-reorder plan. Section 10's schedule
 now teaches errors and testing before the midterm and loops after it, so the
 family week-ranges are re-derived to follow that lecture order when the
-recitations are authored: the Rover (loops) family moves to the second half, the
-Manifest family (dictionaries) becomes a week-10 extra, and the capstone is
+recitations are authored: the loops-over-state-and-grids family moves to the second half, the key-value-lookup-and-counting family becomes a week-10 extra, and the capstone is
 list-based. The prerequisite rule is unchanged: each family's recitation follows
 the lecture that teaches its concept.
 
@@ -874,20 +871,20 @@ teaches its concept).
 |---|---|---|---|---|
 | 1 | 1 | **How programs run.** Computation and algorithms; source code, interpreters (Python) and compilers (Rust); running a program; printing results; errors as messages, not verdicts; the systematic debugging method and the modeling-versus-analysis distinction, both introduced here and threaded all term; the two-language philosophy and the language ladder. (This lecture, and perhaps lecture 2, get a full in-class walkthrough; the rest are read before class.) | R1 (ungraded): environment, terminal, editor, the `check` harness, hello in both languages. | A0: setup, toolchains, hello in both languages. |
 | 1 | 2 | **Data representation and memory.** Values (integers, floats, booleans, strings) and their types; static vs dynamic typing; binary and decimal; bits and bytes; memory as addressable boxes; type sizes; Python's arbitrary-precision `int` vs Rust's fixed `i32`/`f64`, and what the numbers in `i32`/`f64` mean. Taught with the interactive binary/bits visualizer and a memory-box diagram, before any type name is used to mean a bit-width. Character encoding and ASCII are deferred to lecture 13, where characters are taught. | | |
-| 2 | 3 | **Expressions and operators.** Arithmetic operators and precedence; integer vs float division and truncation (grounded in lecture 2's types and sizes); implicit coercion; mixed-type expressions; evaluating expressions by hand. | R2: expressions and types (Launch Window). | A1: Launch Window arithmetic families + paper trace. |
+| 2 | 3 | **Expressions and operators.** Arithmetic operators and precedence; integer vs float division and truncation (grounded in lecture 2's types and sizes); implicit coercion; mixed-type expressions; evaluating expressions by hand. | R2: expressions and types. | A1: Arithmetic families + paper trace. |
 | 2 | 4 | **Variables and state.** Names vs values; assignment and rebinding; `let` and `let mut`, shadowing; initialization and uninitialized reads (Rust forbids, C++ undefined behavior); constants; tracing with a variable table. Uses the memory stepper. | | |
-| 3 | 5 | **Functions I.** Defining and calling; parameters, arguments, return values; signatures and types; arguments and parameters are separate memory and the value is copied; how the autograder calls your functions. Uses the memory stepper. (Week 3 Monday is the MLK holiday, so this is the only week-3 lecture.) | R3: functions and variables (Launch Window). | A2: Launch Window function families + paper trace. |
-| 4 | 6 | **Scope and the call stack.** Local and nested scope; shadowing; lifetimes of names; the global-variable antipattern; the call stack drawn by hand; decomposing a program into functions. Uses the memory stepper. Taught before control flow because scope governs the blocks inside conditionals and loops. | R4: functions and scope synthesis (Launch Window). | A3: Launch Window scope/call-stack practice. |
+| 3 | 5 | **Functions I.** Defining and calling; parameters, arguments, return values; signatures and types; arguments and parameters are separate memory and the value is copied; how the autograder calls your functions. Uses the memory stepper. (Week 3 Monday is the MLK holiday, so this is the only week-3 lecture.) | R3: functions and variables. | A2: Function families + paper trace. |
+| 4 | 6 | **Scope and the call stack.** Local and nested scope; shadowing; lifetimes of names; the global-variable antipattern; the call stack drawn by hand; decomposing a program into functions. Uses the memory stepper. Taught before control flow because scope governs the blocks inside conditionals and loops. | R4: functions and scope synthesis. | A3: Scope and call-stack practice. |
 | 4 | 7 | **Booleans and conditionals.** Comparisons, logical operators, short-circuit; `if`/`else`; building conditions from specifications; the floating-point equality trap and comparison with tolerance, grounded in lecture 2. | | |
-| 5 | 8 | **Decision structures.** `elif`/`else if` chains and `match`; nesting vs chaining; decision tables; guard clauses; common boundary bugs. | R5: conditionals and decision tables (Airlock). | A4: Airlock rule families + paper trace. |
+| 5 | 8 | **Decision structures.** `elif`/`else if` chains and `match`; nesting vs chaining; decision tables; guard clauses; common boundary bugs. | R5: conditionals and decision tables. | A4: Decision-table rule families + paper trace. |
 | 5 | 9 | **Errors, input, and validation.** Kinds of errors (syntax, run-time, logic); console input and parsing; exceptions vs `Result`; validating a value and failing loudly. (The loop-based validate-until-correct pattern is deferred to lecture 12.) | | |
 | 6 | 10 | **Testing.** Test cases from a specification; boundary and error cases; assertions and test functions in both languages; consolidates the spec-to-tests skill practiced since week 3. | R6: Mission Readiness Review, cumulative synthesis over lectures 1 to 10; doubles as midterm rehearsal. | A5: cumulative families + midterm-format paper practice set. |
 | 6 | | **Midterm**, on paper during the second lecture slot (lectures 1 to 10: foundations, functions, scope, conditionals, errors, testing; no loops). | | |
-| 7 | 11 | **Loops.** `while` for unknown counts, counted loops; loop variables; termination; `do-while` as a C++-only "what differs"; tracing loops. | R7: loops (Rover). | A6: Rover drive families + paper trace. |
+| 7 | 11 | **Loops.** `while` for unknown counts, counted loops; loop variables; termination; `do-while` as a C++-only "what differs"; tracing loops. | R7: loops. | A6: Loop families + paper trace. |
 | 7 | 12 | **Loop patterns.** Accumulate, count, search, sentinel, validate-until-correct; nested loops (ASCII rendering); choosing the pattern from the problem statement. | | |
-| 8 | 13 | **Strings and characters.** Strings as sequences; characters and character encoding (ASCII, introduced here and grounded in lecture 2's bits and bytes); slicing, searching, building strings. | R8: strings and lists (Comms: ciphers and checksums). | A7: Comms encode/decode families + paper trace. |
+| 8 | 13 | **Strings and characters.** Strings as sequences; characters and character encoding (ASCII, introduced here and grounded in lecture 2's bits and bytes); slicing, searching, building strings. | R8: strings and lists (ciphers and checksums). | A7: Encode/decode families + paper trace. |
 | 8 | 14 | **Collections I: lists and vectors.** Indexing, length, iteration; growing and mutating; out-of-bounds as Python's `IndexError` vs Rust's panic (and the C++ buffer-overflow danger that motivates both). | | |
-| 9 | 15 | **The memory model: aliasing and ownership.** Names point at values; aliasing in Python (two names, one list) and ownership/moves/borrows-lite in Rust; the C++ dangling/buffer-overflow danger as why memory safety matters; drawing memory diagrams. Uses the memory stepper. (Late because aliasing needs lists to exist first; the foundation and the stepper are early.) | R9: memory model and sharing (Comms: packet buffers). | A8: memory/sharing families + memory-diagram paper practice. |
+| 9 | 15 | **The memory model: aliasing and ownership.** Names point at values; aliasing in Python (two names, one list) and ownership/moves/borrows-lite in Rust; the C++ dangling/buffer-overflow danger as why memory safety matters; drawing memory diagrams. Uses the memory stepper. (Late because aliasing needs lists to exist first; the foundation and the stepper are early.) | R9: memory model and sharing (packet buffers). | A8: memory/sharing families + memory-diagram paper practice. |
 | 9 | 16 | **Sharing and mutation.** Passing collections to functions; when the caller sees your changes; defensive copying; Rust `&`/`&mut` and why Rust makes you declare intent. Uses the memory stepper. | | |
 | 10 | 17 | **Collections II: dictionaries and maps** (advanced extra, not required for the outcomes). Dictionaries and hashmaps; key-value thinking; choosing between list and map; frequency counting and lookup. | R10: capstone, the list-based Sol 100 mission-status program with tests, synthesizing the whole term. | A9: capstone prep; accessibility/equity critique; final-format paper practice set. |
 | 10 | 18 | **Computing with judgment** (advanced extra, not required for the outcomes). Evaluating code you did not write (a peer's, a library's, an AI's); limitations and failure modes; who is excluded by our tools; course synthesis and final-exam concept map. | | |
@@ -939,9 +936,7 @@ Alignment checks built into the table:
   variations of the assignment problems.
 - **Assignments** (calculator, financial planner, dictionary, linear equations)
   are retired as framings, but their mechanics survive inside the mission
-  families: the financial planner's accumulation loops become Rover battery
-  budgets, the dictionary becomes the Manifest, and the linear-equation and
-  calculator arithmetic becomes Launch Window computations.
+  families: the financial planner's accumulation loops become loops-over-state-and-grids problems, the dictionary becomes the key-value lookup and counting family, and the linear-equation and calculator arithmetic becomes arithmetic-with-units-and-time computations.
 - **Practicalities** (Polya, debugging, style, gen-ai) survive intact; the
   gen-ai page is rewritten around the training-set/test-set framing.
 - **One-on-one assignment demos are retired** (section 5): supervised

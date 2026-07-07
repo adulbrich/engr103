@@ -12,8 +12,10 @@ This skill governs how activities are written and revised for the ENGR 103 cours
 An activity is the guided, hands-on companion to one lecture, built to fill a 50-minute in-class session shaped like this:
 
 - **5 minutes: a misconception opener**, drawn live from the pre-lecture check question students missed most. This happens in the room and is not authored on the activity page.
-- **Three rotating blocks of about 13 minutes each.** Each block poses a problem at guided difficulty, the student attempts it, then it is resolved. These three blocks are what the activity page authors.
+- **Three rotating blocks of about 13 minutes each.** Each block poses a problem at guided difficulty, the student attempts it, then it is resolved. These three blocks are the core of what the activity page authors.
 - **2 minutes: a bridge** naming the exact recitation problem family this session fed. The activity page authors this too, as a short final section.
+
+The authored page opens with a brief **warm-up** before the three blocks: a quick refresher of the lecture's simplest building blocks, so a student who read the notes days ago, or is catching up alone after missing class, has the pieces fresh before the guided thinking starts.
 
 An activity carries no story. Assignments dress their problems in the Rubber Duck Robotics story line and recitations and exams in Mission Ares, but an activity states the bare concept as fast as it can be read: no costume, no narrative thread, no plot to track. Like a lecture, an activity is dual-language: every example that can show both Python and Rust does so.
 
@@ -144,8 +146,9 @@ output: a corrected expression and a reconciled prediction for each of the three
 
 1. **`<LanguageVersions />`** at the very top of the body, before any other prose.
 2. **Opening paragraph** (no heading, 2 to 3 sentences): names the paired lecture with a link, says what the student will do across the session, and states what they will be able to do by the end. It does not explain any concept; that is the lecture's job.
-3. **Three `##` block sections**, separated by `---`, one per chosen block type. Each opens with 1 to 2 sentences of framing (what problem this block poses, and why it matters, practically, not conceptually), then the prompt, then the `<Reveal>` holding the resolution.
-4. **Bridge** (final short `##` section): one or two sentences naming exactly which recitation problem family this session feeds, for example the Launch Window family (arithmetic with units and time) or the Airlock family (decision tables and interlocks).
+3. **Warm-up** (a short `##` section): a quick refresher of the lecture's simplest building blocks, before the guided thinking starts. Show a handful of the smallest examples the lecture rests on, in both languages, with their output, and stop there: no `<Reveal>` (a warm-up is a reminder, not a challenge) and no new concept or exposition. For an expressions activity, for instance, this is a few bare literals of each kind (a whole number like `5`, a negative like `-1`, a decimal like `0.345`, a string like `"duck"`, a boolean like `True`/`true`) and a couple of simple operators (`2 + 3`, `4 - 1`). Keep it to a `<Tabs syncKey="lang">` pair and its output.
+4. **Three `##` block sections**, separated by `---`, one per chosen block type. Each opens with 1 to 2 sentences of framing (what problem this block poses, and why it matters, practically, not conceptually), then the prompt, then the `<Reveal>` holding the resolution.
+5. **Bridge** (final short `##` section): one or two sentences naming which recitation problem family this session feeds, **by its concept description, not a code name**. The families do not carry names; refer to each by what it does, for example the arithmetic-with-units-and-time family or the decision-tables-and-interlocks family.
 
 There is no penultimate artifact section and no closing "further reading" section on an activity page: those are cs312 tutorial conventions built around a build-something walkthrough, and an ENGR 103 activity is a bare-concept, participation-only session, not a build-an-artifact exercise.
 

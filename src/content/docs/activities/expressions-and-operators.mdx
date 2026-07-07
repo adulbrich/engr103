@@ -26,6 +26,53 @@ output: a reconciled prediction, a named cross-language difference, and a correc
 
 This activity puts into practice the [Expressions and Operators](/lectures/expressions-and-operators/) lecture. You will predict the value of a mixed-operator expression before running it, compare how Python and Rust divide the same two whole numbers, and hunt down a silent precedence bug in an average. By the end, you will be able to evaluate an expression by hand using precedence and each language's division rule, and to catch a wrong answer that never raised an error.
 
+## Warm-up
+
+A quick refresher before the blocks. A literal is a value written directly in code, and on its own it is already an expression that evaluates to itself. Here are a few, one of each kind, and two simple operators, in both languages.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="warmup.py"
+print(5)
+print(-1)
+print(0.345)
+print("duck")
+print(True)
+print(2 + 3)
+print(4 - 1)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="warmup.rs"
+fn main() {
+    println!("{}", 5);
+    println!("{}", -1);
+    println!("{}", 0.345);
+    println!("{}", "duck");
+    println!("{}", true);
+    println!("{}", 2 + 3);
+    println!("{}", 4 - 1);
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 warmup.py
+```
+
+```text frame="terminal" title="Output"
+5
+-1
+0.345
+duck
+True
+5
+3
+```
+
+Rust prints the same values, except the boolean is spelled `true` rather than `True`. With those pieces fresh, the blocks below combine them into expressions whose values are harder to guess.
+
 ## Block 1: Predict the Value
 
 Precedence decides the order of an expression's reduction, and Python's `/` always hands back a float even when both operands are whole numbers. Together those two rules make the value of a mixed-operator expression hard to guess. You commit to an answer first, then run the program to check it.
@@ -152,4 +199,4 @@ The parentheses reduce `8 + 4` to `12` before the division, so `12 / 2` gives th
 
 ## Bridge
 
-These three reps feed the Launch Window family in recitation: arithmetic with units and time, where a mixed expression has to reduce to exactly one right value and a stray precedence slip or the wrong division rule quietly produces a wrong window. The expressions-and-types work you just practiced by hand is the guided first rung of that ladder.
+These three reps feed the arithmetic-with-units-and-time family in recitation, where a mixed expression has to reduce to exactly one right value and a stray precedence slip or the wrong division rule quietly produces a wrong result. The expressions-and-types work you just practiced by hand is the guided first rung of that ladder.
