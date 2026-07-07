@@ -1,0 +1,251 @@
+---
+title: "Defining, Calling, and Tracing Functions"
+description: "Define small functions in Python and Rust, predict what their calls print, trace the argument copy by hand, and diagnose a wrong-argument-count error."
+sidebar:
+  order: 5
+draft: true
+---
+
+import { Tabs, TabItem, Steps } from '@astrojs/starlight/components';
+import Reveal from '/src/components/Reveal.astro';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+import WhatDiffers from '/src/components/WhatDiffers.astro';
+
+{/* ai-summary
+type: activity
+slug: functions
+order: 5
+paired_lecture: functions
+practices: defines a small function and predicts the output of reusing it inside a larger expression; traces the argument copy by hand to confirm that reassigning a parameter leaves the caller's variable unchanged; diagnoses a wrong-number-of-arguments error from Python's run-time TypeError and Rust's compile-time E0061
+prereq_activities:
+block_types: predict-then-run, paper-tracing, live-debugging
+output: a reconciled prediction, a completed argument-copy trace, and a corrected function call for the three blocks
+*/}
+
+<LanguageVersions />
+
+This activity puts into practice the [Functions](/lectures/functions/) lecture. You will predict what a small function prints when its calls are combined in one line, trace by hand how an argument is copied into a parameter, and diagnose a call that supplies the wrong number of arguments. By the end, you will be able to reduce a function call to its return value on paper and explain why a function cannot change the value its caller passed in.
+
+## Warm-up
+
+A quick refresher before the blocks. A function names a computation so you can reuse it by calling its name. Here is the smallest complete example: a function `area` that returns the area of a square with a given side, defined once and called once.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="warmup.py"
+def area(side):
+    return side * side
+
+print(area(3))
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="warmup.rs"
+fn area(side: i32) -> i32 {
+    return side * side;
+}
+
+fn main() {
+    println!("{}", area(3));
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 warmup.py
+```
+
+```text frame="terminal" title="Output"
+9
+```
+
+Rust prints the same `9`. With a definition and a call fresh, the blocks below combine calls into expressions and watch what a call does to the caller's own variables.
+
+## Block 1: Predict the Value
+
+A function call is an expression: it reduces to its return value, and only then can an operator combine it with anything else. That rule is easy to state and easy to skip, so this block makes you commit to a value before running the code. You predict the output first, then run the program to check it.
+
+Read the program below and write down, on paper or in a comment, the exact value you expect each line to print. Do not run it yet. For the second line, reduce it one step at a time: work out what each call returns on its own, then apply the `+` to the two returned values.
+
+```python title="predict.py"
+def area(side):
+    return side * side
+
+print(area(2))
+print(area(2) + area(3))
+```
+
+<Reveal label="Reveal the real output and reconcile it with your prediction">
+```bash title="Run the Python program"
+python3 predict.py
+```
+
+```text frame="terminal" title="Output"
+4
+13
+```
+
+The first line calls `area(2)`, which runs `side * side` with `side` standing for `2`, so it returns `2 * 2`, that is `4`.
+
+The second line is where a prediction goes wrong. The `+` cannot add two calls; it adds two values, so each call reduces to its return value first. `area(2)` returns `4` and `area(3)` returns `9`, and only then does the line become `4 + 9`, which is `13`. If you predicted `25`, you added the arguments before calling, computing `area(2 + 3)`, that is `area(5)`, which returns `25`. That shortcut works only for a function that scales its input evenly; here the function squares its input, so `area(2) + area(3)` and `area(2 + 3)` are genuinely different numbers. The call has to reduce to its own return value before the `+` ever runs.
+</Reveal>
+
+---
+
+## Block 2: Trace the Argument Copy
+
+When a function runs, its parameter is a brand new variable that starts out holding a copy of the argument's value, not the caller's variable itself. This block makes that copy visible: you trace the program by hand and confirm that changing the parameter inside the function leaves the caller's variable untouched.
+
+The parameter `n` is reassigned inside `bump`. Trace the program by hand and predict the two printed lines. Fill in a small table with a row for each step and a column for `score` and for `n`, then read off what `result` and `score` hold at the end.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="bump.py"
+def bump(n):
+    n = n + 100
+    return n
+
+score = 7
+result = bump(score)
+print(result)
+print(score)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="bump.rs"
+fn bump(mut n: i32) -> i32 {
+    n = n + 100;
+    return n;
+}
+
+fn main() {
+    let score = 7;
+    let result = bump(score);
+    println!("{}", result);
+    println!("{}", score);
+}
+```
+</TabItem>
+</Tabs>
+
+<Steps>
+1. Start in the outer code: `score` is bound to `7`.
+2. The call `bump(score)` copies the value of `score`, which is `7`, into the parameter `n`. Note that `score` and `n` are now separate boxes.
+3. Inside the function, `n = n + 100` reassigns `n`. Work out its new value, and decide whether `score` changes.
+4. `return n` hands that value back; `result` is bound to it.
+5. Read off `result` and `score` for the two `print` lines.
+</Steps>
+
+<Reveal label="Reveal the completed trace and the real output">
+Here is the completed trace, one row per step:
+
+| Step | `score` | `n` (in `bump`) |
+|---|---|---|
+| `score = 7` | `7` | not created yet |
+| `bump(score)` copies `7` into `n` | `7` | `7` |
+| `n = n + 100` | `7` | `107` |
+| `return n` gives back `107` | `7` | `107` |
+| `result` bound to `107`; `bump` finished | `7` | gone |
+
+The parameter `n` starts as a copy of `score`, so when `n = n + 100` rebinds `n` to `107`, it writes into `n`'s box only. The line never names `score`, so `score` stays `7`. The function returns `107`, `result` becomes `107`, and by the last two lines `result` is `107` and `score` is still `7`.
+
+```bash title="Run the Python program"
+python3 bump.py
+```
+
+```text frame="terminal" title="Output"
+107
+7
+```
+
+<WhatDiffers>
+<Fragment slot="differs">
+The trace is identical in both languages, but Rust needs one extra word to allow step 3. A Rust parameter is immutable by default, like a variable made with plain `let`, so reassigning `n` in the body requires marking it `mut` in the signature, `fn bump(mut n: i32)`. Python parameters can always be reassigned, so `bump(n)` needs no such mark. Either way the reassignment lands on the parameter's own copy, which is why `score` survives unchanged in both.
+</Fragment>
+</WhatDiffers>
+</Reveal>
+
+---
+
+## Block 3: Find the Wrong-Argument Bug
+
+A call must supply exactly one argument for every parameter. Break that rule and both languages reject the call, but at different moments: Python only when the call runs, Rust while it compiles. This block plants a wrong-count call and asks you to read each language's complaint. You run the program, read the error, and name the one-line fix.
+
+The function `clock_seconds` takes a number of minutes and a number of seconds and returns the total seconds. The call below hands it only one argument. Run the program, read the error each language gives, then work out the fix.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="clock.py"
+def clock_seconds(minutes, seconds):
+    return minutes * 60 + seconds
+
+print(clock_seconds(3))
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="clock.rs (will not compile)"
+fn clock_seconds(minutes: i32, seconds: i32) -> i32 {
+    return minutes * 60 + seconds;
+}
+
+fn main() {
+    println!("{}", clock_seconds(3));
+}
+```
+</TabItem>
+</Tabs>
+
+<Reveal label="Reveal the diagnosis, both error messages, and the fix">
+**Symptom.** The function has two parameters, `minutes` and `seconds`, but the call `clock_seconds(3)` supplies one argument. There is no value for the second parameter to receive, so the call cannot fill both slots.
+
+Python does not check the count until the call actually runs, so the file fails at that line with a `TypeError`:
+
+```bash title="Run the Python program"
+python3 clock.py
+```
+
+```text frame="terminal" title="Output"
+Traceback (most recent call last):
+  File "clock.py", line 4, in <module>
+    print(clock_seconds(3))
+          ~~~~~~~~~~~~~^^^
+TypeError: clock_seconds() missing 1 required positional argument: 'seconds'
+```
+
+Rust checks the count while compiling, so there is no program to run at all; the compiler names how many arguments the function takes and how many were supplied, in error `E0061`, and builds nothing:
+
+```bash title="Compile the Rust program"
+rustc clock.rs
+```
+
+```text frame="terminal" title="Output"
+error[E0061]: this function takes 2 arguments but 1 argument was supplied
+ --> clock.rs:6:20
+```
+
+**Fix.** Supply the missing argument so the call matches the two parameters. For example, to total 3 minutes and 20 seconds, pass both values:
+
+```python title="clock.py (fixed)"
+def clock_seconds(minutes, seconds):
+    return minutes * 60 + seconds
+
+print(clock_seconds(3, 20))
+```
+
+```bash title="Run the fixed program"
+python3 clock.py
+```
+
+```text frame="terminal" title="Output"
+200
+```
+
+Now every parameter has exactly one argument to fill it, `minutes` gets `3` and `seconds` gets `20`, so the body computes `3 * 60 + 20`, which is `200`. The lesson is that a wrong argument count is caught for you either way: Python raises it as a run-time `TypeError`, and Rust refuses to compile with `E0061`, so neither language lets a mismatched call slip through silently.
+</Reveal>
+
+---
+
+## Bridge
+
+These three reps feed the recitation problem family that computes a single quantity from arithmetic over units and time, where the computation is packaged as a function that a caller supplies with values and reads a result back. Defining a small function, reducing its call to a return value inside a larger expression, and matching each argument to its parameter are the guided first rung of that ladder.

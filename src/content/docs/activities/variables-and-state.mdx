@@ -1,0 +1,216 @@
+---
+title: "Predicting and Tracing Variables"
+description: "Predict the value of a reassigned variable, fix an immutable-variable bug in Rust, and hand-trace a variable table across several assignments in Python and Rust."
+sidebar:
+  order: 4
+draft: true
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import Reveal from '/src/components/Reveal.astro';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+
+{/* ai-summary
+type: activity
+slug: variables-and-state
+order: 4
+paired_lecture: variables-and-state
+practices: predicts the value of a variable after a sequence of reassignments that each build on its current value; diagnoses a reassignment of an immutable Rust `let` binding from its compile error and fixes it with `let mut`; hand-traces a variable table across several assignments and confirms the final printed values
+prereq_activities:
+block_types: predict-then-run, live-debugging, paper-tracing
+output: a reconciled prediction, a corrected mutable binding, and a completed variable table for the three blocks
+*/}
+
+<LanguageVersions />
+
+This activity puts into practice the [Variables and State](/lectures/variables-and-state/) lecture. You will predict the value of a variable after a run of reassignments, hunt down a bug that comes from trying to change a variable Rust will not let you change, and hand-trace a variable table across several assignments. By the end, you will be able to walk assignment's evaluate-then-bind steps across many lines by hand and predict a variable's stored value at any point in a program.
+
+## Warm-up
+
+A quick refresher before the blocks. Creating a variable attaches a name to a value, using the name looks that value back up, and reassigning the name overwrites the value it holds. Here is each of those, once, in both languages.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="warmup.py"
+size = 4
+print(size)
+size = 9
+print(size)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="warmup.rs"
+fn main() {
+    let mut size = 4;
+    println!("{}", size);
+    size = 9;
+    println!("{}", size);
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 warmup.py
+```
+
+```text frame="terminal" title="Output"
+4
+9
+```
+
+Rust prints the same two values. The one visible difference is that Rust needs `let` to create the name and `mut` to allow the later change, where Python needs neither. With those pieces fresh, the blocks below chain several assignments together.
+
+## Block 1: Predict the Value
+
+Assignment is not equality: `total = total + 5` does not claim a number equals itself plus five, it evaluates the right side from the variable's current value and then rebinds the name. When the same variable is reassigned line after line, each step builds on the value the step before it left behind, and the final value is easy to mispredict if you read `=` as a claim rather than an action. You commit to an answer first, then run the program to check it.
+
+Read the program below and write down, on paper or in a comment, the exact value you expect the `print` to show. Do not run it yet. Walk each assignment in order: evaluate its right side from the current value of `total`, then rebind `total` to that result before moving to the next line.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="predict.py"
+total = 8
+total = total + 5
+total = total * 2
+print(total)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="predict.rs"
+fn main() {
+    let mut total = 8;
+    total = total + 5;
+    total = total * 2;
+    println!("{}", total);
+}
+```
+</TabItem>
+</Tabs>
+
+<Reveal label="Reveal the real output and reconcile it with your prediction">
+```bash title="Run the Python program"
+python3 predict.py
+```
+
+```text frame="terminal" title="Output"
+26
+```
+
+Rust prints the same `26`. Line 1 binds `total` to `8`. Line 2 evaluates `total + 5` from the current `8`, giving `13`, and rebinds `total` to `13`, so the old `8` is gone. Line 3 evaluates `total * 2` from the now-current `13`, giving `26`, and rebinds `total` to `26`. The `print` reads whatever `total` holds at the end, which is `26`. If you predicted `18`, you likely doubled the original `8` and added `5` once at the end, or otherwise reused an old value: each line uses only the value the line before it produced, never the starting `8` again.
+</Reveal>
+
+---
+
+## Block 2: Find the Bug
+
+Rust makes every variable immutable unless you add `mut`, so a plain `let` binding cannot be reassigned, and the compiler rejects the second assignment before the program ever runs. This block is a program that tries to update such a binding. You find the bug with the systematic method: read the error, form a hypothesis, test it.
+
+The program is meant to start a limit at `100` and raise it by `20`, then print `120`. It does not compile. Read it, predict why, then work out the one change that fixes it.
+
+```rust title="limit.rs (will not compile)"
+fn main() {
+    let limit = 100;
+    limit = limit + 20;
+    println!("{}", limit);
+}
+```
+
+<Reveal label="Reveal the diagnosis and the fix">
+```bash title="Compile the Rust program"
+rustc limit.rs
+```
+
+```text frame="terminal" title="Output"
+error[E0384]: cannot assign twice to immutable variable `limit`
+ --> limit.rs:3:5
+```
+
+**Symptom.** There is no run at all; compiling stops with error `E0384` pointing at line 3, the `limit = limit + 20;` reassignment.
+
+**Hypothesis.** The variable was created with plain `let`, which makes it immutable, so the compiler recorded that `limit` may never change. When it reaches the second assignment on line 3, it checks that record, sees the binding is not allowed to change, and refuses to build the program. The fix is to permit the change at the point the variable is created, by adding `mut` right after `let`.
+
+**Test.** Add `mut` to the declaration so the binding may be reassigned:
+
+```rust title="limit.rs (fixed)"
+fn main() {
+    let mut limit = 100;
+    limit = limit + 20;
+    println!("{}", limit);
+}
+```
+
+```bash title="Compile and run the fixed program"
+rustc limit.rs
+./limit
+```
+
+```text frame="terminal" title="Output"
+120
+```
+
+With `mut` present, the compiler allows the second assignment: `limit + 20` evaluates from the current `100` to `120`, and `limit` is rebound to `120`. The lesson is that this bug is caught at compile time, before a single line runs, which is exactly the safety Rust's immutable-by-default rule buys you.
+</Reveal>
+
+---
+
+## Block 3: Trace the Table
+
+Hand-tracing a variable table lists, line by line, the value every variable holds after that line runs, and it is how you check your reading of a program against what it actually does before you trust the program to tell you. Here two variables are updated in turn, and one line rebuilds a variable from both, so the order of the steps decides the result.
+
+Trace the program below by hand. For each line, do both steps of the assignment: evaluate the right side from the variables' current values, then rebind the name on the left. Fill in the value of `a` and the value of `b` after each line, then predict the two printed values.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="trace.py"
+a = 4
+b = a + 2
+a = a * 3
+b = b + a
+print(a)
+print(b)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="trace.rs"
+fn main() {
+    let mut a = 4;
+    let mut b = a + 2;
+    a = a * 3;
+    b = b + a;
+    println!("{}", a);
+    println!("{}", b);
+}
+```
+</TabItem>
+</Tabs>
+
+<Reveal label="Reveal the completed table and the output">
+Line 1 binds `a` to `4`. Line 2 evaluates `a + 2` from the current `a`, so `4 + 2` gives `6`, and binds `b` to `6`. Line 3 evaluates `a * 3` from the current `a`, so `4 * 3` gives `12`, and rebinds `a` to `12`, discarding the `4`. Line 4 evaluates `b + a` from the now-current values, so `6 + 12` gives `18`, and rebinds `b` to `18`. Recording the value of each variable after each line gives the table:
+
+| Line | Statement | `a` afterward | `b` afterward |
+|---|---|---|---|
+| 1 | `a = 4` | 4 | not yet set |
+| 2 | `b = a + 2` | 4 | 6 |
+| 3 | `a = a * 3` | 12 | 6 |
+| 4 | `b = b + a` | 12 | 18 |
+
+The two `print` lines read whatever the variables hold at the end, which the table shows is `12` for `a` and `18` for `b`. Running the program confirms the trace, and both languages print the same two values because the assignment rules are identical and only the surrounding syntax differs:
+
+```bash title="Run the Python program"
+python3 trace.py
+```
+
+```text frame="terminal" title="Output"
+12
+18
+```
+
+The step that trips people is line 4: `b + a` must use `a`'s current value `12`, set on line 3, not the `4` it started with. If you got `10`, you added the old `a` before line 3 changed it.
+</Reveal>
+
+---
+
+## Bridge
+
+These three reps feed the arithmetic-with-units-and-time family in recitation, where a value is stored, updated across several steps, and read back later, and one assignment taken out of order or one wrong current value quietly throws off the final answer. The evaluate-then-bind tracing you just did by hand is the guided first rung of that ladder.
