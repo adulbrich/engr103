@@ -13,3 +13,16 @@ const { label = 'Reveal the answer' } = Astro.props;
     <slot />
   </div>
 </details>
+
+<style>
+  /* Show every reveal's resolution when printing. Older engines honor the
+     child's display override (print:!block above); newer engines gate a closed
+     <details> body behind the ::details-content pseudo-element with
+     content-visibility:hidden, which a descendant's display cannot override, so
+     reveal it at the pseudo-element too. */
+  @media print {
+    .reveal::details-content {
+      content-visibility: visible !important;
+    }
+  }
+</style>

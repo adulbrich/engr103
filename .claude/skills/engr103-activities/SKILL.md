@@ -125,7 +125,7 @@ Rules:
 - `block_types` must name exactly the three block types the page actually uses, one of: `predict-then-run`, `same-program-two-languages`, `live-debugging`, `peer-instruction`, `paper-tracing`.
 - Leave a field blank rather than guessing a value.
 
-**Example** (`expressions-and-operators.mdx`):
+**Example** (illustrative, for an expressions-and-operators activity):
 
 ````mdx
 {/* ai-summary
@@ -133,7 +133,7 @@ type: activity
 slug: expressions-and-operators
 order: 3
 paired_lecture: expressions-and-operators
-practices: predicts the value of a mixed-operator expression before running it; names what changes between Python's // and Rust's integer / across languages; diagnoses a precedence bug from an error and a wrong result
+practices: predicts the value of a mixed-operator expression before running it; names what changes between Python's // and Rust's integer / across languages; diagnoses a silent precedence bug from a wrong result
 prereq_activities:
 block_types: predict-then-run, same-program-two-languages, live-debugging
 output: a corrected expression and a reconciled prediction for each of the three blocks
@@ -204,6 +204,6 @@ This runs `astro check` and the link validator. Fix every error before consideri
 - No mention of pairing, partners, or discussing with a neighbor.
 - No conceptual deep dives; those belong in the paired lecture.
 - No penultimate artifact-to-show section and no closing further-reading section.
-- No reference to assignments, recitations, or grading mechanics.
+- No reference to grading mechanics, submission, or assignment deliverables (naming the recitation problem family in the Bridge is expected and is not this).
 - No construct ahead of the paired lecture's week on the language ladder.
 - No lecture-only or assignment-only component imports.
