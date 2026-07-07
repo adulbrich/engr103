@@ -7,9 +7,9 @@
 const { label = 'Reveal the answer' } = Astro.props;
 ---
 
-<details class="reveal my-4 rounded-md border border-[var(--sl-color-gray-5)] bg-[var(--sl-color-bg)] px-3 py-2">
-  <summary class="cursor-pointer text-sm font-semibold text-[var(--sl-color-white)]">{label}</summary>
-  <div class="mt-2 border-t border-[var(--sl-color-gray-5)] pt-2 print:!block">
+<details class="reveal my-4 rounded-md border border-(--sl-color-gray-5) bg-(--sl-color-bg) px-3 py-2">
+  <summary class="cursor-pointer text-sm font-semibold text-(--sl-color-white]">{label}</summary>
+  <div class="mt-2 pt-2 print:block!">
     <slot />
   </div>
 </details>
