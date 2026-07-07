@@ -1,0 +1,216 @@
+---
+title: "Indexing, Slicing, and Fixing Strings"
+description: "Predict how a string is indexed and sliced, compare how Python and Rust reach a character by position, and debug an off-by-one slice that returns the wrong substring."
+sidebar:
+  order: 13
+draft: true
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import Reveal from '/src/components/Reveal.astro';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+import WhatDiffers from '/src/components/WhatDiffers.astro';
+
+{/* ai-summary
+type: activity
+slug: strings
+order: 13
+paired_lecture: strings
+practices: predicts the character at an index, the substring from a half-open slice, a string's length, and a character's ASCII number before running the program; names why Python indexes a string with s[0] while Rust rejects the same code and reaches a character with chars().nth instead; diagnoses an off-by-one slice that returns a short substring with no error
+prereq_activities:
+block_types: predict-then-run, same-program-two-languages, live-debugging
+output: a reconciled prediction for indexing and slicing, a named cross-language indexing difference, and a corrected slice boundary
+*/}
+
+<LanguageVersions />
+
+This activity puts into practice the [Strings and Characters](/lectures/strings/) lecture. You will predict how a string is indexed, sliced, and measured, compare how Python and Rust reach a single character by its position, and hunt down an off-by-one slice that returns the wrong substring without ever raising an error. By the end, you will be able to read a slice by its half-open range, cross between a character and its ASCII number, and catch a boundary mistake that a program never complains about.
+
+## Warm-up
+
+A quick refresher before the blocks. A string is a sequence of characters written inside quotation marks, and each character is stored as a whole number by the ASCII mapping: `ord` gives a character's number, `chr` turns a number back into its character. Here are the smallest pieces, in both languages.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="warmup.py"
+word = "cat"
+print(word)
+print(ord('A'))
+print(chr(65))
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="warmup.rs"
+fn main() {
+    let word = "cat";
+    println!("{}", word);
+    println!("{}", 'A' as u32);
+    println!("{}", 65u8 as char);
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 warmup.py
+```
+
+```text frame="terminal" title="Output"
+cat
+65
+A
+```
+
+Rust prints the same three lines: it turns a character into its number with the cast `'A' as u32` in place of `ord`, and a byte-sized number back into a character with `65u8 as char` in place of `chr`. With those pieces fresh, the blocks below reach into a string by position.
+
+---
+
+## Block 1: Predict the Index and the Slice
+
+Positions in a string count from zero, and a slice stops just before its end index, not on it. Those two rules are exactly where a prediction goes wrong. You commit to an answer first, then run the program to check it.
+
+Read the program below and write down, on paper or in a comment, the exact value each line prints. Do not run it yet. Number the characters of `engineer` from zero, remember that a slice `s[1:4]` includes its start but excludes its end, and recall that `ord` and `chr` cross between a character and its ASCII number.
+
+```python title="predict.py"
+s = "engineer"
+print(s[0])
+print(s[1:4])
+print(len(s))
+print(ord('A'))
+print(chr(65))
+```
+
+<Reveal label="Reveal the real output and reconcile it with your prediction">
+```bash title="Run the Python program"
+python3 predict.py
+```
+
+```text frame="terminal" title="Output"
+e
+ngi
+8
+65
+A
+```
+
+Number the characters of `engineer`: `e` at 0, `n` at 1, `g` at 2, `i` at 3, `n` at 4, `e` at 5, `e` at 6, `r` at 7. So `s[0]` is the first character, `e`. The slice `s[1:4]` starts at index 1 and stops just before index 4, so it takes indices 1, 2, and 3, the characters `n`, `g`, `i`, giving the substring `ngi`; if you predicted `ngin`, you counted index 4 as included, but a half-open slice excludes its end. There are eight characters in all, so `len(s)` is `8`. The last two lines cross between a character and its number: `ord('A')` is the ASCII number `65`, and `chr(65)` turns that number back into the character `A`, the same round trip you saw in the warm-up.
+</Reveal>
+
+---
+
+## Block 2: Reaching a Character, Two Languages
+
+Python and Rust agree on almost everything about strings, and then disagree sharply on one thing: reaching a single character by an integer position. Seeing the identical line accepted by one language and rejected by the other is how you remember which is which. You read both tabs and name what genuinely differs.
+
+The two programs below try the same thing, asking for the character at position 0 of `cat`. Before opening the reveal, predict what each one does: what Python prints, and whether Rust even compiles.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="index.py"
+s = "cat"
+print(s[0])
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="index.rs (will not compile)"
+fn main() {
+    let s = "cat";
+    println!("{}", s[0]);
+}
+```
+</TabItem>
+</Tabs>
+
+<Reveal label="Reveal the outputs and what differs">
+```bash title="Run the Python program"
+python3 index.py
+```
+
+```text frame="terminal" title="Output"
+c
+```
+
+Python indexes the string directly and hands back the character `c`. The Rust version never produces a program at all:
+
+```bash title="Compile the Rust program"
+rustc index.rs
+```
+
+```text frame="terminal" title="Output"
+error[E0277]: the type `str` cannot be indexed by `{integer}`
+ --> index.rs:3:22
+  |
+3 |     println!("{}", s[0]);
+  |                      ^ string indices are ranges of `usize`
+  |
+  = help: the trait `SliceIndex<str>` is not implemented for `{integer}`
+  = note: you can use `.chars().nth()` or `.bytes().nth()`
+          for more information, see chapter 8 in The Book: <https://doc.rust-lang.org/book/ch08-02-strings.html#indexing-into-strings>
+  = help: the following other types implement trait `SliceIndex<T>`:
+            `usize` implements `SliceIndex<ByteStr>`
+            `usize` implements `SliceIndex<[T]>`
+  = note: required for `str` to implement `Index<{integer}>`
+
+error: aborting due to 1 previous error
+
+For more information about this error, try `rustc --explain E0277`.
+```
+
+The two load-bearing lines are the first, `error[E0277]: the type str cannot be indexed by {integer}`, and the note that tells you what to use instead, `you can use .chars().nth() or .bytes().nth()`. Rust stores a string as UTF-8 bytes, so position 0 is ambiguous between the first byte and the first character; rather than guess, Rust refuses the integer index and asks you to say which you meant. To reach a character, you call `s.chars().nth(0)`, which walks the string as characters and hands back `Some('c')`.
+
+<WhatDiffers>
+<Fragment slot="differs">
+Python indexes a string directly with `s[0]` and returns the character. Rust rejects integer indexing on a string entirely with error E0277, because its UTF-8 storage makes "position 0" ambiguous between a byte and a character; you reach a character with `s.chars().nth(0)` instead. The same byte-versus-character split shows up in length: Python's `len` counts characters, while Rust's `.len()` counts bytes and `.chars().count()` counts characters, numbers that agree only while the text is plain ASCII.
+</Fragment>
+</WhatDiffers>
+</Reveal>
+
+---
+
+## Block 3: Find the Off-by-One Slice
+
+A wrong slice boundary does not crash. The program runs, prints a string, and lies: the substring is simply too short or too long by a character. The program below is meant to pull the substring `gin` out of `engineer`, but it prints something shorter. You find the bug with the systematic method: read the symptom, form a hypothesis, test it.
+
+The program should print the three-character substring `gin`. Run it, see what it actually prints, then work out why the result is wrong and how one change fixes it.
+
+```python title="extract.py"
+s = "engineer"
+print(s[2:4])
+```
+
+<Reveal label="Reveal the diagnosis and the fix">
+```bash title="Run the buggy program"
+python3 extract.py
+```
+
+```text frame="terminal" title="Output"
+gi
+```
+
+**Symptom.** There is no error message; the program runs and prints `gi`, but the wanted substring `gin` has three characters. The short output is the only signal you get.
+
+**Hypothesis.** Number the characters of `engineer`: `g` is at index 2, `i` at index 3, `n` at index 4. The substring `gin` therefore covers indices 2, 3, and 4. But a slice is half-open: it stops just before its end index. So `s[2:4]` takes only indices 2 and 3, the characters `g` and `i`, and stops before index 4, dropping the `n`. The guess is an off-by-one on the end index: the author wrote the end as the index of the last character they wanted, `4`, instead of one past it.
+
+**Test.** Move the end index one past the last wanted character, from `4` to `5`, so the slice includes index 4:
+
+```python title="extract.py (fixed)"
+s = "engineer"
+print(s[2:5])
+```
+
+```bash title="Run the fixed program"
+python3 extract.py
+```
+
+```text frame="terminal" title="Output"
+gin
+```
+
+The slice `s[2:5]` now takes indices 2, 3, and 4, the characters `g`, `i`, `n`, giving the intended `gin`. The fix is a single character, `4` becomes `5`. The lesson is that a boundary mistake produces a plausible, wrong substring, not a crash, so counting the characters by hand and knowing the length you expect are what catch it.
+</Reveal>
+
+---
+
+## Bridge
+
+These three reps feed the recitation family that reads a coded sequence, pulls the meaningful pieces out of it by position, and rebuilds a cleaned result: reaching a character by its index, taking a run of characters as a slice, and crossing between a character and its ASCII number are exactly the moves that family runs on a string. The indexing and slicing you just practiced by hand are the guided first rung of that ladder.

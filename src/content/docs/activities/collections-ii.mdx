@@ -1,0 +1,333 @@
+---
+title: "Storing and Counting by Key"
+description: "Predict, fix, and trace short dictionary and hash map programs in Python and Rust to lock in key lookup, updating, membership, missing keys, and frequency counting."
+sidebar:
+  order: 17
+draft: true
+---
+
+import { Tabs, TabItem, Steps } from '@astrojs/starlight/components';
+import Reveal from '/src/components/Reveal.astro';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+import WhatDiffers from '/src/components/WhatDiffers.astro';
+
+{/* ai-summary
+type: activity
+slug: collections-ii
+order: 17
+paired_lecture: collections-ii
+practices: predicts the values a dictionary returns after inserting, overwriting, looking up, and testing membership of keys; diagnoses a missing-key crash and fixes it by asking for the key safely with a default or an Option; traces a frequency count over a short word, building the count for each letter one pass at a time
+prereq_activities:
+block_types: predict-then-run, live-debugging, paper-tracing
+output: a reconciled set of key lookups, a corrected missing-key lookup, and a completed letter-frequency trace
+*/}
+
+<LanguageVersions />
+
+This activity puts into practice the [Collections II: Dictionaries and Maps](/lectures/collections-ii/) lecture. You will predict what a dictionary returns after you insert, overwrite, and test its keys, fix a program that stops when it asks for a key that is not there, and trace a letter-frequency count by hand. By the end, you will be able to read a value back by its key, handle a key that might be missing without crashing, and count how many times each item appears in some data.
+
+## Warm-up
+
+A quick refresher before the blocks. A dictionary, called a hash map in Rust, stores each value under a key you choose, and you read a value back by naming its key. Here are two pairs stored and then looked up, in both languages. Rust needs `use std::collections::HashMap;` at the top of the file to bring the type into view.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="ages.py"
+ages = {"alice": 30, "bob": 25}
+print(ages["alice"])
+print(ages["bob"])
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="ages.rs"
+use std::collections::HashMap;
+
+fn main() {
+    let mut ages = HashMap::new();
+    ages.insert("alice", 30);
+    ages.insert("bob", 25);
+    println!("{}", ages["alice"]);
+    println!("{}", ages["bob"]);
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 ages.py
+```
+
+```text frame="terminal" title="Output"
+30
+25
+```
+
+Both programs store the same two pairs and read each value back by its key, so both print `30` then `25`. With that fresh, the blocks below insert, overwrite, and count.
+
+## Block 1: Predict the Lookups
+
+Storing a value under a key that already holds one does not add a second pair; it overwrites the old value. Membership tests with `in` and `.contains_key` then ask whether a key is present at all, without reading it. Those two rules decide what the program below prints, and you commit to an answer before running it.
+
+Read the program and write down, on paper or in a comment, the exact value you expect each of the four lines to print. Do not run it yet. Track the dictionary as it changes: insert `cara`, then overwrite `ann`, then test one key that is present and one that never was.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="scores.py"
+scores = {"ann": 10, "ben": 20}
+scores["cara"] = 30
+scores["ann"] = 15
+print(scores["ann"])
+print(scores["cara"])
+print("ben" in scores)
+print("zoe" in scores)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="scores.rs"
+use std::collections::HashMap;
+
+fn main() {
+    let mut scores = HashMap::new();
+    scores.insert("ann", 10);
+    scores.insert("ben", 20);
+    scores.insert("cara", 30);
+    scores.insert("ann", 15);
+    println!("{}", scores["ann"]);
+    println!("{}", scores["cara"]);
+    println!("{}", scores.contains_key("ben"));
+    println!("{}", scores.contains_key("zoe"));
+}
+```
+</TabItem>
+</Tabs>
+
+<Reveal label="Reveal the real output and reconcile it with your prediction">
+```bash title="Run the Python program"
+python3 scores.py
+```
+
+```text frame="terminal" title="Output"
+15
+30
+True
+False
+```
+
+```bash title="Compile and run the Rust program"
+rustc scores.rs
+./scores
+```
+
+```text frame="terminal" title="Output"
+15
+30
+true
+false
+```
+
+`ann` starts at `10`, but `scores["ann"] = 15` overwrites that value rather than adding a second `ann`, so the first line prints `15`, not `10`. If you predicted `10`, you treated the second store as a new pair; a dictionary holds each key at most once, so the store replaced what was there. `cara` was inserted once at `30`, so the second line prints `30`. Then `ben` is a key, so its membership test is true, and `zoe` was never stored, so its test is false. Rust spells the booleans `true` and `false` where Python spells them `True` and `False`; every other value matches.
+</Reveal>
+
+---
+
+## Block 2: Fix the Missing Key
+
+The program below reads a price back by its key with square brackets, but it asks for a key that was never stored. Square-bracket lookup assumes the key is present and stops the program when it is not. You find the bug with the systematic method: read the error, form a hypothesis, then fix it by asking for the key in a way that survives its absence.
+
+The program is meant to print the price of `"cherry"`, but only `"apple"` and `"banana"` were ever stored. Run it, read what it reports, then work out why it stops and how to make it print a sensible `0` instead.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="lookup.py"
+prices = {"apple": 3, "banana": 1}
+print(prices["cherry"])
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="lookup.rs"
+use std::collections::HashMap;
+
+fn main() {
+    let mut prices = HashMap::new();
+    prices.insert("apple", 3);
+    prices.insert("banana", 1);
+    println!("{}", prices["cherry"]);
+}
+```
+</TabItem>
+</Tabs>
+
+<Reveal label="Reveal the errors, the diagnosis, and the fix">
+```bash title="Run the buggy Python program"
+python3 lookup.py
+```
+
+```text frame="terminal" title="Output"
+Traceback (most recent call last):
+  File "lookup.py", line 2, in <module>
+    print(prices["cherry"])
+          ~~~~~~^^^^^^^^^^
+KeyError: 'cherry'
+```
+
+```bash title="Compile and run the buggy Rust program"
+rustc lookup.rs
+./lookup
+```
+
+```text frame="terminal" title="Output"
+thread 'main' panicked at lookup.rs:7:26:
+no entry found for key
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+**Symptom.** Neither program prints a price. Python stops with a `KeyError` naming the key it could not find, `'cherry'`, and Rust stops with a panic reading `no entry found for key`. Both point at the same square-bracket lookup.
+
+**Hypothesis.** The lookup asks for `"cherry"`, but only `"apple"` and `"banana"` were stored. Square-bracket lookup trusts that the key is there and halts when it is not, so a key that is simply absent is enough to stop the program.
+
+**Fix.** Ask for the key in a way that has an answer even when the key is missing. Python's `.get` takes a fallback as its second argument and returns it instead of stopping. Rust's `.get` returns an Option that a `match` opens, so the `None` arm handles the absent key.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="lookup.py (fixed)"
+prices = {"apple": 3, "banana": 1}
+print(prices.get("cherry", 0))
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="lookup.rs (fixed)"
+use std::collections::HashMap;
+
+fn main() {
+    let mut prices = HashMap::new();
+    prices.insert("apple", 3);
+    prices.insert("banana", 1);
+    match prices.get("cherry") {
+        Some(price) => println!("{}", price),
+        None => println!("0"),
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the fixed Python program"
+python3 lookup.py
+```
+
+```text frame="terminal" title="Output"
+0
+```
+
+```bash title="Compile and run the fixed Rust program"
+rustc lookup.rs
+./lookup
+```
+
+```text frame="terminal" title="Output"
+0
+```
+
+<WhatDiffers>
+<Fragment slot="differs">
+Python's square-bracket lookup raises a `KeyError` on a missing key, and its `.get("cherry", 0)` instead returns the fallback `0` you name. Rust's square-bracket lookup panics with `no entry found for key`, and its `.get` never returns a bare value: it returns an Option, `None` for a missing key, which a `match` must open before you can use it. Python lets you fold the fallback into the call; Rust makes the absent case a branch the compiler will not let you skip.
+</Fragment>
+</WhatDiffers>
+</Reveal>
+
+---
+
+## Block 3: Trace the Letter Count
+
+Frequency counting keeps a running count for every distinct item at once: the keys are the items, and each value is that item's count so far. The program below counts the letters of the word `banana` by walking it one letter at a time. You trace the count dictionary by hand before running anything.
+
+Work through the letters of `banana` in order, `b`, `a`, `n`, `a`, `n`, `a`. Start with an empty dictionary and, for each letter, apply the rule the program uses.
+
+<Steps>
+
+1. If the letter is already a key, add one to its count.
+2. If it is not, start its count at `1`.
+3. Write the whole dictionary after each letter, then read off the final counts for `b`, `a`, and `n`.
+
+</Steps>
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="counts.py"
+word = "banana"
+counts = {}
+for letter in word:
+    if letter in counts:
+        counts[letter] = counts[letter] + 1
+    else:
+        counts[letter] = 1
+print(counts["b"])
+print(counts["a"])
+print(counts["n"])
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="counts.rs"
+use std::collections::HashMap;
+
+fn main() {
+    let word = "banana";
+    let mut counts = HashMap::new();
+    for letter in word.chars() {
+        if counts.contains_key(&letter) {
+            counts.insert(letter, counts[&letter] + 1);
+        } else {
+            counts.insert(letter, 1);
+        }
+    }
+    println!("{}", counts[&'b']);
+    println!("{}", counts[&'a']);
+    println!("{}", counts[&'n']);
+}
+```
+</TabItem>
+</Tabs>
+
+<Reveal label="Reveal the completed trace and the real output">
+The dictionary starts empty. Each row shows the letter arriving and the dictionary just after it is handled.
+
+| Letter | Already a key? | Action | Dictionary after |
+|---|---|---|---|
+| `b` | no | start `b` at `1` | `b: 1` |
+| `a` | no | start `a` at `1` | `b: 1, a: 1` |
+| `n` | no | start `n` at `1` | `b: 1, a: 1, n: 1` |
+| `a` | yes | `1` becomes `2` | `b: 1, a: 2, n: 1` |
+| `n` | yes | `1` becomes `2` | `b: 1, a: 2, n: 2` |
+| `a` | yes | `2` becomes `3` | `b: 1, a: 3, n: 2` |
+
+The walk ends with `b` at `1`, `a` at `3`, and `n` at `2`, which is exactly how many times each letter appears in `banana`. The program looks up those three keys in that order, so it prints `1`, then `3`, then `2`.
+
+```bash title="Run the Python program"
+python3 counts.py
+```
+
+```text frame="terminal" title="Output"
+1
+3
+2
+```
+
+```bash title="Compile and run the Rust program"
+rustc counts.rs
+./counts
+```
+
+```text frame="terminal" title="Output"
+1
+3
+2
+```
+
+The program reads specific keys by name rather than printing the whole dictionary, so the output is the same every run. Rust writes the key as `&letter` and `&'b'` with a leading `&` because `contains_key` and square-bracket lookup take the key by reference, and a `char` is a plain value; the counting itself is identical to Python's.
+</Reveal>
+
+---
+
+## Bridge
+
+These three reps feed the key-value-lookup-and-counting family in recitation, where a program files values under names, reads them back by key, guards against a name it was never given, and tallies how often each distinct item shows up. The lookups, the missing-key fix, and the hand trace you just worked are the guided first rung of that ladder.

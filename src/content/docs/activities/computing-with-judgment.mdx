@@ -1,0 +1,267 @@
+---
+title: "Judging Code You Did Not Write"
+description: "Choose the one test input that decides whether to trust an inherited function, predict how it fails in each language, then diagnose and guard the missing case."
+sidebar:
+  order: 18
+draft: true
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import Reveal from '/src/components/Reveal.astro';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+import WhatDiffers from '/src/components/WhatDiffers.astro';
+
+{/* ai-summary
+type: activity
+slug: computing-with-judgment
+order: 18
+paired_lecture: computing-with-judgment
+practices: reconstructs the missing specification of a function you did not write; chooses the boundary test input that decides whether to trust it; predicts how the same missing case crashes in Python and stays a silent NaN in Rust; diagnoses the wrong result with the systematic method and guards the empty case with one change
+prereq_activities:
+block_types: peer-instruction, predict-then-run, live-debugging
+output: a chosen discriminating test, a committed prediction of the cross-language failure, and a guarded fix for the empty-list case
+*/}
+
+<LanguageVersions />
+
+This activity puts into practice the [Computing with Judgment](/lectures/computing-with-judgment/) lecture. You will judge one function you did not write: you choose the single test input most likely to break it, you predict how it fails at that input in each language, and then you diagnose and fix it. By the end, you will be able to reconstruct a specification the author left out, derive a boundary test from that specification, and read a failure that crashes loudly in one language and passes silently in the other.
+
+## Warm-up
+
+A quick refresher before the blocks. Here is a function that averages a list of readings. You did not write it, but it reads like the definition of an average: it adds every reading, counts how many there were, and divides the total by the count. On a typical list it behaves.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="warmup.py"
+def average(readings):
+    total = 0.0
+    count = 0
+    for r in readings:
+        total += r
+        count += 1
+    return total / count
+
+print(average([6, 9, 3]))
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="warmup.rs"
+fn average(readings: &Vec<f64>) -> f64 {
+    let mut total = 0.0;
+    let mut count = 0.0;
+    for r in readings {
+        total += r;
+        count += 1.0;
+    }
+    total / count
+}
+
+fn main() {
+    let sample = vec![6.0, 9.0, 3.0];
+    println!("{}", average(&sample));
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 warmup.py
+```
+
+```text frame="terminal" title="Output"
+6.0
+```
+
+```bash title="Compile and run the Rust program"
+rustc warmup.rs
+./warmup
+```
+
+```text frame="terminal" title="Output"
+6
+```
+
+Both report the average of 6, 9, and 3: Python prints `6.0` and Rust prints `6`, the same value shown two ways. Every block below judges this same `average` function.
+
+## Block 1: Choose the Test That Decides
+
+A function that gives the right answer on the input you happen to try has told you almost nothing. Judging code you did not write starts with choosing the one input most likely to break it, so that a single run actually decides something.
+
+You get to run the warm-up's `average` on exactly one test input before deciding whether to trust it. Which input do you run first?
+
+- **A.** `[6, 9, 3]`, a normal three-element list.
+- **B.** `[7]`, a single reading.
+- **C.** `[100, 200, 300]`, much larger numbers.
+- **D.** `[]`, the empty list.
+
+Commit to one answer, then open the reveal.
+
+<Reveal label="Reveal the discriminating input and why the others decide nothing">
+**D, the empty list.**
+
+The function's real work is `total / count`, where `count` is how many readings the loop saw. Every input that leaves `count` above zero runs the same defined path, so it can only re-confirm what the warm-up already showed. The empty list is the one input that drives `count` to zero, and it is the only one whose outcome you cannot already predict.
+
+- **A** is the exact shape of input the warm-up already ran. It re-walks the defined path and tells you nothing new.
+- **B** still has a nonzero count. `count` becomes 1, the division `7.0 / 1` is defined, and the function returns `7.0`.
+- **C** changes only the magnitude of the numbers, not the code path. `count` is still 3, so the division is defined and returns `200.0`.
+- **D** is the only input where the loop body never runs, so `count` stays at its starting zero and the function reaches `total / count` with a zero denominator, the case the code never handles. That is what makes it the discriminating test.
+</Reveal>
+
+---
+
+## Block 2: Predict the Failure at the Edge
+
+You picked the empty list. Before you run it, commit to exactly what it does, because the two languages do not agree here, and predicting the split is how you learn to expect it instead of being surprised by it.
+
+Read both programs below, which call `average` on the empty list. On paper or in a comment, write down what each one prints or does. Do not run them yet.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="predict.py"
+def average(readings):
+    total = 0.0
+    count = 0
+    for r in readings:
+        total += r
+        count += 1
+    return total / count
+
+print(average([]))
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="predict.rs"
+fn average(readings: &Vec<f64>) -> f64 {
+    let mut total = 0.0;
+    let mut count = 0.0;
+    for r in readings {
+        total += r;
+        count += 1.0;
+    }
+    total / count
+}
+
+fn main() {
+    let empty: Vec<f64> = vec![];
+    println!("{}", average(&empty));
+}
+```
+</TabItem>
+</Tabs>
+
+<Reveal label="Reveal the real behavior in each language">
+```bash title="Run the Python program"
+python3 predict.py
+```
+
+```text frame="terminal" title="Output"
+Traceback (most recent call last):
+  File "predict.py", line 9, in <module>
+    print(average([]))
+          ~~~~~~~^^^^
+  File "predict.py", line 7, in average
+    return total / count
+           ~~~~~~^~~~~~~
+ZeroDivisionError: division by zero
+```
+
+```bash title="Compile and run the Rust program"
+rustc predict.rs
+./predict
+```
+
+```text frame="terminal" title="Output"
+NaN
+```
+
+<WhatDiffers>
+<Fragment slot="differs">
+On the empty list, `count` stays zero in both languages, so both reach `total / count` dividing zero by zero. Python treats that as a run-time error and stops with a `ZeroDivisionError`, a loud crash that names the exact line. Rust's floating point division does not crash: dividing the `f64` value `0.0` by `0.0` produces the special value `NaN`, short for "not a number", so `average` returns `NaN` calmly and `println!` prints it with no error at all. The same missing case is a loud crash in one language and a silent wrong value in the other. If you predicted Rust would also crash, that is the surprise this block exists to plant.
+</Fragment>
+</WhatDiffers>
+</Reveal>
+
+---
+
+## Block 3: Diagnose and Guard the Missing Case
+
+The empty list has no defined average in this function: one language told you so loudly, the other did not tell you at all. Now make the function handle it, using the systematic method: read the symptom, form one hypothesis, make a single change, re-run.
+
+Reconstruct the specification first, because the author never wrote it down: the average of no readings should be a safe default of `0.0` that a caller can check for. Diagnose why the warm-up's `average` fails that specification, then make one change so both the typical case and the empty case pass.
+
+<Reveal label="Reveal the diagnosis and the one-line fix">
+**Symptom.** On the empty list, Python stops with `ZeroDivisionError: division by zero` and Rust returns `NaN`. Neither returns the `0.0` the specification asks for.
+
+**Hypothesis.** When the list is empty, the loop body never runs, so `count` never leaves its starting value of zero, and the function reaches `total / count` dividing by zero. There is no branch that handles the empty list before the division.
+
+**Test.** Guard the empty case before the loop, returning the specified default, and check both a typical list and the empty list:
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="fixed.py"
+def average(readings):
+    if len(readings) == 0:
+        return 0.0
+    total = 0.0
+    count = 0
+    for r in readings:
+        total += r
+        count += 1
+    return total / count
+
+assert average([6, 9, 3]) == 6.0
+assert average([]) == 0.0
+print("all tests passed")
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="fixed.rs"
+fn average(readings: &Vec<f64>) -> f64 {
+    if readings.len() == 0 {
+        return 0.0;
+    }
+    let mut total = 0.0;
+    let mut count = 0.0;
+    for r in readings {
+        total += r;
+        count += 1.0;
+    }
+    total / count
+}
+
+fn main() {
+    let sample = vec![6.0, 9.0, 3.0];
+    assert_eq!(average(&sample), 6.0);
+    let empty: Vec<f64> = vec![];
+    assert_eq!(average(&empty), 0.0);
+    println!("all tests passed");
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the fixed Python program"
+python3 fixed.py
+```
+
+```text frame="terminal" title="Output"
+all tests passed
+```
+
+```bash title="Compile and run the fixed Rust program"
+rustc fixed.rs
+./fixed
+```
+
+```text frame="terminal" title="Output"
+all tests passed
+```
+
+The one change is the `if len(readings) == 0` guard that returns `0.0` before the division is ever reached. The typical case still returns `6.0`, and the empty case now returns the specified default instead of crashing or handing back `NaN`. Nothing about who wrote the original function changed a single step of this: reconstruct the specification, derive the boundary test, read the failure, make one change.
+</Reveal>
+
+---
+
+## Bridge
+
+These three reps feed the recitation family that hands you a function from any source, a peer's, a library's, or a tool's, with its specification missing and its edges undecided, and asks you to reconstruct that specification, test it at the boundaries, and judge whether to trust it. That family is the cumulative one: it draws together every earlier family rather than belonging to a single kind of problem, because judging any code is nothing more than understanding exactly what it tells the machine to do and holding that against what it should do.
