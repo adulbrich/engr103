@@ -89,6 +89,14 @@ An activity picks three of the following five. Each is authored as *prompt, then
 
 **Paper tracing.** Ask the student to trace an exam archetype by hand: a variable table, a call stack, an expression reduction. The `<Reveal>` shows the completed trace, step by step, matching exactly what a careful hand-trace would produce.
 
+## Difficulty and Progression
+
+An activity is a first guided rep, but a rep worth doing. The warm-up reproduces the lecture's simplest building blocks so the pieces are fresh. The three sections must then **go beyond reproducing a lecture example**. A section that just re-runs code the student already read in the notes teaches nothing new and wastes the session: if a student who read the lecture could answer it without thinking because they saw this exact example, it is too easy.
+
+So each section shows the lecture pattern and then **raises the ceiling on it**: combine two ideas the lecture introduced separately, choose inputs where the right answer is genuinely not obvious, add a realistic wrinkle, or push the pattern one step further than the notes did. A predict-then-run should land on a result that actually surprises, not one lifted from a lecture example. A debugging block should plant a bug the student has to reason through, in fresh code, not a snippet copied from the notes. A paper trace should trace a case with enough moving parts to be worth doing by hand. A two-language block should contrast a case where the difference bites, not a trivial one.
+
+Stay inside the paired lecture's ladder: raise the difficulty by combining and extending what has been taught, never by reaching for a construct from a later week. The goal is a real stretch within the concepts the student now has, so that finishing the activity means they can do more than repeat the notes.
+
 ## Frontmatter and the `ai-summary` Block
 
 ### Frontmatter
@@ -147,7 +155,7 @@ output: a corrected expression and a reconciled prediction for each of the three
 1. **`<LanguageVersions />`** at the very top of the body, before any other prose.
 2. **Opening paragraph** (no heading, 2 to 3 sentences): names the paired lecture with a link, says what the student will do across the session, and states what they will be able to do by the end. It does not explain any concept; that is the lecture's job.
 3. **Warm-up** (a short `##` section): a quick refresher of the lecture's simplest building blocks, before the guided thinking starts. Show a handful of the smallest examples the lecture rests on, in both languages, with their output, and stop there: no `<Reveal>` (a warm-up is a reminder, not a challenge) and no new concept or exposition. For an expressions activity, for instance, this is a few bare literals of each kind (a whole number like `5`, a negative like `-1`, a decimal like `0.345`, a string like `"duck"`, a boolean like `True`/`true`) and a couple of simple operators (`2 + 3`, `4 - 1`). Keep it to a `<Tabs syncKey="lang">` pair and its output.
-4. **Three `##` block sections**, separated by `---`, one per chosen block type. Each opens with 1 to 2 sentences of framing (what problem this block poses, and why it matters, practically, not conceptually), then the prompt, then the `<Reveal>` holding the resolution.
+4. **Three `##` sections**, separated by `---`, one per chosen block type. Give each a short **descriptive heading that says what the student does**, for example `## Predict the Value`, `## The Same Division, Two Languages`, or `## Find the Silent Bug`. Never title a section `Block 1`, `Block 2`, or any other generic label: the heading names the task, not its slot in the session. Each section opens with 1 to 2 sentences of framing (what problem it poses, and why it matters, practically, not conceptually), then the prompt, then the `<Reveal>` holding the resolution.
 5. **Bridge** (final short `##` section): one or two sentences naming which recitation problem family this session feeds, **by its concept description, not a code name**. The families do not carry names; refer to each by what it does, for example the arithmetic-with-units-and-time family or the decision-tables-and-interlocks family.
 
 There is no penultimate artifact section and no closing "further reading" section on an activity page: those are cs312 tutorial conventions built around a build-something walkthrough, and an ENGR 103 activity is a bare-concept, participation-only session, not a build-an-artifact exercise.
@@ -178,7 +186,7 @@ Activities are not listed individually in `schedule.mdx`. An activity inherits i
 
 ## Word Band
 
-An activity page runs roughly **1,200 to 2,500 words**: about half a cs312 tutorial, sized for the 50-minute, three-block session described above. This is a diagnostic, not a target. Landing well under it usually means a block's prompt or reveal skipped context a solo student needs; landing well over it usually means exposition crept in that belongs in the lecture instead. Run `wc -w src/content/docs/activities/<file>.mdx` after a substantial edit and use it to catch drift, not to pad or trim toward a number.
+An activity page runs roughly **1,800 to 4,000 words**. Depth comes first: the three sections have to genuinely stretch the student (see Difficulty and Progression), and a more involved example, with its prompt, its reveal, and the reasoning a solo student needs, takes room. Do not clip a good, harder example to hit a lower number, and do not pad a thin one to look substantial. Landing well under this band usually means the sections only reproduced lecture patterns instead of extending them, which is the exact failure to avoid; landing well over usually means lecture-style exposition crept in that belongs in the paired lecture. Run `wc -w src/content/docs/activities/<file>.mdx` after a substantial edit and use it to catch those two drifts, not to pad or trim toward a number.
 
 ## The Accuracy Pass
 
@@ -210,3 +218,5 @@ This runs `astro check` and the link validator. Fix every error before consideri
 - No reference to grading mechanics, submission, or assignment deliverables (naming the recitation problem family in the Bridge is expected and is not this).
 - No construct ahead of the paired lecture's week on the language ladder.
 - No lecture-only or assignment-only component imports.
+- No generic section headings (`Block 1`, `Block 2`); every section is titled by what the student does.
+- No section that only reproduces a lecture example without extending it (see Difficulty and Progression).
