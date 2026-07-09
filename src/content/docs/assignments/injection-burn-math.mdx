@@ -197,11 +197,7 @@ fn fuel_with_margin(base_kg: f64, margin_percent: f64) -> f64 {
 </TabItem>
 </Tabs>
 
-For a base of `1000` and a margin of `15`, HAB's draft returns `1000.15`, not `1150`. Work out why before you open the hint, then write the correct version yourself.
-
-<Reveal label="Reveal a nudge on HAB's mistake">
-HAB is missing parentheses. Multiplication and division run before addition, so `base_kg * 1.0 + margin_percent / 100.0` computes `base_kg` plus a fraction of a percent, when the margin is meant to scale the whole base. Group the margin into the factor that multiplies `base_kg`: the base times one-plus-the-margin-fraction.
-</Reveal>
+Test HAB's draft against the requirements above, and decide whether to sign off on it or reject it and write your own.
 </Aside>
 
 **Acceptance tests.**
