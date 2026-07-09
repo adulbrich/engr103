@@ -1,0 +1,317 @@
+---
+title: "The Comms Window"
+description: "Write the per-character functions that cipher, decipher, filter, and checksum every packet flight software trades with Earth during solar conjunction."
+sidebar:
+  order: 8
+draft: true
+---
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+import Reveal from '/src/components/Reveal.astro';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+import WhatDiffers from '/src/components/WhatDiffers.astro';
+
+{/* ai-summary
+type: assignment
+slug: comms-window
+order: 8
+family: encode, decode, and clean a sequence
+paired_recitation: R9
+prereq_lectures: strings, collections-i
+prereq_activities: strings, collections-i
+prereq_assignment: first-drive
+new_scope: writing per-character functions over char and i32 scalars, a cipher shift with wraparound, its inverse, a message-character filter, a character-to-code conversion, and a running checksum fold, with no string or list ever passed to or returned from a function
+persistent_requirements: dual-language, one shared contract; grader reads return values only; every function takes and returns only char, i32, or bool, never a String, &str, or Vec; no construct beyond the collections-I week on the ladder
+story_beat: a solar conjunction garbles the comms link with Earth, so the crew builds the per-character cipher and checksum pieces flight software runs over every packet
+output: functions submitted to the grader, a hand trace photographed, a two-sentence reflection
+*/}
+
+<LanguageVersions />
+
+Earth and the habitat are drifting into solar conjunction, the weeks each Martian year when the sun sits almost directly between the two and chews every radio packet into static and dropped bits. Mission Control still has to reach the crew, so flight software leans on two old tricks: a simple cipher shifts each letter of a message so a bit of noise cannot be mistaken for real words, and a checksum folds every character's code into one number so a corrupted packet can be caught before anyone acts on it. The comms dish itself is being re-aimed 34 degrees to hold the signal as long as possible, a detail for the antenna log and nothing your functions need. Your job as the flight-software crew member on shift is to write the small, one-character-at-a-time functions the cipher and the checksum are built from.
+
+## How This Assignment Works
+
+You write the functions named below and nothing else: the program's `main`, its input, its output, and the local test runner are already written, and the automated grader calls your functions directly with values it chooses, reading only what you `return`. Every function here takes and returns only a `char`, an `i32`, or a `bool`: none takes or returns a whole string or a whole list, because `main` handles the looping over a message and calls your functions once per character. Solve each problem in Python or Rust, whichever you prefer, and you may switch languages between problems; both are checked against the same acceptance cases. Submit your functions to the grader from the course starter repository. The assignment has four parts: the problem set below, a paper trace, a two-sentence reflection, and an optional summit problem.
+
+## Problem Set
+
+### Problem 1: The Cipher Shift, and One of HAB's Drafts
+
+**Context.** The outbound cipher shifts every letter of a message forward through its own alphabet by a fixed number of positions, wrapping past the end back around to the start, so the same amount of shift can later be undone. A packet can carry uppercase letters, lowercase letters, and noise that is not a letter at all, and the cipher must treat the three differently. HAB already drafted the forward shift.
+
+**Requirements.**
+
+1. `shift_char(c, n)` must return the character that lies `n` positions forward from `c`, in whichever alphabet `c` belongs to. A lowercase letter wraps within `a` through `z`; an uppercase letter wraps within `A` through `Z`, keeping its case; a character that is not a letter at all must be returned unchanged, since the cipher never touches noise or punctuation. Shifting `a` forward by `1` gives `b`; shifting `z` forward by `1` wraps around to `a`; shifting `Z` forward by `1` wraps around to `A`, not `a`.
+
+The modeling step is splitting "shift this character" into the three cases the mission's packets can contain, lowercase, uppercase, and non-letter, and representing each letter case as its own cycle of 26 positions rather than a straight line that stops at its last letter; the analysis step is computing the wrapped position within the right case and turning it back into a character, or leaving a non-letter untouched.
+
+**Interface.**
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="cipher.py"
+def shift_char(c, n):
+    ...
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="cipher.rs"
+fn shift_char(c: char, n: i32) -> char {
+    todo!()
+}
+```
+</TabItem>
+</Tabs>
+
+**Acceptance tests.**
+
+| Call | Returns |
+|---|---|
+| `shift_char('a', 1)` | `'b'` |
+| `shift_char('z', 1)` | `'a'` |
+| `shift_char('Z', 1)` | `'A'` |
+| `shift_char('y', 5)` | `'d'` |
+| `shift_char('5', 3)` | `'5'` |
+| `shift_char('a', 0)` | `'a'` |
+
+**Assumptions and edge cases.** `c` can be a lowercase letter, an uppercase letter, or any other single character (a digit, punctuation, or a space). `n` is a whole number from `0` through `25`. Handle a shift of `0`, which must return `c` unchanged; a wraparound in each letter case, lowercase and uppercase; and a non-letter, which a shift of any amount must leave exactly as it was.
+
+<Aside type="danger" title="HAB drafted shift_char. Sign off or reject it.">
+HAB offered this for the outbound cipher. Flight rule: no HAB code runs unverified. Decide whether it is correct before you use anything from it.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="HAB's draft"
+def shift_char(c, n):
+    return chr(ord(c) + n)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="HAB's draft"
+fn shift_char(c: char, n: i32) -> char {
+    return ((c as u8) + (n as u8)) as char;
+}
+```
+</TabItem>
+</Tabs>
+
+For `shift_char('y', 5)`, HAB's draft returns `'~'`, not `'d'`. Work out why before you open the hint, then write the correct version yourself.
+
+<Reveal label="Reveal a nudge on HAB's mistake">
+HAB never wraps back to `a`, and never checks which case, or whether `c` is even a letter, either. Adding `n` straight onto `c`'s ASCII code keeps climbing past `z` (code `122`) into whatever punctuation sits next in the table, `'~'` in this case, instead of returning to the start of the alphabet. Work in a position relative to the letter's own starting point instead of the raw ASCII code: subtract `a`'s code (or `A`'s, for an uppercase letter) from `c`'s code to get a number from `0` to `25`, add `n`, wrap it back into `0` through `25` with `% 26`, and only then add the same starting code back before turning the number into a character. A character that is not a letter at all skips all of this and comes back unchanged.
+</Reveal>
+</Aside>
+
+### Problem 2: Reading the Reply
+
+**Context.** Decoding an inbound packet means undoing the same cipher: shifting each character backward by the amount it was shifted forward by, in whichever alphabet it belongs to, this time wrapping past the start of that alphabet back around to its end.
+
+**Requirements.**
+
+1. `unshift_char(c, n)` must return the character that lies `n` positions backward from `c`, in whichever alphabet `c` belongs to. A lowercase letter wraps past `a` back to `z`; an uppercase letter wraps past `A` back to `Z`, keeping its case; a character that is not a letter at all must be returned unchanged. The function must satisfy `unshift_char(shift_char(c, n), n) == c` for any character `c`, letter or not, and any shift `n` from `0` through `25`.
+
+The modeling step is recognizing that undoing a forward wraparound needs the same cycle of 26 positions, run the other way, inside whichever of the three cases from Problem 1 applies; the analysis step is computing the backward position without ever landing on a value below `0`.
+
+**Interface.**
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="decipher.py"
+def unshift_char(c, n):
+    ...
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="decipher.rs"
+fn unshift_char(c: char, n: i32) -> char {
+    todo!()
+}
+```
+</TabItem>
+</Tabs>
+
+**Acceptance tests.**
+
+| Call | Returns |
+|---|---|
+| `unshift_char('b', 1)` | `'a'` |
+| `unshift_char('a', 1)` | `'z'` |
+| `unshift_char('A', 1)` | `'Z'` |
+| `unshift_char('d', 5)` | `'y'` |
+| `unshift_char('5', 3)` | `'5'` |
+| `unshift_char('a', 0)` | `'a'` |
+
+**Assumptions and edge cases.** `c` can be a lowercase letter, an uppercase letter, or any other single character. `n` is a whole number from `0` through `25`. Handle a shift of `0`; the case where `c` is `a` or `A` and the shift must wrap all the way back to `z` or `Z`; and a non-letter, which must come back unchanged regardless of `n`.
+
+<Aside type="tip" title="Do not let the position go negative">
+Subtracting `n` from `c`'s position relative to its own starting letter can land below `0` before you wrap it, and the `expressions and operators` lecture already flagged that `%` treats a negative left side differently in Python and in Rust. Sidestep the whole question: add `26` to the subtracted position before taking `% 26`, so the value handed to the remainder operator never goes negative in either language.
+</Aside>
+
+<WhatDiffers>
+<Fragment slot="differs">
+If you subtract first and take the remainder second, without adding `26` back in, Python's `%` still returns a value from `0` to `25` because Python's remainder always keeps the sign of the divisor. Rust's `%` on a negative left-hand value returns zero or a negative number, since Rust's remainder keeps the sign of the dividend instead, so the same expression that quietly works in Python can hand Rust a negative position and a wrong character. Adding `26` before the `% 26` avoids the divergence entirely, in both languages.
+</Fragment>
+</WhatDiffers>
+
+### Problem 3: Filtering the Static
+
+**Context.** A packet arrives one character at a time, and conjunction noise mixes real letters, upper or lowercase, with control codes, punctuation, digits, and spaces. Before flight software counts a character toward the checksum in Problem 4, it has to know whether that character belongs to the message at all.
+
+**Requirements.**
+
+1. `is_message_char(c)` must return `True` (Rust `true`) when `c` is a letter, lowercase `a` through `z` or uppercase `A` through `Z`, and `False` (Rust `false`) for every other character, including a digit, punctuation, and a space.
+
+The modeling step is defining "belongs to the message" as the union of the two letter ranges the cipher works over and nothing wider; the analysis step is a pair of range comparisons joined so that either one being true is enough.
+
+**Interface.**
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="filter.py"
+def is_message_char(c):
+    ...
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="filter.rs"
+fn is_message_char(c: char) -> bool {
+    todo!()
+}
+```
+</TabItem>
+</Tabs>
+
+**Acceptance tests.**
+
+| Call | Returns |
+|---|---|
+| `is_message_char('m')` | `True` |
+| `is_message_char('a')` | `True` |
+| `is_message_char('z')` | `True` |
+| `is_message_char('A')` | `True` |
+| `is_message_char('Z')` | `True` |
+| `is_message_char('5')` | `False` |
+| `is_message_char(' ')` | `False` |
+
+**Assumptions and edge cases.** `c` can be any single character the receiver hands it, letter of either case, digit, punctuation, space, or control code. Handle all four boundary letters, `a`, `z`, `A`, and `Z`, and a character that is not a letter at all.
+
+### Problem 4: The Packet Checksum
+
+**Context.** Every packet ends with a single checksum number, folded together one character at a time from each character's numeric code, so a receiver can tell whether conjunction noise corrupted anything on the way down. The checksum is kept inside one byte's range, `0` through `255`, by wrapping it every time it grows past that.
+
+**Requirements.**
+
+1. `char_code(c)` must return the numeric code of `c` as a whole number.
+2. `checksum_step(running, code)` must return the updated checksum after folding one more character's code in: the previous `running` value plus `code`, reduced modulo `256` so the result always stays from `0` through `255`.
+
+The modeling step is choosing to fold the packet down to one running number instead of keeping every character's code around; the analysis step is the addition and the modulo that keeps that number inside a byte.
+
+**Interface.**
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="checksum.py"
+def char_code(c):
+    ...
+
+def checksum_step(running, code):
+    ...
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="checksum.rs"
+fn char_code(c: char) -> i32 {
+    todo!()
+}
+
+fn checksum_step(running: i32, code: i32) -> i32 {
+    todo!()
+}
+```
+</TabItem>
+</Tabs>
+
+**Acceptance tests.**
+
+| Call | Returns |
+|---|---|
+| `char_code('a')` | `97` |
+| `char_code('A')` | `65` |
+| `char_code('0')` | `48` |
+| `checksum_step(10, 5)` | `15` |
+| `checksum_step(250, 10)` | `4` |
+| `checksum_step(255, 1)` | `0` |
+
+**Assumptions and edge cases.** `c` is any single character the packet contains. `running` is guaranteed to be from `0` through `255`, and `code` is guaranteed to be zero or greater. Handle the boundary where `running` plus `code` lands exactly on `256`, which must wrap to `0`.
+
+### Problem 5: Write the Tests for the Filter
+
+**Context.** Before the comms software review, every function ships with the cases that prove it. For this problem you write the cases, not the code: you already have the spec for `is_message_char` from Problem 3, and `assert` is available now that the testing lecture has been covered.
+
+**Requirements.**
+
+1. Submit a set of `assert` statements for `is_message_char(c)`, each one checking a call against the value you expect it to return. Here is one case pinned down as a worked example:
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="Worked example assertion"
+assert is_message_char('m') == True
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="Worked example assertion"
+assert!(is_message_char('m'));
+```
+</TabItem>
+</Tabs>
+
+2. Your set must include, and label with a comment, at least these cases: a normal lowercase letter, a normal uppercase letter, all four boundary letters `a`, `z`, `A`, and `Z`, and one character that is not a letter at all. The grader runs your assertions against a correct `is_message_char` (every assertion must pass) and against several broken versions, including one that checks only the lowercase range (each broken version must fail at least one of your assertions).
+
+The modeling step is turning the spec's boundary description into concrete characters; the analysis step is predicting each expected boolean by hand before writing the assertion.
+
+## Paper Practice
+
+Trace this program by hand, on paper. Build a variable table with a row for each call to `checksum_step`, tracking `running` before and after the call. Write the exact value the program prints. Photograph your table and trace and attach it. This part is graded on completion (the attached photograph), not on whether every cell is right, so attempt it by hand first, then open the reveal to check yourself.
+
+```python title="trace_me.py"
+def checksum_step(running, code):
+    return (running + code) % 256
+
+running = 0
+c1 = 97
+c2 = 98
+c3 = 250
+running = checksum_step(running, c1)
+running = checksum_step(running, c2)
+running = checksum_step(running, c3)
+print(running)
+```
+
+<Reveal label="Reveal the completed trace">
+Each call adds one more character's code into `running` and wraps the result back into `0` through `255`.
+
+| Call | `running` before | `code` | `running` after |
+|---|---|---|---|
+| `checksum_step(running, c1)` | `0` | `97` | `97` |
+| `checksum_step(running, c2)` | `97` | `98` | `195` |
+| `checksum_step(running, c3)` | `195` | `250` | `189` |
+
+The third call adds `195 + 250 = 445`, and `445 % 256` is `189`, the wraparound taking effect for the first time. The program prints `189`. The same program written in Rust prints the same whole number, `189`, with no display difference here since every value is a whole `i32`, never a float.
+</Reveal>
+
+## Reflection
+
+In two sentences: first, state plainly whether you used an AI tool on this assignment and, if you did, what you used it for (if you did not use AI at all, say so explicitly); second, name any other help you used (a peer, the official docs, the lecture notes) and one thing you still could not do without that help. This is graded on completion, not on what you say, and it is not shared with anyone but the instructor.
+
+## Summit Problem (optional, worth nothing)
+
+This one is a stretch, and it earns no points; it is here so you can practice for the graded stretch problem in the recitation room, where a harder problem does count.
+
+A shift amount relayed from Earth sometimes arrives larger than `25`, because several relay stations along the way each add their own small shift before passing it on, and nobody bothers to keep the running total inside one trip around the alphabet. Write `normalize_shift(n)`, which returns the equivalent shift from `0` through `25` for any shift amount `n` that is zero or greater, so the result is always safe to hand to `shift_char`. Reuse the wraparound idea from Problem 1 rather than rewriting it.
+
+| Call | Returns |
+|---|---|
+| `normalize_shift(137)` | `7` |
+| `normalize_shift(26)` | `0` |
+| `normalize_shift(0)` | `0` |
