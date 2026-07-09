@@ -1,0 +1,261 @@
+---
+title: "Assignment 3: The Injection Burn"
+description: "Write the flight-software functions that turn mission time, speed, and propellant numbers into the values the trans-Mars injection burn needs, and judge one of HAB's drafts before you trust it."
+sidebar:
+  order: 3
+draft: true
+---
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+import Reveal from '/src/components/Reveal.astro';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+import WhatDiffers from '/src/components/WhatDiffers.astro';
+
+{/* ai-summary
+type: assignment
+slug: injection-burn-math
+order: 3
+family: arithmetic with units and time
+paired_recitation: R4
+prereq_lectures: expressions-and-operators, variables-and-state, functions
+prereq_activities: expressions-and-operators, variables-and-state, functions
+prereq_assignment: none
+new_scope: writing a set of functions against the grader's harness, with unit conversions and integer-versus-float division
+persistent_requirements: dual-language, one shared contract; grader reads return values only; no construct beyond the functions week on the ladder
+story_beat: the crew computes the flight numbers for the trans-Mars injection burn and vets one of HAB's helpers
+output: six functions submitted to the grader, a hand trace photographed, a two-sentence reflection
+*/}
+
+<LanguageVersions />
+
+The habitat's trans-Mars injection burn is the long engine firing that leaves Earth orbit and puts the crew on course for Mars. The flight computer needs three kinds of number before it can run the burn: how much mission time has passed, how fast the ship is going in units the cockpit can read, and how much propellant the burn needs once a safety margin is added. Your job as the new flight-software crew member is to write the functions that produce those numbers. HAB, the habitat's assistant, has already drafted one of the helpers; do not trust it until you have checked it yourself.
+
+## How This Assignment Works
+
+You write the functions named below and nothing else: the program's `main`, its input, its output, and the local test runner are already written, and the automated grader calls your functions directly with values it chooses, reading only what you `return`. Solve each problem in Python or Rust, whichever you prefer, and you may switch languages between problems; both are checked against the same acceptance cases. Submit your functions to the grader from the course starter repository. The assignment has four parts: the problem set below, a paper trace, a two-sentence reflection, and an optional summit problem.
+
+## Problem Set
+
+### Problem 1: The Mission Clock
+
+**Context.** Mission Control tracks elapsed time as a whole number of seconds since launch. The crew display wants it broken into whole sols and the time of day within the current sol. A **sol**, one Martian day, is exactly `88775` seconds.
+
+**Requirements.**
+
+1. `whole_sols(seconds)` must return the number of whole sols that have fully elapsed in `seconds` seconds. A sol counts only once it is complete, so `88774` seconds is still zero whole sols.
+2. `leftover_seconds(seconds)` must return the seconds elapsed into the current, not-yet-complete sol: the remainder left after the whole sols are removed.
+3. `sol_hours(seconds)` must return the number of whole hours into the current sol. Take the seconds elapsed into the current sol, then divide by the `3600` seconds in an hour, discarding the minutes and seconds that do not fill a whole hour. This function combines both operators from the two above: the remainder that strips the whole sols, and the integer division that counts whole hours. The order in which you apply them decides the answer, so choose it deliberately.
+
+The modeling step is deciding to represent mission time as whole sols, leftover seconds, and hours into the current sol; the analysis step is computing each with the integer-division and remainder operators from the [Expressions and Operators](/lectures/expressions-and-operators/) lecture, and composing the two of them for `sol_hours`.
+
+**Interface.**
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="clock.py"
+def whole_sols(seconds):
+    ...
+
+def leftover_seconds(seconds):
+    ...
+
+def sol_hours(seconds):
+    ...
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="clock.rs"
+fn whole_sols(seconds: i32) -> i32 {
+    todo!()
+}
+
+fn leftover_seconds(seconds: i32) -> i32 {
+    todo!()
+}
+
+fn sol_hours(seconds: i32) -> i32 {
+    todo!()
+}
+```
+</TabItem>
+</Tabs>
+
+**Acceptance tests.** The grader calls your functions and checks the returned value:
+
+| Call | Returns |
+|---|---|
+| `whole_sols(200000)` | `2` |
+| `leftover_seconds(200000)` | `22450` |
+| `sol_hours(200000)` | `6` |
+| `whole_sols(88775)` | `1` |
+| `leftover_seconds(88775)` | `0` |
+| `sol_hours(88775)` | `0` |
+| `whole_sols(0)` | `0` |
+
+**Assumptions and edge cases.** `seconds` is a whole number, zero or greater, and small enough to fit an `i32` (under about 2.1 billion). Handle the boundary where `seconds` is an exact multiple of a sol, and the case of zero. `sol_hours` returns a value from `0` to `24`, since a sol is a little under 25 hours long.
+
+### Problem 2: The Speed Readout
+
+**Context.** The burn raises the ship's speed by thousands of metres per second, but the cockpit gauge reads in kilometres per hour, and it refreshes ten times a second. The flight software converts each reading it is handed.
+
+**Requirements.**
+
+1. `kmh_from_mps(mps)` must convert a speed in metres per second to kilometres per hour and return it as a float. There are `3600` seconds in an hour and `1000` metres in a kilometre, so a speed in metres per second becomes kilometres per hour when multiplied by `3600` and divided by `1000`.
+
+The modeling step is the unit relationship (3600 seconds per hour, 1000 metres per kilometre); the analysis step is evaluating the expression, with the operator precedence from the expressions lecture.
+
+**Interface.**
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="speed.py"
+def kmh_from_mps(mps):
+    ...
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="speed.rs"
+fn kmh_from_mps(mps: f64) -> f64 {
+    todo!()
+}
+```
+</TabItem>
+</Tabs>
+
+**Acceptance tests.**
+
+| Call | Returns |
+|---|---|
+| `kmh_from_mps(3600.0)` | `12960.0` |
+| `kmh_from_mps(7.5)` | `27.0` |
+
+**Assumptions and edge cases.** `mps` is a float, zero or greater.
+
+<Aside type="caution" title="Keep the arithmetic in floats">
+The grader passes a float and expects a float back, so the division stays exact here. If you are tempted to write the `3600` and `1000` as whole numbers, remember the ladder's rule from week 2: dividing two whole numbers truncates in Rust and floors in Python's `//`, and either would throw away the fractional part of your answer. Write the constants as `3600.0` and `1000.0`.
+</Aside>
+
+<WhatDiffers>
+<Fragment slot="differs">
+The returned value is the same float in both languages, and the grader checks that value, not printed text. If you print it to debug, the display differs: Python shows a whole-valued float with its trailing zero, so `kmh_from_mps(3600.0)` prints `12960.0`, while Rust's `f64` prints `12960`. Neither is more correct; they are the same number.
+</Fragment>
+</WhatDiffers>
+
+### Problem 3: The Propellant Budget, and One of HAB's Drafts
+
+**Context.** The burn is planned as three separate firings: the main launch push, a mid-course correction, and the Mars-capture braking. Their budgets add up to the total speed change the propellant must supply, and Mission Control then adds a safety margin on top of the base propellant mass.
+
+**Requirements.**
+
+1. `total_delta_v(launch, correction, capture)` must return the sum of the three burn budgets, each a speed change in metres per second.
+2. `fuel_with_margin(base_kg, margin_percent)` must return the base propellant mass scaled up by a safety margin: the base mass plus `margin_percent` percent of it. A base of `1000` kilograms with a margin of `15` percent needs `1150` kilograms.
+
+The modeling step is writing "add a fifteen percent margin" as an arithmetic expression; the analysis step is computing it, and checking HAB's draft against your own.
+
+**Interface.**
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="propellant.py"
+def total_delta_v(launch, correction, capture):
+    ...
+
+def fuel_with_margin(base_kg, margin_percent):
+    ...
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="propellant.rs"
+fn total_delta_v(launch: f64, correction: f64, capture: f64) -> f64 {
+    todo!()
+}
+
+fn fuel_with_margin(base_kg: f64, margin_percent: f64) -> f64 {
+    todo!()
+}
+```
+</TabItem>
+</Tabs>
+
+<Aside type="danger" title="HAB drafted fuel_with_margin. Sign off or reject it.">
+HAB offered this for the margin helper. Flight rule: no HAB code runs unverified. Decide whether it is correct before you use anything from it.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="HAB's draft"
+def fuel_with_margin(base_kg, margin_percent):
+    return base_kg * 1.0 + margin_percent / 100.0
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="HAB's draft"
+fn fuel_with_margin(base_kg: f64, margin_percent: f64) -> f64 {
+    return base_kg * 1.0 + margin_percent / 100.0;
+}
+```
+</TabItem>
+</Tabs>
+
+For a base of `1000` and a margin of `15`, HAB's draft returns `1000.15`, not `1150`. Work out why before you open the hint, then write the correct version yourself.
+
+<Reveal label="Reveal a nudge on HAB's mistake">
+HAB is missing parentheses. Multiplication and division run before addition, so `base_kg * 1.0 + margin_percent / 100.0` computes `base_kg` plus a fraction of a percent, when the margin is meant to scale the whole base. Group the margin into the factor that multiplies `base_kg`: the base times one-plus-the-margin-fraction.
+</Reveal>
+</Aside>
+
+**Acceptance tests.**
+
+| Call | Returns |
+|---|---|
+| `total_delta_v(3600.0, 45.0, 1900.0)` | `5545.0` |
+| `fuel_with_margin(1000.0, 15.0)` | `1150.0` |
+| `fuel_with_margin(2000.0, 5.0)` | `2100.0` |
+
+**Assumptions and edge cases.** All inputs are floats, zero or greater. `margin_percent` is a percentage, so `15.0` means fifteen percent. A margin of `0.0` must return the base mass unchanged.
+
+### Problem 4: Write the Tests for the Clock
+
+**Context.** Before the flight-software review, every function ships with the cases that prove it. For this problem you write the cases, not the code: you already have the spec for `whole_sols` from Problem 1.
+
+**Requirements.**
+
+1. Submit a set of test cases for `whole_sols(seconds)` as a plain table of rows, each row an input and the whole-sols value you expect it to return. Do not write any `assert` statements; assertions arrive with the testing lecture. A row is just a pair, like this worked example:
+
+   | `seconds` | expected `whole_sols` |
+   |---|---|
+   | `200000` | `2` |
+
+2. Your table must include, and label, at least these four cases: a normal mid-range value, zero seconds, a value that lands exactly on a sol boundary (an exact multiple of `88775`), and a value one second short of a boundary. The grader runs your rows against a correct `whole_sols` (every row must match) and against several broken versions (each broken version must be caught by at least one of your rows).
+
+The modeling step is turning the spec into cases that pin it down; the analysis step is predicting each expected value by hand.
+
+## Paper Practice
+
+Trace this program by hand, on paper. Build a variable table: for each call to `burn`, write the values its `dv` and `rate` parameters hold, and then the values bound to `a`, `b`, and `total`. Write the exact value the program prints. Photograph your table and trace and attach it.
+
+```python title="trace_me.py"
+def burn(dv, rate):
+    return dv * rate
+
+a = burn(1200.0, 2.0)
+b = burn(800.0, 3.0)
+total = a + b
+print(total)
+```
+
+The worked solution is released 48 hours after the due date. Check your trace against it then.
+
+## Reflection
+
+In two sentences: name what you used help for on this assignment (a peer, the official docs, an AI tool, the lecture notes), and name one thing you still could not do without that help. This is graded on completion, not on what you say, and it is not shared with anyone but the instructor.
+
+## Summit Problem (optional, worth nothing)
+
+This one is a stretch, and it earns no points; it is here so you can practice for the graded stretch problem in the recitation room, where a harder problem does count.
+
+Write `launch_mass(dry_kg, base_propellant_kg, margin_percent)`, which returns the ship's total mass at launch: the dry mass plus the propellant mass *after* the safety margin is applied. Reuse the margin idea from Problem 3 rather than rewriting it.
+
+| Call | Returns |
+|---|---|
+| `launch_mass(500.0, 1000.0, 15.0)` | `1650.0` |
+| `launch_mass(500.0, 1000.0, 0.0)` | `1500.0` |
