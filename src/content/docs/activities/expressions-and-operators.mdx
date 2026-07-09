@@ -244,6 +244,60 @@ The parentheses reduce `212 - 32` to `180` before anything else, so `180 * 5 / 9
 
 ---
 
+## Write a Seconds Splitter
+
+A stopwatch has logged a run lasting `200` seconds total. Write a program that prints, on two separate lines, the whole number of minutes contained in `200` seconds and then the leftover seconds, using integer division and the remainder operator.
+
+<Reveal label="Reveal a sample solution">
+More than one correct program can produce this result; the one below is a sample solution, not the only path to it.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="split.py"
+total_seconds = 200
+minutes = total_seconds // 60
+leftover_seconds = total_seconds % 60
+print(minutes)
+print(leftover_seconds)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="split.rs"
+fn main() {
+    let total_seconds = 200;
+    let minutes = total_seconds / 60;
+    let leftover_seconds = total_seconds % 60;
+    println!("{}", minutes);
+    println!("{}", leftover_seconds);
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 split.py
+```
+
+```text frame="terminal" title="Output"
+3
+20
+```
+
+```bash title="Compile and run the Rust program"
+rustc split.rs
+./split
+```
+
+```text frame="terminal" title="Output"
+3
+20
+```
+
+`200 // 60` (Python) and `200 / 60` (Rust, on whole numbers) both floor to `3` whole minutes, and `200 % 60` leaves a remainder of `20` seconds in both languages, since the numerator here is positive and the two rules agree.
+</Reveal>
+
+---
+
 ## Bridge
 
 These three reps feed the arithmetic-with-units-and-time family in recitation, where a mixed expression has to reduce to exactly one right value and a stray precedence slip or the wrong division rule quietly produces a wrong result. The expressions-and-types work you just practiced by hand is the guided first rung of that ladder.

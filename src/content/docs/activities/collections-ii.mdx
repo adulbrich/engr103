@@ -367,6 +367,64 @@ The program reads specific keys by name rather than printing the whole dictionar
 
 ---
 
+## Write a Parts-Inventory Lookup
+
+Write a short program that builds a small parts-inventory dictionary mapping a part name to how many are in stock, then looks up one part that is in the dictionary and one that is not, printing the found count for the first and a default of `0` for the second.
+
+<Reveal label="Reveal a sample solution">
+This is a sample solution; a program that names its parts differently or looks up a different pair reaches the same idea just as correctly.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="inventory.py"
+inventory = {"bolts": 120, "washers": 300}
+print(inventory.get("bolts", 0))
+print(inventory.get("gaskets", 0))
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="inventory.rs"
+use std::collections::HashMap;
+
+fn main() {
+    let mut inventory = HashMap::new();
+    inventory.insert("bolts", 120);
+    inventory.insert("washers", 300);
+    match inventory.get("bolts") {
+        Some(count) => println!("{}", count),
+        None => println!("0"),
+    }
+    match inventory.get("gaskets") {
+        Some(count) => println!("{}", count),
+        None => println!("0"),
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 inventory.py
+```
+
+```text frame="terminal" title="Output"
+120
+0
+```
+
+```bash title="Compile and run the Rust program"
+rustc inventory.rs
+./inventory
+```
+
+```text frame="terminal" title="Output"
+120
+0
+```
+</Reveal>
+
+---
+
 ## Bridge
 
 These three reps feed the key-value-lookup-and-counting family in recitation, where a program files values under names, reads them back by key, guards against a name it was never given, and tallies how often each distinct item shows up. The order-dependent lookups, the first-seen-key fix, and the hand trace you just worked are the guided first rung of that ladder.

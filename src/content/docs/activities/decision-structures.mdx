@@ -327,6 +327,74 @@ Now `minutes <= 8` is `true` for `8`, so the boundary minute lands in the tier i
 
 ---
 
+## Write a Pressure Tier Function
+
+Write a function `tier(pressure)` that returns an integer tier code using an else-if chain: `0` when `pressure` is below `90`, `1` when it is from `90` up to and including `110`, and `2` when it is above `110`. Print `tier(85)`, `tier(100)`, and `tier(120)`.
+
+<Reveal label="Reveal a sample solution">
+More than one correct chain can produce this result; here is a sample solution.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="tier.py"
+def tier(pressure):
+    if pressure < 90:
+        return 0
+    elif pressure <= 110:
+        return 1
+    else:
+        return 2
+
+print(tier(85))
+print(tier(100))
+print(tier(120))
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="tier.rs"
+fn tier(pressure: i32) -> i32 {
+    if pressure < 90 {
+        return 0;
+    } else if pressure <= 110 {
+        return 1;
+    } else {
+        return 2;
+    }
+}
+
+fn main() {
+    println!("{}", tier(85));
+    println!("{}", tier(100));
+    println!("{}", tier(120));
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 tier.py
+```
+
+```text frame="terminal" title="Output"
+0
+1
+2
+```
+
+```bash title="Compile and run the Rust program"
+rustc tier.rs
+./tier
+```
+
+```text frame="terminal" title="Output"
+0
+1
+2
+```
+</Reveal>
+
+---
+
 ## Bridge
 
 These three reps feed the decision-tables-and-interlocks family in recitation, where several conditions combine into one decision that must produce exactly one right outcome, and a stolen case, a missed combination, or a boundary written with the wrong comparison quietly yields the wrong result. The chain-tracing and table-building you just practiced by hand are the guided first rung of that ladder.

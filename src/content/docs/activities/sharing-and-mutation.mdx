@@ -220,6 +220,59 @@ The reassignment `samples = list(samples)` is the whole fix: it rebinds `samples
 
 ---
 
+## Write a Function That Appends a Computed Value
+
+Write a function `append_squared(samples, value)` that appends `value` squared to the list it is given, so the caller's own list grows by the computed number, not `value` itself. Then build the list `[1, 2]`, call `append_squared` with `3`, and print the list.
+
+<Reveal label="Reveal a sample solution">
+More than one correct program reaches the same result; this is a sample solution.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="write_it.py"
+def append_squared(samples, value):
+    samples.append(value * value)
+
+readings = [1, 2]
+append_squared(readings, 3)
+print(readings)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="write_it.rs"
+fn append_squared(samples: &mut Vec<i32>, value: i32) {
+    samples.push(value * value);
+}
+
+fn main() {
+    let mut readings = vec![1, 2];
+    append_squared(&mut readings, 3);
+    println!("{:?}", readings);
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 write_it.py
+```
+
+```text frame="terminal" title="Output"
+[1, 2, 9]
+```
+
+```bash title="Compile and run the Rust program"
+rustc write_it.rs
+./write_it
+```
+
+```text frame="terminal" title="Output"
+[1, 2, 9]
+```
+</Reveal>
+
+---
+
 ## Bridge
 
 These three reps feed the recitation family that hands a helper a sequence to encode, decode, or clean up and asks what the caller's original sequence looks like afterward. That is where predicting the caller's list matters: a helper that edits the sequence in place changes your original unless you defend it with a copy, `list(xs)` or `xs[:]` in Python and `xs.clone()` in Rust. The sharing and borrowing you just practiced by hand is the guided first rung of tracing where a sequence really gets modified and where it stays whole.

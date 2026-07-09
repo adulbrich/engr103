@@ -296,6 +296,57 @@ Rust prints the same two lines. The fix is a single `- 1` on the loop bound, whi
 
 ---
 
+## Write the Reading Total
+
+Write a program that builds the list of readings `[3, 1, 4, 1, 5]`, adds them up with a loop, and prints the total.
+
+<Reveal label="Reveal a sample solution">
+This is a sample solution; a correct program that reaches the same total can look different from this one.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="readings.py"
+readings = [3, 1, 4, 1, 5]
+total = 0
+for x in readings:
+    total = total + x
+print(total)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="readings.rs"
+fn main() {
+    let readings = vec![3, 1, 4, 1, 5];
+    let mut total = 0;
+    for x in &readings {
+        total = total + x;
+    }
+    println!("{}", total);
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 readings.py
+```
+
+```text frame="terminal" title="Output"
+14
+```
+
+```bash title="Compile and run the Rust program"
+rustc readings.rs
+./readings
+```
+
+```text frame="terminal" title="Output"
+14
+```
+</Reveal>
+
+---
+
 ## Bridge
 
 These three reps feed the recitation family that encodes, decodes, or cleans a sequence one element at a time, walking a string or a list from front to back and building a new sequence as it goes. Growing a list with a push, reaching its elements by a valid index, and catching the off-by-one that reads past the end are the exact moves that family runs on longer sequences, and the hand-tracing you just practiced is the guided first rung of that ladder.

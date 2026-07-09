@@ -310,6 +310,84 @@ With the edge moved back to 3, a reading of `4` is now above the deadband and re
 
 ---
 
+## Write the Test Function for `double`
+
+The function `double(n)` below returns `n` times 2. Write a test function that asserts its result on a typical case and on the boundary case `0`, then prints `all tests passed`.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="double.py"
+def double(n):
+    return n * 2
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="double.rs"
+fn double(n: i32) -> i32 {
+    n * 2
+}
+```
+</TabItem>
+</Tabs>
+
+<Reveal label="Reveal a sample solution">
+More than one correct test function exists; this is a sample.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="test_double.py"
+def double(n):
+    return n * 2
+
+def test_double():
+    assert double(7) == 14
+    assert double(0) == 0
+    print("all tests passed")
+
+test_double()
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="test_double.rs"
+fn double(n: i32) -> i32 {
+    n * 2
+}
+
+fn test_double() {
+    assert_eq!(double(7), 14);
+    assert_eq!(double(0), 0);
+    println!("all tests passed");
+}
+
+fn main() {
+    test_double();
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 test_double.py
+```
+
+```text frame="terminal" title="Output"
+all tests passed
+```
+
+```bash title="Compile and run the Rust program"
+rustc test_double.rs
+./test_double
+```
+
+```text frame="terminal" title="Output"
+all tests passed
+```
+
+The typical case, `double(7)`, checks the ordinary path; the boundary case, `double(0)`, checks the smallest input the function ever multiplies. Both assertions hold silently, so the only visible line is the final print.
+</Reveal>
+
+---
+
 ## Bridge
 
 These three reps feed the recitation family that takes each reading arriving from a noisy stream, decides whether it is valid, and clamps or rejects it against a stated range before anything is summarized. Today you drilled the per-reading rung of that family: deciding what a single reading should become and proving it with assertions. The full stream, many readings folded into one summary in a single pass, waits on the loops introduced next week. Running through all three sections, this session also consolidates the skill built cumulatively across the course: turning a plain-language specification into concrete, checkable test cases, independent of whatever the code happens to do.

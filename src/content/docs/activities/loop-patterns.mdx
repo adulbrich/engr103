@@ -301,6 +301,58 @@ The fix is a single line: `total = number` becomes `total = total + number`, so 
 
 ---
 
+## Write a Function That Counts Evens
+
+Define a function `count_even(n)` that returns how many whole numbers from `1` up to and including `n` are even, using the count pattern: a counter that starts at `0` and increments only on the passes where the number is even. Then call it with `count_even(10)` and print the result.
+
+<Reveal label="Reveal a sample solution">
+This is a sample solution; another correct program can shape the loop or the condition differently and still be right.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="count_even.py"
+def count_even(n):
+    count = 0
+    for i in range(1, n + 1):
+        if i % 2 == 0:
+            count = count + 1
+    return count
+
+print(count_even(10))
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="count_even.rs"
+fn count_even(n: i32) -> i32 {
+    let mut count = 0;
+    for i in 1..(n + 1) {
+        if i % 2 == 0 {
+            count = count + 1;
+        }
+    }
+    return count;
+}
+
+fn main() {
+    println!("{}", count_even(10));
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 count_even.py
+```
+
+```text frame="terminal" title="Output"
+5
+```
+
+The Rust version walks the same range and the same `if`, so it prints `5` as well.
+</Reveal>
+
+---
+
 ## Bridge
 
 These three reps feed the recitation family that runs a loop to build up a value or a grid and has to keep the right things across passes: an accumulator whose final value drives a second pattern in the same loop, a nested loop whose inner length changes from row to row, and a sentinel read whose accumulator has to add rather than overwrite. The hand-tracing and the one-line fix you just practiced are the guided first rung of that ladder.

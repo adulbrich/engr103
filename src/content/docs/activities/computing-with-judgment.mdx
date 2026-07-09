@@ -334,6 +334,57 @@ The one change that works is the `if count == 0` guard after the loop, returning
 
 ---
 
+## Write the Average, Then Name Where It Fails
+
+Write a function `average(a, b)` that takes two whole numbers and returns their average. Then, in one sentence, name an input for which your function gives a surprising or wrong answer, and say why.
+
+<Reveal label="Reveal a sample solution">
+This is a sample solution: more than one correct `average` is possible.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="average.py"
+def average(a, b):
+    return (a + b) // 2
+
+print(average(3, 4))
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="average.rs"
+fn average(a: i32, b: i32) -> i32 {
+    (a + b) / 2
+}
+
+fn main() {
+    println!("{}", average(3, 4));
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 average.py
+```
+
+```text frame="terminal" title="Output"
+3
+```
+
+```bash title="Compile and run the Rust program"
+rustc average.rs
+./average
+```
+
+```text frame="terminal" title="Output"
+3
+```
+
+`average(3, 4)` is the surprising input: the true average of 3 and 4 is 3.5, but Python's `//` and Rust's integer `/` on two `i32` values both discard the fractional part, so the function silently returns `3` instead.
+</Reveal>
+
+---
+
 ## Bridge
 
 These three reps feed the recitation family that hands you a function from any source, a peer's, a library's, or a tool's, with its specification missing and its edges undecided, and asks you to reconstruct that specification, test it at the boundaries, and judge whether to trust it. That family is the cumulative one: it draws together every earlier family rather than belonging to a single kind of problem, because judging any code is nothing more than understanding exactly what it tells the machine to do and holding that against what it should do.

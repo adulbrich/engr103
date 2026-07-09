@@ -228,6 +228,61 @@ Now `150 > 100` is `true`, so `or` settles at `true` and the guard finally catch
 
 ---
 
+## Write a Safe-Range Check
+
+Write a function `in_safe_range` that takes a temperature and returns `True`/`true` when it is at least 18 and at most 26, and `False`/`false` otherwise. Build the condition from two comparisons joined with `and`/`&&`, the way the range check earlier in the lecture did. Print the result for a temperature of `20` and for a temperature of `30`.
+
+<Reveal label="Reveal a sample solution">
+More than one correct solution exists; this is a sample.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="saferange.py"
+def in_safe_range(temp):
+    return temp >= 18 and temp <= 26
+
+print(in_safe_range(20))
+print(in_safe_range(30))
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="saferange.rs"
+fn in_safe_range(temp: i32) -> bool {
+    return temp >= 18 && temp <= 26;
+}
+
+fn main() {
+    println!("{}", in_safe_range(20));
+    println!("{}", in_safe_range(30));
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 saferange.py
+```
+
+```text frame="terminal" title="Output"
+True
+False
+```
+
+```bash title="Compile and run the Rust program"
+rustc saferange.rs
+./saferange
+```
+
+```text frame="terminal" title="Output"
+true
+false
+```
+
+`20` clears both boundaries, at least `18` and at most `26`, so both comparisons hold and `and`/`&&` reduces to `True`/`true`. `30` fails the upper boundary, so the second comparison is `False`/`false`, and `and`/`&&` reduces to `False`/`false` regardless of the first comparison.
+</Reveal>
+
+---
+
 ## Bridge
 
 These three reps feed the family of recitation problems that turn a plain-language rule into booleans and a conditional: a decision table with an interlock, where one condition has to guard another and a comparison has to be written so it actually holds. The compound short-circuit tracing, the boolean-only condition, and the range guard you just repaired are the guided first rung of that ladder.

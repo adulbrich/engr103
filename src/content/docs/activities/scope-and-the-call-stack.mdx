@@ -356,6 +356,55 @@ Rust compiles and prints the same `70`. In Python, adding `global total` inside 
 
 ---
 
+## Write a Function That Calls Another Function
+
+Write `double(n)`, which returns `n` times `2`, and `quadruple(n)`, which returns four times `n` by calling `double` twice, once on `n` and once on the result. Do not compute `n * 4` directly in `quadruple`: it must call `double` inside itself. Print `quadruple(5)`.
+
+<Reveal label="Reveal a sample solution">
+More than one correct solution exists; this is a sample.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="quadruple.py"
+def double(n):
+    return n * 2
+
+def quadruple(n):
+    return double(double(n))
+
+print(quadruple(5))
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="quadruple.rs"
+fn double(n: i32) -> i32 {
+    return n * 2;
+}
+
+fn quadruple(n: i32) -> i32 {
+    return double(double(n));
+}
+
+fn main() {
+    println!("{}", quadruple(5));
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 quadruple.py
+```
+
+```text frame="terminal" title="Output"
+20
+```
+
+Rust prints the same `20`. `quadruple`'s frame calls `double` twice in turn: each call pushes and pops its own frame before `quadruple` uses the returned value, first doubling `5` to `10`, then doubling `10` to `20`.
+</Reveal>
+
+---
+
 ## Bridge
 
 These three reps feed the recitation family where a value is converted through a chain of small functions to reach a result in different units of measure or time, with each function keeping its own parameters and local variables. Tracing which frame holds each variable, and reading a result only through the value a function returns rather than reaching for a name outside its scope, is exactly the discipline that family rewards, and the guided first rung of it is what you just practiced by hand.

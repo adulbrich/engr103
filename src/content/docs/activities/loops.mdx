@@ -342,6 +342,62 @@ Rust prints the same five lines. The single character `<` to `<=` is the whole f
 
 ---
 
+## Write a Sum-to-N Function
+
+Write a function `sum_to(n)` that adds up every whole number from `1` through `n` using a loop, then print `sum_to(5)`.
+
+<Reveal label="Reveal a sample solution">
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="sum_to.py"
+def sum_to(n):
+    total = 0
+    for i in range(1, n + 1):
+        total = total + i
+    return total
+
+print(sum_to(5))
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="sum_to.rs"
+fn sum_to(n: i32) -> i32 {
+    let mut total = 0;
+    for i in 1..=n {
+        total = total + i;
+    }
+    return total;
+}
+
+fn main() {
+    println!("{}", sum_to(5));
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 sum_to.py
+```
+
+```text frame="terminal" title="Output"
+15
+```
+
+```bash title="Compile and run the Rust program"
+rustc sum_to.rs
+./sum_to
+```
+
+```text frame="terminal" title="Output"
+15
+```
+
+This is a sample solution: a `while` loop, or a different accumulator name, reaches the same total just as correctly.
+</Reveal>
+
+---
+
 ## Bridge
 
 These three reps feed the recitation family where a loop drives a piece of changing state to a boundary and stops there: a counter walked to a limit, or a condition re-checked at the top of each pass until it turns false, sometimes with one loop nested inside another so the inner sweep runs in full for every step of the outer, and sometimes with more than one value changing together as the loop advances. The by-hand tracing, the where-does-it-stop prediction, and the off-by-one hunt you practiced here are the guided first rung of that ladder.

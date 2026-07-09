@@ -13,6 +13,7 @@ An activity is the guided, hands-on companion to one lecture, built to fill a 50
 
 - **5 minutes: a misconception opener**, drawn live from the pre-lecture check question students missed most. This happens in the room and is not authored on the activity page.
 - **Three rotating blocks of about 13 minutes each.** Each block poses a problem at guided difficulty, the student attempts it, then it is resolved. These three blocks are the core of what the activity page authors.
+- **A short write-it-yourself problem.** The student authors a small solution from a blank page, the session's one rep at producing code rather than reading it. The activity page authors this as a required section.
 - **2 minutes: a bridge** naming the exact recitation problem family this session fed. The activity page authors this too, as a short final section.
 
 The authored page opens with a brief **warm-up** before the three blocks: a quick refresher of the lecture's simplest building blocks, so a student who read the notes days ago, or is catching up alone after missing class, has the pieces fresh before the guided thinking starts.
@@ -53,7 +54,7 @@ Multiplication and the `/` operator run before the addition, and Python's `/` al
 </Reveal>
 ````
 
-Every block on the page follows the same shape: prompt, then a `<Reveal>` holding the resolution. A reveal's contents are the actual answer, never a hint or a partial nudge: the real output of a predict-then-run, the fix and the one-line reason for a debugging block, the correct choice and why each distractor is wrong for peer instruction, the completed trace for paper tracing. Because `<Reveal>` renders arbitrary MDX children, a resolution can itself be dual-language: a `<Tabs syncKey="lang">` pair and a `<WhatDiffers>` can live inside it exactly as they would in a lecture.
+Every block on the page follows the same shape: prompt, then a `<Reveal>` holding the resolution. A reveal's contents are the actual answer, never a hint or a partial nudge: the real output of a predict-then-run, the fix and the one-line reason for a debugging block, the correct choice and why each distractor is wrong for peer instruction, the completed trace for paper tracing, and a sample correct solution for a write-it-yourself block. Because `<Reveal>` renders arbitrary MDX children, a resolution can itself be dual-language: a `<Tabs syncKey="lang">` pair and a `<WhatDiffers>` can live inside it exactly as they would in a lecture.
 
 ## Reused Components
 
@@ -75,9 +76,9 @@ import Latex from '/src/components/Latex.astro';
 - **`Steps`**: use inside a block's prompt only when the student's attempt is genuinely a short numbered sequence (for example, the steps of a paper trace). Most prompts are a short code block or a `<Tabs>` pair and need no `<Steps>` at all.
 - **`Latex`**: for mathematical notation, when a prompt or a reveal genuinely needs it.
 
-## The Five Block Types
+## The Five Rotating Block Types
 
-An activity picks three of the following five. Each is authored as *prompt, then `<Reveal>`*.
+An activity picks three of the following five for its rotating blocks (a separate, always-present write-it-yourself block is described just below). Each is authored as *prompt, then `<Reveal>`*.
 
 **Predict-then-run.** Show a short program and ask the student to commit to its output before running it, on paper or in a comment. The `<Reveal>` shows the real output and reconciles the gap between what was predicted and what happened. This type fits best where the true result surprises: operator precedence, integer versus float division, floating-point equality.
 
@@ -88,6 +89,18 @@ An activity picks three of the following five. Each is authored as *prompt, then
 **Peer instruction.** Pose a concept question with distractor answers mined from likely misconceptions, ideally ones a prior recitation actually produced. The `<Reveal>` gives the correct answer and, for each distractor, the one-line reason it is wrong.
 
 **Paper tracing.** Ask the student to trace an exam archetype by hand: a variable table, a call stack, an expression reduction. The `<Reveal>` shows the completed trace, step by step, matching exactly what a careful hand-trace would produce.
+
+## The Write-It-Yourself Block
+
+In addition to the three rotating blocks, every activity carries one **write-it-yourself** block: a small task the student authors from a blank page. It is the session's single rep at *producing* code, rather than predicting, comparing, choosing, tracing, or fixing code that is given. It is the "now you make one" that the other blocks set up, so it always comes last among the problem sections, right before the bridge.
+
+Keep it **small and genuine**. Small: one short task, a few lines, sized to the last minutes of the session. Genuine: the student must build something new with the week's tools, never retype a lecture example. Ask for a computation the lecture's constructs can express but did not already spell out, so producing it is real work and not recall.
+
+It is **ladder-adaptive**. Before the Functions lecture, "write the solution" means a short program that computes and prints its result; from the Functions lecture on, it means a small function the student defines against a stated signature. It never reaches ahead of the paired lecture's week, exactly like every other example on the page.
+
+The prompt is one or two sentences naming the task, then a `<Reveal label="Reveal a sample solution">` holding **one correct solution in both languages** (a `<Tabs syncKey="lang">` pair, Python then Rust) and its real output. Because more than one solution can be correct, the reveal shows *a sample* solution, not "the answer": say so, so a student whose own working program differs from the sample does not conclude theirs is wrong.
+
+This block is a **required structural section**, like the warm-up and the bridge, not one of the three rotating blocks. It is not listed in the `block_types` field.
 
 ## Difficulty and Progression
 
@@ -132,7 +145,7 @@ Rules:
 
 - `paired_lecture` is required and must be the real slug of exactly one lecture.
 - `practices` overlaps with the paired lecture's `covers` field but is phrased as student action, not lecture exposition: "predicts the result of mixed integer and float division," not "integer versus float division."
-- `block_types` must name exactly the three block types the page actually uses, one of: `predict-then-run`, `same-program-two-languages`, `live-debugging`, `peer-instruction`, `paper-tracing`.
+- `block_types` must name exactly the three **rotating** block types the page actually uses, one of: `predict-then-run`, `same-program-two-languages`, `live-debugging`, `peer-instruction`, `paper-tracing`. The always-present write-it-yourself block is structural and is not listed here.
 - Leave a field blank rather than guessing a value.
 
 **Example** (illustrative, for an expressions-and-operators activity):
@@ -156,7 +169,8 @@ output: a corrected expression and a reconciled prediction for each of the three
 2. **Opening paragraph** (no heading, 2 to 3 sentences): names the paired lecture with a link, says what the student will do across the session, and states what they will be able to do by the end. It does not explain any concept; that is the lecture's job.
 3. **Warm-up** (a short `##` section): a quick refresher of the lecture's simplest building blocks, before the guided thinking starts. Show a handful of the smallest examples the lecture rests on, in both languages, with their output, and stop there: no `<Reveal>` (a warm-up is a reminder, not a challenge) and no new concept or exposition. For an expressions activity, for instance, this is a few bare literals of each kind (a whole number like `5`, a negative like `-1`, a decimal like `0.345`, a string like `"duck"`, a boolean like `True`/`true`) and a couple of simple operators (`2 + 3`, `4 - 1`). Keep it to a `<Tabs syncKey="lang">` pair and its output.
 4. **Three `##` sections**, separated by `---`, one per chosen block type. Give each a short **descriptive heading that says what the student does**, for example `## Predict the Value`, `## The Same Division, Two Languages`, or `## Find the Silent Bug`. Never title a section `Block 1`, `Block 2`, or any other generic label: the heading names the task, not its slot in the session. Each section opens with 1 to 2 sentences of framing (what problem it poses, and why it matters, practically, not conceptually), then the prompt, then the `<Reveal>` holding the resolution.
-5. **Bridge** (final short `##` section): one or two sentences naming which recitation problem family this session feeds, **by its concept description, not a code name**. The families do not carry names; refer to each by what it does, for example the arithmetic-with-units-and-time family or the decision-tables-and-interlocks family.
+5. **Write It Yourself** (a required `##` section, after the three rotating blocks and before the bridge): the write-it-yourself block described above. Give it a short descriptive heading that names the task (for example `## Write the Sol Clock` or `## Write a Tolerance Check`, never a generic label). One or two sentences of spec, then a `<Reveal label="Reveal a sample solution">` holding a sample solution in both languages and its real output. Ladder-adaptive: a short program before the Functions lecture, a small function from the Functions lecture on.
+6. **Bridge** (final short `##` section): one or two sentences naming which recitation problem family this session feeds, **by its concept description, not a code name**. The families do not carry names; refer to each by what it does, for example the arithmetic-with-units-and-time family or the decision-tables-and-interlocks family.
 
 There is no penultimate artifact section and no closing "further reading" section on an activity page: those are cs312 tutorial conventions built around a build-something walkthrough, and an ENGR 103 activity is a bare-concept, participation-only session, not a build-an-artifact exercise.
 
@@ -220,3 +234,4 @@ This runs `astro check` and the link validator. Fix every error before consideri
 - No lecture-only or assignment-only component imports.
 - No generic section headings (`Block 1`, `Block 2`); every section is titled by what the student does.
 - No section that only reproduces a lecture example without extending it (see Difficulty and Progression).
+- No activity missing its required write-it-yourself section, and no write-it task that only retypes a lecture example instead of asking the student to produce something new.

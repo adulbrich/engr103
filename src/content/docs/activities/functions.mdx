@@ -267,6 +267,56 @@ Now `total_seconds(3)` reduces to `180`, the line becomes `180 + 30`, and it pri
 
 ---
 
+## Write a Fahrenheit-to-Celsius Function
+
+Write a function `celsius_from_fahrenheit(f)` that takes a Fahrenheit value and returns the equivalent Celsius value using the formula `(f - 32) * 5 / 9`. Call your function with `212` and print the result.
+
+<Reveal label="Reveal a sample solution">
+This is a sample solution; your own function can look different and still be correct.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="fahrenheit.py"
+def celsius_from_fahrenheit(f):
+    return (f - 32) * 5 / 9
+
+print(celsius_from_fahrenheit(212))
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="fahrenheit.rs"
+fn celsius_from_fahrenheit(f: f64) -> f64 {
+    return (f - 32.0) * 5.0 / 9.0;
+}
+
+fn main() {
+    println!("{}", celsius_from_fahrenheit(212.0));
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 fahrenheit.py
+```
+
+```text frame="terminal" title="Output"
+100.0
+```
+
+```bash title="Compile and run the Rust program"
+rustc fahrenheit.rs && ./fahrenheit
+```
+
+```text frame="terminal" title="Output"
+100
+```
+
+Both compute the same value, but they print it differently: Python's `float` always shows at least one decimal digit, so `100.0` keeps its `.0`, while Rust's `f64` that lands on a whole number prints without a trailing `.0`, so the same value shows as `100`.
+</Reveal>
+
+---
+
 ## Bridge
 
 These three reps feed the recitation problem family that computes a single quantity from arithmetic over units and time, where the computation is packaged as a function that a caller supplies with values and reads a result back. Defining a small function, reducing its nested and combined calls to single values, and making sure the function actually returns what it computed are the guided first rung of that ladder.

@@ -251,6 +251,62 @@ The slice `word[5:8]` now takes indices 5, 6, and 7, the characters `i`, `n`, `g
 
 ---
 
+## Write a Vowel Counter
+
+Write a short program that counts how many of the letters `a`, `e`, `i`, `o`, `u` appear in the word `mission`, by walking the word one character at a time and comparing each character, then prints the count.
+
+<Reveal label="Reveal a sample solution">
+This is a sample solution; other programs that walk the characters and compare them can also be correct.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="vowels.py"
+word = "mission"
+count = 0
+for ch in word:
+    if ch in "aeiou":
+        count = count + 1
+print(count)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="vowels.rs"
+fn main() {
+    let word = "mission";
+    let mut count = 0;
+    for ch in word.chars() {
+        if "aeiou".contains(ch) {
+            count = count + 1;
+        }
+    }
+    println!("{}", count);
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 vowels.py
+```
+
+```text frame="terminal" title="Output"
+3
+```
+
+```bash title="Compile and run the Rust program"
+rustc vowels.rs
+./vowels
+```
+
+```text frame="terminal" title="Output"
+3
+```
+
+The word `mission` has an `i` at position 1, an `i` at position 4, and an `o` at position 5; each of those three passes matches the `in`/`contains` test against `aeiou` and adds one to the running count, giving `3`.
+</Reveal>
+
+---
+
 ## Bridge
 
 These three reps feed the recitation family that reads a coded sequence, pulls the meaningful pieces out of it by position, and rebuilds a cleaned result: reaching a character by its index, taking a run of characters as a slice, and doing arithmetic on a character's ASCII number are exactly the moves that family runs on a string. The indexing, slicing, and code arithmetic you just practiced by hand are the guided first rung of that ladder.

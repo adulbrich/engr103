@@ -230,6 +230,47 @@ With `mut` on `width`, the compiler allows line 5: `width * 2` evaluates from th
 
 ---
 
+## Write a Water Tank Level
+
+A storage tank starts at `500` litres. Write a program that stores that starting level in one variable, then reassigns that same variable to subtract a `120` litre draw, then reassigns it again to subtract a `30` litre draw, then prints the final level.
+
+<Reveal label="Reveal a sample solution">
+More than one program can get this right; this is a sample solution, not the only one.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="tank.py"
+level = 500
+level = level - 120
+level = level - 30
+print(level)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="tank.rs"
+fn main() {
+    let mut level = 500;
+    level = level - 120;
+    level = level - 30;
+    println!("{}", level);
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 tank.py
+```
+
+```text frame="terminal" title="Output"
+350
+```
+
+Rust prints the same `350`. `level` starts at `500`, drops to `380` after the first draw, then to `350` after the second, the same evaluate-then-bind rebinding the three problems above already walked through.
+</Reveal>
+
+---
+
 ## Bridge
 
 These three reps feed the arithmetic-with-units-and-time family in recitation, where a value is stored, updated across several steps, and read back later, and one assignment taken out of order or one wrong current value quietly throws off the final answer. The evaluate-then-bind tracing you just did by hand is the guided first rung of that ladder.

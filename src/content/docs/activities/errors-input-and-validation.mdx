@@ -361,6 +361,66 @@ Now `131` is rejected, `130` is still accepted so the fix did not overcorrect an
 
 ---
 
+## Write a Parse-or-Default Function
+
+Write a function `to_int_or_default(text)` that tries to parse `text` as an integer and returns that integer, or returns `-1` if the text is not a valid whole number. Call it and print the result for `"42"` and for `"oops"`.
+
+<Reveal label="Reveal a sample solution">
+This is a sample solution: your function can differ from it and still be correct.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="parse_or_default.py"
+def to_int_or_default(text):
+    try:
+        return int(text)
+    except ValueError:
+        return -1
+
+
+print(to_int_or_default("42"))
+print(to_int_or_default("oops"))
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="parse_or_default.rs"
+fn to_int_or_default(text: &str) -> i32 {
+    match text.parse::<i32>() {
+        Ok(value) => value,
+        Err(_) => -1,
+    }
+}
+
+fn main() {
+    println!("{}", to_int_or_default("42"));
+    println!("{}", to_int_or_default("oops"));
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 parse_or_default.py
+```
+
+```text frame="terminal" title="Output"
+42
+-1
+```
+
+```bash title="Compile and run the Rust program"
+rustc parse_or_default.rs
+./parse_or_default
+```
+
+```text frame="terminal" title="Output"
+42
+-1
+```
+</Reveal>
+
+---
+
 ## Bridge
 
 These three reps feed the recitation family that reads a stream of noisy typed values, rejects the ones that fail to parse or fall outside a sensible range, and summarizes only the ones that survive. Predicting a parsed value's printed form at a boundary, knowing what your error handling does and does not protect when a later step fails, and writing a range check that actually rejects its own edge are the guided first rung of that ladder, where a single wrong operator, an unguarded second step, or an off-by-one boundary quietly corrupts the summary.

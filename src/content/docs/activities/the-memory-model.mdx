@@ -257,6 +257,58 @@ python3 trace.py
 
 ---
 
+## Write a Function That Returns the First Reading
+
+Write a function `first_reading` that takes a list of sensor readings and returns its first element. Then build the list `[7, 8, 9]`, call your function on it, and print what it returns.
+
+<Reveal label="Reveal a sample solution">
+A sample solution follows; another correct function can look different and still be right.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="first_reading.py"
+def first_reading(readings):
+    return readings[0]
+
+readings = [7, 8, 9]
+print(first_reading(readings))
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="first_reading.rs"
+fn first_reading(readings: &Vec<i32>) -> i32 {
+    readings[0]
+}
+
+fn main() {
+    let readings = vec![7, 8, 9];
+    println!("{}", first_reading(&readings));
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 first_reading.py
+```
+
+```text frame="terminal" title="Output"
+7
+```
+
+```bash title="Compile and run the Rust program"
+rustc first_reading.rs && ./first_reading
+```
+
+```text frame="terminal" title="Output"
+7
+```
+
+Python hands the list itself to the function; Rust hands a borrow, `&readings`, so `first_reading` can read the vector without taking ownership of it, exactly the `&` you just met for looking at a value without owning it.
+</Reveal>
+
+---
+
 ## Bridge
 
 These three reps feed the recitation family that encodes a sequence, decodes it, and cleans it up while several names share one list, where forgetting that two names point at the same object makes a change surface in a place you never wrote to. The tracing you just did by hand, following each arrow to the one object it lands on, is the guided first rung of that ladder.
