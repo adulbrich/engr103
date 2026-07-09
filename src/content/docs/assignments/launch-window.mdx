@@ -1,0 +1,166 @@
+---
+title: "The Launch Window"
+description: "Complete two short launch-prep programs that split a countdown into minutes and seconds and add a fuel margin, using integer division and the remainder, and reject one of HAB's integer-division mistakes."
+sidebar:
+  order: 2
+draft: true
+---
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+import Reveal from '/src/components/Reveal.astro';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+import WhatDiffers from '/src/components/WhatDiffers.astro';
+
+{/* ai-summary
+type: assignment
+slug: launch-window
+order: 2
+family: arithmetic with units and time
+paired_recitation: R3
+prereq_lectures: expressions-and-operators, variables-and-state
+prereq_activities: expressions-and-operators, variables-and-state
+prereq_assignment: pre-flight-check
+new_scope: completing a provided program with variables, integer division, and the remainder operator, graded by output comparison
+persistent_requirements: dual-language; both programs graded by comparing printed output; no functions yet
+story_beat: the crew computes the countdown and fuel numbers for the launch window
+output: two completed launch-prep programs, a hand trace photographed, a two-sentence reflection
+*/}
+
+<LanguageVersions />
+
+The launch window is the short span when the burn can begin. Mission Control needs two numbers on the console before it opens: the countdown split into whole minutes and leftover seconds, and the fuel load once a safety margin is added. Each is a small program that is almost written; your job is to fill in the arithmetic. HAB has offered a suggestion for the fuel number, so check it before you use it.
+
+## How This Assignment Works
+
+You have not learned to write your own functions yet, so for now each problem gives you a **complete, runnable program with a marked `TODO`**. You replace the placeholder in that region with the right computation, and the automated grader runs your program and compares its printed output to the expected output shown below each problem. From week 3, once you have functions, the grader will call your functions directly instead. Solve each problem in Python or Rust; both are checked against the same expected output. Submit from the starter repository as described in [Running and Submitting Your Code](/practicalities/starter-repo-and-check/). The assignment has three parts: the two programs below, a paper trace, and a two-sentence reflection.
+
+## Problem Set
+
+### Problem 1: The Countdown
+
+**Context.** The launch sequence is `500` seconds long. The console shows it as whole minutes and the seconds left over, not as one large number.
+
+**Requirements.**
+
+1. In the provided program, set `minutes` to the number of whole minutes in `total_seconds`, and `seconds` to the seconds left over after those whole minutes. There are `60` seconds in a minute. Use integer division for the whole minutes and the remainder operator for the leftover seconds.
+
+The modeling step is choosing to show the countdown as a (minutes, seconds) pair; the analysis step is computing each with the operators from the [Expressions and Operators](/lectures/expressions-and-operators/) lecture.
+
+**The program.**
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="countdown.py (provided)"
+total_seconds = 500
+# TODO: replace each 0 with the right computation.
+minutes = 0    # whole minutes in total_seconds
+seconds = 0    # leftover seconds after the whole minutes
+print(minutes)
+print(seconds)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="countdown.rs (provided)"
+fn main() {
+    let total_seconds = 500;
+    // TODO: replace each 0 with the right computation.
+    let minutes = 0;   // whole minutes in total_seconds
+    let seconds = 0;   // leftover seconds after the whole minutes
+    println!("{}", minutes);
+    println!("{}", seconds);
+}
+```
+</TabItem>
+</Tabs>
+
+**Expected output.**
+
+```text frame="terminal" title="Output"
+8
+20
+```
+
+**Assumptions and edge cases.** `total_seconds` is a whole number, zero or greater. Your two lines must work by the same rule if the starter later changes `total_seconds` to another value, so compute from `total_seconds`, never hard-code `8` and `20`.
+
+<WhatDiffers>
+<Fragment slot="differs">
+Python writes integer division as `//` and Rust writes it as `/` between two whole numbers; both discard the fraction. The remainder operator is `%` in both. The two printed numbers are the same in each language.
+</Fragment>
+</WhatDiffers>
+
+### Problem 2: The Fuel Margin, and One of HAB's Suggestions
+
+**Context.** The burn needs its base propellant plus a safety margin on top. The base load is `1000` kilograms and the margin is `15` percent, so the fueled mass should be `1150` kilograms.
+
+**Requirements.**
+
+1. In the provided program, set `fueled_kg` to the base mass plus `margin_percent` percent of the base mass. All three values are whole numbers, so use integer arithmetic. For a base of `1000` and a margin of `15`, the result is `1150`.
+
+The modeling step is writing "add a fifteen percent margin" as an arithmetic expression; the analysis step is computing it and checking HAB's version against your own.
+
+**The program.**
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="fuel.py (provided)"
+base_kg = 1000
+margin_percent = 15
+# TODO: replace the 0 with the fueled mass, base plus the margin.
+fueled_kg = 0
+print(fueled_kg)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="fuel.rs (provided)"
+fn main() {
+    let base_kg = 1000;
+    let margin_percent = 15;
+    // TODO: replace the 0 with the fueled mass, base plus the margin.
+    let fueled_kg = 0;
+    println!("{}", fueled_kg);
+}
+```
+</TabItem>
+</Tabs>
+
+**Expected output.**
+
+```text frame="terminal" title="Output"
+1150
+```
+
+<Aside type="danger" title="HAB suggested this line. Check it before you use it.">
+HAB offered `base_kg * (1 + margin_percent // 100)` for the fueled mass (in Rust, `base_kg * (1 + margin_percent / 100)`). Work out what it prints before you trust it.
+
+For a base of `1000` and a margin of `15`, HAB's line prints `1000`, not `1150`: the margin vanishes. The reason is integer division. `margin_percent // 100` is `15 // 100`, which is `0`, because integer division throws away the fraction, so HAB's `1 + 0` multiplies the base by `1` and adds no margin at all. Write the margin so the integer division does not erase it: add the base's fifteen percent to the base, rather than folding a fraction under `100` into a whole-number factor.
+</Aside>
+
+**Assumptions and edge cases.** `base_kg`, `margin_percent`, and the result are whole numbers. A margin of `0` must leave the base mass unchanged.
+
+## Paper Practice
+
+Trace this program by hand, on paper. Build a variable table showing the value of `level` after each line runs, and write the two values the program prints. Photograph your table and attach it. This part is graded on completion, not correctness, so attempt it by hand first, then open the reveal to check yourself.
+
+```python title="tank.py"
+level = 500
+level = level - 120
+print(level)
+level = level - 30
+print(level)
+```
+
+<Reveal label="Reveal the completed trace">
+| Line | `level` |
+|---|---|
+| `level = 500` | `500` |
+| `level = level - 120` | `380` |
+| `print(level)` | `380` (prints `380`) |
+| `level = level - 30` | `350` |
+| `print(level)` | `350` (prints `350`) |
+
+Each `level = level - ...` line reads the current value of `level`, subtracts, and stores the result back into the same variable. The program prints `380`, then `350`.
+</Reveal>
+
+## Reflection
+
+In two sentences: first, state plainly whether you used an AI tool on this assignment and, if so, what for (if you did not, say so explicitly); second, name any other help you used (a peer, the official docs, the lecture notes) and one thing you still could not do without that help. This is graded on completion and is seen only by the instructor.

@@ -1,0 +1,146 @@
+---
+title: "Pre-Flight Check"
+description: "Complete two short pre-flight programs that print instrument readings and a status word from arithmetic and a binary literal, and reject one of HAB's precedence mistakes."
+sidebar:
+  order: 1
+draft: true
+---
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+import Reveal from '/src/components/Reveal.astro';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+
+{/* ai-summary
+type: assignment
+slug: pre-flight-check
+order: 1
+family: arithmetic with units and time (foundations ramp)
+paired_recitation: R2
+prereq_lectures: how-programs-run, data-representation
+prereq_activities:
+prereq_assignment: systems-checkout
+new_scope: completing a provided program with literal arithmetic, precedence, and a binary literal, graded by output comparison
+persistent_requirements: dual-language; graded by comparing printed output; no variables or functions yet
+story_beat: the crew prints the pre-flight instrument readings before the launch window opens
+output: two completed pre-flight programs, a hand reduction photographed, a two-sentence reflection
+*/}
+
+<LanguageVersions />
+
+Before the launch window opens, the crew runs a pre-flight check: print a few instrument readings so the console shows real numbers, not blanks. This is your first coding assignment, and it is deliberately small. You have only just seen how a program runs and how numbers are stored, so each program here is almost complete; you fill in the arithmetic. HAB has offered one reading, so check it before it goes on the board.
+
+## How This Assignment Works
+
+You have not learned variables or functions yet, so each problem gives you a **complete, runnable program with a marked `TODO`**. You replace each placeholder with an arithmetic expression that computes the value described, and the automated grader runs your program and compares its printed output to the expected output shown below the problem. Solve each problem in Python or Rust; both are checked against the same expected output. Submit from the starter repository as described in [Running and Submitting Your Code](/practicalities/starter-repo-and-check/). The assignment has three parts: the two programs below, a paper reduction, and a two-sentence reflection.
+
+## Problem Set
+
+### Problem 1: The Instrument Readings
+
+**Context.** Three readings go on the console: how many seconds are in a three-minute hold, how much fuel remains after a burn, and a status word the panel stores in binary.
+
+**Requirements.**
+
+1. Replace the first `0` with the number of seconds in three minutes (three times sixty seconds).
+2. Replace the second `0` with the fuel remaining when a `350` kilogram burn is taken from a `1500` kilogram load.
+3. Replace the third `0` with the binary literal `0b101010`, and let the program print its value. A binary literal is written directly in the code, and printing it shows the whole number it represents, as in the [Data Representation](/lectures/data-representation/) lecture.
+
+The modeling step is deciding what each reading means as a number; the analysis step is writing the arithmetic and the literal that produce it.
+
+**The program.**
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="readings.py (provided)"
+# TODO: replace each 0 with an expression that computes the reading described.
+print(0)   # seconds in a three-minute hold
+print(0)   # fuel remaining: a 350 kg burn from a 1500 kg load
+print(0)   # the status word stored as the binary literal 0b101010
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="readings.rs (provided)"
+fn main() {
+    // TODO: replace each 0 with an expression that computes the reading described.
+    println!("{}", 0);   // seconds in a three-minute hold
+    println!("{}", 0);   // fuel remaining: a 350 kg burn from a 1500 kg load
+    println!("{}", 0);   // the status word stored as the binary literal 0b101010
+}
+```
+</TabItem>
+</Tabs>
+
+**Expected output.**
+
+```text frame="terminal" title="Output"
+180
+1150
+42
+```
+
+**Assumptions and edge cases.** Every reading is a whole number. Write each one as an expression that computes the value, not as the final number typed directly; the point is that the program does the arithmetic.
+
+### Problem 2: The Sensor Total, and One of HAB's Suggestions
+
+**Context.** One panel reading combines a baseline of `2` units with three banks of `4` sensors each, for a total of `14`. HAB has written a version of this reading.
+
+**Requirements.**
+
+1. Replace the `0` with an expression for the total: the baseline `2` plus three banks of `4` sensors, which is `2` plus the product of `3` and `4`. The result is `14`.
+
+The modeling step is reading the sentence as "a baseline plus a product"; the analysis step is writing the expression so precedence adds the baseline to the product, not to a grouped sum.
+
+**The program.**
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="sensors.py (provided)"
+# TODO: replace the 0 with the sensor total described.
+print(0)   # baseline 2 plus three banks of 4 sensors
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="sensors.rs (provided)"
+fn main() {
+    // TODO: replace the 0 with the sensor total described.
+    println!("{}", 0);   // baseline 2 plus three banks of 4 sensors
+}
+```
+</TabItem>
+</Tabs>
+
+**Expected output.**
+
+```text frame="terminal" title="Output"
+14
+```
+
+<Aside type="danger" title="HAB suggested this expression. Check it before you use it.">
+HAB offered `(2 + 3) * 4` for the sensor total. Work out what it prints before you trust it.
+
+HAB's version prints `20`, not `14`. The parentheses force the addition first, so it computes five banks of four rather than a baseline plus three banks. Without parentheses, multiplication runs before addition, so `2 + 3 * 4` computes the three banks of four first, then adds the baseline of two, giving `14`. Write it so the product happens before the baseline is added.
+</Aside>
+
+**Assumptions and edge cases.** All values are whole numbers.
+
+## Paper Practice
+
+Reduce this expression by hand, on paper, one operator at a time, and write the single value it comes out to. Photograph your steps and attach them. This part is graded on completion, not correctness, so reduce it yourself first, then open the reveal to check.
+
+```text title="Reduce this expression"
+20 - 3 * 4
+```
+
+<Reveal label="Reveal the reduction">
+```text title="Reducing 20 - 3 * 4"
+20 - 3 * 4
+20 - 12      (multiplication runs before subtraction: 3 * 4 is 12)
+8            (20 - 12)
+```
+
+Multiplication has higher precedence than subtraction, so `3 * 4` reduces first to `12`, and only then does `20 - 12` give `8`.
+</Reveal>
+
+## Reflection
+
+In two sentences: first, state plainly whether you used an AI tool on this assignment and, if so, what for (if you did not, say so explicitly); second, name any other help you used (a peer, the official docs, the lecture notes) and one thing you still could not do without that help. This is graded on completion and is seen only by the instructor.
