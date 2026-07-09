@@ -129,10 +129,8 @@ fn main() {
 1150
 ```
 
-<Aside type="danger" title="HAB suggested this line. Check it before you use it.">
-HAB offered `base_kg * (1 + margin_percent // 100)` for the fueled mass (in Rust, `base_kg * (1 + margin_percent / 100)`). Work out what it prints before you trust it.
-
-For a base of `1000` and a margin of `15`, HAB's line prints `1000`, not `1150`: the margin vanishes. The reason is integer division. `margin_percent // 100` is `15 // 100`, which is `0`, because integer division throws away the fraction, so HAB's `1 + 0` multiplies the base by `1` and adds no margin at all. Write the margin so the integer division does not erase it: add the base's fifteen percent to the base, rather than folding a fraction under `100` into a whole-number factor.
+<Aside type="danger" title="HAB drafted this line. Sign off on it, or reject it.">
+HAB offered `base_kg * (1 + margin_percent // 100)` for the fueled mass (in Rust, `base_kg * (1 + margin_percent / 100)`). Test HAB's line against the requirement above, and decide whether to use it or write your own.
 </Aside>
 
 **Assumptions and edge cases.** `base_kg`, `margin_percent`, and the result are whole numbers. A margin of `0` must leave the base mass unchanged.
