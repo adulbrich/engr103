@@ -1,6 +1,6 @@
 ---
 title: "The First Drive"
-description: "Write the loop functions that budget the rover's battery and survey its first drive across the landing site, and judge one of HAB's drafts before you trust it."
+description: "Write the loop functions that project the rover's compounding solar charge and budget its first drive across the landing site, and judge one of HAB's drafts before you trust it."
 sidebar:
   order: 7
 draft: true
@@ -21,15 +21,15 @@ paired_recitation: R8
 prereq_lectures: loops, loop-patterns
 prereq_activities: loops, loop-patterns
 prereq_assignment: flight-qualification
-new_scope: writing functions that accumulate, count down with a while loop, search with an early return, and nest two loops over a grid, all without collections
+new_scope: writing functions that accumulate a compounding total by repeated multiplication, count down with a while loop, search with an early return, and nest two loops over a grid, all without collections and without a power operator
 persistent_requirements: dual-language, one shared contract; grader reads return values only; every function returns i32, f64, or bool; no construct beyond the loops week on the ladder
-story_beat: touchdown is confirmed and the crew drives the rover down the ramp for its first traverse across the landing site, budgeting the battery and surveying the ground before the wheels turn
-output: six functions submitted to the grader, a hand trace photographed, a two-sentence reflection
+story_beat: touchdown is confirmed and the crew drives the rover down the ramp for its first traverse across the landing site, projecting the banked solar charge, budgeting the battery, and surveying the ground before the wheels turn
+output: five functions and a test suite submitted to the grader, a hand trace photographed, a two-sentence reflection
 */}
 
 <LanguageVersions />
 
-Touchdown is confirmed, and the rover is cleared to drive down the ramp for its first traverse across the landing site. The ramp deployment itself took forty-three seconds, a detail for the mission log and nothing your functions need. Before the wheels turn, flight software needs three things: a running budget of how much battery the drive will cost, a warning for when the charge gets low, and a scan of the ground ahead for spots the descent thrusters kicked dust onto. Your job as the flight-software crew member on shift is to write the functions that produce those numbers, one loop at a time. HAB has already drafted one of them; do not trust it until you have checked it yourself.
+Touchdown is confirmed, and the rover is cleared to drive down the ramp for its first traverse across the landing site. The ramp deployment itself took forty-three seconds, a detail for the mission log and nothing your functions need. Before the wheels turn, flight software needs three things: a projection of how much charge the parked rover's solar array will bank over the coming sols, a budget of how many drive steps the battery can afford and when to warn the crew, and a scan of the ground ahead for spots the descent thrusters kicked dust onto. Your job as the flight-software crew member on shift is to write the functions that produce those numbers, one loop at a time. HAB has already drafted one of them; do not trust it until you have checked it yourself.
 
 ## How This Assignment Works
 
@@ -37,36 +37,36 @@ You write the functions named below and nothing else: the program's `main`, its 
 
 ## Problem Set
 
-### Problem 1: The Battery Budget for the Traverse
+### Problem 1: Banking Charge Before the Drive
 
-**Context.** The rover's battery does not drain at a constant rate over the whole drive: the ground gets rockier as the traverse goes on, so each step pulls a little more charge than the last.
+**Context.** While the rover sits parked in the sun, mission modeling treats its stored charge as growing by a fixed percentage of its current level each sol, so the charge compounds: a larger reserve gathers a larger gain the next sol. Planners want to know how much charge will be banked after a given number of sols before they commit to the drive.
 
 **Requirements.**
 
-1. `total_battery_used(steps, base_drain, wear_rate)` must return the total percent of battery capacity used across `steps` whole drive steps, as a float. Number the steps starting from `1`, not `0`. Step `n` drains `base_drain + wear_rate * n` percent, and the total is the sum of every step's drain from step `1` through step `steps`. For example, with `base_drain` `2.0` and `wear_rate` `0.5`, step `1` drains `2.5`, step `2` drains `3.0`, step `3` drains `3.5`, and so on: `total_battery_used(3, 2.0, 0.5)` sums those three and returns `9.0`. A `steps` of `0` means the rover has not moved yet, so the total is `0.0`.
-2. `remaining_charge_after(start_charge, steps, base_drain, wear_rate)` must return the battery charge left after `steps` drive steps: `start_charge` minus the total that `total_battery_used` would return for the same `steps`, `base_drain`, and `wear_rate`.
+1. `solar_charge_after(start_charge, growth_percent, sols)` must return the stored charge, in watt-hours, after `sols` whole sols of compounding growth, as a float. Each sol multiplies the current charge by `1 + growth_percent / 100`, so a `growth_percent` of `25` leaves the charge `1.25` times as large at the end of a sol as at its start. There is no exponentiation operator on the language ladder, so build the compounding one sol at a time with a loop rather than raising a factor to the `sols` power. A `sols` of `0` means no sols have passed, so the charge is unchanged and the function returns `start_charge`.
+2. `charge_gained(start_charge, growth_percent, sols)` must return only the charge gained over those sols: the value `solar_charge_after` would return for the same `start_charge`, `growth_percent`, and `sols`, minus the `start_charge` it began with.
 
-The modeling step is deciding that a step's drain grows with its position in the traverse rather than staying fixed; the analysis step is accumulating that per-step drain with a `for` loop over the range of step numbers, then reusing the total to find what charge is left.
+The modeling step is deciding that each sol's gain is a fixed fraction of the current charge, so the charge compounds rather than growing by a fixed amount; the analysis step is accumulating that growth as a running product in a loop, because the ladder has no exponentiation operator, then reusing the result to isolate the gain.
 
 **Interface.**
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python title="battery_budget.py"
-def total_battery_used(steps, base_drain, wear_rate):
+```python title="solar_charge.py"
+def solar_charge_after(start_charge, growth_percent, sols):
     ...
 
-def remaining_charge_after(start_charge, steps, base_drain, wear_rate):
+def charge_gained(start_charge, growth_percent, sols):
     ...
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="battery_budget.rs"
-fn total_battery_used(steps: i32, base_drain: f64, wear_rate: f64) -> f64 {
+```rust title="solar_charge.rs"
+fn solar_charge_after(start_charge: f64, growth_percent: f64, sols: i32) -> f64 {
     todo!()
 }
 
-fn remaining_charge_after(start_charge: f64, steps: i32, base_drain: f64, wear_rate: f64) -> f64 {
+fn charge_gained(start_charge: f64, growth_percent: f64, sols: i32) -> f64 {
     todo!()
 }
 ```
@@ -77,21 +77,22 @@ fn remaining_charge_after(start_charge: f64, steps: i32, base_drain: f64, wear_r
 
 | Call | Returns |
 |---|---|
-| `total_battery_used(4, 2.0, 0.5)` | `13.0` |
-| `total_battery_used(0, 5.0, 1.0)` | `0.0` |
-| `total_battery_used(1, 5.0, 1.0)` | `6.0` |
-| `remaining_charge_after(100.0, 4, 2.0, 0.5)` | `87.0` |
-| `remaining_charge_after(50.0, 0, 5.0, 1.0)` | `50.0` |
+| `solar_charge_after(100.0, 25.0, 3)` | `195.3125` |
+| `solar_charge_after(100.0, 25.0, 0)` | `100.0` |
+| `solar_charge_after(100.0, 25.0, 1)` | `125.0` |
+| `solar_charge_after(200.0, 50.0, 2)` | `450.0` |
+| `charge_gained(100.0, 25.0, 3)` | `95.3125` |
+| `charge_gained(80.0, 0.0, 4)` | `0.0` |
 
-**Assumptions and edge cases.** `steps` is a whole number, zero or greater. `base_drain` and `wear_rate` are floats, zero or greater. Handle `steps` of `0`, where the loop body never runs and the total is `0.0`.
+**Assumptions and edge cases.** `start_charge` and `growth_percent` are floats, zero or greater. `sols` is a whole number, zero or greater. Handle `sols` of `0`, where the loop body never runs and the charge is returned unchanged, and a `growth_percent` of `0.0`, where each sol multiplies by `1.0` and nothing is gained.
 
-<Aside type="tip" title="The loop variable is a whole number, the drain is a float">
-Your loop variable `n` walks a range of whole numbers, but `wear_rate * n` mixes a float with that whole number. Python converts a whole number to a float automatically wherever one is needed, so `wear_rate * n` just works. Rust does not: multiplying an `f64` by an `i32` is a type error, so you must convert the loop variable yourself before the multiplication.
+<Aside type="tip" title="No power operator: build the compounding with a loop">
+The ladder has no exponentiation operator in either language, so you cannot raise `1 + growth_percent / 100` to the `sols` power in a single step. Instead, start the charge at `start_charge` and multiply it by that factor once per sol, `sols` times over: this is the running-product form of the accumulator from the loop patterns lecture, where the accumulator starts at a value and is multiplied rather than added on each pass. Python does have a `**` operator, but it is fenced off the course ladder; Rust has no `**` at all. In both languages the loop is the way.
 </Aside>
 
 <WhatDiffers>
 <Fragment slot="differs">
-Python's `wear_rate * n` mixes a float and an int without complaint, because Python converts the int for you. Rust has no implicit conversion between `f64` and `i32`, so the loop variable must be cast explicitly, `n as f64`, before it can multiply against a `f64`. Forgetting the cast is a compile error in Rust, not a wrong answer, so the mistake is caught before the program ever runs.
+The returned value is the same f64 in both languages, and the grader checks that value, not printed text. When a result lands on a whole number, the display differs only if you print it to debug: Python shows `solar_charge_after(100.0, 25.0, 1)` as `125.0`, with its trailing zero, while Rust's f64 prints `125`. They are the same number, and the acceptance tests state that value, not either display.
 </Fragment>
 </WhatDiffers>
 
@@ -163,11 +164,7 @@ fn steps_until_empty(start_charge: f64, drain_per_step: f64) -> i32 {
 </TabItem>
 </Tabs>
 
-For `steps_until_empty(10.0, 3.0)`, HAB's draft returns `4`, not `3`. Work out why before you open the hint, then write the correct version yourself.
-
-<Reveal label="Reveal a nudge on HAB's mistake">
-HAB's loop checks whether the charge is still positive *before* taking a step, then takes the step no matter how much charge is left. On the pass where `charge` is `1.0`, `1.0 > 0.0` is true, so the loop takes another full step and drains the charge to `-2.0`, counting a step the battery could not actually supply. The loop stops one step too late. The fix is to check whether the charge can *survive* the next step before committing to it, which is what `charge - drain_per_step >= 0.0` asks, rather than checking whether the charge is merely still positive right now.
-</Reveal>
+Test HAB's draft against the requirements above, and decide whether to sign off on it or reject it and write your own.
 </Aside>
 
 ### Problem 3: The First Low-Battery Warning
@@ -252,15 +249,24 @@ fn count_clear_cells(rows: i32, cols: i32, threshold: i32) -> i32 {
 
 ### Problem 5: Write the Tests for the First Warning
 
-**Context.** Before flight software review, every function ships with the cases that prove it. For this problem you write the cases, not the code: you already have the spec for `first_warning_step` from Problem 3, and `assert` is available now that the testing lecture has been covered.
+**Context.** Before flight software review, every function ships with the cases that prove it. For this problem you write the cases, not the code: you already have the spec for `first_warning_step` from Problem 3, and the `assert` statement is available now that the testing lecture has been covered.
 
 **Requirements.**
 
-1. Submit a set of `assert` statements for `first_warning_step(start_charge, drain_per_step, threshold, max_steps)`, each one checking a call against the value you expect it to return. Here is a worked example, one case pinned down as an `assert`:
+1. Submit a set of `assert` statements for `first_warning_step(start_charge, drain_per_step, threshold, max_steps)`, each one checking a call against the value you expect it to return. Here is a worked example, one case pinned down as an assertion in each language:
 
-   ```python
+   <Tabs syncKey="lang">
+   <TabItem label="Python">
+   ```python title="one worked case"
    assert first_warning_step(100.0, 15.0, 40.0, 10) == 4
    ```
+   </TabItem>
+   <TabItem label="Rust">
+   ```rust title="one worked case"
+   assert!(first_warning_step(100.0, 15.0, 40.0, 10) == 4);
+   ```
+   </TabItem>
+   </Tabs>
 
 2. Your set must include, and label with a comment, at least these three cases: a normal case where the warning is found partway through the surveyed steps, a case where the threshold is never reached and the function returns `-1`, and a boundary case where the qualifying step is exactly the last one surveyed (step `max_steps`). The grader runs your assertions against a correct `first_warning_step` (every assertion must pass) and against several broken versions (each broken version must fail at least one of your assertions).
 
@@ -268,35 +274,28 @@ The modeling step is turning the spec's three named cases into concrete argument
 
 ## Paper Practice
 
-Trace this program by hand, on paper. Build a variable table with a row for each pass of the `while` loop, tracking `n`, `cost`, `used`, and `charge`. Write the exact values the program prints. Photograph your table and trace and attach it. This part is graded on completion (the attached photograph), not on whether every cell is right, so attempt it by hand first, then open the reveal to check yourself.
+Trace this program by hand, on paper. Build a variable table with a row for each pass of the `while` loop, tracking `n` and `charge`. Write the exact value the program prints. Photograph your table and trace and attach it. This part is graded on completion (the attached photograph), not on whether every cell is right, so attempt it by hand first, then open the reveal to check yourself.
 
 ```python title="trace_me.py"
-def step_cost(base, wear, n):
-    return base + wear * n
-
-charge = 20.0
-base = 2.0
-wear = 1.0
+charge = 64.0
+factor = 1.5
 n = 1
-used = 0.0
 while n <= 3:
-    cost = step_cost(base, wear, n)
-    used = used + cost
-    charge = charge - cost
+    charge = charge * factor
     n = n + 1
-print(used, charge)
+print(charge)
 ```
 
 <Reveal label="Reveal the completed trace">
-Each pass computes this step's cost, adds it into `used`, subtracts it from `charge`, and then advances `n`.
+Each pass multiplies `charge` by the fixed `factor`, compounding it, and then advances `n`.
 
-| Pass | `n` at start of pass | `cost` | `used` after | `charge` after |
-|---|---|---|---|---|
-| 1 | `1` | `3.0` | `3.0` | `17.0` |
-| 2 | `2` | `4.0` | `7.0` | `13.0` |
-| 3 | `3` | `5.0` | `12.0` | `8.0` |
+| Pass | `n` at start of pass | `charge` after |
+|---|---|---|
+| 1 | `1` | `96.0` |
+| 2 | `2` | `144.0` |
+| 3 | `3` | `216.0` |
 
-After the third pass, `n` becomes `4`, and the condition `n <= 3` is false, so the loop ends. The program prints `12.0 8.0`. The same program written in Rust prints its two whole-valued `f64`s without the trailing zero, `12 8`.
+After the third pass, `n` becomes `4`, and the condition `n <= 3` is false, so the loop ends. The program prints `216.0`. The same program written in Rust prints its whole-valued `f64` without the trailing zero, `216`.
 </Reveal>
 
 ## Reflection
