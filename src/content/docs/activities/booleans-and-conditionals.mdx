@@ -1,6 +1,6 @@
 ---
 title: "Predicting and Fixing Conditions"
-description: "Predict a short-circuited expression, compare how Python and Rust judge a bare number as a condition, and fix an if that takes the wrong branch on two floats."
+description: "Predict a compound short-circuited expression, compare how Python and Rust judge a zero float used as a condition, and fix a range guard that silently accepts every value."
 sidebar:
   order: 7
 draft: true
@@ -16,19 +16,19 @@ type: activity
 slug: booleans-and-conditionals
 order: 7
 paired_lecture: booleans-and-conditionals
-practices: predicts which operand of a short-circuited logical expression actually runs by watching a side effect; names what changes and what stays fixed when Python's truthiness accepts a bare number as a condition that Rust rejects at compile time; diagnoses a conditional that takes the wrong branch because two computed floats are not exactly equal, and fixes it with a tolerance check
+practices: predicts both the value and the side effect of a compound expression that mixes and, or, and not with comparisons and short-circuits a function call; names what changes and what stays fixed when Python treats a zero float as a falsy condition that Rust rejects at compile time; diagnoses a range guard that takes the wrong branch with no error because it joins two boundary checks with and where or was meant, and fixes it
 prereq_activities:
 block_types: predict-then-run, same-program-two-languages, live-debugging
-output: a reconciled prediction of a short-circuited run, a named cross-language difference on a non-boolean condition, and a corrected float comparison for each of the three blocks
+output: a reconciled prediction of a compound short-circuited run, a named cross-language difference on a zero-float condition, and a corrected range guard for each of the three blocks
 */}
 
 <LanguageVersions />
 
-This activity puts into practice the [Booleans and Conditionals](/lectures/booleans-and-conditionals/) lecture. You will predict which side of a short-circuited expression actually runs, compare how Python and Rust react to a bare number used as a condition, and hunt down an `if` that takes the wrong branch because two floats never compare exactly equal. By the end, you will be able to trace a logical expression to its real output, explain why Rust refuses a non-boolean condition that Python accepts, and replace a brittle float equality test with a tolerance check.
+This activity puts into practice the [Booleans and Conditionals](/lectures/booleans-and-conditionals/) lecture. You will predict both the value and the visible side effect of an expression that mixes `and`, `or`, and `not` with comparisons, compare how Python and Rust react to a zero float used as a condition, and hunt down a range guard that takes the wrong branch with no error at all. By the end, you will be able to trace a compound logical expression to its real output, explain why Rust refuses a non-boolean condition that Python quietly accepts, and rewrite a range check whose logic silently lets the wrong values through.
 
 ## Warm-up
 
-A quick refresher before the blocks. A comparison operator reduces two values to a single boolean, and a logical operator combines booleans into one boolean. Here are a few of each, in both languages.
+A quick refresher before the sections. A comparison operator reduces two values to a single boolean, and a logical operator combines booleans into one boolean. Here are a few of each, in both languages.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
@@ -62,65 +62,68 @@ False
 False
 ```
 
-Rust prints the same four booleans, spelled its way: `true`, `false`, `false`, `false`. With those pieces fresh, the blocks below put them where their behavior is harder to guess.
+Rust prints the same four booleans, spelled its way: `true`, `false`, `false`, `false`. With those pieces fresh, the sections below put them where their behavior is harder to guess.
 
-## Block 1: Predict the Short-Circuit
+## Predict the Compound Short-Circuit
 
-A logical operator evaluates its left operand first, and sometimes that one value already settles the result, so the right operand never runs at all. When the right operand has a visible effect, whether it runs becomes something you can watch. You commit to the full output first, then run the program to check it.
+The lecture showed short-circuiting with a single operator, where the left operand alone obviously settles the result. Real conditions stack `and`, `or`, and `not` together with comparisons, and then two things at once become hard to call: what the whole line reduces to, and whether the function on the right ever runs. This section makes you commit to both before you run anything.
 
-Read the program below and write down, on paper or in a comment, every line it prints and the order they print in. Do not run it yet. For each of the three `print` calls, decide whether the left operand alone already settles the logical operator; if it does, the call to `check` on the right is skipped and its `print` never runs.
+Read the program below and, on paper or in a comment, write down every line it prints and the order they print in. Do not run it yet. Watch out for two things. First, precedence: a comparison like `x == 7` reduces to a boolean before `not` touches it, `not` binds tighter than `and`, and `and` binds tighter than `or`, so `a or not b and c` groups as `a or ((not b) and c)`. Second, the side effect: `touch` prints `touched` every time it actually runs, so decide for each line whether short-circuiting reaches it at all.
 
-```python title="shortcircuit.py"
-def check():
-    print("ran check")
+```python title="predict.py"
+def touch():
+    print("touched")
     return True
 
-print(True and check())
-print(False and check())
-print(True or check())
+x = 7
+print(x < 0 or not x == 7 and touch())
+print(x > 5 and (touch() or x < 0))
 ```
 
 <Reveal label="Reveal the real output and reconcile it with your prediction">
 ```bash title="Run the Python program"
-python3 shortcircuit.py
+python3 predict.py
 ```
 
 ```text frame="terminal" title="Output"
-ran check
-True
 False
+touched
 True
 ```
 
-Work through the three lines in order. `True and check()` has a `true` left operand, which does not settle `and` on its own, since `and` needs both operands to be `true`, so the right operand runs: `check` prints `ran check`, returns `True`, and `True and True` reduces to `True`. `False and check()` has a `false` left operand, which already settles `and` at `false`; `check` is skipped, so no second `ran check` prints, and the line reduces to `False`. `True or check()` has a `true` left operand, which already settles `or` at `true`; `check` is skipped again, and the line reduces to `True`. So `ran check` appears exactly once, from the first line only. If you predicted it twice or three times, you were evaluating the right operand even when the left one had already decided the answer. Rust's `&&` and `||` short-circuit identically, so the same reasoning gives the same run there.
+Take the first line, `x < 0 or not x == 7 and touch()`, and group it by precedence into `(x < 0) or ((not (x == 7)) and touch())`. The left side of the `or` is `x < 0`, which is `7 < 0`, so `false`; a `false` left operand does not settle `or`, so the right side runs. On that right side, `x == 7` is `true`, `not true` is `false`, and now `false and touch()` has a `false` left operand, which already settles `and` at `false`, so `touch` is skipped and `touched` never prints for this line. The whole line is `false or false`, which is `False`. So the first thing printed is `False`, with no `touched` before it.
+
+The second line, `x > 5 and (touch() or x < 0)`, starts with `x > 5`, which is `true`; a `true` left operand does not settle `and`, so the right side runs. Inside the parentheses, `touch()` is the left operand of the `or`, so it runs now: it prints `touched` and returns `True`. A `true` left operand already settles `or`, so `x < 0` on its right is skipped, and the parenthesized part is `True`. The line is `true and true`, which is `True`. So the second line prints `touched` first, then `True`.
+
+If you predicted `touched` twice, you evaluated a right operand that short-circuiting had already cut off; if you predicted the first line as `True`, you let the `and` win over the `or` instead of grouping `or` last. Rust's `&&`, `||`, and `!` short-circuit and combine the same way, so the equivalent program, with the boolean parts parenthesized explicitly, prints `false`, then `touched`, then `true`.
 </Reveal>
 
 ---
 
-## Block 2: A Bare Number as a Condition
+## A Zero Float as a Condition
 
-An `if` needs a boolean to decide which branch to run, but the two languages disagree on whether a plain number can stand in for one. Studying the same code in both languages is how you see the static-versus-dynamic split decide whether a program is even allowed to run. You read both tabs and name what genuinely changes and what stays fixed.
+The lecture put a nonzero integer where a condition belongs, and Python happily ran the `if` branch. The interesting case is the other one: a value that Python treats as **falsy**, so it quietly takes the `else` branch instead of failing. A reading of `0.0` is a real measurement, not a missing one, yet Python's truthiness rule throws it away. You read both tabs and name what genuinely changes and what stays fixed.
 
-Study the two programs below. They are the same `if`/`else`, with a plain integer where the condition goes. Before opening the reveal, predict what each one prints, or whether it prints at all, then name one thing that is truly different between the languages and one thing that is the same.
+Study the two programs below. They are the same `if`/`else`, with a float that happens to be `0.0` where the condition goes. Before opening the reveal, predict what each one prints, or whether it prints at all, then name one thing that is truly different between the languages and one thing that is the same.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
 ```python title="truthy.py"
-distance = 3
-if distance:
-    print("moving")
+readings = 0.0
+if readings:
+    print("sensor active")
 else:
-    print("stopped")
+    print("no signal")
 ```
 </TabItem>
 <TabItem label="Rust">
 ```rust title="truthy.rs (will not compile)"
 fn main() {
-    let distance = 3;
-    if distance {
-        println!("moving");
+    let readings: f64 = 0.0;
+    if readings {
+        println!("sensor active");
     } else {
-        println!("stopped");
+        println!("no signal");
     }
 }
 ```
@@ -133,7 +136,7 @@ python3 truthy.py
 ```
 
 ```text frame="terminal" title="Output"
-moving
+no signal
 ```
 
 ```bash title="Compile the Rust program"
@@ -144,89 +147,87 @@ rustc truthy.rs
 error[E0308]: mismatched types
  --> truthy.rs:3:8
   |
-3 |     if distance {
-  |        ^^^^^^^^ expected `bool`, found integer
+3 |     if readings {
+  |        ^^^^^^^^ expected `bool`, found `f64`
 ```
 
 <WhatDiffers>
 <Fragment slot="differs">
-Python decides at run time: it treats `distance` as truthy because it is a nonzero number, runs the `if` block, and prints `moving`. Rust decides while compiling: it never treats a number as standing in for a boolean, so it rejects the identical line before the program runs, reporting `E0308`, mismatched types, and building nothing. What stays fixed is the source: both are written as the same two-branch `if`/`else` with the same integer condition. What changes is whether that integer is allowed to be the condition at all, so Python runs one branch and Rust never runs either.
+Python decides at run time: its truthiness rule counts `0.0` as falsy, exactly as it counts the integer `0` and the empty string as falsy, so it skips the `if` block and prints `no signal`. Nothing errors, and that is the trap: a legitimate zero reading is silently treated as no reading. Rust decides while compiling: it never treats a float as standing in for a boolean, so it rejects the identical line before the program runs, reporting `E0308`, mismatched types, `expected bool, found f64`, and building nothing. What stays fixed is the source: both are written as the same two-branch `if`/`else` with the same `0.0` condition. What changes is whether that float is allowed to be the condition at all, so Python runs the wrong-looking branch and Rust never runs either.
 </Fragment>
 </WhatDiffers>
 
-To make the Rust version compile, give `if` an actual boolean by writing the comparison Python was making implicitly. Replacing `if distance` with `if distance != 0` compiles and prints `moving`, the same branch Python took.
+To make the Rust version compile, give `if` an actual boolean by writing the comparison Python was leaving implicit. If the rule you meant was "any reading at all," the honest condition is not truthiness but something like `readings != 0.0`, and once you write it out you can see the design question Python hid from you: is a reading of exactly `0.0` active or not? Rust forces you to answer it; Python answered `no signal` on your behalf.
 </Reveal>
 
 ---
 
-## Block 3: The Branch That Should Not Be Taken
+## Fix the Guard That Never Fires
 
-A conditional can take the wrong branch with no error at all when its condition compares two floats that came out of a calculation. The program runs, prints a plausible message, and is simply wrong. The program below is meant to print `on target`, because `0.1 + 0.2` is mathematically `0.3`, but it prints something else. You find the bug with the systematic method: read the symptom, form a hypothesis, test it.
+A range check is one line of code and a favorite place for a silent bug: the program runs, prints a plausible message, and quietly lets the wrong values through. The guard below is meant to reject any reading outside 0 to 100, but a reading of `150` sails past it. You find the bug with the systematic method: read the symptom, form a hypothesis, test it.
 
-Run the program, see which branch it actually takes, then work out why the condition is `false` and how to fix it.
+Run the program, see which branch it takes for a clearly out-of-range reading, then work out why the guard never catches it.
 
-```python title="target.py"
-a = 0.1 + 0.2
-target = 0.3
-if a == target:
-    print("on target")
+```python title="guard.py"
+reading = 150
+if reading < 0 and reading > 100:
+    print("out of range")
 else:
-    print("off target")
+    print("in range")
 ```
 
 <Reveal label="Reveal the diagnosis and the fix">
 ```bash title="Run the buggy program"
-python3 target.py
+python3 guard.py
 ```
 
 ```text frame="terminal" title="Output"
-off target
+in range
 ```
 
-**Symptom.** There is no error message; the program runs and takes the `else` branch, printing `off target`, even though `0.1 + 0.2` should be `0.3` and land on target. The wrong branch is the only signal you get.
+**Symptom.** There is no error. The reading is `150`, which is plainly outside 0 to 100, yet the program prints `in range` and takes the branch meant for good readings. The wrong branch is the only signal you get.
 
-**Hypothesis.** The condition `a == target` must be reducing to `false`. Both `0.1` and `0.2` are stored as approximations, so their sum is not the exact float stored for `0.3`, and `==` treats any difference at all as not equal. Printing `a` on its own confirms it:
+**Hypothesis.** The guard `reading < 0 and reading > 100` must be reducing to `false` even for `150`. Read it as English: it fires only when the reading is below `0` *and* above `100` at the same time. No single number is both negative and above one hundred, so `and` can never see two `true` operands, and the condition is `false` for every possible reading. Printing the guard directly for two out-of-range values confirms it never fires:
 
-```python title="show.py"
-a = 0.1 + 0.2
-print(a)
+```python title="probe.py"
+print(150 < 0 and 150 > 100)
+print(-5 < 0 and -5 > 100)
 ```
 
 ```bash title="Run it"
-python3 show.py
+python3 probe.py
 ```
 
 ```text frame="terminal" title="Output"
-0.30000000000000004
+False
+False
 ```
 
-The stored sum is `0.30000000000000004`, a hair above `0.3`, so `a == target` is `false` and the `else` branch runs.
+Both are `False`. For `150`, the left half `150 < 0` is `false`; for `-5`, the right half `-5 > 100` is `false`; either way `and` needs both halves and never gets them. The guard is dead code that always falls through to `else`.
 
-**Test.** Stop asking whether the two floats are exactly equal and ask whether they are close enough. Take their difference and require it to sit within a small tolerance of zero, `1e-9`, in either direction:
+**Test.** The rule is "out of range if the reading is below `0` *or* above `100`," so the operator should be `or`, not `and`. A reading is bad when it fails *either* boundary, and `or` fires as soon as one operand is `true`:
 
-```python title="target.py (fixed)"
-a = 0.1 + 0.2
-target = 0.3
-difference = a - target
-if difference < 1e-9 and difference > -1e-9:
-    print("on target")
+```python title="guard.py (fixed)"
+reading = 150
+if reading < 0 or reading > 100:
+    print("out of range")
 else:
-    print("off target")
+    print("in range")
 ```
 
 ```bash title="Run the fixed program"
-python3 target.py
+python3 guard.py
 ```
 
 ```text frame="terminal" title="Output"
-on target
+out of range
 ```
 
-The `difference` is a minuscule positive number, far smaller than `1e-9`, so both halves of the check hold and the `if` branch runs. The lesson is that comparing two computed floats with `==` produces a wrong branch, not a crash, so a known expected result and a tolerance check are what catch it.
+Now `150 > 100` is `true`, so `or` settles at `true` and the guard finally catches the bad reading. The lesson is that `and` where `or` was meant produces no crash, just a condition that is silently always false, so a guard that never rejects anything is the symptom to watch for. This is a logic error, not a type error, so it hides just as well in Rust: the same guard written with `&&` compiles without complaint and prints `in range` too. The compiler cannot tell you that you asked the wrong question.
 </Reveal>
 
 ---
 
 ## Bridge
 
-These three reps feed the family of recitation problems that turn a plain-language rule into booleans and a conditional: a decision table with an interlock, where one condition has to guard another and a comparison has to be written so it actually holds. The short-circuit tracing, the boolean-only condition, and the tolerance fix you just practiced are the guided first rung of that ladder.
+These three reps feed the family of recitation problems that turn a plain-language rule into booleans and a conditional: a decision table with an interlock, where one condition has to guard another and a comparison has to be written so it actually holds. The compound short-circuit tracing, the boolean-only condition, and the range guard you just repaired are the guided first rung of that ladder.

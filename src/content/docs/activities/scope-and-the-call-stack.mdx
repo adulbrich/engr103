@@ -1,6 +1,6 @@
 ---
 title: "Tracing Scope and the Call Stack"
-description: "Trace a call stack by hand, predict how Rust block scope and shadowing differ from Python's function scope, and diagnose a variable read outside its scope in both languages."
+description: "Trace a three-function call chain by hand, predict how two nested Rust blocks that each shadow a name print against Python's function scope, and diagnose the scope trap each language springs on a discount function."
 sidebar:
   order: 6
 draft: true
@@ -16,19 +16,19 @@ type: activity
 slug: scope-and-the-call-stack
 order: 6
 paired_lecture: scope-and-the-call-stack
-practices: traces the call stack of a two-function program by hand, tracking each frame's variables as frames push and pop; predicts the printed lines when Rust block scope and shadowing meet Python's function scope; diagnoses reading a local variable outside its scope from a Python NameError and a Rust E0425
+practices: traces the call stack of a three-function chain by hand, tracking each frame's variables as three frames stack up and pop back down and a return value flows up through the chain; predicts the printed lines when two nested Rust blocks each shadow a name against Python's single function scope; diagnoses the scope trap each language springs, a Python UnboundLocalError from reading a global-looking name it then assigns and a Rust E0425 from using a value after its block ended
 prereq_activities:
 block_types: paper-tracing, predict-then-run, live-debugging
-output: a completed call-stack trace, a reconciled prediction of block-scope output, and a corrected out-of-scope variable read for each of the three blocks
+output: a completed three-frame call-stack trace, a reconciled prediction of nested-shadowing output, and a corrected scope trap for each language across the three sections
 */}
 
 <LanguageVersions />
 
-This activity puts into practice the [Scope and the Call Stack](/lectures/scope-and-the-call-stack/) lecture. You will trace by hand how a call stack pushes and pops a frame for each function call, predict how Rust's block scope and shadowing print differently from Python's function scope, and diagnose a program that reads a local variable after its box is gone. By the end, you will be able to say which frame any variable lives in, how long it lasts, and why reaching for a name outside its scope fails in each language.
+This activity puts into practice the [Scope and the Call Stack](/lectures/scope-and-the-call-stack/) lecture. You will trace by hand how a call stack pushes and pops a frame for each function call in a three-function chain, predict how two nested Rust blocks that each shadow a name print differently from Python's single function scope, and diagnose the different scope trap each language springs on the same discount function. By the end, you will be able to say which frame any variable lives in, how long it lasts, and why reaching for a name outside its scope fails in each language.
 
 ## Warm-up
 
-A quick refresher before the blocks. A variable created inside a function is a local variable: it lives in that function's own storage and is visible only inside the function's body. A function can also take a parameter and hand a value back with `return`. Here is one of each, in both languages.
+A quick refresher before the sections. A variable created inside a function is a local variable: it lives in that function's own storage and is visible only inside the function's body. A function can also take a parameter and hand a value back with `return`. Here is one of each, in both languages.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
@@ -73,13 +73,13 @@ duck
 9
 ```
 
-Rust prints the same two lines. With a local variable, a parameter, and a return value fresh, the blocks below follow those variables into and out of the stack frames that hold them.
+Rust prints the same two lines. With a local variable, a parameter, and a return value fresh, the sections below follow those variables into and out of the stack frames that hold them.
 
-## Block 1: Trace the Call Stack by Hand
+## Trace a Three-Function Call Chain
 
-When one function calls another, both are partway through running at once, each with its own variables. The call stack keeps them separate by giving every call its own frame. You trace that stack by hand here, so you can point to exactly which frame holds each variable and when it appears and disappears.
+When one function calls another, both are partway through running at once, each with its own variables. Add a third link to the chain and three frames stack up before any of them returns, so tracing by hand is the only way to keep straight which frame holds each variable and when it appears and disappears.
 
-The program below converts seconds to hours through two functions: `to_hours` calls `to_minutes`. Trace `to_hours(5400)` on paper. At each step, write down which frames are on the stack, from the bottom up, and the value of every variable in each frame. Do not run it yet.
+The program below converts seconds to days through a chain of three functions: `to_days` calls `to_hours`, which calls `to_minutes`. Trace `to_days(216000)` on paper. At each step, write down which frames are on the stack, from the bottom up, and the value of every variable in each frame. Watch the return value flow back up the chain, one frame at a time. Do not run it yet.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
@@ -92,7 +92,11 @@ def to_hours(seconds):
     result = to_minutes(seconds) / 60
     return result
 
-print(to_hours(5400))
+def to_days(seconds):
+    result = to_hours(seconds) / 24
+    return result
+
+print(to_days(216000))
 ```
 </TabItem>
 <TabItem label="Rust">
@@ -107,8 +111,13 @@ fn to_hours(seconds: f64) -> f64 {
     return result;
 }
 
+fn to_days(seconds: f64) -> f64 {
+    let result = to_hours(seconds) / 24.0;
+    return result;
+}
+
 fn main() {
-    println!("{}", to_hours(5400.0));
+    println!("{}", to_days(216000.0));
 }
 ```
 </TabItem>
@@ -117,17 +126,23 @@ fn main() {
 <Reveal label="Reveal the completed call-stack trace">
 <Steps>
 
-1. The program calls `to_hours(5400)`. The argument `5400` is copied into `to_hours`'s parameter `seconds`, and `to_hours`'s frame is pushed. Stack, bottom to top: `to_hours` with `seconds = 5400`.
+1. The program calls `to_days(216000)`. The argument `216000` is copied into `to_days`'s parameter `seconds`, and `to_days`'s frame is pushed. Stack, bottom to top: `to_days` with `seconds = 216000`.
 
-2. Computing `to_minutes(seconds) / 60` begins by calling `to_minutes(5400)`. `5400` is copied into `to_minutes`'s own parameter `seconds`, and a second frame is pushed on top. `to_hours`'s frame waits beneath, unchanged. Stack: `to_hours` with `seconds = 5400`; `to_minutes` with `seconds = 5400`.
+2. Computing `to_hours(seconds) / 24` begins by calling `to_hours(216000)`. `216000` is copied into `to_hours`'s own parameter `seconds`, and a second frame is pushed on top. `to_days`'s frame waits beneath, unchanged. Stack: `to_days` with `seconds = 216000`; `to_hours` with `seconds = 216000`.
 
-3. Inside `to_minutes`, `result = seconds / 60` computes `90.0` and stores it in a box in `to_minutes`'s own frame. Stack: `to_hours` with `seconds = 5400`; `to_minutes` with `seconds = 5400`, `result = 90.0`.
+3. Computing `to_minutes(seconds) / 60` begins by calling `to_minutes(216000)`. `216000` is copied into `to_minutes`'s own parameter `seconds`, and a third frame is pushed on top. Now three frames are on the stack at once. Stack: `to_days` with `seconds = 216000`; `to_hours` with `seconds = 216000`; `to_minutes` with `seconds = 216000`.
 
-4. `return result` hands `90.0` back. `to_minutes`'s frame is popped, taking its `seconds` and `result` with it, and control returns to `to_hours`. Stack: `to_hours` with `seconds = 5400`.
+4. Inside `to_minutes`, `result = seconds / 60` computes `3600.0` and stores it in a box in `to_minutes`'s own frame. Stack: `to_days` with `seconds = 216000`; `to_hours` with `seconds = 216000`; `to_minutes` with `seconds = 216000`, `result = 3600.0`.
 
-5. Back in `to_hours`, `to_minutes(seconds)` was `90.0`, so `90.0 / 60` is `1.5`, stored in `to_hours`'s own `result`. Stack: `to_hours` with `seconds = 5400`, `result = 1.5`.
+5. `return result` hands `3600.0` back. `to_minutes`'s frame is popped, taking its `seconds` and `result` with it, and control returns to `to_hours`. Stack: `to_days` with `seconds = 216000`; `to_hours` with `seconds = 216000`.
 
-6. `to_hours` returns `1.5`; its frame is popped in turn, and `print` shows the value. The stack is empty again.
+6. Back in `to_hours`, `to_minutes(seconds)` was `3600.0`, so `3600.0 / 60` is `60.0`, stored in `to_hours`'s own `result`. Stack: `to_days` with `seconds = 216000`; `to_hours` with `seconds = 216000`, `result = 60.0`.
+
+7. `return result` hands `60.0` back. `to_hours`'s frame is popped in turn, and control returns to `to_days`. Stack: `to_days` with `seconds = 216000`.
+
+8. Back in `to_days`, `to_hours(seconds)` was `60.0`, so `60.0 / 24` is `2.5`, stored in `to_days`'s own `result`. Stack: `to_days` with `seconds = 216000`, `result = 2.5`.
+
+9. `to_days` returns `2.5`; its frame is popped, and `print` shows the value. The stack is empty again.
 
 </Steps>
 
@@ -138,49 +153,62 @@ python3 trace.py
 ```
 
 ```text frame="terminal" title="Output"
-1.5
+2.5
 ```
 
-Rust prints the same `1.5`. The two `seconds` boxes, one in each frame, never touched each other: at step 3 both held `5400`, yet they were separate boxes in separate frames, and popping `to_minutes` at step 4 discarded its copy without disturbing the one below.
+Rust prints the same `2.5`. Three `seconds` boxes, one in each frame, sat on the stack at the same time in step 3, all holding `216000`, yet they were separate boxes in separate frames: popping `to_minutes` at step 5 and `to_hours` at step 7 discarded each copy without disturbing the ones below. The answer reached `to_days` only through the value each call returned, never by one frame reaching into another.
 </Reveal>
 
 ---
 
-## Block 2: Predict the Printed Lines
+## Predict the Nested Shadowing
 
-Rust's block scope and shadowing, set against Python's single function-wide scope, change how many lines each program prints, so you commit to a prediction first.
+Rust's block scope and shadowing combine here at two levels of nesting, set against Python's single function-wide scope, and the last two lines Rust prints are the ones that catch people out. You commit to a full prediction first.
 
-Both programs below start a variable at `10`, then add `5` to that name inside the function. Write down every line each one prints, in order, before opening the reveal.
+Both functions below start `n` at `2`, then build it up with `+ 3` and `* 2`. In Rust each step happens inside its own nested `{ }` block; in Python the steps run one after another with no blocks at all. Write down every line each program prints, in order, before opening the reveal. Pay attention to what the last two lines print in each.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
 ```python title="predict.py"
-def show_values():
-    x = 10
-    print(x)
+def layers():
+    n = 2
+    print(n)
 
-    x = x + 5
-    print(x)
+    n = n + 3
+    print(n)
 
-show_values()
+    n = n * 2
+    print(n)
+
+    print(n)
+    print(n)
+
+layers()
 ```
 </TabItem>
 <TabItem label="Rust">
 ```rust title="predict.rs"
-fn show_values() {
-    let x = 10;
-    println!("{}", x);
+fn layers() {
+    let n = 2;
+    println!("{}", n);
 
     {
-        let x = x + 5;
-        println!("{}", x);
+        let n = n + 3;
+        println!("{}", n);
+
+        {
+            let n = n * 2;
+            println!("{}", n);
+        }
+
+        println!("{}", n);
     }
 
-    println!("{}", x);
+    println!("{}", n);
 }
 
 fn main() {
-    show_values();
+    layers();
 }
 ```
 </TabItem>
@@ -192,8 +220,11 @@ python3 predict.py
 ```
 
 ```text frame="terminal" title="Output"
+2
+5
 10
-15
+10
+10
 ```
 
 ```bash title="Compile and run the Rust program"
@@ -202,49 +233,53 @@ rustc predict.rs
 ```
 
 ```text frame="terminal" title="Output"
+2
+5
 10
-15
-10
+5
+2
 ```
 
 <WhatDiffers>
 <Fragment slot="differs">
-Python has one variable `x` for the whole function. The line `x = x + 5` reassigns that same box to `15`, so the function prints only two lines and ends with `x` at `15`. Rust's `let x = x + 5` sits inside a bare `{ }` block, so it creates a new variable that shadows the outer `x` only until the block's closing brace. Inside the block the new `x` prints `15`; after the brace that box is dropped and the name refers to the outer `x` again, still `10`, so Rust prints a third line. The outer `x` was never changed, because shadowing adds a second box rather than overwriting the first.
+Both print five lines, and the first three lines match: `2`, then `5`, then `10`. Python has one variable `n` for the whole function. Each `n = ...` reassigns that same box, so after `n = n * 2` the box holds `10` and stays there; the last two `print(n)` lines both read that same box and print `10`, `10`. Rust's two `let n = ...` lines each sit inside a nested `{ }` block, so each creates a new variable that shadows the one outside it only until its own block's closing brace. The inner `let n = n * 2` uses the middle block's `n` of `5` to make `10`; when its block ends, that box is dropped and the name refers to the middle `n` again, still `5`. When the middle block ends too, that box is dropped and the name refers to the outer `n`, still `2`. So Rust prints `5` then `2` as it unwinds back out through the two blocks. Neither outer `n` was ever changed, because each `let` adds a new box rather than overwriting an existing one.
 </Fragment>
 </WhatDiffers>
 
-If you predicted three lines for Python, you treated its `{ }`-free reassignment as if it opened a new scope; Python cannot, since a name assigned anywhere in a function belongs to that whole function. If you predicted two lines for Rust, you read the inner `let` as reassigning the outer `x` instead of shadowing it.
+If you predicted `10`, `10` for Rust's last two lines, you read the inner `let`s as reassigning one shared `n` the way Python does, instead of shadowing it inside a block that ends. If you predicted `5` or `2` for Python's last two lines, you treated its blockless reassignments as if they opened scopes that could close: Python cannot, since a name assigned anywhere in a function belongs to that whole function, with nothing to revert to.
 </Reveal>
 
 ---
 
-## Block 3: Fix the Out-of-Scope Read
+## Diagnose the Scope Trap
 
-A local variable's box exists only while its function's frame is on the stack. Reaching for that name after the function returns fails, but Python and Rust catch it at different times and with different messages. You diagnose the failure here with the systematic method: read the error, form a hypothesis, test the fix.
+The same discount function, written naturally in each language, springs a different scope trap. Python and Rust catch the mistake at different times and with different messages, so you diagnose each with the systematic method: read the error, form a hypothesis, test the fix.
 
-Each program computes minutes inside `compute_minutes`, then tries to print `minutes` from outside the function. Run the version for your language, read the error it produces, and work out the one change that fixes it.
+Each program below is meant to subtract a discount from a starting total of `100` and print the result. Neither does. Run the version for your language, read the error it produces, and work out the one change that fixes it.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
 ```python title="debug.py"
-def compute_minutes(seconds):
-    minutes = seconds / 60
-    return minutes
+total = 100
 
-compute_minutes(150)
-print(minutes)
+def apply_discount(amount):
+    total = total - amount
+    return total
+
+print(apply_discount(30))
 ```
 </TabItem>
 <TabItem label="Rust">
 ```rust title="debug.rs (will not compile)"
-fn compute_minutes(seconds: f64) -> f64 {
-    let minutes = seconds / 60.0;
-    return minutes;
+fn apply_discount(amount: i32) -> i32 {
+    {
+        let total = 100 - amount;
+    }
+    return total;
 }
 
 fn main() {
-    compute_minutes(150.0);
-    println!("{}", minutes);
+    println!("{}", apply_discount(30));
 }
 ```
 </TabItem>
@@ -257,10 +292,13 @@ python3 debug.py
 
 ```text frame="terminal" title="Output"
 Traceback (most recent call last):
-  File "debug.py", line 6, in <module>
-    print(minutes)
-          ^^^^^^^
-NameError: name 'minutes' is not defined
+  File "debug.py", line 7, in <module>
+    print(apply_discount(30))
+          ~~~~~~~~~~~~~~^^^^
+  File "debug.py", line 4, in apply_discount
+    total = total - amount
+            ^^^^^
+UnboundLocalError: cannot access local variable 'total' where it is not associated with a value
 ```
 
 ```bash title="Compile the buggy Rust program"
@@ -268,35 +306,38 @@ rustc debug.rs
 ```
 
 ```text frame="terminal" title="Output"
-error[E0425]: cannot find value `minutes` in this scope
- --> debug.rs:8:20
+error[E0425]: cannot find value `total` in this scope
+ --> debug.rs:5:12
 ```
 
-**Symptom.** Python runs until the last line, then raises a `NameError` on `print(minutes)`. Rust never runs at all: the compiler rejects the same reference before building an executable, reporting `E0425`.
+**Symptom.** Both programs name `total` where its scope does not reach, but the two languages trip on it for different reasons. Python runs until it enters `apply_discount`, then raises an `UnboundLocalError` on the line that reads `total`. Rust never runs at all: the compiler rejects `return total` before building an executable, reporting `E0425`.
 
-**Hypothesis.** `minutes` is a local variable of `compute_minutes`. Its box exists only while `compute_minutes`'s frame is on the stack, and that frame is popped the moment the function returns. By the time control reaches the outer `print`, the box is gone, so the name points at nothing. The call `compute_minutes(150)` does compute the value, but it is discarded when the frame pops because nothing captures the return value.
+**Hypothesis, Python.** Assigning `total` anywhere in `apply_discount` makes `total` a local variable for the whole function, even on the lines above the assignment. So `total - amount` on the right side reads that local, which has not been given a value yet, and Python stops. The module-level `total = 100` is a separate global box that the function's own local `total` hides for the entire body, so the function never sees the `100`.
 
-**Test.** Read the value the function hands back rather than reaching into the function for its local. Pass the returned value straight to `print`:
+**Hypothesis, Rust.** `total` is declared with `let` inside a bare `{ }` block. Its box is dropped the moment the block's closing brace passes, so by the time `return total` runs, one line later, the name points at a box that no longer exists. The value was computed correctly inside the block and then thrown away when the block ended.
+
+**Test.** Give each function the value through the one channel that survives, a parameter and a return, rather than reaching for a name outside its scope. In Python, pass the starting total in and return the difference. In Rust, lift the `let` out of the block so `total` lives for the rest of the function:
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
 ```python title="debug.py (fixed)"
-def compute_minutes(seconds):
-    minutes = seconds / 60
-    return minutes
+total = 100
 
-print(compute_minutes(150))
+def apply_discount(current, amount):
+    return current - amount
+
+print(apply_discount(total, 30))
 ```
 </TabItem>
 <TabItem label="Rust">
 ```rust title="debug.rs (fixed)"
-fn compute_minutes(seconds: f64) -> f64 {
-    let minutes = seconds / 60.0;
-    return minutes;
+fn apply_discount(amount: i32) -> i32 {
+    let total = 100 - amount;
+    return total;
 }
 
 fn main() {
-    println!("{}", compute_minutes(150.0));
+    println!("{}", apply_discount(30));
 }
 ```
 </TabItem>
@@ -307,14 +348,14 @@ python3 debug.py
 ```
 
 ```text frame="terminal" title="Output"
-2.5
+70
 ```
 
-Rust compiles and prints the same `2.5`. The fix reads the value through the return channel, the one way out of a frame, instead of naming a local variable whose box no longer exists.
+Rust compiles and prints the same `70`. In Python, adding `global total` inside the function would also silence the error, but it would reintroduce exactly the shared-global antipattern the lecture warned against; passing the value in as a parameter keeps the function's dependency visible in its own signature instead. In Rust, the fix simply keeps `total` alive past the point it is read, since a variable cannot outlive the block that declares it.
 </Reveal>
 
 ---
 
 ## Bridge
 
-These three reps feed the recitation family where a value is converted through a chain of small functions to reach a result in different units of measure or time, with each function keeping its own parameters and local variables. Tracing which frame holds each variable, and reading a result only through the value a function returns, is exactly the discipline that family rewards, and the guided first rung of it is what you just practiced by hand.
+These three reps feed the recitation family where a value is converted through a chain of small functions to reach a result in different units of measure or time, with each function keeping its own parameters and local variables. Tracing which frame holds each variable, and reading a result only through the value a function returns rather than reaching for a name outside its scope, is exactly the discipline that family rewards, and the guided first rung of it is what you just practiced by hand.

@@ -1,6 +1,6 @@
 ---
 title: "Predicting and Fixing Expressions"
-description: "Predict, compare, and debug short arithmetic expressions in Python and Rust to lock in precedence, integer versus float division, and the systematic method."
+description: "Predict, compare, and debug short arithmetic expressions in Python and Rust to lock in precedence, integer versus float division, the modulo operator, and the systematic method."
 sidebar:
   order: 3
 draft: true
@@ -16,19 +16,19 @@ type: activity
 slug: expressions-and-operators
 order: 3
 paired_lecture: expressions-and-operators
-practices: predicts the value of a mixed-operator expression before running it, using precedence and float division; names what changes and what stays fixed between Python's // and Rust's integer / across the two languages; diagnoses a silent precedence bug in an average from a wrong result using the systematic method
+practices: reduces a mixed-operator expression by hand step by step, combining precedence, modulo, and integer-versus-float division to reach a value that differs between Python and Rust; names what changes and what stays fixed on the negative division case where Python's // floors and Rust's / truncates, including the sign of the modulo remainder; diagnoses a silent precedence bug in a temperature-conversion formula from a wrong result using the systematic method
 prereq_activities:
 block_types: predict-then-run, same-program-two-languages, live-debugging
-output: a reconciled prediction, a named cross-language difference, and a corrected average expression for each of the three blocks
+output: a reconciled step-by-step prediction, a named cross-language difference on negatives, and a corrected conversion expression for each of the three sections
 */}
 
 <LanguageVersions />
 
-This activity puts into practice the [Expressions and Operators](/lectures/expressions-and-operators/) lecture. You will predict the value of a mixed-operator expression before running it, compare how Python and Rust divide the same two whole numbers, and hunt down a silent precedence bug in an average. By the end, you will be able to evaluate an expression by hand using precedence and each language's division rule, and to catch a wrong answer that never raised an error.
+This activity puts into practice the [Expressions and Operators](/lectures/expressions-and-operators/) lecture. You will predict the value of a long mixed-operator expression before running it, compare how Python and Rust handle the negative division case where their rules split, and hunt down a silent precedence bug in a temperature conversion. By the end, you will be able to reduce an expression by hand using precedence, modulo, and each language's division rule, and to catch a wrong answer that never raised an error.
 
 ## Warm-up
 
-A quick refresher before the blocks. A literal is a value written directly in code, and on its own it is already an expression that evaluates to itself. Here are a few, one of each kind, and two simple operators, in both languages.
+A quick refresher before the sections. A literal is a value written directly in code, and on its own it is already an expression that evaluates to itself. Here are a few, one of each kind, and two simple operators, in both languages.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
@@ -71,54 +71,94 @@ True
 3
 ```
 
-Rust prints the same values, except the boolean is spelled `true` rather than `True`. With those pieces fresh, the blocks below combine them into expressions whose values are harder to guess.
+Rust prints the same values, except the boolean is spelled `true` rather than `True`. With those pieces fresh, the sections below combine them into expressions whose values are much harder to guess.
 
-## Block 1: Predict the Value
+## Reduce a Mixed Expression Step by Step
 
-Precedence decides the order of an expression's reduction, and Python's `/` always hands back a float even when both operands are whole numbers. Together those two rules make the value of a mixed-operator expression hard to guess. You commit to an answer first, then run the program to check it.
+The lecture reduced `10 / 4 + 3 * 2`, an expression with two operators past the addition. This one has four: it combines precedence, the modulo operator `%`, and division all at once, so you cannot eyeball the answer. Precedence decides the order, `%` divides and keeps the remainder, and the same `/` lands on a different value in each language. You commit to an answer first, then run the program to check it.
 
-Read the program below and write down, on paper or in a comment, the exact value you expect each line to print. Do not run it yet. Reduce each expression one step at a time: apply precedence to choose which operator goes first, remember that Python's `/` produces a float, and only then settle on the final value.
+Read the program below and write down, on paper or in a comment, the exact value you expect it to print in each language. Do not run it yet. Reduce the expression one operator at a time: `%`, `*`, and `/` all outrank `+` and `-`, so they go first, left to right; only then do the addition and subtraction, also left to right. Remember that Python's `/` produces a float while Rust's `/` between two whole numbers truncates. Predict both values before opening the reveal.
 
+<Tabs syncKey="lang">
+<TabItem label="Python">
 ```python title="predict.py"
-print(10 / 4 + 3 * 2)
-print(2 + 3 * 2)
+print(10 % 3 + 2 * 4 - 6 / 4)
 ```
+</TabItem>
+<TabItem label="Rust">
+```rust title="predict.rs"
+fn main() {
+    println!("{}", 10 % 3 + 2 * 4 - 6 / 4);
+}
+```
+</TabItem>
+</Tabs>
 
-<Reveal label="Reveal the real output and reconcile it with your prediction">
+<Reveal label="Reveal the real outputs and reconcile them with your prediction">
 ```bash title="Run the Python program"
 python3 predict.py
 ```
 
 ```text frame="terminal" title="Output"
-8.5
+7.5
+```
+
+```bash title="Compile and run the Rust program"
+rustc predict.rs
+./predict
+```
+
+```text frame="terminal" title="Output"
 8
 ```
 
-The first line reduces `10 / 4 + 3 * 2`. Precedence runs `/` and `*` before `+`, and left-associativity takes the leftmost of the two equal-ranked operators first, so the order of steps is `10 / 4`, then `3 * 2`, then the addition. Python's `/` is float division, so `10 / 4` is the exact `2.5`, not `2`; then `3 * 2` is `6`, and `2.5 + 6` is `8.5`. If you predicted `8`, you almost certainly reduced `10 / 4` to a whole number: that is the Rust rule, not Python's.
+The two languages run the exact same steps in the exact same order, and only the single division `6 / 4` splits them. Precedence reduces `%`, `*`, and `/` before `+` and `-`, left to right, so `10 % 3` goes first, then `2 * 4`, then `6 / 4`; the leftover `+` and `-` reduce last, left to right.
 
-The second line has no division to surprise you, so it isolates precedence alone. `3 * 2` reduces first to `6`, then `2 + 6` reduces to `8`. Predicting `10` here means you added left to right and ignored that `*` outranks `+`.
+In Python, `10 % 3` is `1` (the remainder of ten divided by three), `2 * 4` is `8`, and `6 / 4` is the exact float `1.5`, because Python's `/` always produces a float:
+
+```text title="Reducing 10 % 3 + 2 * 4 - 6 / 4 in Python"
+10 % 3 + 2 * 4 - 6 / 4
+1 + 2 * 4 - 6 / 4        (10 % 3 is the remainder 1)
+1 + 8 - 6 / 4            (2 * 4 is 8)
+1 + 8 - 1.5             (6 / 4 is float division: 1.5)
+9 - 1.5                 (1 + 8, leftmost of the equal-ranked + and -)
+7.5                     (9 - 1.5)
+```
+
+In Rust, `10 % 3` is `1` and `2 * 4` is `8` just the same, but `6 / 4` divides two whole-number literals, so it is integer division and truncates `1.5` down to `1`:
+
+```text title="Reducing 10 % 3 + 2 * 4 - 6 / 4 in Rust"
+10 % 3 + 2 * 4 - 6 / 4
+1 + 2 * 4 - 6 / 4        (10 % 3 is the remainder 1)
+1 + 8 - 6 / 4            (2 * 4 is 8)
+1 + 8 - 1               (6 / 4 is integer division: truncates 1.5 to 1)
+9 - 1                   (1 + 8)
+8                       (9 - 1)
+```
+
+If you predicted `8` for Python, you almost certainly truncated `6 / 4` to a whole number, which is the Rust rule, not Python's. If you predicted anything with the addition and subtraction reaching past `%`, `*`, or `/`, precedence was the slip: the three high-ranked operators always reduce before the `+` and the `-`, no matter where they sit in the line.
 </Reveal>
 
 ---
 
-## Block 2: The Same Division, Two Languages
+## The Negative Case Where the Languages Split
 
-Python and Rust both divide `7` by `2`, and they disagree on the answer. Studying the two renderings side by side is how you keep the two division rules straight instead of blurring them into one. You read both tabs and name what genuinely changes and what stays fixed across the languages.
+For a positive numerator, Python's `//` and Rust's `/` agree: both make `7 / 2` into `3`, so the two rules look interchangeable. They are not. They split the moment the numerator goes negative, and the modulo remainder splits with them. Studying the negative case side by side is how you keep the two rules straight instead of blurring them into one. You read both tabs and name what genuinely changes and what stays fixed.
 
-Study the two programs below. They compute the same idea, dividing `7` by `2` two ways, once to keep the fraction and once to force a whole number. Before opening the reveal, write down the four values you expect, then name one thing that is truly different between the languages and one thing that is the same.
+Study the two programs below. Each divides `-7` by `2` as a whole-number division and then takes the modulo remainder. Before opening the reveal, write down the four values you expect, then name one thing that is truly different between the languages and one thing that is the same.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
 ```python title="divide.py"
-print(7 / 2)
-print(7 // 2)
+print(-7 // 2)
+print(-7 % 2)
 ```
 </TabItem>
 <TabItem label="Rust">
 ```rust title="divide.rs"
 fn main() {
-    println!("{}", 7 / 2);
-    println!("{}", 7.0 / 2.0);
+    println!("{}", -7 / 2);
+    println!("{}", -7 % 2);
 }
 ```
 </TabItem>
@@ -130,8 +170,8 @@ python3 divide.py
 ```
 
 ```text frame="terminal" title="Output"
-3.5
-3
+-4
+1
 ```
 
 ```bash title="Compile and run the Rust program"
@@ -140,59 +180,66 @@ rustc divide.rs
 ```
 
 ```text frame="terminal" title="Output"
-3
-3.5
+-3
+-1
 ```
 
 <WhatDiffers>
 <Fragment slot="differs">
-Python chooses the kind of division with the operator: `/` always gives the exact float, so `7 / 2` is `3.5`, and `//` floors to a whole number, so `7 // 2` is `3`. Rust chooses with the operand types: `7 / 2` divides two whole-number literals, so it is integer division and truncates to `3`, and getting the exact `3.5` needs both operands written as floats, `7.0 / 2.0`. What stays fixed is that both languages produce one value per line, both share the same precedence, and both must resolve the whole-number case to a whole number by dropping the fraction; only the way you ask for each kind of division changes.
+The exact answer of dividing `-7` by `2` is `-3.5`, sitting between `-4` and `-3`, and the two languages round it opposite ways. Python's `//` floors toward negative infinity, taking the largest whole number not exceeding `-3.5`, so `-7 // 2` steps down to `-4`. Rust's `/` truncates toward zero, dropping the `.5` and keeping the whole-number part, so `-7 / 2` is `-3`. The modulo remainder follows whichever division its language uses, because quotient times divisor plus remainder must recover `-7`: with Python's quotient `-4`, the remainder is `1` (since `-4 * 2 + 1` is `-7`), and with Rust's quotient `-3`, the remainder is `-1` (since `-3 * 2 + -1` is `-7`). What stays fixed is that both languages produce one value per line, both share the same precedence, and both use the same operand-and-operator machinery; only the direction of rounding on a negative result, and the sign of the remainder that tracks it, changes.
 </Fragment>
 </WhatDiffers>
 
-The two rules happen to agree here, `3` either way, because `7 / 2` is positive. They split only on negatives: Python's `//` floors toward negative infinity, so `-7 // 2` is `-4`, while Rust's `/` truncates toward zero, so `-7 / 2` is `-3`.
+Had the numerator been positive, all of this would have stayed hidden: `7 // 2` and `7 / 2` are both `3`, and `7 % 2` is `1` in both languages. The negative numerator is the one case that forces floor and truncate to disagree, and it is exactly the case that bites when a real formula happens to feed a negative value into a whole-number division.
 </Reveal>
 
 ---
 
-## Block 3: Find the Silent Bug
+## Find the Silent Precedence Bug
 
-A precedence bug does not crash. The program runs, prints a number, and lies: the number is simply wrong. The average below is meant to be `(8 + 4) / 2`, which is `6.0`, but it prints something else. You find the bug with the systematic method: read the symptom, form a hypothesis, test it.
+A precedence bug does not crash. The program runs, prints a number, and lies: the number is simply wrong. The program below is meant to convert `212` degrees Fahrenheit to Celsius using the formula that subtracts `32`, then scales by `5/9`. Boiling water is `212` Fahrenheit, which is `100` Celsius, so the correct answer is `100.0`. It prints something else. You find the bug with the systematic method: read the symptom, form a hypothesis, test it.
 
-The program is meant to average the two scores `8` and `4`. The correct average is `6.0`. Run it, see what it actually prints, then work out why the value is wrong and how one change fixes it.
+Run the program, see what it actually prints, then work out why the value is wrong and how one change fixes it.
 
-```python title="average.py"
-print(8 + 4 / 2)
+```python title="convert.py"
+print(212 - 32 * 5 / 9)
 ```
 
 <Reveal label="Reveal the diagnosis and the fix">
 ```bash title="Run the buggy program"
-python3 average.py
+python3 convert.py
 ```
 
 ```text frame="terminal" title="Output"
-10.0
+194.22222222222223
 ```
 
-**Symptom.** There is no error message; the program runs and prints `10.0`, but the average of `8` and `4` should be `6.0`. The wrong output is the only signal you get.
+**Symptom.** There is no error message; the program runs and prints `194.22222222222223`, but converting `212` Fahrenheit should give `100.0`. The wrong output is the only signal you get.
 
-**Hypothesis.** The value `10.0` is what you get from `8 + (4 / 2)`, that is `8 + 2.0`, not from averaging. So the guess is a precedence bug: `/` outranks `+`, so `4 / 2` reduces first and only `4` gets halved, leaving the `8` untouched. The expression never adds the two scores before dividing.
+**Hypothesis.** The formula is `(F - 32) * 5 / 9`, and it depends on subtracting `32` before scaling. But `*` and `/` outrank `-`, so without parentheses the reduction runs `32 * 5 / 9` first, about `17.78`, and only then subtracts that from `212`. The `212 - 32` that was supposed to happen first never happens at all:
 
-**Test.** Force the addition to happen first by wrapping it in parentheses, so the whole sum is divided by `2`:
+```text title="Reducing 212 - 32 * 5 / 9 (buggy order)"
+212 - 32 * 5 / 9
+212 - 160 / 9           (32 * 5 is 160, because * and / outrank -)
+212 - 17.77...          (160 / 9 is about 17.78, a float in Python)
+194.22222222222223      (212 minus that)
+```
 
-```python title="average.py (fixed)"
-print((8 + 4) / 2)
+**Test.** Force the subtraction to happen first by wrapping it in parentheses, so the whole difference is scaled by `5/9`:
+
+```python title="convert.py (fixed)"
+print((212 - 32) * 5 / 9)
 ```
 
 ```bash title="Run the fixed program"
-python3 average.py
+python3 convert.py
 ```
 
 ```text frame="terminal" title="Output"
-6.0
+100.0
 ```
 
-The parentheses reduce `8 + 4` to `12` before the division, so `12 / 2` gives the intended `6.0`. The fix is a single set of parentheses. The lesson is that a precedence mistake produces a plausible number, not a crash, so hand-evaluation and a known expected value are what catch it.
+The parentheses reduce `212 - 32` to `180` before anything else, so `180 * 5 / 9` is `900 / 9`, which is the intended `100.0`. The fix is a single pair of parentheses. The lesson is that a precedence mistake produces a plausible number, `194.22222222222223` looks like a real temperature, not a crash, so hand-evaluation and a known expected value are what catch it.
 </Reveal>
 
 ---
