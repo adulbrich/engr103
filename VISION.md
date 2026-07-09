@@ -49,9 +49,9 @@ assignment, then holds), wearing a different story line at each tier:
 | Altitude | Venue | Stakes | Support | Story line |
 |---|---|---|---|---|
 | 1. Activity | Lecture, guided, in pairs | Participation only | Instructor, peers | None, bare concept |
-| 2. Assignment | Take-home, independent | Low (completion) | Anything, including GenAI | Rubber Duck Robotics |
-| 3. Recitation | In person, locked-down computer | High (graded like exams) | Official docs only | Mission Ares |
-| 4. Exam | In person, on paper, no notes | High | None | Mission Ares, one phrase max |
+| 2. Assignment | Take-home, independent | Low (completion) | Anything, including GenAI | Mission Ares |
+| 3. Recitation | In person, locked-down computer | High (graded like exams) | Official docs only | Rubber Duck Robotics |
+| 4. Exam | In person, on paper, no notes | High | None | None, bare concept |
 
 This makes the GenAI question moot by construction. Students may use any tool on
 assignments, and we say so openly: the assignment is the training set, and the
@@ -259,8 +259,8 @@ altitude without splitting the class into tracks:
   roughly 60% of points on weeks 6 to 10 material.
 - Both exams test **introductory programming concepts only**: no git, no shell,
   no editor trivia, no professional-development content, no library trivia
-  beyond the published subset. Problems may wear the Mission Ares skin
-  (section 8) at one phrase of setup maximum.
+  beyond the published subset. Exam problems wear no story skin: like
+  activities, they are stated as bare archetype items.
 
 ### Language policy on paper
 
@@ -350,12 +350,12 @@ question (section 12).
 
 ### Scope and difficulty
 
-Recitations wear the Mission Ares story line and its weekly plot (section 8);
-each session is one episode, and the find-the-bug portions arrive as HAB code
-awaiting sign-off. Recitation in week N assesses everything through the
-**first** lecture of week N,
-with its center of gravity on week N-1 (which students have had a full week and
-one assignment to practice).
+Recitations wear the Rubber Duck Robotics story line and its weekly ticket
+(section 8); each session is one ticket from Gary, and the find-the-bug portions
+arrive as Gary's subtly wrong helper awaiting sign-off. Recitation in week N
+assesses the **two lectures of week N-1**, which students have had a full
+weekend and one assignment to practice; the current week's Monday lecture is
+assessed the following week.
 
 Recitations are deliberately **not much harder than the assignments** that
 prepare them. The variable a recitation adds is the conditions, not the
@@ -370,7 +370,7 @@ should walk in expecting to succeed, and that expectation is the point: it is
 what makes outsourcing the assignment self-defeating, and it keeps test
 anxiety from swamping the signal. Recitation problems are fresh variations of
 practiced skeletons (new costume, new values, at most one small twist), never
-new territory; the scaffolding is thinner (no hints, no Gary), and that is the
+new territory; the scaffolding is thinner (no hints, no worked sub-steps), and that is the
 only support removed. The recitation is where students demonstrate they can do
 the practiced work alone; the exams then confirm the underlying concepts
 transferred off the keyboard.
@@ -380,7 +380,7 @@ transferred off the keyboard.
 - **Warm-up (15 min, 25% of points).** One direct application of the current
   problem family, at assignment difficulty. Everyone should finish it.
 - **Core problems (70 min, 75% of points).** Two problems at assignment
-  difficulty: the same skeletons students practiced, in fresh Ares costume with
+  difficulty: the same skeletons students practiced, in fresh Rubber Duck costume with
   new values and at most one small twist, each solvable in either language.
   Provided test suites give partial credit objectively; hidden cases run at
   grading time. Warm-up plus core is the full 100%: a prepared student can earn
@@ -482,20 +482,20 @@ without AI. If you
 did the practice yourself, the recitation will hold no surprises. Skipping the
 practice only shows up in the 85% of the grade you earn in the room."
 
-Assignments wear the Rubber Duck Robotics story line (section 8): each problem
-set arrives as a ticket from Gary and includes his subtly wrong helper
-function, the take-home rung of the red herring ladder. The upcoming recitation
-assesses the same skeletons in Mission Ares costume.
+Assignments wear the Mission Ares story line (section 8): each problem
+set arrives as a mission episode and includes HAB's subtly wrong snippet
+awaiting sign-off, the take-home rung of the red herring ladder. The upcoming
+recitation assesses the same skeletons in Rubber Duck Robotics costume.
 
 ### Structure (weekly, always due before the recitation it prepares)
 
 Timing is governed by one invariant: **the assignment practicing a family is
 due before the recitation that assesses that family**, which in turn precedes
 the exam that distills it. Concretely, each assignment is released right after
-a recitation and due the evening before the next one (released Wednesday, due
-the following Tuesday), covering the families that next recitation will assess.
-Students always get a full week with the material, including the weekend and
-the Monday lecture, before being graded on it.
+a recitation and due the Monday evening before the next one, covering the two
+lectures of the previous week that the next recitation will assess. Students get
+a full week with the earlier of those two lectures and a full weekend with the
+later one before being graded on it.
 
 Each assignment has three parts:
 
@@ -609,16 +609,17 @@ literally see the escalator.
 A **problem family is a concept skeleton**: accumulate over a stream, apply a
 decision table, walk a grid, encode and decode a sequence, validate against
 tolerance, look up and count by key. A **story line is a costume** worn at one
-assessment tier, and each tier dresses differently: activities have no story
-(bare concept, fastest possible read), assignments live at Rubber Duck
-Robotics, and recitations and exams share Mission Ares. Every problem must be
+assessment tier, and each tier dresses differently: activities and exams have no
+story (bare concept, fastest possible read), assignments live at Mission Ares,
+and recitations wear Rubber Duck Robotics. Every problem must be
 solvable while ignoring the plot entirely; the story is a spine, not a cage.
 
 Each story line is its tier's common thread (fil rouge), and the thread is
 technical as much as narrative: within a tier, data formats, function names,
 and provided helpers recur across the term. The telemetry line format
-introduced in week 8 is the same one the Sol 100 capstone parses; Gary's
-tickets all follow the same RDR firmware conventions. Later weeks should feel
+introduced in the week 8 assignment is the same one the Sol 100 capstone
+assignment parses; the recitations' Rubber Duck tickets all follow the same RDR
+firmware conventions. Later weeks should feel
 like returning to a familiar codebase rather than starting from zero. One
 limit keeps grading fair: every week remains independently solvable, and no
 problem ever requires last week's solution. A student who missed a recitation
@@ -626,7 +627,7 @@ is behind in the plot, never in the prerequisites.
 
 The six skeletons and their two faces:
 
-| Family (skeleton) | Rubber Duck face (assignments) | Mission Ares face (recitations, exams) | Core topics | Weeks |
+| Family (skeleton) | Rubber Duck face (recitations) | Mission Ares face (assignments) | Core topics | Weeks |
 |---|---|---|---|---|
 | **Arithmetic with units and time** | Duck-race countdown timers, novelty-mug fill volumes | Sols vs Earth days, fuel mass fractions, delta-v budgets | Expressions, types, variables, functions | 1 to 3 |
 | **Decision tables and interlocks** | Hot-tub controller: temperature, occupancy, and timer cutoff rules | Never both doors open, pressure thresholds, suit checks | Booleans, conditionals, decision tables | 3 to 4 |
@@ -649,23 +650,23 @@ crew, a garbled message decodes into words. Fun in an intro course is mostly
 fast, visible feedback plus a reason to care, and these families are chosen so
 that plain terminal output is the payoff, no graphics stack required.
 
-### Mission Ares (recitations and exams)
+### Mission Ares (assignments)
 
-The class is the flight software crew of a crewed Mars habitat, and the graded
-recitations follow a small plot, one episode per week: launch preparation (R2,
-R3), transit and its interlocks (R4), landing and the first drive (R5), the
-Mission Readiness Review (R6, the midterm rehearsal), then the surface phase:
-a comms window with Earth (R7), a solar conjunction that garbles packets (R8),
-a dust storm that stresses the sensors (R9), and the **Sol 100** status report
-as the capstone (R10): parse a telemetry line, validate it, update the
-manifest, decide whether to raise an alarm, format the report. The midterm is
-framed as the written flight qualification. The habitat setting also covers
+The student is a member of the flight software crew of a crewed Mars habitat,
+and the assignments follow a small plot, one episode per assignment: launch
+preparation, transit and its interlocks, landing and the first drive, then the
+surface phase (a comms window with Earth, a solar conjunction that garbles
+packets, a dust storm that stresses the sensors), building to the **Sol 100**
+status report as the capstone assignment: parse a telemetry line, validate it,
+update the manifest, decide whether to raise an alarm, format the report. The
+exact episode-to-week mapping is derived when the assignments are authored,
+following the reordered family weeks (section 10). The habitat setting covers
 every engineering major in the room: life support and water recycling are
 chemical, environmental, and ecological engineering; the rover is mechanical;
 power, comms, and protection interlocks are electrical and energy systems;
 habitat structures and build-out sequencing are civil, architectural, and
 construction engineering; crew biosensors are bioengineering; radiation dose
-monitoring is nuclear; inventory and operations are industrial. Recitation
+monitoring is nuclear; inventory and operations are industrial. Assignment
 problem contexts deliberately rotate across these subsystems so every major
 sees its own field in the mission more than once a term.
 
@@ -674,19 +675,25 @@ is helpful, tireless, and confidently wrong at narratively convenient moments.
 Flight rule: no HAB code runs unverified. HAB is how find-the-bug and
 judge-this-code problems arrive in story ("HAB drafted this pressure check;
 sign off or reject it"), which makes outcome O8 a weekly reflex instead of a
-week 10 lecture topic. On paper exams the universe appears as one phrase of
-setup at most; a 45-minute paper has no room for lore.
+week 10 lecture topic. Placing HAB in the assignment tier is deliberate: it is
+the one tier where students may use AI freely, so a confidently wrong AI whose
+code they must judge is exactly the right training partner there, and the heroic
+tone gives the take-home work a reason to pull the student through practice they
+might otherwise skip or outsource.
 
-### Rubber Duck Robotics (assignments)
+### Rubber Duck Robotics (recitations)
 
-Take-home practice is set at **Rubber Duck Robotics**, a mediocre but lovable
-novelty-gadget company (self-stirring mugs, motivational bathtub ducks, the
-occasional smart hot tub). The student is the new firmware intern; every
-assignment arrives as a ticket from **Gary**, the senior engineer, who is
-enthusiastic, overcommitted, and reliably wrong about one thing per week. The
-tone is comic where Ares is heroic, which keeps the low-stakes tier feeling
-low-stakes, and the company name is a planted joke that pays off in week 9
-when the debugging lecture introduces rubber-duck debugging.
+The graded recitations are set at **Rubber Duck Robotics**, a mediocre but
+lovable novelty-gadget company (self-stirring mugs, motivational bathtub ducks,
+the occasional smart hot tub). In the room the student is the new firmware
+intern; each recitation arrives as a ticket from **Gary**, the senior engineer,
+who is enthusiastic, overcommitted, and reliably wrong about one thing, and
+Gary's subtly wrong helper is the code to verify before use. The tone is comic
+where the take-home mission is heroic, and that is deliberate: the comedy
+lightens the test anxiety a high-stakes proctored room otherwise breeds (a
+novelty-mug problem worth points is still worth points), and the company name is
+a planted joke that pays off when rubber-duck debugging is introduced. Stakes
+come from proctoring and grade weight, not from tone.
 
 ### The red herring ladder
 
@@ -695,10 +702,10 @@ distractors that scale with the tier:
 
 - **Activities:** none; bare concept.
 - **Assignments:** one mild spec distractor (a quantity that is never needed),
-  plus **Gary's helper**: a provided function that looks convenient but is
+  plus **HAB's snippet**: a provided function that looks convenient but is
   subtly wrong or unnecessary. Copying it uncritically costs a visible test.
-- **Recitations:** fuller specifications with irrelevant data fields, plus a
-  HAB snippet that must be verified before use.
+- **Recitations:** fuller specifications with irrelevant data fields, plus
+  Gary's helper that must be verified before use.
 - **Exams:** the distilled paper version, the find-the-bug archetype.
 
 The rule that keeps this honest: a correct solution never depends on noticing
@@ -740,9 +747,9 @@ tutorials), so the table is normative:
 | Language ladder, archetype inventory, language field guide | Reference | Terse tables and lists, no prose |
 | Practicalities | How-to guides | Numbered steps, one goal per page: setup, editors, submitting to Gradescope, the recitation lab, the debugging workflow |
 | Activities | Prompt sheets | Minimal: a listing, a question, room to predict; worked resolution published after class |
-| Assignments | Requirements, scaffolded | Gary's ticket: same spec template as recitations, plus hints and worked sub-steps |
-| Recitations | Requirements, bare | Flight spec: the same template, scaffolding stripped |
-| Exams | Archetype items | Minimal wording, one-phrase story skin |
+| Assignments | Requirements, scaffolded | Mission episode: same spec template as recitations, plus hints and worked sub-steps |
+| Recitations | Requirements, bare | Gary's ticket: the same template, scaffolding stripped |
+| Exams | Archetype items | Minimal wording, no story skin |
 
 ### The plain-language rule (applies to every genre)
 
@@ -790,7 +797,7 @@ template for both: **Context** (the story beat, skippable), **Requirements**
 (numbered, testable statements), **Interface** (provided signatures and types),
 **Acceptance tests** (the visible cases), **Assumptions and edge cases**.
 Assignments add scaffolding inside that template: hints, worked sub-steps,
-Gary's commentary, a suggested order of attack. Recitations strip the
+mission commentary, a suggested order of attack. Recitations strip the
 scaffolding and say less. Support moves between the tiers; difficulty holds,
 and the genre never changes. Students never author prose requirements themselves: reading
 specifications is the course skill, and writing them is a later course's job.
@@ -861,10 +868,12 @@ lecture.
 
 The recitation and assignment columns below show the intended
 lecture-to-family alignment. Because this schedule reorders the term (errors and
-testing before the midterm, loops after it), the exact week each Mission Ares
-family recitation lands, and the family week-ranges in section 8, are
-**re-derived to follow this lecture order when the recitations are authored**;
-the prerequisite rule holds (each family's recitation follows the lecture that
+testing before the midterm, loops after it), the exact week each family
+recitation lands, and the family week-ranges in section 8, are
+**re-derived to follow this lecture order when the recitations are authored**.
+Each recitation assesses the previous week's two lectures (the one-week lag),
+and the resulting week-by-week alignment is set out on the schedule page; the
+prerequisite rule holds (each family's recitation follows the lecture that
 teaches its concept).
 
 | Wk | Lecture | Notes content (read in advance) | Recitation that week | Assignment due before that recitation |
@@ -878,7 +887,7 @@ teaches its concept).
 | 4 | 7 | **Booleans and conditionals.** Comparisons, logical operators, short-circuit; `if`/`else`; building conditions from specifications; the floating-point equality trap and comparison with tolerance, grounded in lecture 2. | | |
 | 5 | 8 | **Decision structures.** `elif`/`else if` chains and `match`; nesting vs chaining; decision tables; guard clauses; common boundary bugs. | R5: conditionals and decision tables. | A4: Decision-table rule families + paper trace. |
 | 5 | 9 | **Errors, input, and validation.** Kinds of errors (syntax, run-time, logic); console input and parsing; exceptions vs `Result`; validating a value and failing loudly. (The loop-based validate-until-correct pattern is deferred to lecture 12.) | | |
-| 6 | 10 | **Testing.** Test cases from a specification; boundary and error cases; assertions and test functions in both languages; consolidates the spec-to-tests skill practiced since week 3. | R6: Mission Readiness Review, cumulative synthesis over lectures 1 to 10; doubles as midterm rehearsal. | A5: cumulative families + midterm-format paper practice set. |
+| 6 | 10 | **Testing.** Test cases from a specification; boundary and error cases; assertions and test functions in both languages; consolidates the spec-to-tests skill practiced since week 3. | R6: cumulative synthesis over lectures 1 to 10; doubles as midterm rehearsal. | A5: cumulative families + midterm-format paper practice set. |
 | 6 | | **Midterm**, on paper during the second lecture slot (lectures 1 to 10: foundations, functions, scope, conditionals, errors, testing; no loops). | | |
 | 7 | 11 | **Loops.** `while` for unknown counts, counted loops; loop variables; termination; `do-while` as a C++-only "what differs"; tracing loops. | R7: loops. | A6: Loop families + paper trace. |
 | 7 | 12 | **Loop patterns.** Accumulate, count, search, sentinel, validate-until-correct; nested loops (ASCII rendering); choosing the pattern from the problem statement. | | |
@@ -886,7 +895,7 @@ teaches its concept).
 | 8 | 14 | **Collections I: lists and vectors.** Indexing, length, iteration; growing and mutating; out-of-bounds as Python's `IndexError` vs Rust's panic (and the C++ buffer-overflow danger that motivates both). | | |
 | 9 | 15 | **The memory model: aliasing and ownership.** Names point at values; aliasing in Python (two names, one list) and ownership/moves/borrows-lite in Rust; the C++ dangling/buffer-overflow danger as why memory safety matters; drawing memory diagrams. Uses the memory stepper. (Late because aliasing needs lists to exist first; the foundation and the stepper are early.) | R9: memory model and sharing (packet buffers). | A8: memory/sharing families + memory-diagram paper practice. |
 | 9 | 16 | **Sharing and mutation.** Passing collections to functions; when the caller sees your changes; defensive copying; Rust `&`/`&mut` and why Rust makes you declare intent. Uses the memory stepper. | | |
-| 10 | 17 | **Collections II: dictionaries and maps** (advanced extra, not required for the outcomes). Dictionaries and hashmaps; key-value thinking; choosing between list and map; frequency counting and lookup. | R10: capstone, the list-based Sol 100 mission-status program with tests, synthesizing the whole term. | A9: capstone prep; accessibility/equity critique; final-format paper practice set. |
+| 10 | 17 | **Collections II: dictionaries and maps** (advanced extra, not required for the outcomes). Dictionaries and hashmaps; key-value thinking; choosing between list and map; frequency counting and lookup. | R10: capstone recitation, a cumulative Rubber Duck synthesis over the term's families. | A9: the list-based Sol 100 mission-status capstone program with tests; accessibility/equity critique; final-format paper practice set. |
 | 10 | 18 | **Computing with judgment** (advanced extra, not required for the outcomes). Evaluating code you did not write (a peer's, a library's, an AI's); limitations and failure modes; who is excluded by our tools; course synthesis and final-exam concept map. | | |
 
 Alignment checks built into the table:

@@ -6,17 +6,23 @@ sidebar:
 ---
 
 This is the weekly map of the course: eighteen lectures across ten weeks, two
-each week (Monday and Wednesday), with the midterm in week 6. Each week lists its
-lectures, the assignment due that week, and the recitation. Lecture names link to
-the notes, which are read before class; the right column names the topic or
-problem family.
+each week (Monday and Friday), with the midterm in week 6. Each week lists its
+two lectures, the assignment due that week, and the recitation. Lecture names
+link to the notes, which are read before class; the right column names the topic
+or problem family.
 
 The first half, through the midterm, teaches the foundations, functions, scope,
 conditionals, errors, and testing without iteration; loops and data come after
 the midterm. **All learning outcomes are met by the end of week 9;** the two
-week-10 lectures are advanced extras, not required for the outcomes. The weekly
-rhythm is Lecture A, then the recitation (with that week's assignment due just
-before it), then Lecture B.
+week-10 lectures are advanced extras, not required for the outcomes.
+
+The weekly rhythm is a Monday lecture, then the recitation midweek (Tuesday to
+Thursday, with that week's assignment due the Monday night before it), then a
+Friday lecture. Each recitation assesses the **previous** week's two lectures,
+so every graded topic has had a full weekend and one dedicated assignment before
+it is tested; the current week's Monday lecture is assessed the following week.
+That one-week lag is why a recitation's topic always trails its lecture by a
+week.
 
 ## Week 1
 
@@ -32,8 +38,8 @@ before it), then Lecture B.
 | | |
 |---|---|
 | **Lecture 3: [Expressions and Operators](/lectures/expressions-and-operators/)** | Arithmetic and precedence, integer versus float division and truncation, implicit coercion, evaluating expressions by hand |
-| **Assignment 1** | Arithmetic families and a paper trace |
-| **Recitation 2** | Expressions and types |
+| **Assignment 1** | Foundations: types, representation, predicting output, and a paper trace (from week 1) |
+| **Recitation 2** | Running programs, types, and representation (from week 1); the first graded recitation, deliberately gentle |
 | **Lecture 4: [Variables and State](/lectures/variables-and-state/)** | Names versus values, assignment and rebinding, `let`/`let mut`, initialization, constants, tracing with the memory stepper |
 
 ## Week 3
@@ -41,8 +47,8 @@ before it), then Lecture B.
 | | |
 |---|---|
 | **Monday** | No class: Martin Luther King Jr. Day |
-| **Assignment 2** | Function families and a paper trace |
-| **Recitation 3** | Functions and variables |
+| **Assignment 2** | Arithmetic with units and time: expressions and variables, and a paper trace (from week 2) |
+| **Recitation 3** | Expressions and variables (from week 2) |
 | **Lecture 5: [Functions](/lectures/functions/)** | Defining and calling, parameters and return values, signatures, the argument copy, how the autograder calls your functions |
 
 ## Week 4
@@ -50,8 +56,8 @@ before it), then Lecture B.
 | | |
 |---|---|
 | **Lecture 6: [Scope and the Call Stack](/lectures/scope-and-the-call-stack/)** | Local and nested scope, lifetimes, the global-variable antipattern, the call stack traced with the memory stepper |
-| **Assignment 3** | Scope and call-stack practice |
-| **Recitation 4** | Functions and scope synthesis |
+| **Assignment 3** | Functions, and a paper trace (from week 3) |
+| **Recitation 4** | Functions (from week 3) |
 | **Lecture 7: [Booleans and Conditionals](/lectures/booleans-and-conditionals/)** | Comparisons, logical operators, short-circuit, `if`/`else`, the floating-point equality trap |
 
 ## Week 5
@@ -59,8 +65,8 @@ before it), then Lecture B.
 | | |
 |---|---|
 | **Lecture 8: [Decision Structures](/lectures/decision-structures/)** | `elif`/`else if` chains and `match`, nesting versus chaining, decision tables, guard clauses, boundary bugs |
-| **Assignment 4** | Decision-table rule families and a paper trace |
-| **Recitation 5** | Conditionals and decision tables |
+| **Assignment 4** | Scope and conditionals, and a paper trace (from week 4) |
+| **Recitation 5** | Scope and booleans (from week 4) |
 | **Lecture 9: [Errors, Input, and Validation](/lectures/errors-input-and-validation/)** | Kinds of errors, console input and parsing, exceptions versus `Result`, validating a value and failing loudly |
 
 ## Week 6
@@ -68,17 +74,17 @@ before it), then Lecture B.
 | | |
 |---|---|
 | **Lecture 10: [Testing](/lectures/testing/)** | Test cases from a specification, boundary and error cases, assertions and test functions |
-| **Assignment 5** | Cumulative families and a midterm-format paper practice set |
-| **Recitation 6** | Mission Readiness Review: cumulative synthesis over lectures 1 to 10, doubles as midterm rehearsal |
-| **Midterm exam** | On paper, lectures 1 to 10 (no loops), held in the Wednesday lecture slot |
+| **Assignment 5 (reduced)** | Decision tables and errors, plus a midterm-format paper practice set (from week 5) |
+| **Recitation 6** | Decision tables and errors (from week 5); cumulative synthesis over lectures 1 to 10, doubles as the midterm rehearsal |
+| **Midterm exam** | On paper, lectures 1 to 10 (no loops), held in the Friday lecture slot |
 
 ## Week 7
 
 | | |
 |---|---|
 | **Lecture 11: [Loops](/lectures/loops/)** | `while` for unknown counts, counted loops, loop variables, termination, `break` and `continue`, nested loops |
-| **Assignment 6** | Loop families and a paper trace |
-| **Recitation 7** | Loops |
+| **Assignment 6** | Testing, and a paper trace (from week 6) |
+| **Recitation 7** | Testing (from week 6) |
 | **Lecture 12: [Loop Patterns](/lectures/loop-patterns/)** | Accumulate, count, search, sentinel, validate-until-correct, nested loops, choosing the pattern from the problem |
 
 ## Week 8
@@ -86,8 +92,8 @@ before it), then Lecture B.
 | | |
 |---|---|
 | **Lecture 13: [Strings and Characters](/lectures/strings/)** | Strings as sequences, characters and character encoding (ASCII), slicing, searching, building strings |
-| **Assignment 7** | Encode and decode families and a paper trace |
-| **Recitation 8** | Strings and lists, ciphers and checksums |
+| **Assignment 7** | Loops and loop patterns, and a paper trace (from week 7) |
+| **Recitation 8** | Loops and loop patterns (from week 7) |
 | **Lecture 14: [Collections I: Lists and Vectors](/lectures/collections-i/)** | Indexing, length, iteration, growing and mutating, out-of-bounds across Python, Rust, and C++ |
 
 ## Week 9
@@ -95,23 +101,25 @@ before it), then Lecture B.
 | | |
 |---|---|
 | **Lecture 15: [The Memory Model](/lectures/the-memory-model/)** | Names point at values, aliasing in Python and ownership, moves, and borrows in Rust, why memory safety matters, drawing memory diagrams |
-| **Assignment 8** | Memory and sharing families and memory-diagram paper practice |
-| **Recitation 9** | Memory model and sharing, packet buffers |
+| **Assignment 8** | Strings and lists, encode and decode, and a paper trace (from week 8) |
+| **Recitation 9** | Strings and collections, ciphers and checksums (from week 8) |
 | **Lecture 16: [Sharing and Mutation](/lectures/sharing-and-mutation/)** | Passing collections to functions, when the caller sees your changes, defensive copying, Rust `&`/`&mut` and declaring intent |
 
 ## Week 10
 
-Two advanced-extra lectures, not required for the course learning outcomes.
+Two advanced-extra lectures, not required for the course learning outcomes, and
+with no recitation of their own.
 
 | | |
 |---|---|
 | **Lecture 17: [Collections II: Dictionaries and Maps](/lectures/collections-ii/)** | Dictionaries and hashmaps, key-value thinking, choosing between list and map, frequency counting |
-| **Assignment 9** | Capstone prep, accessibility and equity critique, final-format paper practice |
-| **Recitation 10** | Capstone: the list-based Sol 100 mission-status program with tests |
+| **Assignment 9 (reduced)** | The list-based Sol 100 mission-status capstone program with tests, plus the accessibility and equity critique and a final-format paper practice set (from week 9) |
+| **Recitation 10** | Cumulative synthesis over the term's families, centered on the memory model and sharing (from week 9) |
 | **Lecture 18: [Computing with Judgment](/lectures/computing-with-judgment/)** | Evaluating code you did not write, limitations and failure modes, who is excluded by our tools, course synthesis |
 
 ## Finals Week
 
 | | |
 |---|---|
+| **Assignment 10 (optional, extra credit)** | Dictionaries and computing with judgment: the week 10 content, released for practice with no recitation attached |
 | **Final exam** | On paper, cumulative, weighted to the second half of the term |
