@@ -1,0 +1,55 @@
+---
+title: "Finding Documentation and Helpers"
+description: "Where the official Python and Rust documentation lives, how to read a function signature from it, how to use provided helper functions, and which libraries the course allows."
+draft: true
+---
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+A working engineer looks things up constantly, and this course grades that skill directly: the recitation is locked down to the **official documentation only**, so knowing your way around it is part of the assessment, not a shortcut around it. This guide shows you where the documentation is, how to read a function's description, how to use the helpers an assignment provides, and which libraries you may use.
+
+## The Official Documentation
+
+Two sites are the canonical references for this course, and they are the only documentation reachable from the locked-down recitation machines:
+
+- **Python:** [docs.python.org](https://docs.python.org/3/), the official Python 3 documentation.
+- **Rust:** [doc.rust-lang.org](https://doc.rust-lang.org/std/), the official Rust standard library documentation.
+
+Bookmark both now. Anything you can look up during a recitation, you can look up on these two sites, so practice with them on your assignments rather than with a search engine or an AI tool, which are not available in the room.
+
+## Reading a Signature
+
+Most documentation entries lead with a **signature**: the name of the function, what it takes, and what it gives back. That is usually all you need. Take finding the length of a piece of text:
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="Using len"
+name = "Ares"
+print(len(name))   # 4
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="Using .len()"
+fn main() {
+    let name = "Ares";
+    println!("{}", name.len());   // 4
+}
+```
+</TabItem>
+</Tabs>
+
+The Python docs list `len(s)` and say it returns "the length of an object"; the Rust docs list `pub fn len(&self) -> usize` and say it returns the number of bytes. You do not need every word: read the name, what goes in the parentheses, and what comes back, then try it on a small example like the one above and confirm the result. That loop, read the signature, try it, check it, is how you learn an unfamiliar function without a tutorial.
+
+<Aside type="note" title="Read the signature, not the whole page">
+Documentation pages are long because they cover every case. For this course you almost always need only the one-line signature and a short example. Skim to the signature first.
+</Aside>
+
+## Provided Helper Functions
+
+Some assignments hand you a **helper function** already written, so you can build on it instead of reinventing it. When an assignment provides a helper, its signature is given in the specification, exactly like a documentation entry: you call it by name and use what it returns, without rewriting it.
+
+One warning that recurs all term: not every provided helper is correct. HAB, the habitat's assistant, sometimes drafts a helper that looks convenient but is subtly wrong, and the assignment asks you to judge it before you trust it. A provided helper is a starting point to evaluate, never something to copy blindly. Reading a helper's signature and testing it on a known case is the same skill as reading the official docs.
+
+## Which Libraries You May Use
+
+This course works inside a fixed subset of each language that grows week by week, published as the [Language Ladder](/reference/language-ladder/). Use only what the ladder has introduced for the current week, and no outside libraries: the standard tools shown in the lectures are all you need, and reaching for an extra library both breaks the ladder and will not be available in the locked-down room. When you are unsure whether a construct is allowed yet, the ladder is the authority.

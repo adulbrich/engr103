@@ -1,0 +1,110 @@
+---
+title: "Systems Checkout"
+description: "Set up your toolchain, run your first program in Python and Rust, meet the starter repository and the check harness, and submit a checkout to Gradescope."
+sidebar:
+  order: 0
+draft: true
+---
+
+import { Tabs, TabItem, Steps, Aside } from '@astrojs/starlight/components';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+
+{/* ai-summary
+type: assignment
+slug: systems-checkout
+order: 0
+family: none (week-1 onboarding)
+paired_recitation: R1
+prereq_lectures: how-programs-run
+prereq_activities:
+prereq_assignment: none
+new_scope: the toolchain, the starter repository, the check harness and the __main__ idiom, and Gradescope submission
+persistent_requirements: dual-language; submit to Gradescope from the starter repo
+story_beat: the new crew member checks out the flight-software workstation before touching mission code
+output: a working toolchain, a first hello run in both languages, and a submitted checkout
+*/}
+
+<LanguageVersions />
+
+You have just joined the flight software crew of the Ares habitat. Before anyone touches mission code, they check out their workstation: power it on, confirm the tools respond, and run one trivial program end to end so that nothing on the real missions is the first time a tool is used. This assignment is that checkout. You will write almost no code; the point is that every tool works and you know how your later work will be run and graded.
+
+<Aside type="note" title="This one is a walkthrough">
+Unlike every later assignment, this page walks you through each step. Later assignments hand you a specification and let you decide how to reach it; this one makes sure the tools are ready first.
+</Aside>
+
+## How This Assignment Works
+
+Follow the steps below in order. You will set up your toolchain, run a first program in both Python and Rust, look at the parts of a starter repository that the automated grader uses, run the local check harness, and submit to Gradescope. Two how-to guides carry the details this page points to: [The Starter Repo and the Check Harness](/practicalities/starter-repo-and-check/) and [Finding Documentation and Helpers](/practicalities/finding-docs-and-helpers/).
+
+## The Checkout
+
+<Steps>
+
+1. **Set up your tools.** Make sure you can run Python 3 and the Rust compiler, and open a terminal and an editor. The [Running and Submitting Your Code](/practicalities/starter-repo-and-check/) how-to lists exactly what to install and how to check each tool responds.
+
+2. **Get the week-1 starter repository.** Clone the starter repository for this checkout (the link is on Canvas). Everything you need is inside it: the instructions, the two starter files, and the check harness.
+
+3. **Run your first program in both languages.** The starter contains a `hello.py` and a `hello.rs`. Run each one. In Python you run the source directly; in Rust you compile first, then run the executable the compiler builds.
+
+   <Tabs syncKey="lang">
+   <TabItem label="Python">
+   ```python title="hello.py"
+   print("Hello from the flight deck.")
+   ```
+   </TabItem>
+   <TabItem label="Rust">
+   ```rust title="hello.rs"
+   fn main() {
+       println!("Hello from the flight deck.");
+   }
+   ```
+   </TabItem>
+   </Tabs>
+
+   ```bash title="Run the Python program"
+   python3 hello.py
+   ```
+
+   ```bash title="Compile and run the Rust program"
+   rustc hello.rs
+   ./hello
+   ```
+
+   Both print the same line:
+
+   ```text frame="terminal" title="Output"
+   Hello from the flight deck.
+   ```
+
+4. **Look at how your code will be run.** In every assignment after this one, you write named pieces of code and a provided program runs them; you do not write the program that starts everything. That provided program has a fixed shape. In Rust you have already met it: `fn main() { ... }` is the single place a program begins. Python marks its starting point differently, with a line that reads "if this file is the one being run, start at `main`":
+
+   <Tabs syncKey="lang">
+   <TabItem label="Python">
+   ```python title="run.py (provided, do not edit)"
+   def main():
+       print("Hello from the flight deck.")
+
+   if __name__ == "__main__":
+       main()
+   ```
+   </TabItem>
+   <TabItem label="Rust">
+   ```rust title="run.rs (provided, do not edit)"
+   fn main() {
+       println!("Hello from the flight deck.");
+   }
+   ```
+   </TabItem>
+   </Tabs>
+
+   Run `python3 run.py` and it prints the same `Hello from the flight deck.` line. You do not need to understand `def main()` or the `if __name__ == "__main__"` line yet; you will meet both when the course reaches functions in week 3. For now, know only that this is the provided wrapper the grader supplies, that it is marked "do not edit," and that your later work fills in named pieces it calls. The [check-harness how-to](/practicalities/starter-repo-and-check/) explains it in full.
+
+5. **Run the check harness.** The starter includes a `check` command that runs the visible tests on your machine and prints exactly what the grader will print. Run it now on the unchanged starter; it should report that the checkout's single trivial test passes. Getting a green check locally before you submit is the habit every later assignment relies on.
+
+6. **Submit to Gradescope.** Package your work with the provided `pack` command and upload the result to the Gradescope assignment (the link is on Canvas). You may submit as many times as you like; the last submission before the deadline counts. Confirm Gradescope shows the same passing check you saw locally.
+
+</Steps>
+
+## Reflection
+
+In one or two sentences: state plainly whether you used an AI tool to get set up and, if so, for what (if you did not, say so explicitly), and name one tool or step that is still unclear. This is graded on completion and is seen only by the instructor.

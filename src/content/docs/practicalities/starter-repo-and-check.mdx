@@ -1,0 +1,102 @@
+---
+title: "Running and Submitting Your Code"
+description: "How the starter repository is laid out, what the provided program does, how to run the check harness locally, and how to submit to Gradescope."
+draft: true
+---
+
+import { Tabs, TabItem, Steps, Aside } from '@astrojs/starlight/components';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+
+<LanguageVersions />
+
+Every assignment and every recitation in this course is delivered as a **starter repository** and graded the same way. This guide explains the parts you touch, the parts you do not, how to check your work on your own machine before submitting, and how to submit. Learn it once here in week 1 and every later assignment works the same way.
+
+## The Tools You Need
+
+You need four things, all free and all already installed on the recitation lab machines:
+
+- **Python 3** (run `python3 --version` to confirm it responds).
+- **The Rust compiler** (run `rustc --version`).
+- **A terminal**, where you type the commands in this guide.
+- **An editor** (VS Code or vim on the lab machines; anything you like at home).
+
+If any command above prints an error instead of a version number, that tool is not set up yet. Fix that before going further; nothing else will work until all four respond.
+
+## What Is In a Starter Repository
+
+When you clone an assignment's starter repository, it already contains everything except your answers:
+
+- **The specification**, as the repository's `README`. This is the assignment: what to build and the cases it will be checked against.
+- **Two starter files, one per language**, in a `py/` folder and an `rs/` folder. You may work in either; both are checked against the same cases.
+- **The visible tests**, the cases you can see and run yourself.
+- **The `check` and `pack` commands**, described below.
+
+You add your code to the starter files. You do not add new files, rename anything, or edit the parts marked "provided, do not edit."
+
+## The Provided Program and Where It Starts
+
+From the functions lecture on, you write named pieces of code and a **provided program runs them**. You do not write the program that starts everything; it is given, and marked "do not edit." That provided program has a fixed shape, and it is worth recognizing now.
+
+Every program needs one place where it begins. In Rust that place is the `fn main() { ... }` function you met in the first lecture: the compiler starts a program there. Python has no required `main`, so the course's provided files mark the starting point explicitly, with one conventional line:
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="run.py (provided, do not edit)"
+def main():
+    # the provided program calls the pieces you wrote, then prints or checks results
+    print("Hello from the flight deck.")
+
+if __name__ == "__main__":
+    main()
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="run.rs (provided, do not edit)"
+fn main() {
+    // the provided program calls the pieces you wrote, then prints or checks results
+    println!("Hello from the flight deck.");
+}
+```
+</TabItem>
+</Tabs>
+
+Read the Python line `if __name__ == "__main__":` as "if this file is the one being run directly, start at `main`." It lets a file act as a program when you run it, while still letting the grader import your code and call your pieces without running the whole program. You do not need to write this line or fully understand it; recognize it as the provided wrapper's entry point, the Python counterpart of Rust's `fn main`. Its full meaning arrives with the functions lecture.
+
+<Aside type="caution" title="The grader reads what you return, not what you print">
+From the functions lecture on, the grader calls the pieces you wrote directly and checks the values they hand back. Printing an answer instead of returning it does not satisfy a check. Print only to help yourself see what is happening while you work.
+</Aside>
+
+## Checking Your Work Locally
+
+The `check` command runs the visible tests on your machine and prints exactly what the grader will print. Run it from the assignment folder whenever you want to see where you stand:
+
+```bash title="Run the visible tests"
+./check
+```
+
+It reports each visible test and a summary. A run on correct code looks like this (the exact wording will match your assignment):
+
+```text frame="terminal" title="Output (illustrative)"
+[PASS] whole_sols(200000) -> 2, expected 2
+[PASS] whole_sols(0) -> 0, expected 0
+[PASS] whole_sols(88775) -> 1, expected 1
+3/3 visible tests passed
+```
+
+A green local check is the habit every assignment relies on: get the visible tests passing on your own machine before you submit, so submitting only confirms what you already know. The grader also runs hidden cases you cannot see, so a passing local check is necessary, not a guarantee.
+
+## Submitting to Gradescope
+
+<Steps>
+
+1. **Package your work.** Run the provided `pack` command from the assignment folder; it produces a single `submission.zip`.
+
+   ```bash title="Package your submission"
+   ./pack
+   ```
+
+2. **Upload to Gradescope.** Open the assignment on Gradescope (the link is on Canvas) and upload `submission.zip`. The autograder runs the same tests as `check`, plus the hidden ones.
+
+3. **Submit as often as you like.** The last submission before the deadline is the one that counts, so there is no penalty for uploading early and often. The recitation uses this exact same workflow, so submitting in the room is never new.
+
+</Steps>
