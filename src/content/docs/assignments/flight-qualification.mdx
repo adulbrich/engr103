@@ -1,0 +1,251 @@
+---
+title: "Flight Qualification"
+description: "Write the assert-based test suites that qualify three pieces of flight software before a review board certifies them, and catch the bug in HAB's thruster check that HAB's own test missed."
+sidebar:
+  order: 6
+draft: true
+---
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+import Reveal from '/src/components/Reveal.astro';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+import WhatDiffers from '/src/components/WhatDiffers.astro';
+
+{/* ai-summary
+type: assignment
+slug: flight-qualification
+order: 6
+family: testing (choosing and writing test cases)
+paired_recitation: R7
+prereq_lectures: errors-input-and-validation, testing
+prereq_activities: errors-input-and-validation, testing
+prereq_assignment: airlock-and-readings
+new_scope: writing assert-based test functions derived from a specification, covering typical, boundary, and error cases; judging a function together with the test that was supposed to qualify it
+persistent_requirements: dual-language, one shared contract; grader reads return values only; no loops or collections on the ladder yet; no function returns a string slice or an owned String; student functions take only scalar parameters
+story_beat: the crew runs the flight-qualification review, writing the tests that certify three pieces of flight software before they are trusted
+output: two test functions, one corrected function with its own test function, submitted to the grader; a hand trace photographed; a two-sentence reflection
+*/}
+
+<LanguageVersions />
+
+Every piece of flight software has to clear a qualification review before Mission Control trusts it in flight, and the review board does not take a function's word for it: it wants the test cases that prove the function does what its specification promises. Three systems are on the docket for Sol 214, the one slot the crew has before the board moves on to the next system: the coolant loop's status code, the cabin heater's duty cycle, and the thruster's pulse-length safety check. HAB has already drafted the thruster check and a test to go with it, but a test only qualifies a function if it is strong enough to catch a real mistake, and this one is not. Write the test suites that qualify all three systems, and where HAB's draft falls short, write the correct function yourself.
+
+## How This Assignment Works
+
+You write the test functions and, for one problem, the function itself; the program's `main`, its input and output, and the local test runner are already written, and the automated grader calls what you submit directly, reading only what your functions `return` and which assertions your test functions raise. Solve each problem in Python or Rust, whichever you prefer, and you may switch languages between problems; both are checked against the same acceptance cases. Submit your work to the grader from the course starter repository, as described in [Running and Submitting Your Code](/practicalities/starter-repo-and-check/). The assignment has four parts: the problem set below, a paper trace, a two-sentence reflection, and an optional summit problem.
+
+## Problem Set
+
+### Problem 1: Qualifying the Coolant Status Code
+
+**Context.** The coolant loop reports its health as a status code, built from the temperature difference between its supply and return lines. The board already has a correct implementation of this function on file, and several implementations that quietly get one rule wrong; your test function is what tells them apart.
+
+**Requirements.**
+
+1. `coolant_status_code(delta_c)` takes the coolant loop's supply-to-return temperature difference, in degrees Celsius, and must return an integer status code from this specification: `-1` if `delta_c` is negative, since a working sensor never reports a negative difference and a negative reading means a wiring fault, not a temperature; `0` if `delta_c` is `0.0` up to but not including `5.0` (nominal cooling); `1` if `delta_c` is `5.0` up to and including `12.0` (elevated; watch it); `2` if `delta_c` is above `12.0` (overheating; alarm). You do not write this function. The grader already has a correct version and several broken versions on file.
+2. Write a test function, `test_coolant_status_code()`, whose body is a sequence of `assert`/`assert_eq!` calls checking `coolant_status_code` against the specification above, ending with a printed confirmation line once every assertion has held. A single case looks like this worked example: `assert coolant_status_code(2.0) == 0`.
+3. Your test function must include, and its structure should make clear which is which, at least these seven labeled cases: one typical value from each of the three bands (`0`, `1`, and `2`), the boundary where the sensor-fault case ends and the nominal band begins (`0.0`), the boundary where the nominal band ends and the elevated band begins (`5.0`), the boundary where the elevated band ends and the overheat band begins (`12.0`), and a negative reading that exercises the sensor-fault case. The grader runs your test function against the correct `coolant_status_code` (every assertion must hold) and against several broken versions (each broken version must fail at least one of your assertions).
+
+The modeling step is turning the four-rule specification into the exact set of inputs that pins each rule down, especially the two closed-on-top boundaries; the analysis step is predicting each expected code by hand and expressing that prediction as an `assert` rather than a table row, exactly as the [Testing](/lectures/testing/) lecture's `test_coupon_discount` does.
+
+**Interface.** You are not implementing `coolant_status_code`; this is the signature your test function calls against.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="coolant.py"
+def coolant_status_code(delta_c):
+    ...
+
+def test_coolant_status_code():
+    ...
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="coolant.rs"
+fn coolant_status_code(delta_c: f64) -> i32 {
+    todo!()
+}
+
+fn test_coolant_status_code() {
+    todo!()
+}
+```
+</TabItem>
+</Tabs>
+
+**Assumptions and edge cases.** `delta_c` is always a float; it is never guaranteed to be non-negative, since the negative case is itself part of the specification, not an input you can rule out. `0.0`, `5.0`, and `12.0` are exact boundaries, each belonging to the band that specification rule 1's wording places it in.
+
+### Problem 2: Qualifying the Heater Duty Cycle
+
+**Context.** The cabin heater reports what fraction of its on-off cycle it spent actually heating, as a percentage. A cycle length of zero seconds is meaningless as a fraction, so the specification defines a signal value for it rather than leaving a division by zero to happen by accident.
+
+**Requirements.**
+
+1. `duty_cycle_percent(on_seconds, cycle_seconds)` must return `-1.0` when `cycle_seconds` is `0.0`, since a zero-length cycle makes the percentage undefined and the function must say so rather than divide by zero. Otherwise, it must return the percentage of the cycle the heater was on: `on_seconds` divided by `cycle_seconds`, multiplied by `100.0`. You do not write this function; the grader already has a correct version and several broken versions on file.
+2. Write a test function, `test_duty_cycle_percent()`, checking `duty_cycle_percent` against the specification above. Because this function returns a float, compare with a tolerance rather than `==`, the same pattern the [Testing](/lectures/testing/) lecture used for `average`: check that the absolute difference between the returned value and the expected value is smaller than `1e-9`. A single case looks like this worked example: `assert abs(duty_cycle_percent(30.0, 120.0) - 25.0) < 1e-9`.
+3. Your test function must include, and its structure should make clear which is which, at least these four labeled cases: a typical value strictly between the two bands, the boundary where the heater is never on during the cycle (`on_seconds` of `0.0`), the boundary where the heater is on for the entire cycle, and the zero-length-cycle case that must return `-1.0`. The grader runs your test function against the correct `duty_cycle_percent` (every assertion must hold) and against several broken versions (each broken version must fail at least one of your assertions).
+
+The modeling step is recognizing that "on the whole time" and "off the whole time" are boundaries of the ordinary formula, while a zero-length cycle is a case the formula cannot even evaluate; the analysis step is predicting each expected percentage by hand and writing the tolerance check correctly.
+
+**Interface.** You are not implementing `duty_cycle_percent`; this is the signature your test function calls against.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="heater.py"
+def duty_cycle_percent(on_seconds, cycle_seconds):
+    ...
+
+def test_duty_cycle_percent():
+    ...
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="heater.rs"
+fn duty_cycle_percent(on_seconds: f64, cycle_seconds: f64) -> f64 {
+    todo!()
+}
+
+fn test_duty_cycle_percent() {
+    todo!()
+}
+```
+</TabItem>
+</Tabs>
+
+<Aside type="caution" title="Compare floats with a tolerance, not ==">
+`duty_cycle_percent` returns an `f64`, and comparing two floats with `==` reopens the equality trap from the booleans lecture: the stored result can be a hair away from the value you expect even when the arithmetic is right in every way that matters. Use `abs(actual - expected) < 1e-9` in Python or `(actual - expected).abs() < 1e-9` in Rust for every case in this test function, including the `-1.0` case.
+</Aside>
+
+<WhatDiffers>
+<Fragment slot="differs">
+Your assertions check the returned value, not printed text, so this difference never affects whether your test passes. But if you print a result to debug it, the display still differs the way it always has: `duty_cycle_percent(120.0, 120.0)` returns the same float in both languages, and Python prints it as `100.0` while Rust's `f64` prints it as `100`, with no trailing zero.
+</Fragment>
+</WhatDiffers>
+
+**Assumptions and edge cases.** `on_seconds` and `cycle_seconds` are always floats, zero or greater; `on_seconds` never exceeds `cycle_seconds` except that `cycle_seconds` itself can be `0.0`, in which case `on_seconds` is ignored entirely.
+
+### Problem 3: The Thruster Pulse Check, and HAB's Test That Should Have Caught It
+
+**Context.** Before a maneuvering thruster fires, flight software checks that the commanded pulse length does not exceed the thruster's rated maximum. HAB drafted this check and wrote a test to qualify it. The test passed, so HAB signed the function off. It should not have.
+
+**Requirements.**
+
+1. `thruster_pulse_ok(pulse_ms, max_pulse_ms)` must return `true` when `pulse_ms` is less than or equal to `max_pulse_ms`, including a pulse exactly as long as the rated maximum, and `false` when `pulse_ms` exceeds `max_pulse_ms`. Write this function yourself; do not submit HAB's draft below.
+2. Write a test function, `test_thruster_pulse_ok()`, that qualifies your corrected function against the specification above and would fail HAB's draft. It must include, at minimum: a typical safe pulse well under the maximum, a typical unsafe pulse well over the maximum, and a pulse exactly equal to the maximum. End the test function with a printed confirmation line once every assertion has held.
+
+The modeling step is reading "does not exceed" as `<=`, not `<`, so that a pulse exactly at the rated maximum still counts as safe; the analysis step is writing the corrected function, and then writing the one test case, the exact-maximum pulse, that HAB's weaker test skipped and that would have caught HAB's mistake before it ever reached a review board.
+
+**Interface.**
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="thruster.py"
+def thruster_pulse_ok(pulse_ms, max_pulse_ms):
+    ...
+
+def test_thruster_pulse_ok():
+    ...
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="thruster.rs"
+fn thruster_pulse_ok(pulse_ms: i32, max_pulse_ms: i32) -> bool {
+    todo!()
+}
+
+fn test_thruster_pulse_ok() {
+    todo!()
+}
+```
+</TabItem>
+</Tabs>
+
+<Aside type="danger" title="HAB drafted thruster_pulse_ok and a test for it. Both are wrong.">
+HAB submitted this function and this test together, and the test passed, so HAB called the function qualified. Flight rule: a passing test from HAB is not a signed-off function. Find what the test missed before you open the hint.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="HAB's draft, and the test HAB used to qualify it"
+def thruster_pulse_ok(pulse_ms, max_pulse_ms):
+    return pulse_ms < max_pulse_ms
+
+def test_thruster_pulse_ok():
+    assert thruster_pulse_ok(100, 500) == True
+    assert thruster_pulse_ok(600, 500) == False
+    print("HAB's tests passed")
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="HAB's draft, and the test HAB used to qualify it"
+fn thruster_pulse_ok(pulse_ms: i32, max_pulse_ms: i32) -> bool {
+    pulse_ms < max_pulse_ms
+}
+
+fn test_thruster_pulse_ok() {
+    assert_eq!(thruster_pulse_ok(100, 500), true);
+    assert_eq!(thruster_pulse_ok(600, 500), false);
+    println!("HAB's tests passed");
+}
+```
+</TabItem>
+</Tabs>
+
+HAB's test really does pass against HAB's function, and HAB's function really is wrong: for a pulse of exactly `500` against a maximum of `500`, HAB's draft returns `false`, when the specification says a pulse exactly at the maximum is still safe and must return `true`. Work out why HAB's test never noticed before you open the hint.
+
+<Reveal label="Reveal a nudge on HAB's mistake">
+HAB's function compares with `pulse_ms < max_pulse_ms`, a strict less-than, so a pulse exactly equal to the maximum fails that comparison and the function returns `false` when it should return `true`. HAB's test never tries `pulse_ms` equal to `max_pulse_ms`; it only checks a pulse well under the limit and a pulse well over it, and both of those give the same answer whether the comparison is `<` or `<=`. A test that never visits the boundary a rule turns on cannot tell a correct comparison from an off-by-one one, no matter how many times it passes.
+</Reveal>
+</Aside>
+
+**Acceptance tests.** The grader calls your corrected function and checks the returned value; it also runs your test function against HAB's draft above and confirms it fails there.
+
+| Call | Returns |
+|---|---|
+| `thruster_pulse_ok(100, 500)` | `true` |
+| `thruster_pulse_ok(600, 500)` | `false` |
+| `thruster_pulse_ok(500, 500)` | `true` |
+| `thruster_pulse_ok(0, 500)` | `true` |
+| `thruster_pulse_ok(0, 0)` | `true` |
+
+**Assumptions and edge cases.** `pulse_ms` and `max_pulse_ms` are always whole numbers, zero or greater; a pulse length of `0` is a legal, trivially safe command. `pulse_ms` equal to `max_pulse_ms` is the boundary this whole problem turns on, and it is tested directly above.
+
+## Paper Practice
+
+Trace this program by hand, on paper. Build a table with one row per call to `safe_margin` and one row per `assert`: for each call, write the values held by its `reading` and `limit` parameters and the value it returns; for each `assert`, write whether the condition it checks is `True` or `False`. Write the exact line the program prints, and only that line. Photograph your table and trace and attach it. This part is graded on completion (the attached photograph), not on whether every cell is right, so attempt it by hand first, then open the reveal to check yourself.
+
+```python title="trace_me.py"
+def safe_margin(reading, limit):
+    return reading <= limit
+
+assert safe_margin(80.0, 100.0) == True
+assert safe_margin(120.0, 100.0) == False
+print("both checks passed")
+```
+
+<Reveal label="Reveal the completed trace">
+The first call, `safe_margin(80.0, 100.0)`, binds `reading` to `80.0` and `limit` to `100.0`, evaluates `80.0 <= 100.0`, which is `True`, and returns `True`. The first `assert` checks `True == True`, which holds, so nothing visible happens and execution moves to the next line.
+
+| Line | `reading` | `limit` | returns | assert condition |
+|---|---|---|---|---|
+| `assert safe_margin(80.0, 100.0) == True` | `80.0` | `100.0` | `True` | `True` |
+| `assert safe_margin(120.0, 100.0) == False` | `120.0` | `100.0` | `False` | `True` |
+
+The second call, `safe_margin(120.0, 100.0)`, binds `reading` to `120.0` and `limit` to `100.0`, evaluates `120.0 <= 100.0`, which is `False`, and returns `False`. The second `assert` checks `False == False`, which also holds. Both assertions passed silently, so the program reaches the final line and prints `both checks passed`, and nothing else.
+</Reveal>
+
+## Reflection
+
+In two sentences: first, state plainly whether you used an AI tool on this assignment and, if you did, what you used it for (if you did not use AI at all, say so explicitly); second, name any other help you used (a peer, the official docs, the lecture notes) and one thing you still could not do without that help. This is graded on completion, not on what you say, and it is not shared with anyone but the instructor.
+
+## Summit Problem (optional, worth nothing)
+
+This one is a stretch, and it earns no points; it is here so you can practice for the graded stretch problem in the recitation room, where a harder problem does count.
+
+Write `flight_qualified(delta_c, pulse_ms, max_pulse_ms)`, which returns `true` only when the coolant loop is not in its overheating band (`coolant_status_code(delta_c)` does not return `2`) **and** the thruster pulse check from Problem 3 passes. Reuse `coolant_status_code` and `thruster_pulse_ok` rather than rewriting either one's logic. Then write a short test function, `test_flight_qualified()`, with at least one case where the coolant check is the reason the ship fails qualification and at least one case where the thruster check is the reason.
+
+| Call | Returns |
+|---|---|
+| `flight_qualified(8.0, 100, 500)` | `true` |
+| `flight_qualified(20.0, 100, 500)` | `false` |
+| `flight_qualified(2.0, 600, 500)` | `false` |
+| `flight_qualified(12.0, 500, 500)` | `true` |
