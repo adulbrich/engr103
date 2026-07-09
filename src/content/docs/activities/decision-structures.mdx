@@ -16,19 +16,19 @@ type: activity
 slug: decision-structures
 order: 8
 paired_lecture: decision-structures
-practices: predicts which single branch of a range else-if chain runs when several conditions are true, using mutual exclusivity; traces a two-condition interlock into a decision table and confirms an else-if chain matches it row by row; diagnoses a silent boundary bug where a strict comparison was written where an inclusive one was meant, from a plausible wrong answer
+practices: predicts which single branch of a long range else-if chain runs when an input lands exactly on a later branch's threshold that an earlier broad condition steals, using first-match-wins; traces a two-condition interlock into a decision table and confirms an else-if chain matches it row by row; diagnoses a silent boundary bug where a strict comparison was written where an inclusive one was meant, from a plausible wrong answer with no error
 prereq_activities:
 block_types: predict-then-run, paper-tracing, live-debugging
-output: a reconciled single-line prediction, a completed decision table confirmed against its chain, and a corrected boundary comparison for each of the three blocks
+output: a reconciled single-line prediction, a completed decision table confirmed against its chain, and a corrected boundary comparison for each of the three sections
 */}
 
 <LanguageVersions />
 
-This activity puts into practice the [Decision Structures](/lectures/decision-structures/) lecture. You will predict the output of an else-if chain whose conditions overlap, trace a two-condition interlock into a decision table before checking it against code, and hunt down a silent boundary bug that prints a plausible wrong answer. By the end, you will be able to reason about which single branch of a chain wins, build a decision table to order that chain correctly, and catch an off-by-one comparison that never raises an error.
+This activity puts into practice the [Decision Structures](/lectures/decision-structures/) lecture. You will predict the output of an else-if chain whose conditions overlap on a boundary value, trace a two-condition interlock into a decision table before checking it against code, and hunt down a silent boundary bug that prints a plausible wrong answer. By the end, you will be able to reason about which single branch of a chain wins, build a decision table to order that chain correctly, and catch an off-by-one comparison that never raises an error.
 
 ## Warm-up
 
-A quick refresher before the blocks. A comparison is an expression that reduces to a boolean, and a chain's conditions are just such expressions. Here are two comparisons, a bare boolean, and the plain `if`/`else` the chain extends, in both languages.
+A quick refresher before the harder sections. A comparison is an expression that reduces to a boolean, and a chain's conditions are just such expressions. Here are two comparisons, a bare boolean, and the plain `if`/`else` that a chain extends, in both languages.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
@@ -71,40 +71,44 @@ True
 go
 ```
 
-Rust prints the same values, except each boolean is spelled `true` rather than `True`. With comparisons and a plain `if`/`else` fresh, the blocks below extend that single decision into a chain.
+Rust prints the same values, except each boolean is spelled `true` rather than `True`. With comparisons and a plain `if`/`else` fresh, the sections below extend that single decision into a chain.
 
-## Block 1: Predict Which Branch Wins
+## Predict Which Branch Wins
 
-An else-if chain checks its conditions top to bottom and stops at the first one that is true, so overlapping conditions do not each get a turn. This is the mechanism that is easiest to misread, so you commit to a prediction first, then run the program to check it.
+An else-if chain checks its conditions top to bottom and stops at the first one that is true, so overlapping conditions do not each get a turn. The trap this section sets is a value that sits *exactly* on a later branch's threshold: your eye jumps to the branch whose number matches, but an earlier, broader condition has already claimed the decision. You commit to a prediction first, then run the program to check it.
 
-Read the program below and write down, on paper or in a comment, the exact output you expect. Do not run it yet. Notice that `8` is less than `25`, less than `50`, and less than `75` all at once, so more than one condition is true. Decide what that means for how many lines actually print.
+The program classifies a vibration reading, in millimetres per second, from a machine sensor. Read it and write down, on paper or in a comment, the exact output you expect. Do not run it yet. Notice that `velocity` holds `7`, and `7` makes three of the conditions true at once: `velocity > 2`, `velocity >= 5`, and `velocity >= 7`. One of those, `velocity >= 7`, is an exact match on the boundary. Decide which single branch actually prints, and how many lines appear.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python title="level.py"
-percent = 8
-if percent < 25:
-    print("low")
-elif percent < 50:
-    print("fair")
-elif percent < 75:
-    print("good")
+```python title="vibration.py"
+velocity = 7
+if velocity > 2:
+    print("reduced")
+elif velocity >= 5:
+    print("watch")
+elif velocity >= 7:
+    print("maintenance")
+elif velocity >= 11:
+    print("shutdown")
 else:
-    print("full")
+    print("normal")
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="level.rs"
+```rust title="vibration.rs"
 fn main() {
-    let percent = 8;
-    if percent < 25 {
-        println!("low");
-    } else if percent < 50 {
-        println!("fair");
-    } else if percent < 75 {
-        println!("good");
+    let velocity = 7;
+    if velocity > 2 {
+        println!("reduced");
+    } else if velocity >= 5 {
+        println!("watch");
+    } else if velocity >= 7 {
+        println!("maintenance");
+    } else if velocity >= 11 {
+        println!("shutdown");
     } else {
-        println!("full");
+        println!("normal");
     }
 }
 ```
@@ -113,28 +117,28 @@ fn main() {
 
 <Reveal label="Reveal the real output and reconcile it with your prediction">
 ```bash title="Run the Python program"
-python3 level.py
+python3 vibration.py
 ```
 
 ```text frame="terminal" title="Output"
-low
+reduced
 ```
 
 ```bash title="Compile and run the Rust program"
-rustc level.rs
-./level
+rustc vibration.rs
+./vibration
 ```
 
 ```text frame="terminal" title="Output"
-low
+reduced
 ```
 
-Only `low` prints. If you predicted `low fair good`, you read the chain as three independent `if` statements, each free to run on its own. It is one decision, not three. The condition `percent < 25` is checked first and is `true`, so its block runs, and the chain then skips every remaining condition without evaluating it. The `elif percent < 50` and `elif percent < 75` are never even looked at, even though both would be `true` for `8`, because the first match ended the decision. That skip-the-rest rule is the whole point of a chain: exactly one branch runs.
+Only `reduced` prints, on a single line. If you predicted `maintenance`, you were pulled in by the exact match: `velocity >= 7` is `true` for `7`, and the word `maintenance` sits right next to the reading, so it looks like the branch built for this value. It is not. The chain never reaches it. The very first condition, `velocity > 2`, is already `true` for `7`, so its block runs and the first-match-wins rule ends the decision immediately, skipping `velocity >= 5`, `velocity >= 7`, and `velocity >= 11` without evaluating a single one of them. The exact match on the boundary is a distraction, not a tiebreaker: reaching that branch would require every earlier condition to be false first, and a reading of `7` fails that the instant it clears `> 2`. Because `velocity > 2` is so broad, the `watch`, `maintenance`, and `shutdown` branches are in fact unreachable for *every* reading above `2`; the chain as written can only ever print `reduced` or `normal`. The lesson is that a boundary value belongs to the first condition it satisfies reading downward, not to the branch whose threshold it equals.
 </Reveal>
 
 ---
 
-## Block 2: Trace an Interlock Into a Table
+## Trace an Interlock Into a Table
 
 When a decision depends on two conditions, staring at the code makes it easy to miss a combination. A decision table lists every combination first, which both fixes the outcomes and reveals which condition has to be checked before the other. You build the table, then confirm the chain matches it.
 
@@ -225,34 +229,38 @@ Python negates with the word `not` and Rust with the `!` symbol, so `not is_guar
 
 ---
 
-## Block 3: Find the Silent Boundary Bug
+## Find the Silent Boundary Bug
 
-A boundary bug does not crash. The program runs, prints a tier, and lies: the value that sits exactly on a threshold lands in the wrong branch. The store below gives free shipping at a total of `50` or more, but a cart of exactly `50` prints something else. You find the bug with the systematic method: read the symptom, form a hypothesis, test it.
+A boundary bug does not crash. The program runs, prints a tier, and lies: the value that sits exactly on a threshold lands in the wrong branch. The chain below sorts an emergency call by its response time, in whole minutes, into a priority tier. The intended rule is: under `4` minutes is `immediate`, up to and including `8` minutes is `urgent`, up to and including `15` minutes is `routine`, and anything longer is `deferred`. A call that took exactly `8` minutes should therefore be `urgent`. It is not. You find the bug with the systematic method: read the symptom, form a hypothesis, test it.
 
-An order total of exactly `50` should qualify for free shipping. Run the program, see what it actually prints, then work out why `50` misses the tier it belongs to and how one change fixes it.
+Run the program with `minutes` at exactly `8`, see what it actually prints, then work out why `8` misses the tier it belongs to and how one change fixes it.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python title="shipping.py"
-total = 50
-if total > 50:
-    print("free shipping")
-elif total >= 25:
-    print("reduced shipping")
+```python title="dispatch.py"
+minutes = 8
+if minutes < 4:
+    print("immediate")
+elif minutes < 8:
+    print("urgent")
+elif minutes <= 15:
+    print("routine")
 else:
-    print("standard shipping")
+    print("deferred")
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="shipping.rs"
+```rust title="dispatch.rs"
 fn main() {
-    let total = 50;
-    if total > 50 {
-        println!("free shipping");
-    } else if total >= 25 {
-        println!("reduced shipping");
+    let minutes = 8;
+    if minutes < 4 {
+        println!("immediate");
+    } else if minutes < 8 {
+        println!("urgent");
+    } else if minutes <= 15 {
+        println!("routine");
     } else {
-        println!("standard shipping");
+        println!("deferred");
     }
 }
 ```
@@ -261,41 +269,45 @@ fn main() {
 
 <Reveal label="Reveal the diagnosis and the fix">
 ```bash title="Run the buggy Python program"
-python3 shipping.py
+python3 dispatch.py
 ```
 
 ```text frame="terminal" title="Output"
-reduced shipping
+routine
 ```
 
-**Symptom.** There is no error message; the program runs and prints `reduced shipping`, but a total of exactly `50` was meant to earn `free shipping`. The wrong tier is the only signal you get.
+**Symptom.** There is no error message; the program runs and prints `routine`, but a response time of exactly `8` minutes was meant to be `urgent`. The wrong tier is the only signal you get.
 
-**Hypothesis.** The first condition is `total > 50`, and `50 > 50` is `false`, so `50` skips the free-shipping block and falls through to `total >= 25`, which is `true`, printing `reduced shipping`. The guess is that the comparison is one notch too strict: `> 50` excludes the boundary value `50` itself, opening a one-value gap that the next branch swallows.
+**Hypothesis.** Walk the chain with `minutes` at `8`. The first condition `minutes < 4` is `false`. The second, `minutes < 8`, is the branch that prints `urgent`, but `8 < 8` is `false`, so `8` skips it and falls through to `minutes <= 15`, which is `true`, printing `routine`. The urgent branch uses a strict `<`, which excludes its own upper bound: `< 8` covers `4` through `7` but not `8` itself, opening a one-value gap that the `routine` branch swallows. The rule says `8` is urgent, so the comparison is one notch too strict.
 
-**Test.** Change the strict `>` to an inclusive `>=`, so the threshold value counts as qualifying:
+**Test.** Change the strict `<` to an inclusive `<=`, so the boundary minute `8` counts as urgent:
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python title="shipping.py (fixed)"
-total = 50
-if total >= 50:
-    print("free shipping")
-elif total >= 25:
-    print("reduced shipping")
+```python title="dispatch.py (fixed)"
+minutes = 8
+if minutes < 4:
+    print("immediate")
+elif minutes <= 8:
+    print("urgent")
+elif minutes <= 15:
+    print("routine")
 else:
-    print("standard shipping")
+    print("deferred")
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="shipping.rs (fixed)"
+```rust title="dispatch.rs (fixed)"
 fn main() {
-    let total = 50;
-    if total >= 50 {
-        println!("free shipping");
-    } else if total >= 25 {
-        println!("reduced shipping");
+    let minutes = 8;
+    if minutes < 4 {
+        println!("immediate");
+    } else if minutes <= 8 {
+        println!("urgent");
+    } else if minutes <= 15 {
+        println!("routine");
     } else {
-        println!("standard shipping");
+        println!("deferred");
     }
 }
 ```
@@ -303,14 +315,14 @@ fn main() {
 </Tabs>
 
 ```bash title="Run the fixed Python program"
-python3 shipping.py
+python3 dispatch.py
 ```
 
 ```text frame="terminal" title="Output"
-free shipping
+urgent
 ```
 
-Now `total >= 50` is `true` for `50`, so the boundary value lands in the tier it belongs to. The fix is a single character. The lesson is that a boundary mistake produces a plausible tier, not a crash, so the way to catch it is to feed the chain the exact value sitting on each boundary, the `50` here, and check that it lands where you intended.
+Now `minutes <= 8` is `true` for `8`, so the boundary minute lands in the tier it belongs to. The fix is a single character. Note which boundary was wrong: the `routine` branch already uses an inclusive `<= 15`, so `15` is safe; only the `urgent` branch mixed up its operator. The lesson is that a boundary mistake produces a plausible tier, not a crash, so the way to catch it is to feed the chain the exact value sitting on each boundary, the `8` and the `15` here, and check that each one lands where you intended.
 </Reveal>
 
 ---

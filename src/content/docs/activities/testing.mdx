@@ -1,6 +1,6 @@
 ---
 title: "Predicting, Deriving, and Fixing Tests"
-description: "Predict where a test function stops, derive test cases from a specification, and fix a function whose failing boundary test exposes an off-by-one bug."
+description: "Predict which assertion stops a test function, derive test cases from a specification, and fix a function whose failing boundary test exposes an off-by-one bug."
 sidebar:
   order: 10
 draft: true
@@ -15,7 +15,7 @@ type: activity
 slug: testing
 order: 10
 paired_lecture: testing
-practices: predicts whether a test function passes silently or which assertion stops it, and reads the resulting AssertionError or assert_eq! panic; derives typical, boundary, and error test cases from a plain-language specification before any code exists; debugs a function whose failing boundary test exposes an off-by-one comparison and fixes the code so every case passes
+practices: predicts which assertion in a test function stops execution and reads the resulting AssertionError or assert_eq! panic, reasoning through a gain-and-saturation function to decide whether a red test blames the test or the code; derives typical, boundary, and error test cases from a plain-language specification with two thresholds before any code exists; debugs a function whose failing boundary test exposes an off-by-one comparison and fixes the code so every case passes
 prereq_activities:
 block_types: predict-then-run, paper-tracing, live-debugging
 output: a reconciled prediction of a failing assertion, a derived set of test cases, and a corrected function that passes its test
@@ -23,11 +23,11 @@ output: a reconciled prediction of a failing assertion, a derived set of test ca
 
 <LanguageVersions />
 
-This activity puts into practice the [Testing](/lectures/testing/) lecture. You will predict whether a test function passes in silence or stops on a failing assertion, derive a full set of test cases from a specification before any code exists, and fix a function whose failing test has exposed a real bug. By the end, you will be able to read an `AssertionError` or an `assert_eq!` panic, turn a plain-language specification into typical, boundary, and error cases, and tell whether a red test blames the test or the code.
+This activity puts into practice the [Testing](/lectures/testing/) lecture. You will predict which assertion in a test function stops it and blame either the test or the code, derive a full set of test cases from a specification before any code exists, and fix a function whose failing boundary test has exposed a real bug. By the end, you will be able to read an `AssertionError` or an `assert_eq!` panic, turn a plain-language specification into typical, boundary, and error cases, and tell a broken test apart from a broken function.
 
 ## Warm-up
 
-A quick refresher before the blocks. An assertion that holds produces no output at all: it lets the program continue, and only the `print` at the end shows on screen. Here is the smallest possible check in both languages, one function, one assertion that passes, one line of output.
+A quick refresher before the harder work. An assertion that holds produces no output at all: it lets the program continue, and only the `print` at the end shows on screen. Here is the smallest possible check in both languages, one function, one assertion that passes, one line of output.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
@@ -61,59 +61,59 @@ python3 warmup.py
 assertion held
 ```
 
-The assertion runs, holds, and stays silent; the only line you see is the `print`. Rust behaves identically, with `assert_eq!` in place of `assert`. That silence is the pieces you need fresh: an assertion makes itself known only when it fails.
+The assertion runs, holds, and stays silent; the only line you see is the `print`. Rust behaves identically, with `assert_eq!` in place of `assert`. That silence is the piece to keep fresh: an assertion makes itself known only when it fails.
 
-## Block 1: Predict Where the Test Stops
+## Predict Which Assertion Stops the Test
 
-A test function runs its assertions in order and stops the instant one of them is false. Everything after the failing line, including the final `print`, never runs. You predict where this test lands before running it.
+A test function runs its assertions in order and stops the instant one of them is false. Everything after the failing line, including the final `print`, never runs. Your job is to find that line before running the program, and then decide the harder question: when the test stops, is the function wrong, or is the test?
 
-Read the program below. The function `clamp_reading` follows this specification: a sensor reading below 0 is noise and clamps to `0`, a reading above 100 clamps to `100`, and any reading from 0 to 100 passes through unchanged. Decide, on paper or in a comment, whether the test prints `all tests passed` or stops on a failing assertion. If it stops, name which assertion fails and write down the exact output you expect.
+Read the program below. The function `calibrate` follows this specification: a raw sensor reading below 0 is noise and reports `0`; a reading from 0 to 10 inclusive is in the sensor's linear range and is multiplied by a gain of 3; a reading above 10 saturates, so the sensor pins its output at `30` no matter how high the raw value climbs. Work each assertion through those three branches, decide whether the test prints `all tests passed` or stops on a failing assertion, and if it stops, name which assertion fails and write down the exact output you expect.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
 ```python title="predict.py"
-def clamp_reading(value):
-    if value < 0:
+def calibrate(raw):
+    if raw < 0:
         return 0
-    elif value > 100:
-        return 100
+    elif raw <= 10:
+        return raw * 3
     else:
-        return value
+        return 30
 
-def test_clamp_reading():
-    assert clamp_reading(50) == 50
-    assert clamp_reading(0) == 0
-    assert clamp_reading(150) == 100
-    assert clamp_reading(-8) == -8
-    assert clamp_reading(100) == 100
+def test_calibrate():
+    assert calibrate(6) == 18
+    assert calibrate(0) == 0
+    assert calibrate(10) == 30
+    assert calibrate(12) == 36
+    assert calibrate(-4) == 0
     print("all tests passed")
 
-test_clamp_reading()
+test_calibrate()
 ```
 </TabItem>
 <TabItem label="Rust">
 ```rust title="predict.rs"
-fn clamp_reading(value: i32) -> i32 {
-    if value < 0 {
+fn calibrate(raw: i32) -> i32 {
+    if raw < 0 {
         return 0;
-    } else if value > 100 {
-        return 100;
+    } else if raw <= 10 {
+        return raw * 3;
     } else {
-        return value;
+        return 30;
     }
 }
 
-fn test_clamp_reading() {
-    assert_eq!(clamp_reading(50), 50);
-    assert_eq!(clamp_reading(0), 0);
-    assert_eq!(clamp_reading(150), 100);
-    assert_eq!(clamp_reading(-8), -8);
-    assert_eq!(clamp_reading(100), 100);
+fn test_calibrate() {
+    assert_eq!(calibrate(6), 18);
+    assert_eq!(calibrate(0), 0);
+    assert_eq!(calibrate(10), 30);
+    assert_eq!(calibrate(12), 36);
+    assert_eq!(calibrate(-4), 0);
     println!("all tests passed");
 }
 
 fn main() {
-    test_clamp_reading();
+    test_calibrate();
 }
 ```
 </TabItem>
@@ -127,11 +127,11 @@ python3 predict.py
 ```text frame="terminal" title="Output"
 Traceback (most recent call last):
   File "predict.py", line 17, in <module>
-    test_clamp_reading()
-    ~~~~~~~~~~~~~~~~~~^^
-  File "predict.py", line 13, in test_clamp_reading
-    assert clamp_reading(-8) == -8
-           ^^^^^^^^^^^^^^^^^^^^^^^
+    test_calibrate()
+    ~~~~~~~~~~~~~~^^
+  File "predict.py", line 13, in test_calibrate
+    assert calibrate(12) == 36
+           ^^^^^^^^^^^^^^^^^^^
 AssertionError
 ```
 
@@ -143,94 +143,88 @@ rustc predict.rs
 ```text frame="terminal" title="Output"
 thread 'main' panicked at predict.rs:15:5:
 assertion `left == right` failed
-  left: 0
- right: -8
+  left: 30
+ right: 36
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
-The test stops on the fourth assertion, `clamp_reading(-8)`. The function is correct: a reading of `-8` is below 0, so it clamps to `0`, exactly as the specification says. The assertion is the part that is wrong. It expects `-8` to pass through unchanged, which contradicts the rule that negatives clamp to 0. Python raises a bare `AssertionError` and its traceback names line 13, the failing assertion, reached through the call on line 17. Rust's `assert_eq!` prints `left: 0` against `right: -8`, the value the function actually returned against the value the test demanded, so you see the mismatch without printing anything yourself. The two assertions after it, and the final message, never run.
+The test stops on the fourth assertion, `calibrate(12)`. The first three all hold: `calibrate(6)` is `18` in the linear range, `calibrate(0)` is `0` at the bottom edge of that range, and `calibrate(10)` is `30`, the last value the gain of 3 applies to before the sensor saturates. The trap is the fourth line. A reading of `12` is above 10, so the sensor saturates and reports `30`, exactly as the specification says. The assertion expected `36`, which is `12 * 3`: it applied the gain as if `12` were still in the linear range, forgetting that above 10 the gain no longer applies and the output pins at `30`. Python raises a bare `AssertionError` whose traceback names line 13, the failing assertion, reached through the call on line 17. Rust's `assert_eq!` prints `left: 30` against `right: 36`, the value the function actually returned against the value the test demanded, so the mismatch is in front of you without printing anything yourself. The fifth assertion, `calibrate(-4)`, and the final message never run.
 
-A red test does not always mean the function is broken. Here the expected value should read `== 0`, and the correct move is to fix the test to match the specification, not to touch the function.
+Here is the point worth carrying out of this block: a red test does not always mean the function is broken. The function is correct; the test is wrong, because its expected value came from multiplying `12` by the gain instead of reading the saturation rule off the specification. The correct move is to fix the assertion to `== 30`, not to touch `calibrate`. Deciding that took real work: you had to apply both the gain and the saturation rule to know which of the two, test or function, disagreed with the specification.
 </Reveal>
 
 ---
 
-## Block 2: Derive the Test Cases
+## Derive the Test Cases from the Spec
 
 Good test cases come from the specification, not the code, and the specification is all you get here: there is no function to read. You derive the cases by hand, on paper, before any code exists.
 
-A function `is_plausible(reading)` decides whether a single temperature reading from a noisy sensor is a real measurement or noise to discard. The sensor's plausible range is `-40` to `120` degrees, inclusive. The function returns `True` (Python) or `true` (Rust) when the reading falls inside that range, and `False`/`false` when it falls outside. Write down one typical case, the boundary cases that bracket each edge of the range, and one error case for a clearly impossible reading. Each case is an input paired with the exact answer the specification demands.
+A function `flow_status(rate)` classifies a single flow-rate reading from a pipeline sensor. The specification has two thresholds and three outcomes: a negative rate is physically impossible and is reported as `"fault"`; a rate from 0 to 50 inclusive is within the pipe's rated capacity and is reported as `"normal"`; a rate above 50 is over capacity and is reported as `"surge"`. Write down one typical case, the boundary cases that bracket each edge of the normal band, and one error case for a wildly impossible reading. Each case is an input paired with the exact answer the specification demands, decided from the spec and nothing else.
 
 <Reveal label="Reveal the derived test cases">
-Six cases describe `is_plausible` from its specification alone:
+Six cases describe `flow_status` from its specification alone:
 
 | Input | Expected | Kind and why |
 |---|---|---|
-| `is_plausible(20)` | `True` | Typical: comfortably inside the range, nowhere near an edge. |
-| `is_plausible(-40)` | `True` | Boundary: the lowest value still inside, because the range is inclusive. |
-| `is_plausible(-41)` | `False` | Boundary: the first value past the low edge. |
-| `is_plausible(120)` | `True` | Boundary: the highest value still inside, because the range is inclusive. |
-| `is_plausible(121)` | `False` | Boundary: the first value past the high edge. |
-| `is_plausible(1000)` | `False` | Error: a wildly impossible reading, obvious noise to reject. |
+| `flow_status(20)` | `"normal"` | Typical: mid-band, comfortably inside the rated capacity and nowhere near an edge. |
+| `flow_status(0)` | `"normal"` | Boundary: the lowest value still inside the band, because 0 is rated, not a fault. |
+| `flow_status(-1)` | `"fault"` | Boundary: the first value past the low edge, where the reading turns impossible. |
+| `flow_status(50)` | `"normal"` | Boundary: the highest value still inside, because the band is stated as inclusive. |
+| `flow_status(51)` | `"surge"` | Boundary: the first value past the high edge, over capacity. |
+| `flow_status(9999)` | `"surge"` | Error: a wildly impossible reading, still classified by the specification as a surge. |
 
-The typical case confirms the ordinary path works. The four boundary cases bracket both edges: `-40` and `120` are inside because the range is stated as inclusive, while `-41` and `121` are the first values outside. Those four are exactly the cases that would catch an edge comparison written with `<` where the specification calls for `<=`, a mistake every middle-of-the-range value like `20` sails past without noticing. The error case checks that obvious noise, a reading of `1000` degrees, is rejected rather than quietly accepted.
+The typical case confirms the ordinary path works. The four boundary cases bracket both edges of the normal band: `0` and `50` are inside because the band is stated as inclusive, while `-1` and `51` are the first values that fall out of it on each side. Those four are exactly the cases that would catch an edge comparison written with `<` where the specification calls for `<=`, or a threshold set one step off; a mid-band value like `20` sails past that kind of mistake without noticing. The error case checks that an obviously impossible reading, `9999`, is not left undefined: the specification says anything over 50 is a surge, so `9999` is a surge too, and a function that crashed or returned something else on it would be just as wrong as one that missed an ordinary case.
 
-Each case maps straight onto an assertion once the function exists: `assert is_plausible(20)` for a case that must be true, `assert not is_plausible(-41)` for one that must be false, and so on for the rest. The discipline is that the derivation comes first and the code second, so the expected answers are decided by the specification and never copied from whatever the code happens to do.
+Each case maps straight onto an assertion once the function exists: `assert flow_status(50) == "normal"` in Python, `assert_eq!(flow_status(50), "normal")` in Rust, and so on for the rest. The discipline is that the derivation comes first and the code second, so the expected answers are decided by the specification and never copied from whatever the code happens to do.
 </Reveal>
 
 ---
 
-## Block 3: Fix the Function the Test Caught
+## Find the Off-by-One the Test Caught
 
 Now the test cases are correct, derived from the specification, and the function is the suspect. A failing test tells you a bug exists and hands you the exact input that exposes it; the debugging method from the first lecture is how you turn that into a fix.
 
-The function `clamp_flow` follows this specification: a flow-rate reading below 0 clamps to `0`, a reading above 60 clamps to `60`, and any reading from 0 to 60 passes through unchanged. The test below is derived correctly from that specification. Run the program, read the failure, form one hypothesis about the cause, change a single line of the function, and run it again until it prints `all tests passed`. Do not change the test.
+The function `deadband(reading)` follows this specification: a sensor has a deadband of 3, so any reading of 3 or below is treated as noise and reports `0`, while a reading above 3 is real and reports the reading with the deadband subtracted off, `reading - 3`. The test below is derived correctly from that specification. Run the program, read the failure, form one hypothesis about the cause, change a single line of the function, and run it again until it prints `all tests passed`. Do not change the test.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python title="debug_flow.py"
-def clamp_flow(rate):
-    if rate < 0:
+```python title="debug_band.py"
+def deadband(reading):
+    if reading <= 4:
         return 0
-    elif rate > 61:
-        return 60
     else:
-        return rate
+        return reading - 3
 
-def test_clamp_flow():
-    assert clamp_flow(30) == 30
-    assert clamp_flow(-5) == 0
-    assert clamp_flow(75) == 60
-    assert clamp_flow(61) == 60
-    assert clamp_flow(60) == 60
+def test_deadband():
+    assert deadband(10) == 7
+    assert deadband(2) == 0
+    assert deadband(4) == 1
+    assert deadband(3) == 0
     print("all tests passed")
 
-test_clamp_flow()
+test_deadband()
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="debug_flow.rs"
-fn clamp_flow(rate: i32) -> i32 {
-    if rate < 0 {
+```rust title="debug_band.rs"
+fn deadband(reading: i32) -> i32 {
+    if reading <= 4 {
         return 0;
-    } else if rate > 61 {
-        return 60;
     } else {
-        return rate;
+        return reading - 3;
     }
 }
 
-fn test_clamp_flow() {
-    assert_eq!(clamp_flow(30), 30);
-    assert_eq!(clamp_flow(-5), 0);
-    assert_eq!(clamp_flow(75), 60);
-    assert_eq!(clamp_flow(61), 60);
-    assert_eq!(clamp_flow(60), 60);
+fn test_deadband() {
+    assert_eq!(deadband(10), 7);
+    assert_eq!(deadband(2), 0);
+    assert_eq!(deadband(4), 1);
+    assert_eq!(deadband(3), 0);
     println!("all tests passed");
 }
 
 fn main() {
-    test_clamp_flow();
+    test_deadband();
 }
 ```
 </TabItem>
@@ -238,60 +232,56 @@ fn main() {
 
 <Reveal label="Reveal the diagnosis and the fix">
 ```bash title="Run the buggy Python program"
-python3 debug_flow.py
+python3 debug_band.py
 ```
 
 ```text frame="terminal" title="Output"
 Traceback (most recent call last):
-  File "debug_flow.py", line 17, in <module>
-    test_clamp_flow()
-    ~~~~~~~~~~~~~~~^^
-  File "debug_flow.py", line 13, in test_clamp_flow
-    assert clamp_flow(61) == 60
-           ^^^^^^^^^^^^^^^^^^^^
+  File "debug_band.py", line 14, in <module>
+    test_deadband()
+    ~~~~~~~~~~~~~^^
+  File "debug_band.py", line 10, in test_deadband
+    assert deadband(4) == 1
+           ^^^^^^^^^^^^^^^^
 AssertionError
 ```
 
 ```bash title="Compile and run the buggy Rust program"
-rustc debug_flow.rs
-./debug_flow
+rustc debug_band.rs
+./debug_band
 ```
 
 ```text frame="terminal" title="Output"
-thread 'main' panicked at debug_flow.rs:15:5:
+thread 'main' panicked at debug_band.rs:12:5:
 assertion `left == right` failed
-  left: 61
- right: 60
+  left: 0
+ right: 1
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
-**Symptom.** The test stops on `clamp_flow(61)`. Rust's panic makes the gap explicit: `left: 61` against `right: 60`, so the function returned `61` where the specification demands `60`. The three assertions before it passed, so the ordinary path and the floor at zero both work.
+**Symptom.** The test stops on `deadband(4)`. Rust's panic makes the gap explicit: `left: 0` against `right: 1`, so the function returned `0` where the specification demands `1`. The two assertions before it passed: `deadband(10)` returned `7` on the ordinary path, and `deadband(2)` returned `0` inside the deadband.
 
-**Hypothesis.** A reading of `61` is above the cap of `60` and must clamp to `60`, but the function returned it unchanged. Reading the function, the cap branch tests `rate > 61`, so `61` itself slips past that comparison into the `else` and comes back as-is. The comparison is one step off: it should be `rate > 60`. This is exactly the off-by-one that a middle-of-the-range value like `75` hides, because `75` is above either threshold and clamps to `60` either way, and only the boundary case `61` exposes.
+**Hypothesis.** A reading of `4` is above the deadband of 3, so the specification says it is real and reports `4 - 3`, which is `1`. The function returned `0` instead, meaning it treated `4` as noise. Reading the function, the noise branch tests `reading <= 4`, so `4` itself is caught by that branch and returned as `0` before it can reach the subtraction. The comparison is one step too wide: it should be `reading <= 3`. This is exactly the off-by-one that an ordinary case hides. A typical reading of `10` is far above either version of the edge, so it is subtracted either way and never reveals the mistake, and `deadband(3)` is `0` under both versions because 3 is genuine noise. Only the boundary case `4`, the first reading that should escape the deadband, behaves differently between the two, and it is the single input that exposes the bug.
 
-**Test.** Change the single comparison from `> 61` to `> 60`:
+**Test.** Change the single comparison from `<= 4` to `<= 3`:
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python title="debug_flow.py (fixed)"
-def clamp_flow(rate):
-    if rate < 0:
+```python title="debug_band.py (fixed)"
+def deadband(reading):
+    if reading <= 3:
         return 0
-    elif rate > 60:
-        return 60
     else:
-        return rate
+        return reading - 3
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="debug_flow.rs (fixed)"
-fn clamp_flow(rate: i32) -> i32 {
-    if rate < 0 {
+```rust title="debug_band.rs (fixed)"
+fn deadband(reading: i32) -> i32 {
+    if reading <= 3 {
         return 0;
-    } else if rate > 60 {
-        return 60;
     } else {
-        return rate;
+        return reading - 3;
     }
 }
 ```
@@ -299,7 +289,7 @@ fn clamp_flow(rate: i32) -> i32 {
 </Tabs>
 
 ```bash title="Run the fixed Python program"
-python3 debug_flow.py
+python3 debug_band.py
 ```
 
 ```text frame="terminal" title="Output"
@@ -307,19 +297,19 @@ all tests passed
 ```
 
 ```bash title="Compile and run the fixed Rust program"
-rustc debug_flow.rs
-./debug_flow
+rustc debug_band.rs
+./debug_band
 ```
 
 ```text frame="terminal" title="Output"
 all tests passed
 ```
 
-With the edge moved back to `60`, a reading of `61` is now above the cap and clamps to `60`, and every case passes. The fix was a single character. Notice the division of labor: the test found the bug and named the case, `clamp_flow(61)`, but locating the wrong comparison and correcting it was debugging, not testing.
+With the edge moved back to 3, a reading of `4` is now above the deadband and reports `1`, and every case passes. The fix was a single character. Notice the division of labor: the test found the bug and named the case, `deadband(4)`, but locating the wrong comparison and correcting it was debugging, not testing.
 </Reveal>
 
 ---
 
 ## Bridge
 
-These three reps feed the recitation family that takes each reading arriving from a noisy stream, decides whether it is valid, and clamps or rejects it against a stated range before anything is summarized. Today you drilled the per-reading rung of that family: deciding what a single reading should become and proving it with assertions. The full stream, many readings folded into one summary in a single pass, waits on the loops introduced next week. Running through all three blocks, this session also consolidates the skill built cumulatively across the course: turning a plain-language specification into concrete, checkable test cases, independent of whatever the code happens to do.
+These three reps feed the recitation family that takes each reading arriving from a noisy stream, decides whether it is valid, and clamps or rejects it against a stated range before anything is summarized. Today you drilled the per-reading rung of that family: deciding what a single reading should become and proving it with assertions. The full stream, many readings folded into one summary in a single pass, waits on the loops introduced next week. Running through all three sections, this session also consolidates the skill built cumulatively across the course: turning a plain-language specification into concrete, checkable test cases, independent of whatever the code happens to do.
