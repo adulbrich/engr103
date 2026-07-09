@@ -10,6 +10,7 @@ import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 import Reveal from '/src/components/Reveal.astro';
 import LanguageVersions from '/src/components/LanguageVersions.astro';
 import WhatDiffers from '/src/components/WhatDiffers.astro';
+import Latex from '/src/components/Latex.astro';
 
 {/* ai-summary
 type: assignment
@@ -261,11 +262,66 @@ In two sentences: first, state plainly whether you used an AI tool on this assig
 
 ## Summit Problem (optional, worth nothing)
 
-This one is a stretch, and it earns no points; it is here so you can practice for the graded stretch problem in the recitation room, where a harder problem does count.
+This one is a real stretch, and it earns no points; it is here so you can practice for the graded stretch problem in the recitation room, where a harder problem does count.
 
-Write `launch_mass(dry_kg, base_propellant_kg, margin_percent)`, which returns the ship's total mass at launch: the dry mass plus the propellant mass *after* the safety margin is applied. Reuse the margin idea from Problem 3 rather than rewriting it.
+**The blend.** On approach, the crew mixes three propellant stocks into the reaction mass. Each stock carries three constituents, call them A, B, and C, in known proportions. Stock 1 has proportions <Latex formula="a_1, b_1, c_1"/>, stock 2 has <Latex formula="a_2, b_2, c_2"/>, and stock 3 has <Latex formula="a_3, b_3, c_3"/> (each a value between 0 and 1). You choose the blend fractions <Latex formula="M_1, M_2, M_3"/>, the share of the final mix drawn from each stock, and they must sum to 1. Your job is to find the blend fractions that make the final mix **balanced**: equal total proportions of A, B, and C.
 
-| Call | Returns |
+**The math.** The balance conditions and the fact that the fractions sum to 1 give three equations in three unknowns. Solving that system by hand (substituting <Latex formula="M_3 = 1 - M_1 - M_2"/> and reducing) yields closed forms for each fraction. Writing <Latex formula="d = a_2 - a_3 + b_3 - b_2"/> for the shared denominator, the results are:
+
+<Latex formula="M_1 = \frac{(c_3 - a_3) + (a_3 - a_2 + c_2 - c_3)\frac{b_3 - a_3}{d}}{(c_3 - a_3 + a_1 - c_1) + (a_3 - a_2 + c_2 - c_3)\frac{a_1 - a_3 + b_3 - b_1}{d}}" inline={false} />
+
+<Latex formula="M_2 = \frac{b_3 - a_3 - M_1(a_1 - a_3 + b_3 - b_1)}{d}" inline={false} />
+
+<Latex formula="M_3 = 1 - M_1 - M_2" inline={false} />
+
+These expressions are long and easy to mistype, so build them from small pieces: compute <Latex formula="d"/> first, then each numerator and denominator on its own, exactly as the requirements name them.
+
+**Requirements.** Write three functions, each taking the same nine proportions in the order shown and returning one blend fraction:
+
+1. `mix_first` returns <Latex formula="M_1"/>.
+2. `mix_second` returns <Latex formula="M_2"/>.
+3. `mix_third` returns <Latex formula="M_3"/>.
+
+**Interface.**
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="blend.py (signatures)"
+def mix_first(a1, a2, a3, b1, b2, b3, c1, c2, c3):
+    ...
+
+def mix_second(a1, a2, a3, b1, b2, b3, c1, c2, c3):
+    ...
+
+def mix_third(a1, a2, a3, b1, b2, b3, c1, c2, c3):
+    ...
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="blend.rs (signatures)"
+fn mix_first(a1: f64, a2: f64, a3: f64, b1: f64, b2: f64, b3: f64, c1: f64, c2: f64, c3: f64) -> f64 {
+    todo!()
+}
+
+fn mix_second(a1: f64, a2: f64, a3: f64, b1: f64, b2: f64, b3: f64, c1: f64, c2: f64, c3: f64) -> f64 {
+    todo!()
+}
+
+fn mix_third(a1: f64, a2: f64, a3: f64, b1: f64, b2: f64, b3: f64, c1: f64, c2: f64, c3: f64) -> f64 {
+    todo!()
+}
+```
+</TabItem>
+</Tabs>
+
+**Acceptance test.** With stock 1 rich in A, stock 2 rich in B, and stock 3 rich in C, calling all three functions with `(0.07, 0.03, 0.05, 0.01, 0.09, 0.04, 0.02, 0.02, 0.12)`:
+
+| Call | Returns (approximately) |
 |---|---|
-| `launch_mass(500.0, 1000.0, 15.0)` | `1650.0` |
-| `launch_mass(500.0, 1000.0, 0.0)` | `1500.0` |
+| `mix_first(0.07, 0.03, 0.05, 0.01, 0.09, 0.04, 0.02, 0.02, 0.12)` | `0.330645` |
+| `mix_second(0.07, 0.03, 0.05, 0.01, 0.09, 0.04, 0.02, 0.02, 0.12)` | `0.379032` |
+| `mix_third(0.07, 0.03, 0.05, 0.01, 0.09, 0.04, 0.02, 0.02, 0.12)` | `0.290323` |
+
+The true `f64` values carry many more digits; the grader accepts any answer within a small tolerance, so you do not need to compare floats yourself. To check your own work, confirm the blend is really balanced: the three totals <Latex formula="M_1 a_1 + M_2 a_2 + M_3 a_3"/>, <Latex formula="M_1 b_1 + M_2 b_2 + M_3 b_3"/>, and <Latex formula="M_1 c_1 + M_2 c_2 + M_3 c_3"/> should all come out equal (about `0.049032` for this input). If they do not, there is a typo in one of the reduced expressions.
+
+**Assumptions and edge cases.** Assume the three stocks are well differentiated, each concentrated in a different constituent, so the denominator <Latex formula="d"/> is not zero and the blend fractions come out positive. Blends that produce a zero denominator or a negative fraction are inherent limits of the problem, not failures of your functions, and are not tested.

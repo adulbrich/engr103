@@ -1,30 +1,46 @@
 ---
-draft: true
-title: "Introduction"
-description: Welcome to the assignments section for ENGR 103! This guide provides an overview of the assignments designed to help you apply programming concepts to solve real-world problems.
+title: Introduction
+description: The story and structure of the ENGR 103 assignments, Mission Ares, and the list of assignment chapters in order.
 sidebar:
   order: 0
+draft: true
 pageActions: false
 ---
 
-Welcome to the assignments section for ENGR 103! The assignments in this course are designed to help you apply the concepts learned in lectures and studios to solve real-world problems. Each assignment focuses on a specific topic and provides a series of tasks that will challenge your understanding and enhance your programming skills. 
+The assignments are your take-home practice: the place to work through a problem family with any tool you like, including AI, before a proctored recitation tests the same skeleton without them. They are low-stakes on purpose. Together they are worth a small share of your grade, they are graded on completion rather than perfection, and the lowest one is dropped. The point is not the points. The point is that you arrive at each recitation having already built the thing it will ask you to build again.
 
-The assignments will be submitted through GitHub Classroom. You can find the invite link on each Canvas assignment.
+Because they are the tier where AI is allowed, they are also the tier that trains you to **judge** code, not just produce it. That is where HAB comes in.
 
-### Assignment Topics
+## Mission Ares
 
-1. **[Getting Started](/assignments/getting-started)**: Complete a simple questionnaire to familiarize yourself with the tools and submission process.
-2. **[Linear Equations](/assignments/linear-equations)**: Write programs to solve systems of linear equations in different contexts.
-3. **[Financial Planner](/assignments/financial-planner)**: Develop a program to help the user decide how much to save or what to invest in.
-4. **[Dictionary](/assignments/dictionary)**: Build a terminal interface for a dictionary API to look up word definitions.
-5. **[Calculator](/assignments/calculator)**: Create a simple terminal-based calculator supporting basic arithmetic operations.
+You are a member of the flight software crew of **Mission Ares**, the first crewed habitat on Mars. Across the term the assignments follow one mission, one episode at a time: preparing the vehicle, the launch, the burn that sends you to Mars, the long transit, the first days on the surface, and finally the Sol 100 status report that sums up everything the software has to get right. Each assignment opens with a mission beat that sets the scene and hands you a job.
 
-### How to Succeed in Assignments
+Your crewmate on every assignment is **HAB**, the habitat's onboard AI. HAB is helpful, tireless, and, at exactly the wrong moment, confidently wrong. In most assignments HAB drafts a piece of code and asks you to sign off on it. Sometimes it is fine. Sometimes it has a quiet defect: a precedence slip, an off-by-one, a value that leaks where it should have been copied. Your job is to work out which, and to reject and rewrite what does not hold up. HAB is on the assignment tier deliberately: this is the one tier where you may use AI, so learning to catch a confident machine when it is wrong is part of the training, not a distraction from it.
 
-- **Understand the Requirements**: Carefully read the assignment description and requirements before starting.
-- **Plan Your Solution**: Break down the problem into smaller tasks and plan your approach.
-- **Write Clean Code**: Follow the course's style guidelines and write modular, well-documented code.
-- **Test Thoroughly**: Test your code with various inputs to ensure it works correctly.
-- **Seek Help**: If you encounter difficulties, don't hesitate to ask for help from TAs or instructors.
+The story is a spine, not a cage. Every requirement is numbered and testable, and you can earn full marks with the plot skipped entirely. The mission never hides the technical ask.
 
-Assignments are a crucial part of your learning journey in ENGR 103. They provide an opportunity to apply theoretical concepts in practical scenarios and help you build a strong foundation in programming. Let's get started and make the most of these assignments!
+## How an Assignment Works
+
+Each regular assignment has the same parts, in this order:
+
+- **A problem set**, the main work, checked by an automatic grader. Before the Functions lecture, you complete a provided program and the grader compares its printed output to what is expected. From the Functions lecture on, you write named functions against a provided harness, and the grader calls your functions directly and checks what they return.
+- **A paper practice**, one tracing or diagram exercise done by hand and photographed, in the same format the exams use. The worked solution is on the page, hidden until you open it, so you attempt it first and then check yourself.
+- **A reflection**, two sentences on what you used help for, including whether and how you used AI.
+- **An optional summit problem** on some assignments, a harder stretch worth no points, there for the challenge.
+
+The set of language constructs available in any given assignment is fixed by the [Language Ladder](/reference/language-ladder/): an assignment never asks for something later than the week it is due. See the [Schedule](/overview/schedule/) for which recitation each assignment prepares you for, and read [Running and Submitting Your Code](/practicalities/starter-repo-and-check/) for the mechanics of the starter repository and how to submit.
+
+## The Chapters
+
+The assignments run in mission order. Start with the systems check, then follow the mission from the pad to Sol 100.
+
+0. [Systems Checkout](/assignments/systems-checkout/): bring your tools online before the mission begins.
+1. [Pre-Flight Check](/assignments/pre-flight-check/): read the instrument panel before the launch window opens.
+2. [The Launch Window](/assignments/launch-window/): the countdown and fuel numbers for launch.
+3. [The Injection Burn](/assignments/injection-burn-math/): the burn that sends the crew toward Mars.
+4. [Transit Checks](/assignments/transit-checks/): the interlocks that keep the crew safe in transit.
+5. [The Airlock and the Readings](/assignments/airlock-and-readings/): validating the readings at the airlock.
+6. [Flight Qualification](/assignments/flight-qualification/): testing the software before it is trusted.
+7. [The First Drive](/assignments/first-drive/): the rover's first drive across the surface.
+8. [The Comms Window](/assignments/comms-window/): encoding and decoding messages home.
+9. [The Sol 100 Report](/assignments/sol-100/): the capstone status report, one hundred sols in.

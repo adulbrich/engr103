@@ -1,6 +1,6 @@
 ---
 title: "The Launch Window"
-description: "Complete two short launch-prep programs that split a countdown into minutes and seconds and add a fuel margin, using integer division and the remainder, and reject one of HAB's integer-division mistakes."
+description: "Complete three short launch-prep programs that split a countdown into minutes and seconds, add a fuel margin, and solve a break-even equation for the number of supply runs, using integer division and the remainder, and reject one of HAB's integer-division mistakes."
 sidebar:
   order: 2
 draft: true
@@ -20,19 +20,19 @@ paired_recitation: R3
 prereq_lectures: expressions-and-operators, variables-and-state
 prereq_activities: expressions-and-operators, variables-and-state
 prereq_assignment: pre-flight-check
-new_scope: completing a provided program with variables, integer division, and the remainder operator, graded by output comparison
-persistent_requirements: dual-language; both programs graded by comparing printed output; no functions yet
-story_beat: the crew computes the countdown and fuel numbers for the launch window
-output: two completed launch-prep programs, a hand trace photographed, a two-sentence reflection
+new_scope: completing a provided program with variables, integer division, and the remainder operator, including solving a linear break-even equation with an integer ceiling, graded by output comparison
+persistent_requirements: dual-language; all programs graded by comparing printed output; no functions yet
+story_beat: the crew computes the countdown, fuel, and supply-run numbers for the launch window
+output: three completed launch-prep programs, a hand trace photographed, a two-sentence reflection
 */}
 
 <LanguageVersions />
 
-The launch window is the short span when the burn can begin. Mission Control needs two numbers on the console before it opens: the countdown split into whole minutes and leftover seconds, and the fuel load once a safety margin is added. Each is a small program that is almost written; your job is to fill in the arithmetic. HAB has offered a suggestion for the fuel number, so check it before you use it.
+The launch window is the short span when the burn can begin. Mission Control needs three numbers on the console before it opens: the countdown split into whole minutes and leftover seconds, the fuel load once a safety margin is added, and the number of supply runs needed to break even on the station's mass budget. Each is a small program that is almost written; your job is to fill in the arithmetic. HAB has offered a suggestion for the fuel number, so check it before you use it.
 
 ## How This Assignment Works
 
-You have not learned to write your own functions yet, so for now each problem gives you a **complete, runnable program with a marked `TODO`**. You replace the placeholder in that region with the right computation, and the automated grader runs your program and compares its printed output to the expected output shown below each problem. From week 3, once you have functions, the grader will call your functions directly instead. Solve each problem in Python or Rust; both are checked against the same expected output. Submit from the starter repository as described in [Running and Submitting Your Code](/practicalities/starter-repo-and-check/). The assignment has three parts: the two programs below, a paper trace, and a two-sentence reflection.
+You have not learned to write your own functions yet, so for now each problem gives you a **complete, runnable program with a marked `TODO`**. You replace the placeholder in that region with the right computation, and the automated grader runs your program and compares its printed output to the expected output shown below each problem. From week 3, once you have functions, the grader will call your functions directly instead. Solve each problem in Python or Rust; both are checked against the same expected output. Submit from the starter repository as described in [Running and Submitting Your Code](/practicalities/starter-repo-and-check/). The assignment has three parts: the three programs below, a paper trace, and a two-sentence reflection.
 
 ## Problem Set
 
@@ -136,6 +136,61 @@ For a base of `1000` and a margin of `15`, HAB's line prints `1000`, not `1150`:
 </Aside>
 
 **Assumptions and edge cases.** `base_kg`, `margin_percent`, and the result are whole numbers. A margin of `0` must leave the base mass unchanged.
+
+### Problem 3: Break-Even on the Supply Runs
+
+**Context.** The station begins the mission with a fixed mass deficit it must make up. Each automated supply run delivers a fixed amount of usable mass but also spends some mass to launch, so each run nets the difference between the two. You need the number of complete runs required to erase the deficit.
+
+**Requirements.**
+
+1. In the provided program, set `net_per_run` to the mass a single run adds after its own launch cost: the delivered mass `delivered_kg` minus the launch cost `cost_kg`.
+2. Set `runs` to the smallest whole number of runs whose combined net mass reaches the deficit `deficit_kg`. A partial run is not possible, so round the number of runs up to the next whole number.
+
+This is a break-even calculation: you are solving for the number of equal net steps that first covers a fixed target. The modeling step is seeing "erase a fixed deficit with equal net steps, rounding up" as that break-even count; the analysis step is computing the net per run and the rounded-up count with the variables and integer division from the [Variables and State](/lectures/variables-and-state/) lecture.
+
+**The program.**
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="supply.py (provided)"
+deficit_kg = 1000     # mass deficit the station must erase
+delivered_kg = 200    # usable mass one run delivers
+cost_kg = 50          # mass spent to launch one run
+# TODO: replace each 0 with the right computation.
+net_per_run = 0       # mass one run adds after its launch cost
+runs = 0              # whole runs needed to erase the deficit, rounded up
+print(net_per_run)
+print(runs)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="supply.rs (provided)"
+fn main() {
+    let deficit_kg = 1000;    // mass deficit the station must erase
+    let delivered_kg = 200;   // usable mass one run delivers
+    let cost_kg = 50;         // mass spent to launch one run
+    // TODO: replace each 0 with the right computation.
+    let net_per_run = 0;      // mass one run adds after its launch cost
+    let runs = 0;             // whole runs needed to erase the deficit, rounded up
+    println!("{}", net_per_run);
+    println!("{}", runs);
+}
+```
+</TabItem>
+</Tabs>
+
+**Expected output.**
+
+```text frame="terminal" title="Output"
+150
+7
+```
+
+<Aside type="tip" title="Rounding up without a fraction">
+You have not met a rounding function or an `if` statement yet, but there is an arithmetic way to get the smallest whole number of equal steps that reaches a target. For positive whole numbers, `(target + step - 1) // step` gives exactly that count: it lands on the next whole number whenever the plain division would have left a remainder, and lands exactly when the target divides evenly. Here the target is the deficit and the step is the net per run. Decide for yourself which value is the target and which is the step.
+</Aside>
+
+**Assumptions and edge cases.** `delivered_kg` is greater than `cost_kg`, so `net_per_run` is a positive whole number, and `deficit_kg` is a positive whole number. If the starter later changes these three values, your two lines must still be correct, so compute `runs` from the named values, never hard-code `7`.
 
 ## Paper Practice
 
