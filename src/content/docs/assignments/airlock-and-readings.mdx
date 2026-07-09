@@ -1,0 +1,342 @@
+---
+title: "The Airlock and the Readings"
+description: "Write the flight-software functions that decide when the airlock may cycle, classify a pressure reading into its tier, and judge whether a live sensor reading is worth trusting at all."
+sidebar:
+  order: 5
+draft: true
+---
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+import Reveal from '/src/components/Reveal.astro';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+import WhatDiffers from '/src/components/WhatDiffers.astro';
+
+{/* ai-summary
+type: assignment
+slug: airlock-and-readings
+order: 5
+family: decision tables and interlocks, plus validating a reading
+paired_recitation: R6
+prereq_lectures: booleans-and-conditionals, decision-structures, errors-input-and-validation
+prereq_activities: decision-structures, errors-input-and-validation
+prereq_assignment: transit-checks
+new_scope: else-if/elif chains and match for a tiered classifier, a decision table with an override that collapses rows, console input with parsing, and validating a parsed reading against a plausible range and a float tolerance
+persistent_requirements: dual-language, one shared contract; grader reads return values only; no loops or collections on the ladder yet; no function returns a string slice or an owned String; student functions take only scalar parameters, never a string
+story_beat: the crew codes the airlock's decision rules and the checks that validate a live sensor reading before trusting it
+output: four functions submitted to the grader, a hand trace photographed, a two-sentence reflection
+*/}
+
+<LanguageVersions />
+
+The surface airlock is the one hatch standing between the crew and an atmosphere that would kill them in under a minute, so its cycle sequencer never trusts a single yes-or-no check alone. The outer hatch takes forty-five seconds to fully cycle once it starts, which is exactly why flight software has to be certain before it commits: a full decision table for when the airlock may open, a tiered pressure read-out with more outcomes than a plain `if`/`else` can hold cleanly, and a way to decide whether a live sensor reading deserves to be trusted in the first place. HAB has already drafted one of the tier checks. Your job is to finish the airlock's decision rules, catch HAB's mistake, and write the checks that decide whether a live reading is worth trusting at all.
+
+## How This Assignment Works
+
+You write the functions named below and nothing else: the program's `main`, its input, its output, and the local test runner are already written, and the automated grader calls your functions directly with values it chooses, reading only what you `return`. Solve each problem in Python or Rust, whichever you prefer, and you may switch languages between problems; both are checked against the same acceptance cases. Submit your functions to the grader from the course starter repository, as described in [Running and Submitting Your Code](/practicalities/starter-repo-and-check/). The assignment has four parts: the problem set below, a paper trace, a two-sentence reflection, and an optional summit problem.
+
+## Problem Set
+
+### Problem 1: The Airlock Cycle Table
+
+**Context.** Before the outer hatch may cycle, flight software checks three things: whether the vestibule has equalized pressure with the outside, whether the inner seal is fully engaged, and whether the flight director has thrown the manual override for an emergency egress. The override is a flight rule of its own: it clears the hatch to cycle no matter what the other two readings say, because a crew member in trouble outside cannot wait on a seal sensor.
+
+**Requirements.**
+
+1. Before writing any code, lay out the decision table below: three boolean conditions and one outcome. Overriding collapses four of the eight possible combinations into one row, since the other two readings stop mattering the moment the override is thrown.
+
+   | `pressure_equalized` | `seal_engaged` | `override_engaged` | may cycle |
+   |---|---|---|---|
+   | any | any | `true` | `true` |
+   | `true` | `true` | `false` | `true` |
+   | `true` | `false` | `false` | `false` |
+   | `false` | `true` | `false` | `false` |
+   | `false` | `false` | `false` | `false` |
+
+2. `airlock_may_cycle(pressure_equalized, seal_engaged, override_engaged)` must return `true` whenever `override_engaged` is `true`, regardless of what `pressure_equalized` and `seal_engaged` read.
+3. When `override_engaged` is `false`, it must return `true` only when both `pressure_equalized` and `seal_engaged` are `true`, and `false` for every other combination of the two.
+
+The modeling step is building the five-row table above, the one that exposes the override's collapse before any code exists to hide it; the analysis step is turning that table into a working function, in an order that checks the override first, exactly the way the [Decision Structures](/lectures/decision-structures/) lecture ordered its rain check ahead of the soil-dryness check.
+
+**Interface.**
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="cycle_table.py"
+def airlock_may_cycle(pressure_equalized, seal_engaged, override_engaged):
+    ...
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="cycle_table.rs"
+fn airlock_may_cycle(pressure_equalized: bool, seal_engaged: bool, override_engaged: bool) -> bool {
+    todo!()
+}
+```
+</TabItem>
+</Tabs>
+
+**Acceptance tests.**
+
+| Call | Returns |
+|---|---|
+| `airlock_may_cycle(true, true, false)` | `true` |
+| `airlock_may_cycle(true, false, false)` | `false` |
+| `airlock_may_cycle(false, true, false)` | `false` |
+| `airlock_may_cycle(false, false, false)` | `false` |
+| `airlock_may_cycle(false, false, true)` | `true` |
+
+**Assumptions and edge cases.** All three parameters are booleans, read directly from the habitat's pressure sensor, seal sensor, and the override switch. The last acceptance test is the boundary the table exists to catch: even with both ordinary readings false, the override alone still clears the hatch.
+
+### Problem 2: The Pressure Tier, and One of HAB's Drafts
+
+**Context.** Once the airlock is cleared to cycle, the crew display needs more than a yes or no about the vestibule's pressure: it needs a tier code, from a critical low that means abort the cycle to a critical high that means the same thing from the other direction. HAB has already drafted the classifier. Flight rule: no HAB code runs unverified.
+
+**Requirements.**
+
+1. `pressure_tier(pressure_kpa)` must return an integer tier code for a vestibule pressure reading, using the five bands below. The bands share their edges, so exactly one band owns every possible reading.
+
+   | Band | Returns |
+   |---|---|
+   | `pressure_kpa` below `60.0` | `0` (critical low) |
+   | `60.0` up to but not including `90.0` | `1` (caution low) |
+   | `90.0` up to and including `105.0` | `2` (nominal) |
+   | above `105.0` up to and including `130.0` | `3` (caution high) |
+   | above `130.0` | `4` (critical high) |
+
+2. This function does not need to check whether the reading is plausible in the first place; that check belongs to Problem 3. `pressure_tier` classifies whatever float it is given, using only the bands above.
+
+The modeling step is reading the band table so that every boundary's inclusive or exclusive side is unambiguous, especially the closed top of the nominal band; the analysis step is writing an `elif`/`else if` chain that checks the bands in order, the way the [Decision Structures](/lectures/decision-structures/) lecture chained the grade thresholds.
+
+**Interface.**
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="pressure_tier.py"
+def pressure_tier(pressure_kpa):
+    ...
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="pressure_tier.rs"
+fn pressure_tier(pressure_kpa: f64) -> i32 {
+    todo!()
+}
+```
+</TabItem>
+</Tabs>
+
+<Aside type="danger" title="HAB drafted pressure_tier. Sign off or reject it.">
+HAB offered this for the classifier. Decide whether it is correct before you use anything from it.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="HAB's draft"
+def pressure_tier(pressure_kpa):
+    if pressure_kpa < 60.0:
+        return 0
+    elif pressure_kpa < 90.0:
+        return 1
+    elif pressure_kpa < 105.0:
+        return 2
+    elif pressure_kpa <= 130.0:
+        return 3
+    else:
+        return 4
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="HAB's draft"
+fn pressure_tier(pressure_kpa: f64) -> i32 {
+    if pressure_kpa < 60.0 {
+        return 0;
+    } else if pressure_kpa < 90.0 {
+        return 1;
+    } else if pressure_kpa < 105.0 {
+        return 2;
+    } else if pressure_kpa <= 130.0 {
+        return 3;
+    } else {
+        return 4;
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+For a reading of exactly `105.0`, sitting on the top edge of the nominal band, HAB's draft returns `3`, not `2`. Work out why before you open the hint, then write the correct version yourself.
+
+<Reveal label="Reveal a nudge on HAB's mistake">
+The band table closes the nominal range on top: `90.0` up to and including `105.0` belongs to tier `2`. HAB's third condition is `pressure_kpa < 105.0`, a strict less-than, so at exactly `105.0` that condition is `false` (`105.0 < 105.0` is false), the chain skips the nominal branch, and falls through to `pressure_kpa <= 130.0`, which is `true`, returning `3` instead. Changing that one comparison to `<=` closes the gap and puts `105.0` back in tier `2`, where the table says it belongs.
+</Reveal>
+</Aside>
+
+**Acceptance tests.**
+
+| Call | Returns |
+|---|---|
+| `pressure_tier(45.0)` | `0` |
+| `pressure_tier(60.0)` | `1` |
+| `pressure_tier(90.0)` | `2` |
+| `pressure_tier(105.0)` | `2` |
+| `pressure_tier(105.5)` | `3` |
+| `pressure_tier(130.0)` | `3` |
+| `pressure_tier(140.0)` | `4` |
+
+**Assumptions and edge cases.** `pressure_kpa` is a float and may be any value the sensor reports; nothing about this function assumes the reading is physically sensible. `105.0` and the other three band edges (`60.0`, `90.0`, `130.0`) are exact boundaries and are tested directly above.
+
+### Problem 3: Validating the Sensor Reading
+
+**Context.** The primary pressure sensor is read live from the console, as text, the way the [Errors, Input, and Validation](/lectures/errors-input-and-validation/) lecture describes. The provided harness already reads that line and parses it, using exactly the `try`/`except` or `parse`-and-`match` idiom from the lecture; you are not writing that part, and `BACKUP_KPA` and `TOLERANCE_KPA` below are constants the harness already defines from the backup sensor's own line. Once a reading parses cleanly, the harness calls the two functions below before it lets `pressure_tier` anywhere near the result: one that checks the number is physically possible for the vestibule at all, and one that checks it roughly agrees with a backup sensor's reading, since a wildly disagreeing pair of sensors means at least one of them cannot be trusted.
+
+```python title="Provided in the harness: you do not write this"
+reading_text = input("Live sensor reading (kPa): ")
+try:
+    reading = float(reading_text)
+    if is_reading_plausible(reading) and matches_backup(reading, BACKUP_KPA, TOLERANCE_KPA):
+        print("trusted")
+    else:
+        print("rejected")
+except ValueError:
+    print("unreadable")
+```
+
+```rust title="Provided in the harness: you do not write this"
+println!("Live sensor reading (kPa): ");
+let mut reading_text = String::new();
+io::stdin()
+    .read_line(&mut reading_text)
+    .expect("failed to read line");
+
+match reading_text.trim().parse::<f64>() {
+    Ok(reading) => {
+        if is_reading_plausible(reading) && matches_backup(reading, BACKUP_KPA, TOLERANCE_KPA) {
+            println!("trusted");
+        } else {
+            println!("rejected");
+        }
+    }
+    Err(_) => println!("unreadable"),
+}
+```
+
+<WhatDiffers>
+<Fragment slot="differs">
+Both snippets reach the same three outcomes, but by the two different routes the errors lecture described. Python's `float` raises a `ValueError` the instant the text fails to parse, and the surrounding `try`/`except` catches it after the fact. Rust's `parse::<f64>()` never raises anything; it always finishes and hands back a `Result`, and the `match` reads that value and picks the `Ok` or `Err` arm. Either way, your two functions are only ever called once a reading has already parsed successfully.
+</Fragment>
+</WhatDiffers>
+
+**Requirements.**
+
+1. `is_reading_plausible(reading_kpa)` must return `true` when `reading_kpa` is between `0.0` and `200.0` kilopascals inclusive, the physically possible range for the vestibule sensor, and `false` otherwise.
+2. `matches_backup(reading_kpa, backup_kpa, tolerance_kpa)` must return `true` when the absolute difference between `reading_kpa` and `backup_kpa` is less than or equal to `tolerance_kpa`, and `false` otherwise.
+
+The modeling step is deciding what "plausible" and "agrees with the backup" mean as numeric conditions, a closed range for one and a tolerance band for the other; the analysis step is computing them, comparing the absolute difference against the tolerance rather than checking for exact equality, the same tolerance idea the [Booleans and Conditionals](/lectures/booleans-and-conditionals/) lecture introduced for comparing floats.
+
+**Interface.**
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="validate_reading.py"
+def is_reading_plausible(reading_kpa):
+    ...
+
+def matches_backup(reading_kpa, backup_kpa, tolerance_kpa):
+    ...
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="validate_reading.rs"
+fn is_reading_plausible(reading_kpa: f64) -> bool {
+    todo!()
+}
+
+fn matches_backup(reading_kpa: f64, backup_kpa: f64, tolerance_kpa: f64) -> bool {
+    todo!()
+}
+```
+</TabItem>
+</Tabs>
+
+<Aside type="caution" title="No == on a float">
+Do not compare `reading_kpa` to `backup_kpa` with `==`. Two sensor readings that are close enough to agree are almost never bit-for-bit identical, so an exact-equality check would reject nearly every reading that should pass. Compute the absolute difference and compare that against `tolerance_kpa` instead, the same tolerance pattern from the booleans lecture. Python's `abs(reading_kpa - backup_kpa)` and Rust's `(reading_kpa - backup_kpa).abs()` are both built into the language; neither needs an import.
+</Aside>
+
+**Acceptance tests.**
+
+| Call | Returns |
+|---|---|
+| `is_reading_plausible(101.3)` | `true` |
+| `is_reading_plausible(-1.0)` | `false` |
+| `is_reading_plausible(0.0)` | `true` |
+| `is_reading_plausible(200.0)` | `true` |
+| `is_reading_plausible(200.5)` | `false` |
+| `matches_backup(101.3, 101.0, 0.5)` | `true` |
+| `matches_backup(101.3, 100.0, 0.5)` | `false` |
+| `matches_backup(101.3, 101.3, 0.0)` | `true` |
+| `matches_backup(100.0, 100.5, 0.5)` | `true` |
+
+**Assumptions and edge cases.** `reading_kpa`, `backup_kpa`, and `tolerance_kpa` are all floats, and `tolerance_kpa` is zero or greater. `0.0` and `200.0` are exact boundaries for `is_reading_plausible`, and a difference exactly equal to `tolerance_kpa` still counts as matching. `matches_backup` does not check plausibility itself; the harness calls both functions separately, exactly as shown above.
+
+### Problem 4: Write the Tests for the Pressure Tier
+
+**Context.** Before the flight-software review, every function ships with the cases that prove it. For this problem you write the cases, not the code: you already have the full band table for `pressure_tier` from Problem 2.
+
+**Requirements.**
+
+1. Submit a set of test cases for `pressure_tier(pressure_kpa)` as a plain table of rows, each row an input and the tier code you expect it to return. Do not write any `assert` statements; assertions arrive with the testing lecture. A row is just a pair, like this worked example:
+
+   | `pressure_kpa` | expected `pressure_tier` |
+   |---|---|
+   | `95.0` | `2` |
+
+2. Your table must include, and label, at least these four cases: a normal mid-range value in a band of your choice other than the worked example above, the nominal band's top edge at exactly `105.0` (the value that catches HAB's mistake), a value one tenth of a kilopascal below that edge, and a value one tenth of a kilopascal above it. The grader runs your rows against a correct `pressure_tier` (every row must match) and against several broken versions, including HAB's (each broken version must be caught by at least one of your rows).
+
+The modeling step is turning the band table into cases that pin down the one boundary HAB got wrong; the analysis step is predicting each expected tier by hand, paying close attention to which side of `105.0` each value falls on.
+
+## Paper Practice
+
+Trace this program by hand, on paper. Build a variable table: for each call to `status_code`, write the values held by its `pressure_kpa` and `override_engaged` parameters and the value it returns, then the values bound to `a`, `b`, and `total`. Write the exact value the program prints. Photograph your table and trace and attach it. This part is graded on completion (the attached photograph), not on whether every cell is right, so attempt it by hand first, then open the reveal to check yourself.
+
+```python title="trace_me.py"
+def status_code(pressure_kpa, override_engaged):
+    if override_engaged:
+        return 1
+    elif pressure_kpa < 90.0:
+        return 0
+    else:
+        return 2
+
+a = status_code(75.0, False)
+b = status_code(75.0, True)
+total = a + b
+print(total)
+```
+
+<Reveal label="Reveal the completed trace">
+The first call, `status_code(75.0, False)`, binds `pressure_kpa` to `75.0` and `override_engaged` to `False`. The chain checks `override_engaged` first: it is `False`, so that branch is skipped, not entered. The next condition, `pressure_kpa < 90.0`, is `True`, since `75.0` is less than `90.0`, so the function returns `0` and the final `else` is never even looked at. That `0` is bound to `a`.
+
+| Line | `pressure_kpa` | `override_engaged` | returns | `a` | `b` | `total` |
+|---|---|---|---|---|---|---|
+| `a = status_code(75.0, False)` | `75.0` | `False` | `0` | `0` | | |
+| `b = status_code(75.0, True)` | `75.0` | `True` | `1` | `0` | `1` | |
+| `total = a + b` | | | | `0` | `1` | `1` |
+
+The second call, `status_code(75.0, True)`, checks `override_engaged` first again, and this time it is `True`, so the function returns `1` immediately; the `pressure_kpa < 90.0` condition is never evaluated at all, because the chain stops at the first branch that matches. That `1` is bound to `b`. Finally `total = a + b` computes `0 + 1`, and the program prints `1`.
+</Reveal>
+
+## Reflection
+
+In two sentences: first, state plainly whether you used an AI tool on this assignment and, if you did, what you used it for (if you did not use AI at all, say so explicitly); second, name any other help you used (a peer, the official docs, the lecture notes) and one thing you still could not do without that help. This is graded on completion, not on what you say, and it is not shared with anyone but the instructor.
+
+## Summit Problem (optional, worth nothing)
+
+This one is a stretch, and it earns no points; it is here so you can practice for the graded stretch problem in the recitation room, where a harder problem does count.
+
+Write `airlock_cleared_for_cycle(pressure_equalized, seal_engaged, override_engaged, reading_kpa, backup_kpa, tolerance_kpa)`, which returns `true` only when the airlock's interlock table from Problem 1 clears it to cycle **and** the live reading from Problem 3 is both plausible and in agreement with the backup sensor. Reuse `airlock_may_cycle`, `is_reading_plausible`, and `matches_backup` rather than rewriting any of their logic.
+
+| Call | Returns |
+|---|---|
+| `airlock_cleared_for_cycle(true, true, false, 101.3, 101.0, 0.5)` | `true` |
+| `airlock_cleared_for_cycle(false, false, true, 101.3, 101.0, 0.5)` | `true` |
+| `airlock_cleared_for_cycle(false, false, true, 300.0, 101.0, 0.5)` | `false` |
+| `airlock_cleared_for_cycle(true, false, false, 101.3, 101.0, 0.5)` | `false` |

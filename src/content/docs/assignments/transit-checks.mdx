@@ -1,0 +1,290 @@
+---
+title: "Transit Checks"
+description: "Write the boolean interlock functions that decide whether a suit, a hatch, and the habitat as a whole are safe during the cruise to Mars, and catch HAB's mistake before it clears something that is not actually safe."
+sidebar:
+  order: 4
+draft: true
+---
+
+import { Tabs, TabItem, Aside, Steps } from '@astrojs/starlight/components';
+import Reveal from '/src/components/Reveal.astro';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+
+{/* ai-summary
+type: assignment
+slug: transit-checks
+order: 4
+family: decision tables and interlocks (booleans and conditionals)
+paired_recitation: R5
+prereq_lectures: functions, scope-and-the-call-stack, booleans-and-conditionals
+prereq_activities: functions, scope-and-the-call-stack, booleans-and-conditionals
+prereq_assignment: injection-burn-math
+new_scope: writing boolean-returning functions that call one another across stack frames, and combining comparisons with and/or/not into if/else decisions with more than two outcomes
+persistent_requirements: dual-language, one shared contract; grader reads return values only; no elif/else-if chains, loops, or collections on the ladder yet; no function returns a string slice
+story_beat: mid-transit to Mars, the crew writes the interlock checks that keep the habitat safe before Mars orbit insertion
+output: six functions submitted to the grader, a hand trace photographed, a two-sentence reflection
+*/}
+
+<LanguageVersions />
+
+Six weeks into the cruise to Mars, the crew keeps the habitat's daily safety checks running exactly the way they will once nobody on Earth can talk you through a bad call. Flight software leans on a family of interlocks: small yes-or-no checks that decide whether a suit is safe to don, whether a hatch is safe to open, and whether the habitat as a whole is running normally, needs attention, or needs it right now. HAB, the habitat's assistant, has already drafted one of these checks. Your job is to write the interlock functions the rest of the checks depend on, and to catch HAB's mistake before it clears something that is not actually safe.
+
+## How This Assignment Works
+
+You write the functions named below and nothing else: the program's `main`, its input, its output, and the local test runner are already written, and the automated grader calls your functions directly with values it chooses, reading only what you `return`. Solve each problem in Python or Rust, whichever you prefer, and you may switch languages between problems; both are checked against the same acceptance cases. Submit your functions to the grader from the course starter repository, as described in [Running and Submitting Your Code](/practicalities/starter-repo-and-check/). The assignment has four parts: the problem set below, a paper trace, a two-sentence reflection, and an optional summit problem.
+
+## Problem Set
+
+### Problem 1: The Suit Check, and One of HAB's Drafts
+
+**Context.** Suits stay staged and ready throughout the cruise so the donning drill is second nature before the first Mars EVA. Before a suit is cleared for a drill, flight software checks its oxygen tank level, its battery charge, and whether its pressure seal reads intact.
+
+**Requirements.**
+
+1. `oxygen_ok(oxygen_percent)` must return `true` when `oxygen_percent` is at least `20`, the minimum flight rules allow before a suit counts as safe to don.
+2. `battery_ok(battery_percent)` must return `true` when `battery_percent` is at least `30`.
+3. `suit_ready(oxygen_percent, battery_percent, seal_intact)` must return `true` only when all three checks hold at once: `oxygen_ok(oxygen_percent)` is `true`, `battery_ok(battery_percent)` is `true`, and `seal_intact` is `true`. It must call the two functions above rather than repeating their comparisons.
+
+The modeling step is deciding that suit readiness needs all three yes-or-no checks to hold at once, joined with `and`; the analysis step is calling `oxygen_ok` and `battery_ok` from inside `suit_ready`, pushing and popping their stack frames as the [Scope and the Call Stack](/lectures/scope-and-the-call-stack/) lecture described, and combining what they return with `seal_intact`.
+
+**Interface.**
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="suit.py"
+def oxygen_ok(oxygen_percent):
+    ...
+
+def battery_ok(battery_percent):
+    ...
+
+def suit_ready(oxygen_percent, battery_percent, seal_intact):
+    ...
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="suit.rs"
+fn oxygen_ok(oxygen_percent: i32) -> bool {
+    todo!()
+}
+
+fn battery_ok(battery_percent: i32) -> bool {
+    todo!()
+}
+
+fn suit_ready(oxygen_percent: i32, battery_percent: i32, seal_intact: bool) -> bool {
+    todo!()
+}
+```
+</TabItem>
+</Tabs>
+
+<Aside type="danger" title="HAB drafted suit_ready. Sign off or reject it.">
+HAB offered this for `suit_ready`. Flight rule: no HAB code runs unverified. Decide whether it is correct before you use anything from it.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="HAB's draft"
+def suit_ready(oxygen_percent, battery_percent, seal_intact):
+    return oxygen_ok(oxygen_percent) or (battery_ok(battery_percent) and seal_intact)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="HAB's draft"
+fn suit_ready(oxygen_percent: i32, battery_percent: i32, seal_intact: bool) -> bool {
+    return oxygen_ok(oxygen_percent) || (battery_ok(battery_percent) && seal_intact);
+}
+```
+</TabItem>
+</Tabs>
+
+For an oxygen level of `15`, a battery of `90`, and an intact seal, HAB's draft returns `true`, clearing a suit whose oxygen tank is below the safe minimum. Work out why before you open the hint, then write the correct version yourself.
+
+<Reveal label="Reveal a nudge on HAB's mistake">
+HAB joined the checks with `or` where the spec needs `and`. Its draft clears the suit whenever the oxygen check passes on its own, *or* whenever the battery and seal checks both pass, so a suit can pass with a failing oxygen tank as long as the battery and seal look fine. Suit readiness needs all three checks to hold at once, not just any one route to `true`.
+</Reveal>
+</Aside>
+
+**Acceptance tests.**
+
+| Call | Returns |
+|---|---|
+| `oxygen_ok(20)` | `true` |
+| `oxygen_ok(19)` | `false` |
+| `battery_ok(30)` | `true` |
+| `battery_ok(29)` | `false` |
+| `suit_ready(25, 50, true)` | `true` |
+| `suit_ready(15, 90, true)` | `false` |
+| `suit_ready(25, 50, false)` | `false` |
+
+**Assumptions and edge cases.** `oxygen_percent` and `battery_percent` are whole percents from `0` to `100`. `seal_intact` is read directly from the seal sensor as a boolean. `20` and `30` are exact boundaries: a reading exactly at the minimum counts as safe.
+
+<Steps>
+
+1. Write `oxygen_ok` and `battery_ok` first, and check each against its own acceptance tests.
+
+2. Write `suit_ready` last, calling both of the functions above rather than rewriting their comparisons.
+
+</Steps>
+
+### Problem 2: The Airlock Interlock
+
+**Context.** Once a week the crew drills moving between the habitat's two pressurized modules through the connecting corridor, which holds about six cubic meters of air. Before the inner hatch may open, flight software checks that the connecting valve has equalized pressure across both sides and that the valve itself is fully closed, with no venting in progress.
+
+**Requirements.**
+
+1. `pressure_equalized(pressure_diff_kpa)` must return `true` when the pressure difference across the valve sits strictly between `-0.5` and `0.5` kilopascals, the tolerance flight rules allow before the two sides count as equalized. A difference of exactly `0.5` or exactly `-0.5` does not count as equalized.
+2. `hatch_can_open(pressure_diff_kpa, valve_closed)` must return `true` only when `pressure_equalized(pressure_diff_kpa)` is `true` and `valve_closed` is `true`.
+
+The modeling step is deciding that opening the hatch needs two independent yes-or-no checks, a pressure tolerance and a valve state, to both hold; the analysis step is calling `pressure_equalized` from inside `hatch_can_open`, and building the tolerance check from strict `<`/`>` comparisons, the way the [Booleans and Conditionals](/lectures/booleans-and-conditionals/) lecture compares floats, rather than an exact `==`.
+
+**Interface.**
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="airlock.py"
+def pressure_equalized(pressure_diff_kpa):
+    ...
+
+def hatch_can_open(pressure_diff_kpa, valve_closed):
+    ...
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="airlock.rs"
+fn pressure_equalized(pressure_diff_kpa: f64) -> bool {
+    todo!()
+}
+
+fn hatch_can_open(pressure_diff_kpa: f64, valve_closed: bool) -> bool {
+    todo!()
+}
+```
+</TabItem>
+</Tabs>
+
+**Acceptance tests.**
+
+| Call | Returns |
+|---|---|
+| `pressure_equalized(0.0)` | `true` |
+| `pressure_equalized(0.4)` | `true` |
+| `pressure_equalized(0.5)` | `false` |
+| `pressure_equalized(-0.5)` | `false` |
+| `hatch_can_open(0.2, true)` | `true` |
+| `hatch_can_open(0.2, false)` | `false` |
+| `hatch_can_open(0.6, true)` | `false` |
+
+**Assumptions and edge cases.** `pressure_diff_kpa` is a float and can be negative, when the far side of the valve reads higher than the near side. `valve_closed` is read directly from the valve sensor as a boolean. The corridor's volume plays no part in either check; only the pressure difference and the valve state decide whether the hatch may open.
+
+### Problem 3: The System Status Check
+
+**Context.** The crew display in the command module has room for a single number, not a sentence, so flight software condenses three subsystem checks, power, comms, and life support, into one status code: `0` for nominal, `1` for advisory, and `2` for critical.
+
+**Requirements.**
+
+1. `system_status(power_ok, comms_ok, life_support_ok)` must return `2` whenever `life_support_ok` is `false`, no matter what `power_ok` or `comms_ok` read, since a life-support failure outranks everything else.
+2. Otherwise, it must return `1` when `power_ok` is `false` or `comms_ok` is `false` (or both).
+3. Otherwise, when all three inputs are `true`, it must return `0`.
+
+The modeling step is choosing the priority order among the three subsystems, life support first, then power and comms together, then nominal; the analysis step is writing that priority as nested `if`/`else` blocks, since `elif` chains are not on the ladder yet, checking the highest-priority condition first and only asking about the others once it has ruled that one out.
+
+**Interface.**
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="status.py"
+def system_status(power_ok, comms_ok, life_support_ok):
+    ...
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="status.rs"
+fn system_status(power_ok: bool, comms_ok: bool, life_support_ok: bool) -> i32 {
+    todo!()
+}
+```
+</TabItem>
+</Tabs>
+
+**Acceptance tests.**
+
+| Call | Returns |
+|---|---|
+| `system_status(true, true, true)` | `0` |
+| `system_status(true, false, true)` | `1` |
+| `system_status(false, true, true)` | `1` |
+| `system_status(true, true, false)` | `2` |
+| `system_status(false, false, false)` | `2` |
+
+**Assumptions and edge cases.** All three inputs are booleans read from the habitat's own sensors. A failing life-support reading always returns `2`, even when power and comms also read `false`; check `life_support_ok` first so its failure is never masked by the other two.
+
+<Aside type="tip" title="Nesting without elif">
+You have `if`/`else` only this week; `elif` arrives with the next lecture. Write the second decision, power and comms against nominal, inside the `else` block of the first, so the two decisions nest rather than chain.
+</Aside>
+
+### Problem 4: Write the Tests for the Valve Interlock
+
+**Context.** Before the flight-software review, every function ships with the cases that prove it. For this problem you write the cases, not the code: you already have the spec for `pressure_equalized` from Problem 2.
+
+**Requirements.**
+
+1. Submit a set of test cases for `pressure_equalized(pressure_diff_kpa)` as a plain table of rows, each row an input and the boolean value you expect it to return. Do not write any `assert` statements; assertions arrive with the testing lecture. A row is just a pair, like this worked example:
+
+   | `pressure_diff_kpa` | expected `pressure_equalized` |
+   |---|---|
+   | `0.2` | `true` |
+
+2. Your table must include, and label, at least these four cases: a normal in-tolerance value, the positive boundary `0.5` (excluded), the negative boundary `-0.5` (excluded), and a value clearly outside the tolerance in either direction. The grader runs your rows against a correct `pressure_equalized` (every row must match) and against several broken versions (each broken version must be caught by at least one of your rows).
+
+The modeling step is turning the tolerance spec into cases that pin down both boundaries; the analysis step is predicting each expected boolean by hand, paying attention to which boundary values the spec excludes.
+
+## Paper Practice
+
+Trace this program by hand, on paper. Build a variable table: for the call to `is_low_power`, write the value its `battery_percent` parameter holds and what it returns; then, for `check_drill_status`, write the values bound to its two parameters, to `low_power`, and to `result`. Write the exact value the program prints. Photograph your table and trace and attach it. This part is graded on completion (the attached photograph), not on whether every cell is right, so attempt it by hand first, then open the reveal to check yourself.
+
+```python title="trace_me.py"
+def is_low_power(battery_percent):
+    return battery_percent < 25
+
+def check_drill_status(oxygen_percent, battery_percent):
+    low_power = is_low_power(battery_percent)
+    if oxygen_percent >= 20 and not low_power:
+        result = 1
+    else:
+        result = 0
+    return result
+
+status = check_drill_status(22, 18)
+print(status)
+```
+
+<Reveal label="Reveal the completed trace">
+The call `check_drill_status(22, 18)` pushes a frame with `oxygen_percent = 22` and `battery_percent = 18`. Inside it, `is_low_power(18)` pushes a second frame with `battery_percent = 18`, computes `18 < 25`, and returns `true`; that frame is popped, and `true` is bound to `low_power` in `check_drill_status`'s own frame.
+
+| Line | frame | `oxygen_percent` | `battery_percent` | `low_power` | `result` |
+|---|---|---|---|---|---|
+| `is_low_power(18)` called | `is_low_power` | | `18` | | |
+| `return battery_percent < 25` | `is_low_power` | | `18` | | (returns `true`) |
+| `low_power = is_low_power(battery_percent)` | `check_drill_status` | `22` | `18` | `true` | |
+| `if oxygen_percent >= 20 and not low_power:` | `check_drill_status` | `22` | `18` | `true` | |
+| `result = 0` | `check_drill_status` | `22` | `18` | `true` | `0` |
+
+The condition checks `22 >= 20`, which is `true`, `and`ed with `not low_power`, which is `not true`, or `false`. `true and false` is `false`, so the `if` block is skipped and the `else` block runs, binding `result` to `0`. The program prints `0`.
+</Reveal>
+
+## Reflection
+
+In two sentences: first, state plainly whether you used an AI tool on this assignment and, if you did, what you used it for (if you did not use AI at all, say so explicitly); second, name any other help you used (a peer, the official docs, the lecture notes) and one thing you still could not do without that help. This is graded on completion, not on what you say, and it is not shared with anyone but the instructor.
+
+## Summit Problem (optional, worth nothing)
+
+This one is a stretch, and it earns no points; it is here so you can practice for the graded stretch problem in the recitation room, where a harder problem does count.
+
+Write `emergency_override(life_support_ok, manual_override)`, which returns the override code the crew display shows when a life-support sensor is questioned. It must return `0` when `life_support_ok` is `true`. When `life_support_ok` is `false`, it must return `1` if `manual_override` is `true` (the crew has manually accepted the risk) and `2` otherwise (the system locks out until a human decides). Reuse the priority idea from Problem 3 rather than rewriting it from scratch.
+
+| Call | Returns |
+|---|---|
+| `emergency_override(true, false)` | `0` |
+| `emergency_override(false, true)` | `1` |
+| `emergency_override(false, false)` | `2` |
