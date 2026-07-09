@@ -39,11 +39,11 @@ Read that as a two-sided constraint: strictly above the activity, level with the
 Every assignment has these parts, in this order. The problem set is always present; the paper practice and reflection are non-negotiable in every regular assignment; the summit is optional and uncounted.
 
 1. **Problem set (auto-graded).** Three to five problems in the same family and at the same level as the upcoming recitation. Sized to a **median completion time of about 2.5 to 3 hours** for a student who did the reading, tests included; the three-to-five count bends to that time target and never past it. Each problem is a set of functions written against a provided harness (see below). From the functions week on, **one problem per set is the spec-to-tests problem** (see below).
-2. **Paper practice (self-checked).** One tracing or memory-diagram exercise in exam-archetype format, done by hand and photographed. This is the only regular rehearsal of the paper modality outside lectures, so it is required in every regular assignment. The solution is released 48 hours later; the assignment page names the task but does not print the solution.
-3. **Reflection line (two sentences).** What the student used help for (peers, docs, AI) and what they still cannot do without help. Graded on completion, not content; it normalizes honest tool talk and feeds the instructor's misconception review.
+2. **Paper practice (self-checked).** One tracing or memory-diagram exercise in exam-archetype format, done by hand and photographed. This is the only regular rehearsal of the paper modality outside lectures, so it is required in every regular assignment. The worked solution sits in a closed `<Reveal>` on the page: the student attempts the trace by hand, then opens it to self-check. Graded on completion (the attached photograph), not on correctness.
+3. **Reflection line (two sentences).** The student must **explicitly disclose whether they used AI, and for what** (and state plainly when they did not), then name any other help used (peers, docs, the lecture notes) and one thing they still cannot do without help. Graded on completion, not content; the explicit AI disclosure normalizes honest tool talk and feeds the instructor's misconception review.
 4. **Summit problem (optional, worth nothing).** One problem at stretch altitude, the take-home training ground for the recitation's stretch problem. It carries no points on purpose: extra credit at the take-home tier would reward spare time rather than mastery. What it earns is preparation.
 
-Exam-adjacent weeks (around the midterm and the capstone) ship a **reduced** problem set: the exam-format paper practice they carry counts toward the week's work and the coding load drops to match, keeping the ceiling near the weekly budget. Mark those assignments `(reduced)` in the schedule and say so on the page.
+Every assignment is a full assignment: there is no reduced exam-adjacent variant, and no assignment carries exam-rehearsal material. Exam rehearsal is provided separately from the assignment track (for example as a practice exam or a Canvas quiz), so keep even the week-6 and week-10 assignments sized to the same weekly budget as any other week, never heavier.
 
 ## The Functions-Against-a-Harness Model
 
@@ -55,7 +55,9 @@ Consequences the spec must respect:
 - **Acceptance tests are call-to-value, not printed output.** Write each visible case as a call and the value it must return (`whole_sols(200000) -> 2`), because that is what the grader checks. Show a printed run only to illustrate the harness, and when you do, show each language's real display faithfully (a Rust `f64` of `1150.0` prints as `1150`, Python's prints as `1150.0`).
 - **Twin scaffolds, one contract.** The same acceptance tests bind both languages. The spec page shows the signatures in a `<Tabs syncKey="lang">` pair; the full starter repository (twin scaffolds, visible tests, `check`/`pack`) is separate infrastructure and is not part of the MDX page.
 
-**The pre-functions exception.** The first assignments, before the functions lecture, cannot use this model, because the student has no function syntax yet. Those assignments give a complete program with a single clearly marked region to fill, checked by comparing the program's output to expected output. Do not write a functions-against-a-harness problem for an assignment due before the functions lecture; check the language ladder first.
+**The pre-functions exception.** The first assignments, before the functions lecture, cannot use this model, because the student has no function syntax yet. Those assignments give a complete program with a single clearly marked region to fill, checked by comparing the program's output to expected output. Do not write a functions-against-a-harness problem for an assignment due before the functions lecture; check the language ladder first. Even showing a function skeleton counts as using functions: a skeleton, a signature, or `todo!()` may appear only once the functions lecture has been taught.
+
+**Introduce the harness conventions before the first harness assignment.** The provided `main` and the local test runner use conventions the student reads but never writes, in particular Python's `if __name__ == "__main__": main()` entry-point idiom and the test-runner's structure. The lecture notes and activities do not currently teach these, so they must be introduced in the week-1 onboarding (the setup assignment and its how-to) before the first functions-against-a-harness assignment; a harness assignment authored before that onboarding exists is not ready to ship. The same onboarding is the place to show students where to find the official documentation, the provided helper functions, and any libraries they may use (outcome O7). An assignment must never be the first place a student meets the `__main__` idiom, the test runner, or the documentation.
 
 ## The Red Herring Ladder
 
@@ -86,7 +88,7 @@ import Latex from '/src/components/Latex.astro';
 - **`WhatDiffers`**: inside a shown dual-language snippet when a real Python/Rust difference needs naming, beyond the standard `fn main`/`println!` boilerplate.
 - **`Latex`**: for a formula the spec references (a delta-v budget, a conversion), when plain text would be ambiguous.
 
-Do not import a lecture-only component (`MemoryStepper`, the visualizers) or a component from another course (`RubricTable`); the assignment tier has no rubric TSV, no PDF, and no video.
+Do not import a lecture-only component (`MemoryStepper`, the visualizers); the assignment tier does not use PDF or video deliverables. A TSV-driven rubric table may be added to this tier later (as in other courses); it is out of scope for now, neither required nor forbidden, so do not add one unprompted and do not write anything that assumes one.
 
 ## Frontmatter and the `ai-summary` Block
 
@@ -94,7 +96,7 @@ Do not import a lecture-only component (`MemoryStepper`, the visualizers) or a c
 
 ```yaml
 ---
-title: "Assignment N: Short Mission-Flavored Title"
+title: "Short Mission-Flavored Name"
 description: "One sentence naming the mission task and what the student will build."
 sidebar:
   order: <number, the assignment's position; keep distinct from lecture/activity orders>
@@ -102,7 +104,7 @@ draft: true
 ---
 ```
 
-The `title` prefix is always `Assignment N:` where N is the assignment number from the schedule. Append `(reduced)` in the schedule and note it on the page for exam-adjacent weeks.
+The `title` is the assignment's name only, with no `Assignment N:` prefix (for example `The Injection Burn`, not `Assignment 3: The Injection Burn`). The assignment's number lives in `sidebar.order` and in the schedule's label, not in the page title.
 
 ### The `ai-summary` block
 
@@ -137,9 +139,9 @@ Every assignment follows this order.
 
 1. **`<LanguageVersions />`** at the very top of the body.
 2. **Opening narrative** (no heading, 2 to 4 sentences): the Mission Ares mission beat. It names the situation, gives the student their crew role and constraint, and ends with what they are being asked to build in one sentence. It states no requirements and explains no concept.
-3. **How this assignment works** (a short `##` section): one or two sentences naming the four parts present, the language choice, and that the grader calls the student's functions directly. Link the relevant how-to for setup and submission rather than restating mechanics. Note `(reduced)` here when it applies.
+3. **How this assignment works** (a short `##` section): one or two sentences naming the four parts present, the language choice, and that the grader calls the student's functions directly. Link the relevant how-to for setup and submission rather than restating mechanics.
 4. **Problem set** (a `##` section, then one `###` per problem). Each problem uses the per-problem template below.
-5. **Paper practice** (a `##` section): the archetype trace or diagram to do by hand and photograph, named but not solved on the page.
+5. **Paper practice** (a `##` section): the archetype trace or diagram to do by hand and photograph, with its worked solution in a closed `<Reveal>` on the page for self-checking. Graded on completion.
 6. **Reflection** (a short `##` section): the two-sentence prompt.
 7. **Summit problem** (a final `##` section, optional): one stretch problem, labeled as optional and worth nothing.
 
@@ -213,8 +215,10 @@ This runs `astro check` and the link validator. Fix every error before consideri
 - No functions-against-a-harness problem in an assignment due before the functions lecture.
 - No acceptance test written as printed output when the grader checks return values.
 - No Rubber Duck Robotics or bare-exam framing: assignments are Mission Ares.
-- No solution to the paper practice on the page (it is released 48 hours later).
+- No paper practice whose worked solution is withheld from the page; it goes in a closed `<Reveal>` for self-checking.
+- No `Assignment N:` prefix in the page title; the number lives in `sidebar.order`.
+- No reduced exam-adjacent assignment and no exam-rehearsal material in an assignment.
 - No points attached to the summit problem.
-- No PDF, video, or rubric TSV: those are other courses' machinery.
+- No PDF or video deliverables.
 - No lecture-only or other-course component imports.
 - No emdashes, and no pairing language; author for one individual crew member.

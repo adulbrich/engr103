@@ -518,13 +518,17 @@ Each assignment has three parts:
    per set is the spec-to-tests problem (section 9): given requirements and a
    signature, write only the test suite.
 2. **Paper practice (self-checked).** One tracing or memory-diagram exercise in
-   exam archetype format, done by hand, photographed and attached. Solutions
-   are released 48 hours later. This is the only regular rehearsal of the paper
-   modality outside lectures, so it is non-negotiable in every assignment.
-3. **Reflection line (two sentences).** What they used help for (peers, docs,
-   AI) and what they still cannot do without help. Ungraded content, graded
-   completion; it normalizes honesty about tool use and feeds the instructor's
-   weekly misconception review.
+   exam archetype format, done by hand, photographed and attached. The worked
+   solution sits in a closed reveal on the assignment page: the student attempts
+   the trace, then opens it to self-check. Graded on completion, not
+   correctness. This is the only regular rehearsal of the paper modality outside
+   lectures, so it is non-negotiable in every assignment.
+3. **Reflection line (two sentences).** The student must explicitly disclose
+   whether they used AI and, if so, for what (and state plainly when they did
+   not), then name any other help used (peers, docs, the notes) and one thing
+   they still cannot do without it. Ungraded content, graded completion; the
+   explicit disclosure normalizes honesty about tool use and feeds the
+   instructor's weekly misconception review.
 4. **Summit problem (optional, worth nothing).** One problem at stretch
    altitude, the take-home training ground for the recitation's stretch
    problem. It carries no points at all, on purpose: extra credit at the
@@ -550,11 +554,11 @@ to fit inside that budget, not to fill it:
   read primarily in the student's chosen language while skimming the other;
   the "what differs" call-out is the part read in full.
 
-Exam-adjacent weeks are the pinch points (week 6 around the midterm, week 10
-around the Sol 100 capstone), so their assignments ship a **reduced** problem
-set: the exam-format paper practice they already carry counts toward the week's
-work, and the coding load drops to match, keeping the ceiling near nine hours
-rather than over it.
+Exam-adjacent weeks (week 6 around the midterm, week 10 around the Sol 100
+capstone) are the pinch points, so keep those assignments sized to the same
+weekly budget as any other week, never heavier. Exam rehearsal itself lives
+outside the assignment track, in separately provided practice materials, rather
+than in a bulked-up assignment.
 
 ### The critique thread
 
@@ -887,7 +891,7 @@ teaches its concept).
 | 4 | 7 | **Booleans and conditionals.** Comparisons, logical operators, short-circuit; `if`/`else`; building conditions from specifications; the floating-point equality trap and comparison with tolerance, grounded in lecture 2. | | |
 | 5 | 8 | **Decision structures.** `elif`/`else if` chains and `match`; nesting vs chaining; decision tables; guard clauses; common boundary bugs. | R5: conditionals and decision tables. | A4: Decision-table rule families + paper trace. |
 | 5 | 9 | **Errors, input, and validation.** Kinds of errors (syntax, run-time, logic); console input and parsing; exceptions vs `Result`; validating a value and failing loudly. (The loop-based validate-until-correct pattern is deferred to lecture 12.) | | |
-| 6 | 10 | **Testing.** Test cases from a specification; boundary and error cases; assertions and test functions in both languages; consolidates the spec-to-tests skill practiced since week 3. | R6: cumulative synthesis over lectures 1 to 10; doubles as midterm rehearsal. | A5: cumulative families + midterm-format paper practice set. |
+| 6 | 10 | **Testing.** Test cases from a specification; boundary and error cases; assertions and test functions in both languages; consolidates the spec-to-tests skill practiced since week 3. | R6: cumulative synthesis over lectures 1 to 10; doubles as midterm rehearsal. | A5: cumulative families + paper trace. |
 | 6 | | **Midterm**, on paper during the second lecture slot (lectures 1 to 10: foundations, functions, scope, conditionals, errors, testing; no loops). | | |
 | 7 | 11 | **Loops.** `while` for unknown counts, counted loops; loop variables; termination; `do-while` as a C++-only "what differs"; tracing loops. | R7: loops. | A6: Loop families + paper trace. |
 | 7 | 12 | **Loop patterns.** Accumulate, count, search, sentinel, validate-until-correct; nested loops (ASCII rendering); choosing the pattern from the problem statement. | | |
@@ -895,7 +899,7 @@ teaches its concept).
 | 8 | 14 | **Collections I: lists and vectors.** Indexing, length, iteration; growing and mutating; out-of-bounds as Python's `IndexError` vs Rust's panic (and the C++ buffer-overflow danger that motivates both). | | |
 | 9 | 15 | **The memory model: aliasing and ownership.** Names point at values; aliasing in Python (two names, one list) and ownership/moves/borrows-lite in Rust; the C++ dangling/buffer-overflow danger as why memory safety matters; drawing memory diagrams. Uses the memory stepper. (Late because aliasing needs lists to exist first; the foundation and the stepper are early.) | R9: memory model and sharing (packet buffers). | A8: memory/sharing families + memory-diagram paper practice. |
 | 9 | 16 | **Sharing and mutation.** Passing collections to functions; when the caller sees your changes; defensive copying; Rust `&`/`&mut` and why Rust makes you declare intent. Uses the memory stepper. | | |
-| 10 | 17 | **Collections II: dictionaries and maps** (advanced extra, not required for the outcomes). Dictionaries and hashmaps; key-value thinking; choosing between list and map; frequency counting and lookup. | R10: capstone recitation, a cumulative Rubber Duck synthesis over the term's families. | A9: the list-based Sol 100 mission-status capstone program with tests; accessibility/equity critique; final-format paper practice set. |
+| 10 | 17 | **Collections II: dictionaries and maps** (advanced extra, not required for the outcomes). Dictionaries and hashmaps; key-value thinking; choosing between list and map; frequency counting and lookup. | R10: capstone recitation, a cumulative Rubber Duck synthesis over the term's families. | A9: the list-based Sol 100 mission-status capstone program with tests; accessibility/equity critique; paper trace. |
 | 10 | 18 | **Computing with judgment** (advanced extra, not required for the outcomes). Evaluating code you did not write (a peer's, a library's, an AI's); limitations and failure modes; who is excluded by our tools; course synthesis and final-exam concept map. | | |
 
 Alignment checks built into the table:

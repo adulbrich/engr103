@@ -1,5 +1,5 @@
 ---
-title: "Assignment 3: The Injection Burn"
+title: "The Injection Burn"
 description: "Write the flight-software functions that turn mission time, speed, and propellant numbers into the values the trans-Mars injection burn needs, and judge one of HAB's drafts before you trust it."
 sidebar:
   order: 3
@@ -231,7 +231,7 @@ The modeling step is turning the spec into cases that pin it down; the analysis 
 
 ## Paper Practice
 
-Trace this program by hand, on paper. Build a variable table: for each call to `burn`, write the values its `dv` and `rate` parameters hold, and then the values bound to `a`, `b`, and `total`. Write the exact value the program prints. Photograph your table and trace and attach it.
+Trace this program by hand, on paper. Build a variable table: for each call to `burn`, write the values its `dv` and `rate` parameters hold, and then the values bound to `a`, `b`, and `total`. Write the exact value the program prints. Photograph your table and trace and attach it. This part is graded on completion (the attached photograph), not on whether every cell is right, so attempt it by hand first, then open the reveal to check yourself.
 
 ```python title="trace_me.py"
 def burn(dv, rate):
@@ -243,11 +243,21 @@ total = a + b
 print(total)
 ```
 
-The worked solution is released 48 hours after the due date. Check your trace against it then.
+<Reveal label="Reveal the completed trace">
+Each call copies its arguments into the parameters `dv` and `rate`, runs `return dv * rate`, and binds the returned value to `a`, then to `b`.
+
+| Line | `dv` | `rate` | `a` | `b` | `total` |
+|---|---|---|---|---|---|
+| `a = burn(1200.0, 2.0)` | `1200.0` | `2.0` | `2400.0` | | |
+| `b = burn(800.0, 3.0)` | `800.0` | `3.0` | `2400.0` | `2400.0` | |
+| `total = a + b` | | | `2400.0` | `2400.0` | `4800.0` |
+
+The program prints `4800.0`. That trailing `.0` is Python's display of a whole-valued float; the same program written in Rust prints the `f64` as `4800`.
+</Reveal>
 
 ## Reflection
 
-In two sentences: name what you used help for on this assignment (a peer, the official docs, an AI tool, the lecture notes), and name one thing you still could not do without that help. This is graded on completion, not on what you say, and it is not shared with anyone but the instructor.
+In two sentences: first, state plainly whether you used an AI tool on this assignment and, if you did, what you used it for (if you did not use AI at all, say so explicitly); second, name any other help you used (a peer, the official docs, the lecture notes) and one thing you still could not do without that help. This is graded on completion, not on what you say, and it is not shared with anyone but the instructor.
 
 ## Summit Problem (optional, worth nothing)
 
