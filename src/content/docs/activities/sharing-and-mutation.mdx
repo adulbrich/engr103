@@ -1,6 +1,6 @@
 ---
 title: "Sharing, Mutating, and Defending a List"
-description: "Predict when a function changes the caller's list, compare Python's silent sharing with Rust's &mut, and fix a read-only borrow that tries to push."
+description: "Predict which of a function's arguments the caller keeps, compare a read-then-grow call in Python and Rust, and fix a Python helper that silently mutates the caller's list."
 sidebar:
   order: 16
 draft: true
@@ -16,19 +16,19 @@ type: activity
 slug: sharing-and-mutation
 order: 16
 paired_lecture: sharing-and-mutation
-practices: predicts the caller's list after a function appends to its list parameter, and contrasts it with a scalar parameter that does not change the caller; names what differs when the same collection is passed in Python versus Rust and what Rust makes you declare to change it; diagnoses a read-only shared reference that tries to push, rejected with E0596, and applies the three-place fix; recognizes defensive copying as the way to keep an original safe
+practices: predicts the caller's list, scalar, and returned value after one function appends to its list parameter, reassigns its scalar parameter, and returns the new scalar, so the shared object and the private copy must be told apart inside one call; names what differs when a function that reads a collection and then modifies it is passed the same collection in Python versus Rust, and what Rust makes you declare to change it; diagnoses a Python helper that silently mutates the caller's list because a defensive copy was forgotten, and fixes it with list(xs); recognizes defensive copying as the way to keep an original safe
 prereq_activities:
 block_types: predict-then-run, same-program-two-languages, live-debugging
-output: a reconciled prediction, a named cross-language difference, and a corrected borrow for each of the three blocks
+output: a reconciled three-line prediction, a named cross-language difference on a read-then-modify call, and a corrected defensive copy for each of the three sections
 */}
 
 <LanguageVersions />
 
-This activity puts into practice the [Sharing and Mutation](/lectures/sharing-and-mutation/) lecture. You will predict whether a function changes the list you hand it, compare how Python and Rust let a function grow the same collection, and fix a Rust function that borrows a vector to read but tries to change it. By the end, you will be able to tell from a call whether a function can reach back and modify your collection, and say what Rust forces into the open that Python leaves silent.
+This activity puts into practice the [Sharing and Mutation](/lectures/sharing-and-mutation/) lecture. You will predict which of a function's arguments survive the call unchanged, compare a function that reads a collection and then grows it in Python and Rust, and fix a Python helper that changes the caller's list when it was only meant to preview a change. By the end, you will be able to tell from a call whether a function can reach back and modify your collection, and say what Rust forces into the open that Python leaves silent.
 
 ## Warm-up
 
-A quick refresher before the blocks. A list holds several values as one object, and `append` in Python or `push` in Rust adds a value to that object in place. Here is that smallest piece in both languages.
+A quick refresher before the sections. A list holds several values as one object, and `append` in Python or `push` in Rust adds a value to that object in place. Here is that smallest piece in both languages.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
@@ -57,70 +57,77 @@ python3 warmup.py
 [10, 20, 30, 40]
 ```
 
-Rust prints the same `[10, 20, 30, 40]`. Keep in mind the other piece the lecture rests on: in Python two names can refer to one list, so a change through either name is a change both names see. The blocks below let that sharing reach in through a function call.
+Rust prints the same `[10, 20, 30, 40]`. Keep in mind the other piece the lecture rests on: in Python two names can refer to one list, so a change through either name is a change both names see. The sections below let that sharing reach in through a function call.
 
-## Block 1: Predict Who Changes
+## Predict What the Caller Keeps
 
-A function that appends to its list parameter reaches the caller's own list, but a function that reassigns a number parameter changes only its private copy. Telling those two apart on sight is the skill this block drills. You commit to an answer first, then run the program to check it.
+One function can touch a list argument and a scalar argument in the very same body, and the two arguments come back to the caller looking nothing alike: the list keeps what the function did to it, the scalar does not. Telling those two apart inside a single call, and separating both from what the function hands back with `return`, is the skill this section drills. You commit to an answer first, then run the program to check it.
 
-Read the program below and write down, on paper or in a comment, exactly what each of the two `print` lines will show. Do not run it yet. For each call, decide whether the function is working on the caller's own value or on a separate copy of it.
+Read the program below and write down, on paper or in a comment, exactly what all three `print` lines will show. Do not run it yet. `record` does three things to its parameters: it appends to `samples`, it reassigns `count`, and it returns the new `count`. For each of the three prints, decide whether you are looking at the caller's own value, a value the function changed only in its private copy, or a value the function computed and handed back.
 
 ```python title="predict.py"
-def add_reading(samples, value):
+def record(samples, count, value):
     samples.append(value)
-
-def bump(n):
-    n = n + 1
+    count = count + 1
+    return count
 
 readings = [10, 20, 30]
-count = 5
-add_reading(readings, 40)
-bump(count)
+count = 3
+result = record(readings, count, 40)
 print(readings)
 print(count)
+print(result)
 ```
 
-<Reveal label="Reveal the real output and reconcile it with your prediction">
+<Reveal label="Reveal the real output and reconcile it with your three-line prediction">
 ```bash title="Run the Python program"
 python3 predict.py
 ```
 
 ```text frame="terminal" title="Output"
 [10, 20, 30, 40]
-5
+3
+4
 ```
 
-The list changed and the number did not. When Python matches an argument to a parameter it copies the argument's value, and for `readings` that value is a reference to the one list object, so `samples` points at the very same list; `samples.append(value)` grows that shared object, and `readings` sees `[10, 20, 30, 40]` afterward. For `count`, the value is the number `5` itself, so `n` holds a separate copy; `n = n + 1` builds a new number for `n` alone and never touches `count`, which stays `5`. If you predicted `6`, you applied the list's sharing to a scalar: a small value is a private copy, not a shared object.
+Three arguments went in, and the three lines tell three different stories from the one call. When Python matches an argument to a parameter it copies the argument's value. For `readings` that value is a reference to the one list object, so `samples` points at the very same list; `samples.append(value)` grows that shared object, and `readings` reads back `[10, 20, 30, 40]`. For `count` the value is the number `3` itself, so the parameter `count` holds a separate copy; `count = count + 1` builds a new number `4` and binds it to that private copy alone, and the caller's `count` never moves off `3`. The only way the incremented value reaches the caller is the one you can see at the call site: `record` returns it, and `result` catches it, so `result` is `4`. If you predicted `4` for the second line, you let the list's sharing spill onto a scalar; a small value is a private copy, and the sole path out of the function for it is the `return`, which is why `count` stays `3` while `result` is `4`.
 </Reveal>
 
 ---
 
-## Block 2: The Same Growth, Two Languages
+## Read Then Grow, in Two Languages
 
-Both languages let a function grow a collection you hand it, and both leave the caller looking at the result. Studying the two versions side by side is how you see what Rust makes you spell out that Python keeps silent. You read both tabs and name what genuinely differs and what stays fixed.
+A function that first reads every element of a collection and then adds a new one to it is the ordinary shape of real work: summarize what is there, then record the summary. Both languages let that function reach the caller's own collection, but only one lets you write it the same way whether the function reads or writes. Studying the two versions side by side is how you see what Rust makes you spell out. You read both tabs and name what genuinely differs and what stays fixed.
 
-Study the two programs below. Each defines `add_reading`, calls it on a three-element collection, and prints the collection afterward. Before opening the reveal, write down what each prints, then name one thing Rust requires that Python does not.
+Study the two programs below. Each defines `append_total`, which walks the collection to add up its elements and then pushes that total onto the end, so the function both reads and modifies the same collection in one call. Each then prints the collection afterward. Before opening the reveal, write down what each prints, then name one thing Rust requires here that Python does not.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python title="share.py"
-def add_reading(samples, value):
-    samples.append(value)
+```python title="append_total.py"
+def append_total(samples):
+    total = 0
+    for s in samples:
+        total = total + s
+    samples.append(total)
 
 readings = [10, 20, 30]
-add_reading(readings, 40)
+append_total(readings)
 print(readings)
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="share.rs"
-fn add_reading(samples: &mut Vec<i32>, value: i32) {
-    samples.push(value);
+```rust title="append_total.rs"
+fn append_total(samples: &mut Vec<i32>) {
+    let mut total = 0;
+    for s in samples.iter() {
+        total = total + s;
+    }
+    samples.push(total);
 }
 
 fn main() {
     let mut readings = vec![10, 20, 30];
-    add_reading(&mut readings, 40);
+    append_total(&mut readings);
     println!("{:?}", readings);
 }
 ```
@@ -129,93 +136,86 @@ fn main() {
 
 <Reveal label="Reveal the outputs and what Rust makes you declare">
 ```bash title="Run the Python program"
-python3 share.py
+python3 append_total.py
 ```
 
 ```text frame="terminal" title="Output"
-[10, 20, 30, 40]
+[10, 20, 30, 60]
 ```
 
 ```bash title="Compile and run the Rust program"
-rustc share.rs
-./share
+rustc append_total.rs
+./append_total
 ```
 
 ```text frame="terminal" title="Output"
-[10, 20, 30, 40]
+[10, 20, 30, 60]
 ```
 
 <WhatDiffers>
 <Fragment slot="differs">
-Both print `[10, 20, 30, 40]`, and in both the function reached the caller's own collection to add the value. What differs is who has to say so. Python shares the list silently: `def add_reading(samples, value)` looks the same whether it reads or writes, and passing `readings` already hands over the shared object. Rust makes you declare the sharing in three places, each a promise the compiler checks: the owner is `let mut readings`, the parameter is typed `&mut Vec<i32>`, and the call passes `&mut readings`. Passing the vector by plain value instead would move it into the function and leave `main` unable to use `readings` afterward, so the borrow is what lets `main` keep and print it. What stays fixed is the result: one shared collection, grown in place, visible to the caller.
+Both print `[10, 20, 30, 60]`: each function reads the three elements, totals them to `60`, and pushes that total onto the caller's own collection. What differs is what the code has to say out loud. Python shares the list silently: `def append_total(samples)` is spelled the same whether the function only reads or, as here, reads and then writes, and passing `readings` already hands over the shared object. Rust makes you declare the writing. Because the function modifies the collection at all, the parameter must be `&mut Vec<i32>`, not the read-only `&Vec<i32>` you might reach for on seeing the loop; one mutable borrow covers both the reading and the push. That forces `let mut readings` on the owner and `&mut readings` at the call. Hand the vector over by plain value instead and Rust does not share it, it moves it: ownership passes into `append_total`, and `main` can no longer print `readings` afterward, rejected as error `E0382`. The borrow is what lets `main` keep the vector and still see the total appended. What stays fixed is the result: one collection, read and then grown in place, visible to the caller.
 </Fragment>
 </WhatDiffers>
 </Reveal>
 
 ---
 
-## Block 3: Fix the Read-Only Borrow
+## Find the Silent Mutation
 
-A Rust function that borrows a collection with `&` promises to read it, not change it, and the compiler holds it to that promise. The program below breaks the promise: it borrows a vector to read but calls `push` through the borrow. You find the bug with the systematic method: read the error, form a hypothesis, test the fix.
+This bug never crashes and never prints an error, which is what makes it dangerous. A helper is meant to show what a list *would* look like with one more value, leaving the caller's real list untouched, but it forgot to defend the original and quietly edits it instead. You find it not from a compiler message but from an output that is wrong in a way you have to notice, then you reason back to the shared object behind it.
 
-```rust title="collect.rs (will not compile)"
-fn add_reading(samples: &Vec<i32>, value: i32) {
-    samples.push(value);
-}
+Read the program. `preview_with` is supposed to build and return a preview list with `value` tacked on, without disturbing `readings`. Predict both printed lines, then decide whether the last line really shows the untouched original the author intended.
 
-fn main() {
-    let readings = vec![10, 20, 30];
-    add_reading(&readings, 40);
-    println!("{:?}", readings);
-}
+```python title="preview.py"
+def preview_with(samples, value):
+    samples.append(value)
+    return samples
+
+readings = [10, 20, 30]
+preview = preview_with(readings, 40)
+print(preview)
+print(readings)
 ```
 
-<Reveal label="Reveal the diagnosis and the fix">
-```bash title="Compile the Rust program"
-rustc collect.rs
-```
-
-```text frame="terminal" title="Output"
-error[E0596]: cannot borrow `*samples` as mutable, as it is behind a `&` reference
- --> collect.rs:2:5
-  |
-2 |     samples.push(value);
-  |     ^^^^^^^ `samples` is a `&` reference, so the data it refers to cannot be borrowed as mutable
-  |
-help: consider changing this to be a mutable reference
-  |
-1 | fn add_reading(samples: &mut Vec<i32>, value: i32) {
-  |                          +++
-```
-
-**Symptom.** The program does not build. Error `E0596` points at `samples.push(value)` and says `samples` is a `&` reference, so the data it refers to cannot be borrowed as mutable.
-
-**Hypothesis.** The parameter type is `&Vec<i32>`, a shared reference, which grants read access only. But `push` changes the vector, which needs mutable access. The function asked to borrow read-only and then tried to write, so the compiler refuses.
-
-**Test.** Granting the function permission to change the collection takes agreement in three places, exactly as the lecture named them: the parameter becomes `&mut Vec<i32>`, the owner becomes `let mut readings`, and the call passes `&mut readings`.
-
-```rust title="collect.rs (fixed)"
-fn add_reading(samples: &mut Vec<i32>, value: i32) {
-    samples.push(value);
-}
-
-fn main() {
-    let mut readings = vec![10, 20, 30];
-    add_reading(&mut readings, 40);
-    println!("{:?}", readings);
-}
-```
-
-```bash title="Compile and run the fixed program"
-rustc collect.rs
-./collect
+<Reveal label="Reveal the diagnosis and the defensive-copy fix">
+```bash title="Run the Python program"
+python3 preview.py
 ```
 
 ```text frame="terminal" title="Output"
 [10, 20, 30, 40]
+[10, 20, 30, 40]
 ```
 
-Changing only the parameter is not enough: you cannot lend permission to change a value the owner never had, and the call site must show the mutation where it happens. All three lines carry the same `mut`, and only then does the push land on the caller's vector, growing it to `[10, 20, 30, 40]`.
+**Symptom.** No crash, no error text; the program runs to the end. The tell is the second line. `readings` was supposed to be the untouched original `[10, 20, 30]`, but it prints `[10, 20, 30, 40]`, the same as the preview. The function reached back and changed the caller's list.
+
+**Hypothesis.** `preview_with` never made a list of its own. Passing `readings` copies the reference, so `samples` and `readings` name the one shared list; `samples.append(value)` grows that shared object, and returning `samples` hands back a second name for it rather than a fresh list. The author meant to preview a change on a separate list but wrote code that mutates the original in place.
+
+**Test.** Give the function its own list to modify by making a defensive copy of the argument before appending. `list(samples)` builds a new list with the same elements, and so does the slice `samples[:]`; either one leaves `readings` out of reach of the `append`.
+
+```python title="preview.py (fixed)"
+def preview_with(samples, value):
+    samples = list(samples)
+    samples.append(value)
+    return samples
+
+readings = [10, 20, 30]
+preview = preview_with(readings, 40)
+print(preview)
+print(readings)
+```
+
+```bash title="Run the fixed program"
+python3 preview.py
+```
+
+```text frame="terminal" title="Output"
+[10, 20, 30, 40]
+[10, 20, 30]
+```
+
+The reassignment `samples = list(samples)` is the whole fix: it rebinds `samples` to a brand-new list so that from that line on the parameter no longer names the caller's object, and the `append` lands on the copy. The preview still comes out `[10, 20, 30, 40]`, and `readings` is back to the untouched `[10, 20, 30]` the author intended all along. Copying at the call instead, `preview_with(list(readings), 40)`, defends the original just as well; either way the point is to hand the function something of its own whenever it must be kept from your list.
 </Reveal>
 
 ---

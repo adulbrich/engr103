@@ -16,19 +16,19 @@ type: activity
 slug: collections-i
 order: 14
 paired_lecture: collections-i
-practices: predicts the final list and running sum after creating a sequence, pushing an element, and overwriting one by index; names what changes and what stays fixed between Python's negative index and iteration and Rust's computed last index and iteration by reference; diagnoses an out-of-bounds index from its exact error message and fixes the off-by-one
+practices: predicts the final list and the largest element after creating a sequence, pushing elements, reading a just-changed element with an index, and overwriting one by index; names what changes and what stays fixed between Python's negative index used inside iteration and Rust's computed last index with iteration by reference; diagnoses an out-of-bounds index raised on the last pass of a loop that reads one element ahead, from its exact error message, and fixes the off-by-one
 prereq_activities:
 block_types: predict-then-run, same-program-two-languages, live-debugging
-output: a reconciled prediction of a grown list and its sum, a named cross-language difference in reaching the last element and iterating, and a corrected off-by-one index for each of the three blocks
+output: a reconciled prediction of a grown list and its largest element, a named cross-language difference in reaching the last element while iterating, and a corrected loop bound that stops reading past the end for each of the three sections
 */}
 
 <LanguageVersions />
 
-This activity puts into practice the [Collections I: Lists and Vectors](/lectures/collections-i/) lecture. You will predict what a list looks like after you push an element and overwrite another and what its elements sum to, compare how Python and Rust reach the last element and walk the sequence, and hunt down an out-of-bounds index that stops a program cold. By the end, you will be able to trace a growing sequence by hand and read the exact error a bad index produces in each language.
+This activity puts into practice the [Collections I: Lists and Vectors](/lectures/collections-i/) lecture. You will predict what a list holds after several pushes and an overwrite and which of its elements is largest, compare how Python and Rust reach the last element while walking the sequence, and hunt down an out-of-bounds index that only shows itself on the final pass of a loop. By the end, you will be able to trace a growing sequence by hand and read the exact error a bad index produces in each language.
 
 ## Warm-up
 
-A quick refresher before the blocks. A list, called a vector in Rust, is an ordered run of values you create as a literal, reach into by position starting from zero, and measure with a length. Here are those three pieces, in both languages.
+A quick refresher before the sections. A list, called a vector in Rust, is an ordered run of values you create as a literal, reach into by position starting from zero, and measure with a length. Here are those three pieces, in both languages.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
@@ -61,41 +61,46 @@ python3 warmup.py
 3
 ```
 
-Rust prints the same three lines, using `{:?}` to show the whole vector and `nums.len()` as a method after the dot rather than the `len(nums)` function. With those pieces fresh, the blocks below grow, walk, and break a sequence.
+Rust prints the same three lines, using `{:?}` to show the whole vector and `nums.len()` as a method after the dot rather than the `len(nums)` function. With those pieces fresh, the sections below grow, walk, and break a sequence.
 
-## Block 1: Predict the List and the Sum
+## Predict the List and the Largest Element
 
-Pushing an element and overwriting one by index both change a list in place, and a sum over the result is easy to get wrong if you lose track of either change. You commit to an answer first, then run the program to check it.
+Pushing an element, reading an element back by its index, and overwriting one all change or depend on the list at the moment they run, so the order matters and the final list is easy to get wrong. Finding the largest element then depends on getting that final list exactly right. You commit to an answer first, then run the program to check it.
 
-Read both programs below and write down, on paper or in a comment, three things: the length the program prints, the exact final list, and the total its loop prints. Do not run them yet. Trace the list one line at a time: start from the literal, apply the push, apply the index assignment, then add the elements up. Predict for both languages, and notice whether your two answers agree.
+Read both programs below and write down, on paper or in a comment, three things: the length the program prints, the exact final list, and the largest element its loop finds. Do not run them yet. Trace the list one line at a time: start from the literal, apply each push in turn, and watch closely what value the third push actually appends, since it reads an element you just changed. Then scan the final list for its largest value. Predict for both languages, and notice whether your two answers agree.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
 ```python title="predict.py"
-nums = [1, 2, 3]
-nums.append(4)
-nums[0] = 10
+nums = [4, 9, 6]
+nums.append(9)
+nums[1] = 2
+nums.append(nums[1] + 3)
 print(len(nums))
-total = 0
-for x in nums:
-    total = total + x
+largest = nums[0]
+for i in range(len(nums)):
+    if nums[i] > largest:
+        largest = nums[i]
 print(nums)
-print(total)
+print(largest)
 ```
 </TabItem>
 <TabItem label="Rust">
 ```rust title="predict.rs"
 fn main() {
-    let mut nums = vec![1, 2, 3];
-    nums.push(4);
-    nums[0] = 10;
+    let mut nums = vec![4, 9, 6];
+    nums.push(9);
+    nums[1] = 2;
+    nums.push(nums[1] + 3);
     println!("{}", nums.len());
-    let mut total = 0;
-    for x in &nums {
-        total = total + x;
+    let mut largest = nums[0];
+    for i in 0..nums.len() {
+        if nums[i] > largest {
+            largest = nums[i];
+        }
     }
     println!("{:?}", nums);
-    println!("{}", total);
+    println!("{}", largest);
 }
 ```
 </TabItem>
@@ -107,9 +112,9 @@ python3 predict.py
 ```
 
 ```text frame="terminal" title="Output"
-4
-[10, 2, 3, 4]
-19
+5
+[4, 2, 6, 9, 5]
+9
 ```
 
 ```bash title="Compile and run the Rust program"
@@ -118,40 +123,42 @@ rustc predict.rs
 ```
 
 ```text frame="terminal" title="Output"
-4
-[10, 2, 3, 4]
-19
+5
+[4, 2, 6, 9, 5]
+9
 ```
 
-The list starts as `[1, 2, 3]`. Appending `4` puts it after the last element, making `[1, 2, 3, 4]`, so the length is now `4`. Assigning `nums[0] = 10` overwrites the element at position 0, the `1`, with `10`, leaving the rest untouched, so the list is `[10, 2, 3, 4]`. The loop then adds the elements in order: `0 + 10` is `10`, then `12`, then `15`, then `19`. If you predicted a total of `10` for the sum, you likely added the original `1` instead of the `10` that overwrote it, or dropped the pushed `4`.
+The list starts as `[4, 9, 6]`. The first push appends `9`, making `[4, 9, 6, 9]`. Then `nums[1] = 2` overwrites the element at position 1, the original `9`, with `2`, leaving `[4, 2, 6, 9]`. The third push is the trap: it appends `nums[1] + 3`, and `nums[1]` is now `2`, not the `9` it started as, so it appends `2 + 3`, which is `5`, giving `[4, 2, 6, 9, 5]`. The length is `5`.
 
-Both languages print the identical three lines, and that is the point: append, index assignment, and the accumulate loop behave the same in each. The only difference is that Rust requires `let mut` on a vector you change, and writes the push as `nums.push(4)` and the walk as `for x in &nums`.
+The largest loop starts `largest` at `nums[0]`, which is `4`, then walks the final list: `4` is not greater than `4`, `2` is not, `6` is greater so `largest` becomes `6`, `9` is greater so `largest` becomes `9`, and `5` is not. The largest element is `9`. If you predicted `12` for the last pushed value, you used the original `nums[1]` of `9` instead of the `2` that overwrote it; if you predicted a largest of `6`, you likely forgot the `9` that the first push left near the end of the list.
+
+Both languages print the identical three lines. Append, index assignment, reading an element by index, and a loop that keeps a running best all behave the same in each. The only difference is that Rust requires `let mut` on a vector you change, writes the push as `nums.push(9)`, and walks the positions with `for i in 0..nums.len()`.
 </Reveal>
 
 ---
 
-## Block 2: Reaching the End, Two Languages
+## Measure Every Element Against the Last
 
-Both languages reach the last element of a sequence and walk every element, and they write each of those two things differently. Studying the renderings side by side is how you keep Python's shortcut and Rust's explicit form straight instead of blurring them. You read both tabs and name what genuinely changes and what stays fixed.
+A common job over a sequence is to compare every element against one fixed element, and the last element is the fixed one here. The catch is that reaching the last element is exactly where Python and Rust part ways, and in this task that reach happens on every pass of the loop, so the difference is not a one-line detail but shows up all through the walk. You read both tabs and name what genuinely changes and what stays fixed.
 
-Study the two programs below. Each prints the last element of the same three-value sequence, then walks the whole thing from first to last. Before opening the reveal, write down the four lines you expect each program to print, then name one thing that is truly different between the languages and one thing that is the same.
+Study the two programs below. Each prints the last element of the same four-value sequence, then walks the whole sequence and prints how far each element sits below that last one, computed as the last element minus the current element. Before opening the reveal, write down the five lines you expect each program to print, then name one thing that is truly different between the languages and one thing that is the same.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
 ```python title="last.py"
-nums = [10, 20, 30]
+nums = [5, 8, 2, 6]
 print(nums[-1])
 for x in nums:
-    print(x)
+    print(nums[-1] - x)
 ```
 </TabItem>
 <TabItem label="Rust">
 ```rust title="last.rs"
 fn main() {
-    let nums = vec![10, 20, 30];
+    let nums = vec![5, 8, 2, 6];
     println!("{}", nums[nums.len() - 1]);
     for x in &nums {
-        println!("{}", x);
+        println!("{}", nums[nums.len() - 1] - x);
     }
 }
 ```
@@ -164,10 +171,11 @@ python3 last.py
 ```
 
 ```text frame="terminal" title="Output"
-30
-10
-20
-30
+6
+1
+-2
+4
+0
 ```
 
 ```bash title="Compile and run the Rust program"
@@ -176,41 +184,45 @@ rustc last.rs
 ```
 
 ```text frame="terminal" title="Output"
-30
-10
-20
-30
+6
+1
+-2
+4
+0
 ```
+
+The last element is `6`. The loop then prints `6 - 5` which is `1`, `6 - 8` which is `-2`, `6 - 2` which is `4`, and `6 - 6` which is `0`. The second element sits above the last, so its distance is negative, which is the kind of result worth predicting rather than assuming.
 
 <WhatDiffers>
 <Fragment slot="differs">
-Python reaches the last element with a negative index, `nums[-1]`, which counts one back from the end. Rust has no negative index, so it computes the last position by hand as `nums[nums.len() - 1]`, one less than the length. Iterating differs too: Python writes `for x in nums`, while Rust writes `for x in &nums`, the leading `&` letting the loop read the elements without taking the vector away so `nums` stays usable afterward. What stays fixed is that both index from zero, both produce the same last element `30`, and both walk the elements in the same first-to-last order.
+Python reaches the last element with a negative index, `nums[-1]`, which counts one back from the end, and it does so inside the loop on every pass. Rust has no negative index, so each pass computes the last position by hand as `nums[nums.len() - 1]`, one less than the length. Iterating differs too: Python writes `for x in nums`, while Rust writes `for x in &nums`, the leading `&` letting the loop read the elements without taking the vector away, so `nums` stays usable, which matters here because the body reaches back into `nums` on every pass. What stays fixed is that both index from zero, both treat `6` as the last element, and both print the same five lines in the same order.
 </Fragment>
 </WhatDiffers>
 </Reveal>
 
 ---
 
-## Block 3: Find the Out-of-Bounds Index
+## Find the Bug in the Loop That Reads Ahead
 
-Reaching for a position a sequence does not have is the classic mistake with any list, and it stops the program at that instant rather than printing a wrong value. The program below means to print the last element but reaches one position too far. You find the bug with the systematic method: read the error, form a hypothesis, test it.
+Reaching one position past the end of a sequence is the classic list mistake, and it is at its sneakiest inside a loop that reads one element ahead of the current one, because the loop runs correctly for a while and only fails on the very last pass. The program below means to print the sum of each element and the next one, but its loop reads past the end. You find the bug with the systematic method: read the error, form a hypothesis, test it.
 
-Each program builds a three-element sequence, stores its length in `n`, and tries to print the element at position `n`. Run it, read the error it produces, then work out why position `n` is wrong and how one change fixes it.
+Each program walks a three-element sequence and, for each position `i`, prints `nums[i] + nums[i + 1]`, the current element added to the one after it. Run it, read the error it produces, then work out on which pass the reach goes wrong and how one change to the loop fixes it.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
 ```python title="bounds.py"
 nums = [10, 20, 30]
-n = len(nums)
-print(nums[n])
+for i in range(len(nums)):
+    print(nums[i] + nums[i + 1])
 ```
 </TabItem>
 <TabItem label="Rust">
 ```rust title="bounds.rs"
 fn main() {
     let nums = vec![10, 20, 30];
-    let n = nums.len();
-    println!("{}", nums[n]);
+    for i in 0..nums.len() {
+        println!("{}", nums[i] + nums[i + 1]);
+    }
 }
 ```
 </TabItem>
@@ -222,10 +234,12 @@ python3 bounds.py
 ```
 
 ```text frame="terminal" title="Output"
+30
+50
 Traceback (most recent call last):
   File "bounds.py", line 3, in <module>
-    print(nums[n])
-          ~~~~^^^
+    print(nums[i] + nums[i + 1])
+                    ~~~~^^^^^^^
 IndexError: list index out of range
 ```
 
@@ -235,31 +249,34 @@ rustc bounds.rs
 ```
 
 ```text frame="terminal" title="Output"
-thread 'main' panicked at bounds.rs:4:24:
+30
+50
+thread 'main' panicked at bounds.rs:4:38:
 index out of bounds: the len is 3 but the index is 3
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
-**Symptom.** Neither program prints a number. Python halts with an `IndexError: list index out of range`, and Rust panics with `index out of bounds: the len is 3 but the index is 3`. Both name the problem: the index is out of bounds.
+**Symptom.** Both programs print two correct sums, `30` and `50`, and then stop. Python halts with an `IndexError: list index out of range`, and Rust panics with `index out of bounds: the len is 3 but the index is 3`. The two good lines matter: the bug is not in the sum itself but in how far the loop runs.
 
-**Hypothesis.** A three-element sequence has positions 0, 1, and 2, so the last valid index is `2`, one less than the length. The program uses `n`, which is `3`, so it reaches for position 3, one past the last element, which does not exist. This is an off-by-one: the length is a count of elements, not the index of the last one.
+**Hypothesis.** The loop runs `i` over `0`, `1`, and `2`, the three valid positions of a three-element list. On `i = 0` it reads `nums[0] + nums[1]`, which is `10 + 20 = 30`; on `i = 1` it reads `nums[1] + nums[2]`, which is `20 + 30 = 50`. On `i = 2` it reads `nums[2] + nums[3]`, and position `3` does not exist in a three-element list, so the reach for `nums[i + 1]` goes one past the end. This is an off-by-one that hides until the last pass: because the body reads `nums[i + 1]`, the loop must stop one position sooner than usual, at the second-to-last element, so that `i + 1` never runs past the end.
 
-**Test.** Reach for `n - 1` instead, the last valid position:
+**Test.** Stop the loop one position early, at `len - 1`, so the last pass reads the second-to-last and last elements together:
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
 ```python title="bounds.py (fixed)"
 nums = [10, 20, 30]
-n = len(nums)
-print(nums[n - 1])
+for i in range(len(nums) - 1):
+    print(nums[i] + nums[i + 1])
 ```
 </TabItem>
 <TabItem label="Rust">
 ```rust title="bounds.rs (fixed)"
 fn main() {
     let nums = vec![10, 20, 30];
-    let n = nums.len();
-    println!("{}", nums[n - 1]);
+    for i in 0..nums.len() - 1 {
+        println!("{}", nums[i] + nums[i + 1]);
+    }
 }
 ```
 </TabItem>
@@ -271,9 +288,10 @@ python3 bounds.py
 
 ```text frame="terminal" title="Output"
 30
+50
 ```
 
-Rust prints the same `30`. The fix is a single `- 1`, turning the length into the last valid index. The lesson is that both languages catch a bad index at run time and stop, Python with an `IndexError` and Rust with a panic, so a length used where the last index belongs shows up loudly instead of reading the wrong value.
+Rust prints the same two lines. The fix is a single `- 1` on the loop bound, which stops `i` at the second-to-last position so `nums[i + 1]` always names a real element. The lesson is that a loop reading one element ahead must run one position shorter than a loop reading just the current element, and when it does not, the mistake stays invisible until the final pass, where both languages catch it and stop, Python with an `IndexError` and Rust with a panic.
 </Reveal>
 
 ---

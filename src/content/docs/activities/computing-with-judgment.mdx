@@ -16,10 +16,10 @@ type: activity
 slug: computing-with-judgment
 order: 18
 paired_lecture: computing-with-judgment
-practices: reconstructs the missing specification of a function you did not write; chooses the boundary test input that decides whether to trust it; predicts how the same missing case crashes in Python and stays a silent NaN in Rust; diagnoses the wrong result with the systematic method and guards the empty case with one change
+practices: reconstructs the missing specification of a function you did not write; chooses the boundary test input that decides whether to trust it; predicts how a filtered-away count crashes in Python and stays a silent NaN in Rust; diagnoses the wrong result with the systematic method and finds that guarding the empty list is not enough, guarding the count is
 prereq_activities:
 block_types: peer-instruction, predict-then-run, live-debugging
-output: a chosen discriminating test, a committed prediction of the cross-language failure, and a guarded fix for the empty-list case
+output: a chosen discriminating test, a committed prediction of the cross-language failure, and a fix that guards the count rather than the list length
 */}
 
 <LanguageVersions />
@@ -28,7 +28,7 @@ This activity puts into practice the [Computing with Judgment](/lectures/computi
 
 ## Warm-up
 
-A quick refresher before the blocks. Here is a function that averages a list of readings. You did not write it, but it reads like the definition of an average: it adds every reading, counts how many there were, and divides the total by the count. On a typical list it behaves.
+A quick refresher before the sections. Here is the plain average from the lecture. You did not write it, but it reads like the definition of an average: it adds every reading, counts how many there were, and divides the total by the count. On a typical list it behaves.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
@@ -81,69 +81,106 @@ rustc warmup.rs
 6
 ```
 
-Both report the average of 6, 9, and 3: Python prints `6.0` and Rust prints `6`, the same value shown two ways. Every block below judges this same `average` function.
+Both report the average of 6, 9, and 3: Python prints `6.0` and Rust prints `6`, the same value shown two ways. That plain average is the refresher. The three sections below judge a more involved cousin of it, a function that averages only the positive readings.
 
-## Block 1: Choose the Test That Decides
+## Choose the Test That Decides
 
 A function that gives the right answer on the input you happen to try has told you almost nothing. Judging code you did not write starts with choosing the one input most likely to break it, so that a single run actually decides something.
 
-You get to run the warm-up's `average` on exactly one test input before deciding whether to trust it. Which input do you run first?
+Here is the cousin. The author's idea was that negative and zero readings are sensor glitches, so the average should be taken over the positive readings only. Read it, then decide which single test you would run first to decide whether to trust it.
 
-- **A.** `[6, 9, 3]`, a normal three-element list.
-- **B.** `[7]`, a single reading.
-- **C.** `[100, 200, 300]`, much larger numbers.
-- **D.** `[]`, the empty list.
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="average_positive.py"
+def average_positive(readings):
+    total = 0.0
+    count = 0
+    for r in readings:
+        if r > 0:
+            total += r
+            count += 1
+    return total / count
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="average_positive.rs"
+fn average_positive(readings: &Vec<f64>) -> f64 {
+    let mut total = 0.0;
+    let mut count = 0.0;
+    for r in readings {
+        if *r > 0.0 {
+            total += r;
+            count += 1.0;
+        }
+    }
+    total / count
+}
+```
+</TabItem>
+</Tabs>
+
+You get exactly one test input before deciding whether to trust `average_positive`. Which one do you run first?
+
+- **A.** `[10, 20, 30]`, three ordinary positive readings.
+- **B.** `[10, -5, 20]`, a mix with one negative reading in it.
+- **C.** `[-5, -2, -9]`, every reading negative.
+- **D.** `[1000000, 2000000]`, two very large readings.
 
 Commit to one answer, then open the reveal.
 
 <Reveal label="Reveal the discriminating input and why the others decide nothing">
-**D, the empty list.**
+**C, the all-negative list.**
 
-The function's real work is `total / count`, where `count` is how many readings the loop saw. Every input that leaves `count` above zero runs the same defined path, so it can only re-confirm what the warm-up already showed. The empty list is the one input that drives `count` to zero, and it is the only one whose outcome you cannot already predict.
+The real work is `total / count`, and here `count` is not how many readings there are but how many *positive* readings the filter let through. Every input that leaves at least one positive reading keeps `count` above zero and runs the same defined path, so it can only re-confirm what you already expect. The all-negative list is the one input where the filter rejects every reading, `count` never leaves zero, and the function reaches a division it never handles.
 
-- **A** is the exact shape of input the warm-up already ran. It re-walks the defined path and tells you nothing new.
-- **B** still has a nonzero count. `count` becomes 1, the division `7.0 / 1` is defined, and the function returns `7.0`.
-- **C** changes only the magnitude of the numbers, not the code path. `count` is still 3, so the division is defined and returns `200.0`.
-- **D** is the only input where the loop body never runs, so `count` stays at its starting zero and the function reaches `total / count` with a zero denominator, the case the code never handles. That is what makes it the discriminating test.
+- **A** is all positive, so `count` becomes 3 and the division is defined; it returns `20.0` and tells you nothing new.
+- **B** is the tempting distractor: it has a negative reading, so it feels like the edge. But one negative among positives does not empty the filter. The two positives still pass, `count` becomes 2, and the function returns `15.0`. Testing "with a negative in it" is not the same as testing "with nothing left after the filter."
+- **C** is the only input among these four where the filter drops every reading. `count` stays at its starting zero, and the function reaches `total / count` with a zero denominator, the case the code never considers. That is what makes it discriminating.
+- **D** changes only the magnitude, not the code path. `count` is still 2, the division is defined, and it returns `1500000.0`.
+
+The empty list `[]` would break it too, for the same reason. But `C` is the sharper first test, because it proves the bug lives wherever the filter empties out, not only when the caller hands you an empty list. Hold onto that distinction; it decides the fix in the last section.
 </Reveal>
 
 ---
 
-## Block 2: Predict the Failure at the Edge
+## Predict the Failure at the Filtered Edge
 
-You picked the empty list. Before you run it, commit to exactly what it does, because the two languages do not agree here, and predicting the split is how you learn to expect it instead of being surprised by it.
+You picked the all-negative list. Before you run it, commit to exactly what it does, because the two languages do not agree here, and predicting the split is how you learn to expect it instead of being surprised by it.
 
-Read both programs below, which call `average` on the empty list. On paper or in a comment, write down what each one prints or does. Do not run them yet.
+Read both programs below, which call `average_positive` on `[-5, -2, -9]`. On paper or in a comment, write down what each one prints or does. Do not run them yet.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
 ```python title="predict.py"
-def average(readings):
+def average_positive(readings):
     total = 0.0
     count = 0
     for r in readings:
-        total += r
-        count += 1
+        if r > 0:
+            total += r
+            count += 1
     return total / count
 
-print(average([]))
+print(average_positive([-5, -2, -9]))
 ```
 </TabItem>
 <TabItem label="Rust">
 ```rust title="predict.rs"
-fn average(readings: &Vec<f64>) -> f64 {
+fn average_positive(readings: &Vec<f64>) -> f64 {
     let mut total = 0.0;
     let mut count = 0.0;
     for r in readings {
-        total += r;
-        count += 1.0;
+        if *r > 0.0 {
+            total += r;
+            count += 1.0;
+        }
     }
     total / count
 }
 
 fn main() {
-    let empty: Vec<f64> = vec![];
-    println!("{}", average(&empty));
+    let all_neg = vec![-5.0, -2.0, -9.0];
+    println!("{}", average_positive(&all_neg));
 }
 ```
 </TabItem>
@@ -156,10 +193,10 @@ python3 predict.py
 
 ```text frame="terminal" title="Output"
 Traceback (most recent call last):
-  File "predict.py", line 9, in <module>
-    print(average([]))
-          ~~~~~~~^^^^
-  File "predict.py", line 7, in average
+  File "predict.py", line 10, in <module>
+    print(average_positive([-5, -2, -9]))
+          ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "predict.py", line 8, in average_positive
     return total / count
            ~~~~~~^~~~~~~
 ZeroDivisionError: division by zero
@@ -176,64 +213,99 @@ NaN
 
 <WhatDiffers>
 <Fragment slot="differs">
-On the empty list, `count` stays zero in both languages, so both reach `total / count` dividing zero by zero. Python treats that as a run-time error and stops with a `ZeroDivisionError`, a loud crash that names the exact line. Rust's floating point division does not crash: dividing the `f64` value `0.0` by `0.0` produces the special value `NaN`, short for "not a number", so `average` returns `NaN` calmly and `println!` prints it with no error at all. The same missing case is a loud crash in one language and a silent wrong value in the other. If you predicted Rust would also crash, that is the surprise this block exists to plant.
+The mechanism to commit to is this: the list is *not* empty, yet `count` still reaches zero, because the `if r > 0` filter rejected all three readings before either accumulator moved. Both languages then reach `total / count` dividing zero by zero. Python treats that as a run-time error and stops with a `ZeroDivisionError` that names the exact line. Rust's floating point division does not crash: dividing the `f64` value `0.0` by `0.0` produces the special value `NaN`, short for "not a number", so `average_positive` returns `NaN` calmly and `println!` prints it with no error at all. The same emptied count is a loud crash in one language and a silent wrong value in the other. If you predicted Rust would also crash, or predicted that a nonempty list could never divide by zero, those are the surprises this section exists to plant.
 </Fragment>
 </WhatDiffers>
 </Reveal>
 
 ---
 
-## Block 3: Diagnose and Guard the Missing Case
+## Diagnose and Guard the Emptied Count
 
-The empty list has no defined average in this function: one language told you so loudly, the other did not tell you at all. Now make the function handle it, using the systematic method: read the symptom, form one hypothesis, make a single change, re-run.
+The all-negative list has no defined positive-average in this function: one language told you so loudly, the other did not tell you at all. Now make the function handle it, using the systematic method: read the symptom, form one hypothesis, make a single change, re-run.
 
-Reconstruct the specification first, because the author never wrote it down: the average of no readings should be a safe default of `0.0` that a caller can check for. Diagnose why the warm-up's `average` fails that specification, then make one change so both the typical case and the empty case pass.
+Reconstruct the specification first, because the author never wrote it down: the average of no positive readings should be a safe default of `0.0` that a caller can check for. A natural first instinct is to copy the fix from the lecture, which guarded the empty list before the loop. Try that hypothesis first, then decide whether it is enough.
 
-<Reveal label="Reveal the diagnosis and the one-line fix">
-**Symptom.** On the empty list, Python stops with `ZeroDivisionError: division by zero` and Rust returns `NaN`. Neither returns the `0.0` the specification asks for.
+<Reveal label="Reveal the diagnosis, the fix that is not enough, and the one that is">
+**Symptom.** On `[-5, -2, -9]`, Python stops with `ZeroDivisionError: division by zero` and Rust returns `NaN`. Neither returns the `0.0` the specification asks for.
 
-**Hypothesis.** When the list is empty, the loop body never runs, so `count` never leaves its starting value of zero, and the function reaches `total / count` dividing by zero. There is no branch that handles the empty list before the division.
+**First hypothesis: guard the empty list, as the lecture did.** The lecture fixed the plain average by returning `0.0` when `len(readings) == 0` before the loop. Try the same guard here:
 
-**Test.** Guard the empty case before the loop, returning the specified default, and check both a typical list and the empty list:
-
-<Tabs syncKey="lang">
-<TabItem label="Python">
-```python title="fixed.py"
-def average(readings):
+```python title="wrongfix.py"
+def average_positive(readings):
     if len(readings) == 0:
         return 0.0
     total = 0.0
     count = 0
     for r in readings:
-        total += r
-        count += 1
+        if r > 0:
+            total += r
+            count += 1
     return total / count
 
-assert average([6, 9, 3]) == 6.0
-assert average([]) == 0.0
+print(average_positive([-5, -2, -9]))
+```
+
+```bash title="Run it on the all-negative list"
+python3 wrongfix.py
+```
+
+```text frame="terminal" title="Output"
+Traceback (most recent call last):
+  File "wrongfix.py", line 12, in <module>
+    print(average_positive([-5, -2, -9]))
+          ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "wrongfix.py", line 10, in average_positive
+    return total / count
+           ~~~~~~^~~~~~~
+ZeroDivisionError: division by zero
+```
+
+The lecture's guard does nothing here. `[-5, -2, -9]` is not empty, so `len(readings) == 0` is false, the guard is skipped, and the division still divides by zero. The empty list was never the real edge in this function; the filter is.
+
+**Corrected hypothesis.** The division fails whenever `count` is zero, and `count` reaches zero for any list, empty or not, whose readings are all filtered out. So the guard belongs *after* the loop and must check `count`, not `len(readings)`:
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="fixed.py"
+def average_positive(readings):
+    total = 0.0
+    count = 0
+    for r in readings:
+        if r > 0:
+            total += r
+            count += 1
+    if count == 0:
+        return 0.0
+    return total / count
+
+assert average_positive([10, -5, 20, 30]) == 20.0
+assert average_positive([-5, -2, -9]) == 0.0
 print("all tests passed")
 ```
 </TabItem>
 <TabItem label="Rust">
 ```rust title="fixed.rs"
-fn average(readings: &Vec<f64>) -> f64 {
-    if readings.len() == 0 {
-        return 0.0;
-    }
+fn average_positive(readings: &Vec<f64>) -> f64 {
     let mut total = 0.0;
     let mut count = 0.0;
     for r in readings {
-        total += r;
-        count += 1.0;
+        if *r > 0.0 {
+            total += r;
+            count += 1.0;
+        }
+    }
+    if count == 0.0 {
+        return 0.0;
     }
     total / count
 }
 
 fn main() {
-    let sample = vec![6.0, 9.0, 3.0];
-    assert_eq!(average(&sample), 6.0);
-    let empty: Vec<f64> = vec![];
-    assert_eq!(average(&empty), 0.0);
+    let sample = vec![10.0, -5.0, 20.0, 30.0];
+    assert_eq!(average_positive(&sample), 20.0);
+    let all_neg = vec![-5.0, -2.0, -9.0];
+    assert_eq!(average_positive(&all_neg), 0.0);
     println!("all tests passed");
 }
 ```
@@ -257,7 +329,7 @@ rustc fixed.rs
 all tests passed
 ```
 
-The one change is the `if len(readings) == 0` guard that returns `0.0` before the division is ever reached. The typical case still returns `6.0`, and the empty case now returns the specified default instead of crashing or handing back `NaN`. Nothing about who wrote the original function changed a single step of this: reconstruct the specification, derive the boundary test, read the failure, make one change.
+The one change that works is the `if count == 0` guard after the loop, returning `0.0` before the division is ever reached. The typical mixed list `[10, -5, 20, 30]` still averages its three positives to `20.0`, and the all-negative list now returns the specified default instead of crashing or handing back `NaN`. The lesson beyond the lecture: a boundary you inherited is not always the one a similar function had. Reconstruct this function's specification, find where *its* count can hit zero, and guard exactly that.
 </Reveal>
 
 ---

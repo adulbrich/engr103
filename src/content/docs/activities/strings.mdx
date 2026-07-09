@@ -1,6 +1,6 @@
 ---
 title: "Indexing, Slicing, and Fixing Strings"
-description: "Predict how a string is indexed and sliced, compare how Python and Rust reach a character by position, and debug an off-by-one slice that returns the wrong substring."
+description: "Predict a slice combined with character-code arithmetic, compare how Python and Rust reach a character and measure length, and debug an off-by-one slice that returns the wrong substring."
 sidebar:
   order: 13
 draft: true
@@ -16,19 +16,19 @@ type: activity
 slug: strings
 order: 13
 paired_lecture: strings
-practices: predicts the character at an index, the substring from a half-open slice, a string's length, and a character's ASCII number before running the program; names why Python indexes a string with s[0] while Rust rejects the same code and reaches a character with chars().nth instead; diagnoses an off-by-one slice that returns a short substring with no error
+practices: predicts a half-open slice, a slice-versus-distractor comparison, the difference of two characters' ASCII numbers, and a character built by adding to a code, all in one program before running it; names why Python reaches a character with s[0] and measures with len while Rust rejects the integer index with E0277 and splits length into bytes and characters; diagnoses a function whose length-relative slice ends one character too early and returns a plausible wrong substring with no error
 prereq_activities:
 block_types: predict-then-run, same-program-two-languages, live-debugging
-output: a reconciled prediction for indexing and slicing, a named cross-language indexing difference, and a corrected slice boundary
+output: a reconciled prediction that mixes slicing with character-code arithmetic, a named cross-language indexing and length difference, and a corrected slice boundary inside a function
 */}
 
 <LanguageVersions />
 
-This activity puts into practice the [Strings and Characters](/lectures/strings/) lecture. You will predict how a string is indexed, sliced, and measured, compare how Python and Rust reach a single character by its position, and hunt down an off-by-one slice that returns the wrong substring without ever raising an error. By the end, you will be able to read a slice by its half-open range, cross between a character and its ASCII number, and catch a boundary mistake that a program never complains about.
+This activity puts into practice the [Strings and Characters](/lectures/strings/) lecture. You will predict a short program that folds slicing, comparison, and character-code arithmetic together, compare how Python and Rust reach a single character and measure a string's length, and hunt down an off-by-one slice buried in a function that returns the wrong substring without ever raising an error. By the end, you will be able to read a slice by its half-open range, do arithmetic on a character's ASCII number in both directions, and catch a boundary mistake that a program never complains about.
 
 ## Warm-up
 
-A quick refresher before the blocks. A string is a sequence of characters written inside quotation marks, and each character is stored as a whole number by the ASCII mapping: `ord` gives a character's number, `chr` turns a number back into its character. Here are the smallest pieces, in both languages.
+A quick refresher before the three problems. A string is a sequence of characters written inside quotation marks, and each character is stored as a whole number by the ASCII mapping: `ord` gives a character's number, `chr` turns a number back into its character. Here are the smallest pieces, in both languages.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
@@ -61,23 +61,23 @@ cat
 A
 ```
 
-Rust prints the same three lines: it turns a character into its number with the cast `'A' as u32` in place of `ord`, and a byte-sized number back into a character with `65u8 as char` in place of `chr`. With those pieces fresh, the blocks below reach into a string by position.
+Rust prints the same three lines: it turns a character into its number with the cast `'A' as u32` in place of `ord`, and a byte-sized number back into a character with `65u8 as char` in place of `chr`. With those pieces fresh, the three problems below reach into a string by position.
 
 ---
 
-## Block 1: Predict the Index and the Slice
+## Predict the Slice and the Code
 
-Positions in a string count from zero, and a slice stops just before its end index, not on it. Those two rules are exactly where a prediction goes wrong. You commit to an answer first, then run the program to check it.
+Positions in a string count from zero, a slice stops just before its end index, and a character is a number you can do arithmetic on. Each rule is easy alone; the program below uses all three at once, and the printed lines are not the values a quick glance suggests. You commit to an answer first, then run the program to check it.
 
-Read the program below and write down, on paper or in a comment, the exact value each line prints. Do not run it yet. Number the characters of `engineer` from zero, remember that a slice `s[1:4]` includes its start but excludes its end, and recall that `ord` and `chr` cross between a character and its ASCII number.
+Read the program and write down, on paper or in a comment, the exact value each line prints. Do not run it yet. Number the characters of `compute` from zero, remember that a slice `word[1:5]` includes its start but excludes its end, and recall that `ord` gives a character's ASCII number and `chr` turns a number back into a character.
 
 ```python title="predict.py"
-s = "engineer"
-print(s[0])
-print(s[1:4])
-print(len(s))
-print(ord('A'))
-print(chr(65))
+word = "compute"
+piece = word[1:5]
+print(piece)
+print(piece == "comp")
+print(ord(word[3]) - ord(word[0]))
+print(chr(ord(word[2]) + 12))
 ```
 
 <Reveal label="Reveal the real output and reconcile it with your prediction">
@@ -86,36 +86,45 @@ python3 predict.py
 ```
 
 ```text frame="terminal" title="Output"
-e
-ngi
-8
-65
-A
+ompu
+False
+13
+y
 ```
 
-Number the characters of `engineer`: `e` at 0, `n` at 1, `g` at 2, `i` at 3, `n` at 4, `e` at 5, `e` at 6, `r` at 7. So `s[0]` is the first character, `e`. The slice `s[1:4]` starts at index 1 and stops just before index 4, so it takes indices 1, 2, and 3, the characters `n`, `g`, `i`, giving the substring `ngi`; if you predicted `ngin`, you counted index 4 as included, but a half-open slice excludes its end. There are eight characters in all, so `len(s)` is `8`. The last two lines cross between a character and its number: `ord('A')` is the ASCII number `65`, and `chr(65)` turns that number back into the character `A`, the same round trip you saw in the warm-up.
+Number the characters of `compute`: `c` at 0, `o` at 1, `m` at 2, `p` at 3, `u` at 4, `t` at 5, `e` at 6.
+
+Line 1: the slice `word[1:5]` starts at index 1 and stops just before index 5, so it takes indices 1, 2, 3, and 4, the characters `o`, `m`, `p`, `u`, giving the substring `ompu`. If you predicted `ompu` correctly, the half-open rule is in hand; if you predicted `omput`, you counted index 5 as included.
+
+Line 2: the comparison target `comp` is exactly `word[0:4]`, the tempting slice that starts at zero. But `piece` is `word[1:5]`, which is `ompu`, so `piece == "comp"` is `False`. The line is really a check on whether your slice started where you thought it did: only a slice that began at index 0 would have matched.
+
+Line 3: `word[3]` is `p` and `word[0]` is `c`. Their ASCII numbers are `ord('p')` is 112 and `ord('c')` is 99, so the difference is `112 - 99`, which is `13`. You are doing arithmetic on the codes of two characters you reached by index, and the answer is a plain number, not a character.
+
+Line 4: `word[2]` is `m`, whose ASCII number is `ord('m')` is 109. Adding 12 gives 121, and `chr(121)` is the character `y`. This is the reverse trip: from a character to its number, up by 12, and back to whatever character that lands on. Counting 12 letters on from `m` (`n`, `o`, `p`, and so on) reaches `y`, the same answer the code arithmetic gives.
 </Reveal>
 
 ---
 
-## Block 2: Reaching a Character, Two Languages
+## Reaching a Character and Measuring Length, Two Languages
 
-Python and Rust agree on almost everything about strings, and then disagree sharply on one thing: reaching a single character by an integer position. Seeing the identical line accepted by one language and rejected by the other is how you remember which is which. You read both tabs and name what genuinely differs.
+Python and Rust agree on almost everything about strings, then disagree sharply on two joined things: reaching a single character by an integer position, and what "length" counts. Seeing the identical indexing line accepted by one language and rejected by the other, and seeing Rust split length into two numbers, is how you remember which is which. You read both tabs and name what genuinely differs.
 
-The two programs below try the same thing, asking for the character at position 0 of `cat`. Before opening the reveal, predict what each one does: what Python prints, and whether Rust even compiles.
+The two programs below try the same pair of moves on the all-ASCII word `network`: reach the character at position 0, and report the length. Before opening the reveal, predict what Python prints, and whether Rust compiles at all.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python title="index.py"
-s = "cat"
+```python title="measure.py"
+s = "network"
 print(s[0])
+print(len(s))
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="index.rs (will not compile)"
+```rust title="measure.rs (will not compile)"
 fn main() {
-    let s = "cat";
+    let s = "network";
     println!("{}", s[0]);
+    println!("{}", s.len());
 }
 ```
 </TabItem>
@@ -123,22 +132,23 @@ fn main() {
 
 <Reveal label="Reveal the outputs and what differs">
 ```bash title="Run the Python program"
-python3 index.py
+python3 measure.py
 ```
 
 ```text frame="terminal" title="Output"
-c
+n
+7
 ```
 
-Python indexes the string directly and hands back the character `c`. The Rust version never produces a program at all:
+Python indexes the string directly and hands back the character `n`, then `len(s)` reports 7, the count of characters. The Rust version never produces a program at all, because of the very first indexing line:
 
 ```bash title="Compile the Rust program"
-rustc index.rs
+rustc measure.rs
 ```
 
 ```text frame="terminal" title="Output"
 error[E0277]: the type `str` cannot be indexed by `{integer}`
- --> index.rs:3:22
+ --> measure.rs:3:22
   |
 3 |     println!("{}", s[0]);
   |                      ^ string indices are ranges of `usize`
@@ -156,61 +166,91 @@ error: aborting due to 1 previous error
 For more information about this error, try `rustc --explain E0277`.
 ```
 
-The two load-bearing lines are the first, `error[E0277]: the type str cannot be indexed by {integer}`, and the note that tells you what to use instead, `you can use .chars().nth() or .bytes().nth()`. Rust stores a string as UTF-8 bytes, so position 0 is ambiguous between the first byte and the first character; rather than guess, Rust refuses the integer index and asks you to say which you meant. To reach a character, you call `s.chars().nth(0)`, which walks the string as characters and hands back `Some('c')`.
+The two load-bearing lines are the first, `error[E0277]: the type str cannot be indexed by {integer}`, and the note that tells you what to use instead, `you can use .chars().nth() or .bytes().nth()`. Rust stores a string as UTF-8 bytes, so position 0 is ambiguous between the first byte and the first character; rather than guess, Rust refuses the integer index. Notice that the `s.len()` line never even gets a chance to run: a single compile error means no program at all.
+
+The Rust version that works reaches the character with `.chars().nth(0)`, which walks the string as characters and hands back an `Option`, and reports length two ways:
+
+```rust title="measure.rs (corrected)"
+fn main() {
+    let s = "network";
+    println!("{:?}", s.chars().nth(0));
+    println!("{}", s.len());
+    println!("{}", s.chars().count());
+}
+```
+
+```bash title="Compile and run the corrected Rust program"
+rustc measure.rs
+./measure
+```
+
+```text frame="terminal" title="Output"
+Some('n')
+7
+7
+```
+
+Rust's `.len()` counts bytes and `.chars().count()` counts characters. Here they both report 7, and that agreement is not luck: `network` is all ASCII, and every ASCII character is exactly one byte. The two numbers would part only if a character took more than one byte.
 
 <WhatDiffers>
 <Fragment slot="differs">
-Python indexes a string directly with `s[0]` and returns the character. Rust rejects integer indexing on a string entirely with error E0277, because its UTF-8 storage makes "position 0" ambiguous between a byte and a character; you reach a character with `s.chars().nth(0)` instead. The same byte-versus-character split shows up in length: Python's `len` counts characters, while Rust's `.len()` counts bytes and `.chars().count()` counts characters, numbers that agree only while the text is plain ASCII.
+Python indexes a string directly with `s[0]` and returns the character, and `len(s)` counts characters. Rust rejects integer indexing on a string entirely with error E0277, because its UTF-8 storage makes "position 0" ambiguous between a byte and a character; you reach a character with `s.chars().nth(0)` instead, which returns an `Option` (`Some('n')`) printed with `{:?}`. Length splits too: Rust's `.len()` counts bytes and `.chars().count()` counts characters, numbers that agree only while the text is plain ASCII, as `network` is, so both give 7.
 </Fragment>
 </WhatDiffers>
 </Reveal>
 
 ---
 
-## Block 3: Find the Off-by-One Slice
+## Find the Silent Off-by-One
 
-A wrong slice boundary does not crash. The program runs, prints a string, and lies: the substring is simply too short or too long by a character. The program below is meant to pull the substring `gin` out of `engineer`, but it prints something shorter. You find the bug with the systematic method: read the symptom, form a hypothesis, test it.
+A wrong slice boundary does not crash. The program runs, prints a string, and lies: the substring is short or long by a character. This time the slice is inside a function and its boundaries are written in terms of the string's length, which is exactly where a half-open slip hides best. You find the bug with the systematic method: read the symptom, form a hypothesis, test it.
 
-The program should print the three-character substring `gin`. Run it, see what it actually prints, then work out why the result is wrong and how one change fixes it.
+The function `last_three` is meant to return the last three characters of any word, so `last_three("planning")` should give `ing`. Run it, see what it actually prints, then work out why the result is wrong and how one change fixes it.
 
-```python title="extract.py"
-s = "engineer"
-print(s[2:4])
+```python title="lastthree.py"
+def last_three(word):
+    n = len(word)
+    return word[n - 3:n - 1]
+
+print(last_three("planning"))
 ```
 
 <Reveal label="Reveal the diagnosis and the fix">
 ```bash title="Run the buggy program"
-python3 extract.py
+python3 lastthree.py
 ```
 
 ```text frame="terminal" title="Output"
-gi
+in
 ```
 
-**Symptom.** There is no error message; the program runs and prints `gi`, but the wanted substring `gin` has three characters. The short output is the only signal you get.
+**Symptom.** There is no error message; the program runs and returns `in`, but the last three characters of `planning` are `ing`, three characters, not two. The short output is the only signal you get.
 
-**Hypothesis.** Number the characters of `engineer`: `g` is at index 2, `i` at index 3, `n` at index 4. The substring `gin` therefore covers indices 2, 3, and 4. But a slice is half-open: it stops just before its end index. So `s[2:4]` takes only indices 2 and 3, the characters `g` and `i`, and stops before index 4, dropping the `n`. The guess is an off-by-one on the end index: the author wrote the end as the index of the last character they wanted, `4`, instead of one past it.
+**Hypothesis.** Number `planning`: `p` at 0, `l` at 1, `a` at 2, `n` at 3, `n` at 4, `i` at 5, `n` at 6, `g` at 7, so `n` is `len(word)` and equals 8. The last three characters, `i`, `n`, `g`, sit at indices 5, 6, and 7. The function computes the slice `word[n - 3:n - 1]`, which is `word[5:7]`: it takes indices 5 and 6, the characters `i` and `n`, and stops just before index 7, dropping the final `g`. The author wrote the end as `n - 1`, the index of the last character they wanted, forgetting that a half-open slice excludes its end and so needs the end set to one past that, `n`.
 
-**Test.** Move the end index one past the last wanted character, from `4` to `5`, so the slice includes index 4:
+**Test.** Change the end of the slice from `n - 1` to `n`, so the slice reaches through the last character:
 
-```python title="extract.py (fixed)"
-s = "engineer"
-print(s[2:5])
+```python title="lastthree.py (fixed)"
+def last_three(word):
+    n = len(word)
+    return word[n - 3:n]
+
+print(last_three("planning"))
 ```
 
 ```bash title="Run the fixed program"
-python3 extract.py
+python3 lastthree.py
 ```
 
 ```text frame="terminal" title="Output"
-gin
+ing
 ```
 
-The slice `s[2:5]` now takes indices 2, 3, and 4, the characters `g`, `i`, `n`, giving the intended `gin`. The fix is a single character, `4` becomes `5`. The lesson is that a boundary mistake produces a plausible, wrong substring, not a crash, so counting the characters by hand and knowing the length you expect are what catch it.
+The slice `word[5:8]` now takes indices 5, 6, and 7, the characters `i`, `n`, `g`, giving the intended `ing`. The fix is a single character, `n - 1` becomes `n`. The lesson is that a length-relative boundary is doubly easy to get wrong: the half-open rule and the arithmetic on `n` both have to be right, and when they are not, the program hands back a plausible, wrong substring instead of crashing. Counting the characters by hand and knowing the length you expect are what catch it.
 </Reveal>
 
 ---
 
 ## Bridge
 
-These three reps feed the recitation family that reads a coded sequence, pulls the meaningful pieces out of it by position, and rebuilds a cleaned result: reaching a character by its index, taking a run of characters as a slice, and crossing between a character and its ASCII number are exactly the moves that family runs on a string. The indexing and slicing you just practiced by hand are the guided first rung of that ladder.
+These three reps feed the recitation family that reads a coded sequence, pulls the meaningful pieces out of it by position, and rebuilds a cleaned result: reaching a character by its index, taking a run of characters as a slice, and doing arithmetic on a character's ASCII number are exactly the moves that family runs on a string. The indexing, slicing, and code arithmetic you just practiced by hand are the guided first rung of that ladder.
