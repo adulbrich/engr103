@@ -68,6 +68,8 @@ Real specifications carry noise, so an assignment plants two calibrated distract
 
 The rule that keeps this honest: **a correct solution never depends on noticing the herring.** Distractors punish only uncritical copying; they never gate the right answer behind a catch. This trains extracting the computational core from a noisy spec, and judging code the student did not write.
 
+**Never give away HAB's defect or its fix.** Judging the draft is the exercise, so the page must not do the judging for the student. Present HAB's draft in both languages, state that it is HAB's work and must be signed off or rejected, and stop there. Do **not** state whether the draft is wrong, do **not** name the defect or the line it is on, do **not** hand a failing input or the wrong output it produces, do **not** explain the cause, and do **not** put any of this behind a `<Reveal>`. There is no hint attached to HAB's snippet at all: the student has the full requirements, and testing HAB's draft against them is exactly the skill being trained. The one thing the page may say is the neutral instruction to check it: "HAB drafted this. Sign off on it, or reject it and write your own." (The accuracy pass still runs HAB's snippet behind the scenes to confirm it really is wrong; that verification lives in your work log, never on the page.)
+
 ## Reused Components
 
 Assignments import only what they use, and only from this list:
@@ -84,7 +86,7 @@ import Latex from '/src/components/Latex.astro';
 - **`LanguageVersions`**: at the very top of the body, before the opening narrative, exactly as a lecture does.
 - **`Aside`**: a hint, a caution, or the HAB sign-off callout, always with a `title`. This is the assignment tier's scaffolding voice; use it for the open hints VISION allows, not to smuggle in lecture exposition.
 - **`Steps`**: for a suggested order of attack or a worked sub-step sequence, when the scaffolding is genuinely an ordered list.
-- **`Reveal`**: sparingly, for an *optional* hint a student can choose to open ("Stuck on the precedence? Open for a nudge"). The nudge is a hint, never the answer.
+- **`Reveal`**: for the paper practice's worked solution (always), and otherwise sparingly for an *optional* hint on a problem the student can choose to open ("Stuck on the precedence? Open for a nudge"), where the nudge is a hint, never the answer. **Never attach a `<Reveal>` to HAB's snippet:** judging HAB's draft carries no hint of any kind (see The Red Herring Ladder).
 - **`WhatDiffers`**: inside a shown dual-language snippet when a real Python/Rust difference needs naming, beyond the standard `fn main`/`println!` boilerplate.
 - **`Latex`**: for a formula the spec references (a delta-v budget, a conversion), when plain text would be ambiguous.
 
@@ -156,7 +158,7 @@ Each problem in the set is written with this structure, drawn from VISION sectio
 - **Assumptions and edge cases**: what the input is guaranteed to be, and which cases the function must handle.
 - **Scaffolding** (assignment tier only): open hints, a suggested order of attack, worked sub-steps, or mission commentary, as an `<Aside>`, a `<Steps>`, or an optional `<Reveal>`. Recitations strip this; assignments keep it. Do not let a hint become a step-by-step tutorial.
 
-Exactly one problem in the set carries **HAB's snippet** (the red-herring rung). Introduce it in story, show the wrong draft in both languages, and require the student to reject or fix it.
+Exactly one problem in the set carries **HAB's snippet** (the red-herring rung). Introduce it in story, show the wrong draft in both languages, and require the student to reject or fix it. Give away nothing about the defect or its fix, and attach no `<Reveal>` to it: see the no-giveaway rule in The Red Herring Ladder.
 
 Every problem **labels its modeling step and its analysis step**: which sentence builds the representation of the mission situation, and which runs it and interprets the result, so the modeling-versus-analysis distinction is rehearsed continuously.
 
@@ -174,6 +176,8 @@ Every problem works identically in both languages against one shared contract. S
 
 - **Sizing is by time, not word count.** The problem set targets a 2.5 to 3 hour median for a prepared student, tests included. Let that set the three-to-five count. As a secondary diagnostic, a full assignment page runs roughly **2,000 to 4,000 words**; landing well under usually means the problems are under-specified or too thin to be harder than the activity, and well over usually means tutorial contamination that belongs in a hint or a how-to.
 - **Ladder-respecting.** Use only constructs the assignment's due date has reached on the language ladder at `/reference/language-ladder`. Check the ladder before writing any code: an assignment due before the functions lecture cannot ask for student-written functions; one due before conditionals cannot branch; one due before loops cannot iterate. Raise difficulty by combining and extending what has been taught, never by reaching ahead.
+- **Exercise the week's full range, honestly.** An assignment should practice the breadth of what its week newly makes available, not the narrowest slice of it. If the week introduces four literal types, the problems should touch more than one; if it introduces the remainder operator alongside integer division, use both. This is what keeps an assignment from feeling thin. But respect the week's ceiling honestly: some constructs a week introduces can only be exercised trivially given what else is missing (before comparisons exist, a boolean can only be printed, not computed), and padding a problem with a trivially-used construct to claim "variety" is worse than leaving it out. Cover what the week can genuinely exercise, and when the week's ceiling is simply low (the earliest assignments), max out what it does allow and say plainly, in your work log, that the gentleness is structural rather than over-building to hide it.
+- **Mine the retired assignments for challenges.** Before writing or strengthening an assignment, look at the retired course's assignments (in `src/content/docs/assignments/`, the non-Ares drafts such as `linear-equations`, `financial-planner`, `calculator`, `dictionary`) for reusable problem structures: a break-even or linear-system solve, compound growth by accumulation, input validation with a menu and dispatch, evaluating an expression, the "call these provided functions correctly without knowing their internals" pattern. Reuse the *structure*, not the C++ or the off-ladder parts: reframe it into a Mission Ares beat, fit it to the due week's ladder (a network API becomes provided harness functions the student orchestrates; a `ceil()` call becomes an integer-ceiling expression), and verify it in both languages. A strong reused challenge, placed at the right week, is the fastest way to lift an assignment above thin.
 
 ## Draft Policy
 
@@ -216,6 +220,7 @@ This runs `astro check` and the link validator. Fix every error before consideri
 - No acceptance test written as printed output when the grader checks return values.
 - No Rubber Duck Robotics or bare-exam framing: assignments are Mission Ares.
 - No paper practice whose worked solution is withheld from the page; it goes in a closed `<Reveal>` for self-checking.
+- No giveaway on HAB's snippet: never state that it is wrong, name its defect, hand a failing case, explain the fix, or attach a `<Reveal>` to it.
 - No `Assignment N:` prefix in the page title; the number lives in `sidebar.order`.
 - No reduced exam-adjacent assignment and no exam-rehearsal material in an assignment.
 - No points attached to the summit problem.
