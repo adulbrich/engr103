@@ -86,8 +86,8 @@ fn charge_gained(start_charge: f64, growth_percent: f64, sols: i32) -> f64 {
 
 **Assumptions and edge cases.** `start_charge` and `growth_percent` are floats, zero or greater. `sols` is a whole number, zero or greater. Handle `sols` of `0`, where the loop body never runs and the charge is returned unchanged, and a `growth_percent` of `0.0`, where each sol multiplies by `1.0` and nothing is gained.
 
-<Aside type="tip" title="No power operator: build the compounding with a loop">
-The ladder has no exponentiation operator in either language, so you cannot raise `1 + growth_percent / 100` to the `sols` power in a single step. Instead, start the charge at `start_charge` and multiply it by that factor once per sol, `sols` times over: this is the running-product form of the accumulator from the loop patterns lecture, where the accumulator starts at a value and is multiplied rather than added on each pass. Python does have a `**` operator, but it is fenced off the course ladder; Rust has no `**` at all. In both languages the loop is the way.
+<Aside type="tip" title="Build the compounding with a loop">
+This is a loops exercise, so build the compounding the loop way: start the charge at `start_charge` and multiply it by `1 + growth_percent / 100` once per sol, `sols` times over. This is the running-product form of the accumulator from the loop patterns lecture, where the accumulator starts at a value and is multiplied rather than added on each pass. Rust has no exponentiation operator at all, and although Python has `**`, reaching for it here would skip the very pattern this problem exists to practice. In both languages the loop is the point.
 </Aside>
 
 <WhatDiffers>
