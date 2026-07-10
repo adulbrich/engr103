@@ -205,7 +205,7 @@ O2, O4.
 | Final exam | 25% | In person, paper, no notes, finals week | Proctored |
 | Midterm exam | 20% | In person, paper, no notes, 45 min in a week 6 lecture slot | Proctored |
 | Recitations (9 graded, lowest dropped) | 40% | In person, locked-down computer, 110 min | Proctored + oral check |
-| Assignments (10, lowest dropped) | 10% | Take-home | Anything goes, completion-based |
+| Assignments (10) | 10% | Take-home | Anything goes, completion-based |
 | Lecture preparation and activities | 5% | Pre-lecture checks + in-class participation | Low stakes by design |
 
 Properties worth stating explicitly:
@@ -474,8 +474,8 @@ the proctored setting itself and the autograded correctness core.
 ### Role
 
 Assignments exist to make students ready for the next recitation and,
-cumulatively, for the exams. They are low-stakes (10% total, completion-graded,
-lowest dropped) precisely because they are unsupervised. The course says this
+cumulatively, for the exams. They are low-stakes (10% total, completion-graded)
+precisely because they are unsupervised. The course says this
 out loud in week 1: "You may use any tool on assignments, including AI. The
 recitation will test fresh variations of these same problems, in the lab,
 without AI. If you

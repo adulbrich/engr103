@@ -136,15 +136,15 @@ python3 area.py
 
 This applies to every command (`python3 ...`, `rustc ...`, `./program`) and every captured run of a program, error output included. Source-code examples that are not terminal sessions keep their normal `python`/`rust` code blocks inside `<Tabs>`.
 
-## The Language-ladder Fence
+## Staying Within What Has Been Taught
 
-Every ENGR 103 example draws only on constructs the language ladder has already introduced for that lecture's week. The ladder lives at `/reference/language-ladder` and grows one week at a time; a construct allowed in week 3 stays allowed in every later week, but nothing appears in an example before its week arrives.
+Every ENGR 103 example should draw only on constructs the course has already introduced by that lecture's week, because a reader following the course in order cannot understand a construct they have not met yet. The language ladder at `/reference/language-ladder` records what has been introduced by each week and grows one week at a time; a construct introduced in week 3 stays available in every later week. This is a teaching-quality rule, not a restriction on what students may write: the ladder is a recommendation for them, but a lecture that leans on an untaught construct simply fails to teach.
 
-Before writing an example, check the ladder for the lecture's week. If a natural example would need a construct not yet on the ladder (a dictionary in a week 4 lecture, say), simplify the example instead of reaching ahead. Link `/reference/language-ladder` in prose the first time a lecture depends on knowing what is and is not available yet; do not restate the ladder's table.
+Before writing an example, check the ladder for the lecture's week. If a natural example would need a construct not yet introduced (a dictionary in a week 4 lecture, say), simplify the example instead of reaching ahead: an example the reader cannot yet follow does not teach. Link `/reference/language-ladder` in prose the first time a lecture depends on knowing what is and is not available yet; do not restate the ladder's table.
 
 ## Legibility: Rest Only on What Has Been Taught
 
-The ladder fence governs syntax; this rule governs concepts. Every sentence of a lecture must be understandable by a student who has read only the lectures up to this one. An explanation may rest only on concepts already introduced, whether on the ladder or in an earlier lecture; it must never reach forward into a later lecture to justify something here.
+Staying within taught constructs governs syntax; this rule governs concepts. Every sentence of a lecture must be understandable by a student who has read only the lectures up to this one. An explanation may rest only on concepts already introduced, whether on the ladder or in an earlier lecture; it must never reach forward into a later lecture to justify something here.
 
 This is the trap that "it is factually true" hides. A statement can be perfectly correct and still illegible if it depends on a concept the student has not met. For example, in an early lecture, calling Rust's `i32` "a 32-bit integer" is true but illegible if bits and bytes have not been taught yet: the reader cannot decode the "32". When a construct's name carries a later concept and that concept has not been taught, either the concept belongs in this lecture (teach it, where the schedule places the foundation) or you name the construct as a plain label and defer its meaning with one short forward pointer ("we will see what the 32 means when we reach how numbers are stored"). Prefer teaching it where the schedule already grounds it.
 
@@ -385,4 +385,4 @@ This runs `astro check` and the link validator, catching MDX syntax errors, bad 
 - **No stories, problem families, assignments, activities, or recitations,** by name or by implication. See Concepts and Dual-language Only, above.
 - **No tutorial walkthroughs.** A lecture explains a concept and illustrates it with short, self-contained examples; it does not guide the reader step by step through building something.
 - **No single running scenario threaded through the whole lecture.** Independent examples per section only.
-- **No construct ahead of the language ladder.** Every example stays inside the constructs the ladder has introduced by that lecture's week.
+- **No example the reader cannot yet follow.** Every example stays inside the constructs the course has introduced by that lecture's week, so a reader in sequence can understand it.

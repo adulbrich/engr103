@@ -116,13 +116,15 @@ Stay inside the paired lecture's ladder: raise the difficulty by combining and e
 
 ```yaml
 ---
-title: "Short, Action-Oriented Title"
+title: "The paired lecture's name"
 description: "One sentence describing what the student will do and end up able to do."
 sidebar:
   order: <number matching the paired lecture's order>
 draft: true
 ---
 ```
+
+The activity's `title` is simply the **name of its paired lecture** (for example `Functions`, `Loops`, `Booleans and Conditionals`). Do not invent an action-oriented title per activity: naming every activity after the block types it happens to use ("Predicting and Fixing...", "Tracing and Fixing...") only repeats a handful of verbs across the sidebar and tells the reader nothing the lecture name does not. One activity pairs with one lecture, so the lecture's name identifies it cleanly.
 
 ### The `ai-summary` block
 
@@ -196,7 +198,7 @@ Activities are not listed individually in `schedule.mdx`. An activity inherits i
 
 **No emdashes.** Never use the emdash character or a double hyphen as a dash. Use a colon, a semicolon, a comma, or a period instead.
 
-**Ladder-respecting.** An activity uses only constructs the paired lecture's week has already introduced on the language ladder at `/reference/language-ladder`. Never reach ahead for a construct a later lecture teaches, even if it would make a prompt shorter.
+**Solvable with what was just taught.** An activity should stay within the constructs the paired lecture's week has introduced, so it is a fair first rep the student can actually do with what they have just learned. Do not reach ahead for a construct a later lecture teaches, even if it would make a prompt shorter. The [language ladder](/reference/language-ladder/) records what has been introduced by each week; it is a recommendation for students, but the activity itself must be doable within the taught subset.
 
 ## Word Band
 
@@ -230,7 +232,7 @@ This runs `astro check` and the link validator. Fix every error before consideri
 - No conceptual deep dives; those belong in the paired lecture.
 - No penultimate artifact-to-show section and no closing further-reading section.
 - No reference to grading mechanics, submission, or assignment deliverables (naming the recitation problem family in the Bridge is expected and is not this).
-- No construct ahead of the paired lecture's week on the language ladder.
+- No prompt that *requires* a construct the paired lecture's week has not yet introduced; the activity must be doable with the taught subset (a student may still use more if they know it).
 - No lecture-only or assignment-only component imports.
 - No generic section headings (`Block 1`, `Block 2`); every section is titled by what the student does.
 - No section that only reproduces a lecture example without extending it (see Difficulty and Progression).

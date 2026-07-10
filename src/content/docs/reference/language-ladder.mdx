@@ -1,15 +1,19 @@
 ---
 title: Language Ladder
-description: The Python and Rust constructs permitted each week, so examples and take-home work stay inside the course subset.
+description: The Python and Rust constructs the course has introduced by each week, offered as a recommended vocabulary and a guarantee that graded work is always solvable with what you have been taught.
 sidebar:
   order: 1
 ---
 
-This ladder lists the Python and Rust constructs allowed each week. It grows cumulatively: a construct introduced in an earlier week stays allowed in every later week. Anything not yet on the ladder must not appear in take-home work, so that everyone traces the same constructs and any AI-generated cleverness stays easy to spot. Students who arrive experienced may use anything already introduced, in either language, at any point.
+This ladder lists, week by week, the Python and Rust constructs the course has introduced by that point. It grows cumulatively: a construct introduced in an earlier week stays introduced in every later week.
+
+For you as a student, the ladder is a **recommendation, not a rule**. It is the set of tools you are guaranteed to have seen, so it is a safe vocabulary to reach for when you are not sure what you are allowed to use. But if you already know a feature that appears further along, or one the course never covers, you are free to use it: nothing here forbids you from writing code you understand. Recitations and exams assess your understanding, not your restraint.
+
+What the ladder does guarantee runs the other way. **Every graded assessment is solvable using only the constructs listed for its week.** An assignment, recitation, or exam will never require a feature you have not been taught yet, so a student who has followed the course can always solve it with the tools already in hand. The right-hand column below names what has not been introduced yet, so you can see at a glance what a given week's work will never depend on.
 
 ## The weekly ladder
 
-| Week | Newly allowed in Python | Newly allowed in Rust | Still fenced off |
+| Week | Newly introduced in Python | Newly introduced in Rust | Not yet introduced |
 |---|---|---|---|
 | 1 | `print`; int, float, bool, str literals; binary literals; arithmetic operators (`+ - * /`) and precedence | `println!` with `{}` placeholders and the `fn main` wrapper; `i32`, `f64`, `bool`, `&str`; binary literals; arithmetic and precedence | variables, functions, conditionals, loops |
 | 2 | integer division `//` and truncation; `%`; implicit coercion; variables and assignment; `UPPER_CASE` constants | integer division and truncation; `%`; `let`, `let mut`, shadowing; `const` | functions, conditionals, loops |
@@ -22,9 +26,9 @@ This ladder lists the Python and Rust constructs allowed each week. It grows cum
 | 9 | aliasing (two names, one list); passing lists to functions | `&`/`&mut` references; moves; borrowing-lite; passing `Vec` to functions | dictionaries and maps |
 | 10 | `dict` (advanced extra) | `HashMap` (advanced extra) | nothing new required |
 
-## Fenced off for the whole course
+## Not used in this course
 
-These constructs never appear in course examples or take-home work, even after the week their topic is reached.
+The course never teaches these constructs, so no lecture, activity, or assessment relies on them, and no graded problem will ever require one. You are still free to use any you already know; they simply are not part of what the course expects.
 
 - **Python:** comprehensions, lambdas, and f-string format specs beyond the basics.
-- **Rust:** traits, lifetimes, and generics; and any borrowing before week 9.
+- **Rust:** traits, lifetimes, and generics; and borrowing before week 9.
