@@ -48,8 +48,8 @@ assignment, then holds), wearing a different story line at each tier:
 
 | Altitude | Venue | Stakes | Support | Story line |
 |---|---|---|---|---|
-| 1. Activity | Lecture, guided, in pairs | Participation only | Instructor, peers | None, bare concept |
-| 2. Assignment | Take-home, independent | Low (completion) | Anything, including GenAI | Mission Ares |
+| 1. Activity | Lecture, guided, in pairs | Completion (submit .py/.rs on Canvas) | Instructor, peers | None, bare concept |
+| 2. Assignment | Take-home, independent | Low (completion + auto-graded correctness) | Anything, including GenAI | Mission Ares |
 | 3. Recitation | In person, locked-down computer | High (graded like exams) | Official docs only | Rubber Duck Robotics |
 | 4. Exam | In person, on paper, no notes | High | None | None, bare concept |
 
@@ -205,8 +205,8 @@ O2, O4.
 | Final exam | 25% | In person, paper, no notes, finals week | Proctored |
 | Midterm exam | 20% | In person, paper, no notes, 45 min in a week 6 lecture slot | Proctored |
 | Recitations (9 graded, lowest dropped) | 40% | In person, locked-down computer, 110 min | Proctored + oral check |
-| Assignments (10) | 10% | Take-home | Anything goes, completion-based |
-| Lecture preparation and activities | 5% | Pre-lecture checks + in-class participation | Low stakes by design |
+| Assignments (10) | 10% | Take-home | Anything goes; completion plus auto-graded correctness |
+| Lecture preparation and activities | 5% | Pre-lecture checks + activities (completion, .py/.rs on Canvas) | Low stakes by design |
 
 Properties worth stating explicitly:
 
@@ -474,8 +474,9 @@ the proctored setting itself and the autograded correctness core.
 ### Role
 
 Assignments exist to make students ready for the next recitation and,
-cumulatively, for the exams. They are low-stakes (10% total, completion-graded)
-precisely because they are unsupervised. The course says this
+cumulatively, for the exams. They are low-stakes (10% total; the auto-graded problem set is scored for
+correctness, and the paper practice and reflection for completion), and they
+stay low-stakes precisely because they are unsupervised. The course says this
 out loud in week 1: "You may use any tool on assignments, including AI. The
 recitation will test fresh variations of these same problems, in the lab,
 without AI. If you
