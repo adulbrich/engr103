@@ -1,7 +1,7 @@
 ---
 draft: false
 title: Code Style Guide
-description: How to write clean, readable Python and Rust in ENGR 103, and the formatters and linters that keep your code consistent.
+description: How to write clean, readable Python and Rust in ENGR 103 by hand, with an optional section on formatters and linters that can automate it.
 ---
 
 import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
@@ -17,7 +17,7 @@ This page collects the style rules ENGR 103 uses in Python and Rust. Most of the
 
 Be consistent, and write for a first-year reader. If you name one variable `total_score`, do not name the next one `totScr`. If you put a blank line between two functions, put a blank line between every pair of functions. A reader learns your habits as they read; consistent habits let them predict what comes next, so they can think about your logic instead of your formatting.
 
-The good news is that most of this consistency can be handled for you by a tool. The last section of this page shows how to set up a formatter that fixes spacing, indentation, and line breaks every time you save. Learn the rules first, so you understand what the tool is doing, then let the tool do it.
+Every rule on this page is one you can, and should, apply by hand as you type. Formatting your own code is part of writing it: laying out a program neatly forces you to read what you wrote and to notice when it is tangled or unclear. Learn to do it yourself first. There are tools that can reformat code automatically, and the optional last section shows how to set one up if you want it, but a tool is a convenience, not a substitute. You are expected to be able to produce clean, consistent code without one.
 
 ## Naming
 
@@ -53,8 +53,8 @@ fn average_speed(total_distance: f64, total_time: f64) -> f64 {
 
 Notice that the same three rules produce almost the same names in both languages. The `snake_case` functions, the `snake_case` parameters, and the `UPPER_CASE` constant all look the same. Rust adds a type to each parameter and to the return, and Python does not; the naming style is shared.
 
-<Aside type="tip" title="Names the tools expect">
-Both languages' standard tools already assume these conventions. Rust's compiler prints a warning if you write a function or variable in anything but `snake_case`, or a `const` in anything but `UPPER_CASE`. Python's linter, `ruff`, flags the same patterns. Following the conventions keeps your tools quiet.
+<Aside type="tip" title="The compiler expects these names too">
+These are not only our conventions. Rust's compiler itself prints a warning if you write a function or variable in anything but `snake_case`, or a `const` in anything but `UPPER_CASE`, so following the rule keeps the compiler quiet. Python's optional `ruff` linter flags the same patterns, if you ever use it.
 </Aside>
 
 ## Layout and Formatting
@@ -63,7 +63,7 @@ Layout is the shape of your code on the page: where the indentation goes, how lo
 
 **Indentation.** Use four spaces per level in both languages. Do not use tab characters. Set your editor to insert spaces when you press the Tab key. In Python, indentation is not optional: it is how the language knows which lines belong to a function or a loop. In Rust the curly braces mark those blocks, but you still indent four spaces inside them so the structure is easy to see.
 
-**Line length.** Keep lines short enough to read without scrolling sideways. The tools set a sensible default for you: `black` and `ruff` wrap Python at 88 columns, and `rustfmt` wraps Rust at 100 columns. You do not have to count characters yourself; the formatter does it. Just avoid writing one enormous line that the formatter then has to break in an awkward place.
+**Line length.** Keep each line short enough to read without scrolling sideways. Aim for about 80 to 100 characters, judged by eye; you do not need to count exact columns. When a line grows longer than that, break it up: split a long expression across two lines, or pull part of it into a well-named variable on its own line first. A line you cannot take in at a glance is too long.
 
 **Spacing.** Put one space around operators and one space after each comma. Write `a + b`, not `a+b`, and `average(x, y)`, not `average(x,y)`. The spaces separate the pieces so the eye can find them.
 
@@ -98,7 +98,7 @@ fn rectangle_perimeter(width: f64, height: f64) -> f64 {
 </TabItem>
 </Tabs>
 
-The Python blocks end with a colon and an indented body. The Rust blocks use curly braces, with the opening brace on the same line as the function signature and the closing brace on its own line. You do not have to remember the fine details of where a brace goes: `rustfmt` places it for you.
+The Python blocks end with a colon, and everything indented below the colon belongs to the block. The Rust blocks use curly braces, and there is one rule to remember for placing them: put the opening brace at the end of the line that starts the block (the function signature, or an `if`, `for`, or `while`), with a single space before it; put the closing brace on its own line, indented to line up with the line that opened the block; and indent everything between the braces one level, four spaces, deeper. Applied consistently, that one rule handles every brace you will write this term.
 
 ## Comments
 
@@ -203,7 +203,7 @@ The rules above apply to both languages. A few points apply to only one.
 
 ### Python
 
-Python's community style guide is called PEP 8, and the rules on this page follow it: four-space indentation, `snake_case` names, `UPPER_CASE` constants, and spaces around operators. The formatter `black` and the linter `ruff` both enforce PEP 8 for you, so you rarely need to read it directly.
+Python's community style guide is called PEP 8, and the rules on this page follow it: four-space indentation, `snake_case` names, `UPPER_CASE` constants, and spaces around operators. Everything you need is already on this page, and you can apply it by hand; you do not need to read PEP 8 directly or run any tool. The optional `black` and `ruff` (last section) follow the same PEP 8 rules if you ever choose to use them.
 
 This course writes Python **without type annotations**. You will not write `def area(radius: float) -> float`. Leaving the types off is a deliberate choice for a first course: it keeps the syntax simple while you learn the ideas. Do not add type hints to your Python, even if a tool or an AI assistant suggests them.
 
@@ -213,7 +213,7 @@ Avoid one-letter names like `x`, `n`, or `t` for values that have a real meaning
 
 ### Rust
 
-Keep your Rust `rustfmt`-clean: run the formatter and let it decide spacing, indentation, and line breaks. Code that is already formatted is easier for a partner or a grader to read, because it looks like every other Rust file they have seen.
+Lay your Rust out by hand with the spacing, indentation, and brace rules from the Layout section, applied consistently. Rust written in the standard shape is easier for a partner or a grader to read, because it looks like every other Rust file they have seen. If you later choose to use `rustfmt` (the optional last section), it produces exactly this shape, so learning the shape by hand costs you nothing.
 
 Create a variable with `let`, and add `mut` only when the variable really needs to change: `let mut count = 0`. Reaching for `mut` by default hides which values are meant to stay fixed. Leave a variable immutable unless you have a reason not to.
 
@@ -223,11 +223,13 @@ Rust has a second linter, `clippy`, that suggests clearer or more idiomatic ways
 Experienced Rust programmers often drop the final `return` and let the last expression be the value. That is valid Rust and you will see it everywhere. This course still writes the explicit `return` in its examples so that beginners can see exactly where a value leaves a function. Either form is correct.
 </Aside>
 
-## Formatters and Linters
+## Optional: Formatters and Linters
 
-A **formatter** rewrites your code into a standard shape: it fixes indentation, spacing, and line breaks without changing what the code does. A **linter** reads your code and points out likely mistakes and unclear patterns, such as an unused variable or a needlessly complex expression. Together they handle most of the consistency this page asks for, so you can spend your attention on logic.
+This section is a bonus for students who want it. Nothing in it is required: you can meet every style expectation in this course by applying the rules above yourself, by hand, and you are expected to be able to. What these tools add is automation, for when you want to save the mechanical effort.
 
-Set up format-on-save in your editor and you will almost never have to think about layout again: every time you save, your code snaps into the standard shape.
+A **formatter** rewrites your code into a standard shape: it fixes indentation, spacing, and line breaks without changing what the code does. A **linter** reads your code and points out likely mistakes and unclear patterns, such as an unused variable or a needlessly complex expression.
+
+If you set up format-on-save in your editor, your code snaps into the standard shape every time you save. That is a convenience once you already understand the rules; it is not a way to skip learning them.
 
 ### Python: black and ruff
 
@@ -358,6 +360,6 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 
 For linting, run `ruff` and `clippy` from the terminal, or connect them through a language-server plugin such as `nvim-lspconfig` if you want warnings inline.
 
-<Aside type="tip" title="Let the tool do the work">
-Once format-on-save is on, stop hand-adjusting spacing and line breaks. Write your logic, save, and let the formatter shape the file. Your job is clear names, small functions, and comments that explain why; the tool handles the rest.
+<Aside type="tip" title="The tool does not do the thinking">
+A formatter fixes spacing and indentation, but it cannot choose a clear name, split a function that is doing too much, or write a comment that explains why. Those are the parts of style that matter most, and they stay your job whether or not you use a tool. Keep formatting by hand a skill you have: laying out your own code is how you notice, as you type, that a function has grown tangled.
 </Aside>
