@@ -231,25 +231,19 @@ A **formatter** rewrites your code into a standard shape: it fixes indentation, 
 
 If you set up format-on-save in your editor, your code snaps into the standard shape every time you save. That is a convenience once you already understand the rules; it is not a way to skip learning them.
 
-### Python: black and ruff
+### Python: ruff
 
-`black` is a formatter, and `ruff` is a fast linter that can also format. Install both with `pip`.
+`ruff` is a fast linter and formatter. Install it with `pip`.
 
-```bash title="Install black and ruff"
-pip install black ruff
+```bash title="Install ruff"
+pip install ruff
 ```
 
-Format a file with `black`, and check it for problems with `ruff`.
+Format a file with `ruff format`, and check it for problems with `ruff check`.
 
 ```bash title="Format and lint a Python file"
-black my_program.py
-ruff check my_program.py
-```
-
-`ruff` can format too, if you prefer one tool for both jobs. `ruff format` follows the same style as `black`.
-
-```bash title="Format with ruff instead"
 ruff format my_program.py
+ruff check my_program.py
 ```
 
 ### Rust: rustfmt and clippy
@@ -272,93 +266,6 @@ If you are compiling a single file with `rustc`, format that file directly with 
 ```bash title="Format a single Rust file"
 rustfmt my_program.rs
 ```
-
-### Editor Setup
-
-Every editor below can run these tools automatically when you save. The idea is the same in each: install the language support, turn on format-on-save, and point Python at `ruff` (or `black`) and Rust at `rustfmt`.
-
-#### VS Code
-
-Install three extensions from the marketplace: **Python** (`ms-python.python`), **Ruff** (`charliermarsh.ruff`), and **rust-analyzer** (`rust-lang.rust-analyzer`). Then add this to your `settings.json`.
-
-```json title="VS Code settings.json"
-{
-  "[python]": {
-    "editor.defaultFormatter": "charliermarsh.ruff",
-    "editor.formatOnSave": true,
-    "editor.codeActionsOnSave": {
-      "source.fixAll.ruff": "explicit",
-      "source.organizeImports.ruff": "explicit"
-    }
-  },
-  "[rust]": {
-    "editor.defaultFormatter": "rust-lang.rust-analyzer",
-    "editor.formatOnSave": true
-  }
-}
-```
-
-This formats Python with `ruff` and Rust with `rustfmt` (through rust-analyzer) every time you save.
-
-#### Zed
-
-Zed has built-in language support: it uses `ruff` for Python and `rust-analyzer` for Rust once those tools are installed on your system. Turn on format-on-save per language in `settings.json`.
-
-```json title="Zed settings.json"
-{
-  "languages": {
-    "Python": {
-      "format_on_save": "on",
-      "language_servers": ["ruff"],
-      "formatter": {
-        "language_server": { "name": "ruff" }
-      }
-    },
-    "Rust": {
-      "format_on_save": "on"
-    }
-  },
-  "lsp": {
-    "rust-analyzer": {
-      "initialization_options": {
-        "check": { "command": "clippy" }
-      }
-    }
-  }
-}
-```
-
-The `lsp` block also tells rust-analyzer to run `clippy` when it checks your Rust code, so you see lint warnings as you work.
-
-#### Vim / Neovim
-
-The simplest setup uses the [conform.nvim](https://github.com/stevearc/conform.nvim) plugin to format on save. Point Python at `ruff_format` and Rust at `rustfmt`.
-
-```lua title="Neovim: format on save with conform.nvim"
-require("conform").setup({
-  formatters_by_ft = {
-    python = { "ruff_format" },
-    rust = { "rustfmt" },
-  },
-  format_on_save = {
-    timeout_ms = 500,
-    lsp_format = "fallback",
-  },
-})
-```
-
-If you would rather not add a plugin, and you already have a language server running, you can format through the built-in LSP on every save with one autocommand.
-
-```lua title="Neovim: format on save with the built-in LSP"
-vim.api.nvim_create_autocmd("BufWritePre", {
-  pattern = { "*.py", "*.rs" },
-  callback = function()
-    vim.lsp.buf.format()
-  end,
-})
-```
-
-For linting, run `ruff` and `clippy` from the terminal, or connect them through a language-server plugin such as `nvim-lspconfig` if you want warnings inline.
 
 <Aside type="tip" title="The tool does not do the thinking">
 A formatter fixes spacing and indentation, but it cannot choose a clear name, split a function that is doing too much, or write a comment that explains why. Those are the parts of style that matter most, and they stay your job whether or not you use a tool. Keep formatting by hand a skill you have: laying out your own code is how you notice, as you type, that a function has grown tangled.
