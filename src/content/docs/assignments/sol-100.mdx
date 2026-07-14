@@ -1,6 +1,6 @@
 ---
 title: "The Sol 100 Report"
-description: "Write the list-based flight-software functions that validate and record a sol's pressure readings into a running manifest, summarize the sol, decide whether to raise an alarm, and archive the manifest without aliasing it, then critique a real tool's accessibility and equity limits."
+description: "Write the two list-based flight-software functions test-first: one that conditionally records a reading into the caller's running manifest in place, one that archives the manifest as an independent copy, then critique a real tool's accessibility and equity limits."
 sidebar:
   order: 10
 draft: true
@@ -10,88 +10,57 @@ import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 import Reveal from '/src/components/Reveal.astro';
 import LanguageVersions from '/src/components/LanguageVersions.astro';
 import WhatDiffers from '/src/components/WhatDiffers.astro';
+import RubricTable from '/src/components/RubricTable.astro';
 
 {/* ai-summary
 type: assignment
 slug: sol-100
 order: 10
-family: capstone synthesis: the list-based Sol 100 mission-status program, accumulate-validate-summarize-archive
+family: list-based flight software: an in-place conditional mutation of the caller's manifest versus a defensive, independent copy of it (aliasing versus a copy)
 paired_recitation: R10
 prereq_lectures: the-memory-model, sharing-and-mutation
 prereq_activities: the-memory-model, sharing-and-mutation
 prereq_assignment: comms-window
-new_scope: passing a Vec<i32> to a function by & or &mut; a function that conditionally mutates the caller's manifest list in place; a function that returns a freshly built, owned Vec<i32> independent of the list it was given; aliasing versus a defensive copy; a one-page accessibility and equity critique (O8)
-persistent_requirements: dual-language, one shared contract; grader reads return values, and for the &mut function inspects the caller's list after the call; list-based only, no dict/HashMap (week-10 extra, not on this ladder); no construct beyond the week-9 ladder
-story_beat: Sol 100, the habitat's hundredth day on the Martian surface, and the crew compiles the full mission-status report from the day's air-pressure telemetry
-output: five functions submitted to the grader, a set of assertions, a hand trace photographed, a one-page accessibility and equity critique, a two-sentence reflection
+new_scope: passing a list to a function by reference; one function that conditionally mutates the caller's manifest in place, and one that returns a freshly built, owned list independent of the one it was given; aliasing versus a defensive copy; a one-page accessibility and equity critique (O8)
+target_construct: passing a list to a function and choosing between mutating it in place (aliasing) and building an independent copy of it
+persistent_requirements: dual-language, one shared contract; the grader inspects the caller's list after the in-place call and reads the returned list for the copy; list-based only, no dict/HashMap; no construct beyond the week-9 ladder
+story_beat: Sol 100, the habitat's hundredth day on the Martian surface, and the crew compiles the mission-status report from the day's air-pressure telemetry
+output: two functions submitted to the grader, an acceptance-test table, pseudocode, a hand trace photographed, a one-page accessibility and equity critique, a two-sentence reflection, in a Canvas PDF
 */}
 
 <LanguageVersions />
 
-Sol 100 has arrived: the habitat's hundredth full day on the Martian surface, and Mission Control wants a complete status report, not just another routine readout. All day, the environmental system has been checking the cabin's internal air pressure and handing each reading to flight software as it comes in. Mission Control also logged that the habitat's solar arrays produced 4 percent more power than yesterday's report, a bright note for the log but not a number any of your functions need. Before the report can go out, the software has to check each reading against the safe range and record only the good ones into a running manifest, work out the sol's average pressure, decide whether that average is calm, cautious, or critical, and finally archive the manifest for the permanent mission log. HAB has already drafted the piece that archives the sol's manifest before Sol 101 begins adding to it; do not trust it until you have checked it yourself.
+Sol 100 has arrived: the habitat's hundredth full day on the Martian surface, and Mission Control wants a complete status report, not just another routine readout. All day, the environmental system has been checking the cabin's internal air pressure and handing each reading to flight software as it comes in. Mission Control also logged that the habitat's solar arrays produced 4 percent more power than yesterday's report, a bright note for the log but not a number your functions need. Two jobs fall to you as the flight-software crew member on shift: record each good reading into the sol's running manifest as it arrives, and, at the end of the sol, archive that manifest into a permanent copy for the mission log that Sol 101 can never disturb.
 
 ## How This Assignment Works
 
-You write the functions named below and nothing else: the program's `main`, its input, its output, and the local test runner are already written, and the automated grader calls your functions directly with values it chooses. For a function that computes and returns a value, the grader reads what you `return`. For a function that takes the manifest by `&mut` (a mutable reference), there is nothing meaningful to return, so the grader instead calls your function and then looks at the caller's own list afterward, exactly the way the [Sharing and Mutation](/lectures/sharing-and-mutation/) lecture showed a function change a list its caller kept. Solve each problem in Python or Rust, whichever you prefer, and you may switch languages between problems; both are checked against the same acceptance cases. Submit your functions to the grader from the course starter repository. The assignment has five parts: the problem set below, a paper trace, a one-page accessibility and equity critique, a two-sentence reflection, and an optional summit problem.
+You work **test first**, the way flight software is really written: you read the problem, decide what correct behavior looks like by writing your own test cases, plan the code in pseudocode, and only then write the code. The problem is solvable in Python or Rust, whichever you prefer. The program's `main`, its console input and output, and the local test runner are already written; you write the two functions named below and nothing else, and you may work each in a different language. The two functions have two different contracts, so the grader checks them two different ways. For `archive_manifest`, which returns a value, the grader reads what you `return`, then records one more reading into the original manifest and confirms the list you returned did not change with it. For `record_reading`, which takes the manifest by reference and has nothing meaningful to return, the grader calls your function and then inspects the caller's own list afterward, exactly the way the [Sharing and Mutation](/lectures/sharing-and-mutation/) lecture showed a function change a list its caller kept. The order is fixed: design your tests, write your pseudocode, then write your functions. After that comes an optional summit stretch, a short paper trace, a one-page accessibility and equity critique, and a two-sentence reflection.
 
-## Problem Set
+## What to Submit
 
-### Problem 1: Validating a Reading
+You submit in two places. Mechanics are in [Running and Submitting Your Code](/practicalities/starter-repo-and-check/); each section below also repeats what it asks for.
 
-**Context.** The habitat's cabin is built to hold its internal air pressure between `95` and `105` kilopascals; a reading outside that band is one flight software must not treat as routine. Every reading in today's telemetry line gets checked against a low and a high bound before it goes anywhere else.
+- **A single PDF on Canvas** holding everything that is not code: your **acceptance tests**, your **pseudocode**, your **paper trace**, your **accessibility and equity critique**, and your **reflection**.
+- **Your code on Gradescope**: the two functions `record_reading` and `archive_manifest`, plus the extra-credit `clamped_copy` if you attempt the summit.
 
-**Requirements.**
+## The Problem
 
-1. `validate_reading(reading, low, high)` must return `True` (Rust `true`) when `reading` is greater than or equal to `low` and less than or equal to `high`, and `False` (Rust `false`) otherwise. Both `low` and `high` are themselves part of the safe range.
+The cabin is built to hold its internal air pressure between `95` and `105` kilopascals, and only a reading inside that band belongs in the sol's record. Two things have to happen with the day's readings. As each reading arrives, flight software checks it against the safe range and, if it belongs, records it into one running list for the sol, the manifest, which the rest of the report reads from as it grows. Then, once the sol is closed out, the report needs a permanent, separate copy of that manifest for the mission log, a copy that stays exactly as Sol 100 left it no matter what Sol 101 later appends to the live manifest.
 
-The modeling step is deciding that "safe" means a closed range with both ends included; the analysis step is the two comparisons from the [Booleans and Conditionals](/lectures/booleans-and-conditionals/) lecture, joined so both must hold.
-
-**Interface.**
-
-<Tabs syncKey="lang">
-<TabItem label="Python">
-```python title="validate.py"
-def validate_reading(reading, low, high):
-    ...
-```
-</TabItem>
-<TabItem label="Rust">
-```rust title="validate.rs"
-fn validate_reading(reading: i32, low: i32, high: i32) -> bool {
-    todo!()
-}
-```
-</TabItem>
-</Tabs>
-
-**Acceptance tests.** The grader calls your function and checks the returned value:
-
-| Call | Returns |
-|---|---|
-| `validate_reading(100, 95, 105)` | `True` |
-| `validate_reading(95, 95, 105)` | `True` |
-| `validate_reading(105, 95, 105)` | `True` |
-| `validate_reading(94, 95, 105)` | `False` |
-| `validate_reading(106, 95, 105)` | `False` |
-
-**Assumptions and edge cases.** `reading`, `low`, and `high` are all whole numbers, and `low` is guaranteed to be no greater than `high`. Handle both boundary readings, exactly `low` and exactly `high`, and both directions of being out of range.
-
-### Problem 2: Recording Only the Good Readings
-
-**Context.** Every reading the environmental system hands over is checked before it is kept. A reading that passes the safe-range test joins one running list for the sol, the manifest; a reading that fails is discarded and the manifest is left exactly as it was. The manifest has to grow in place as good readings arrive, so the rest of the day's report always sees the full, current list, not a copy that stopped updating the moment it was made.
-
-**Requirements.**
+These are two independent jobs, and you write one function for each.
 
 1. `record_reading(manifest, reading, low, high)` must append `reading` to the end of `manifest` when `reading` is within the safe range (greater than or equal to `low` and less than or equal to `high`), and must leave `manifest` completely unchanged when `reading` is outside that range. It does not return a value; the caller's `manifest` is what changes, and the grader inspects `manifest` after the call.
+2. `archive_manifest(manifest)` must build and return a new list holding the same readings currently in `manifest`, in the same order. The returned list must be independent of `manifest`: any reading recorded into `manifest` after the call must never appear in the list you already returned.
 
-The modeling step is choosing one shared list that only valid readings join, passed by mutable reference so every part of the day's report reads from that one growing list; the analysis step is the safe-range check from Problem 1 followed by the conditional in-place append, so the manifest grows only when the reading belongs there.
-
-**Interface.**
+Both ends of the safe range count as inside it. How each function does its job, and what intermediate values you give names to along the way, is entirely your decision.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
 ```python title="manifest.py"
 def record_reading(manifest, reading, low, high):
+    ...
+
+def archive_manifest(manifest):
     ...
 ```
 </TabItem>
@@ -100,204 +69,118 @@ def record_reading(manifest, reading, low, high):
 fn record_reading(manifest: &mut Vec<i32>, reading: i32, low: i32, high: i32) {
     todo!()
 }
+
+fn archive_manifest(manifest: &Vec<i32>) -> Vec<i32> {
+    todo!()
+}
 ```
 </TabItem>
 </Tabs>
 
-**Acceptance tests.** The grader builds `manifest`, calls `record_reading`, and then reads `manifest` back:
+We give you **one** worked example to show the format. Starting from a `manifest` holding `[100, 98]`:
 
-| `manifest` before | Call | `manifest` after |
-|---|---|---|
-| `[100, 98]` | `record_reading(manifest, 102, 95, 105)` | `[100, 98, 102]` |
-| `[]` | `record_reading(manifest, 100, 95, 105)` | `[100]` |
-| `[100]` | `record_reading(manifest, 95, 95, 105)` | `[100, 95]` (boundary reading recorded) |
-| `[100]` | `record_reading(manifest, 106, 95, 105)` | `[100]` (out of range, unchanged) |
-| `[]` | `record_reading(manifest, 90, 95, 105)` | `[]` (out of range, unchanged) |
+| Call | Result |
+|---|---|
+| `record_reading(manifest, 102, 95, 105)` | `manifest` becomes `[100, 98, 102]` (reading in range, appended) |
+| `archive_manifest(manifest)` | returns `[100, 98, 102]`, a separate list; recording another reading into `manifest` afterward leaves that returned list at `[100, 98, 102]` |
 
-**Assumptions and edge cases.** `manifest` may already hold any number of readings, including none. `reading`, `low`, and `high` are whole numbers, and `low` is no greater than `high`. Handle both boundary readings (exactly `low` and exactly `high` are recorded) and both directions of being out of range (the manifest is left untouched).
+**Assumptions and edge cases.** `manifest` may already hold any number of readings, including none. `reading`, `low`, and `high` are whole numbers, and `low` is guaranteed to be no greater than `high`. For `record_reading`, handle both boundary readings (exactly `low` and exactly `high` are recorded) and both directions of being out of range (the manifest is left untouched). For `archive_manifest`, handle the empty manifest: the returned archive is an empty list, and it must stay empty even after the live manifest later gains a reading.
 
-<Aside type="tip" title="Say it with &mut, in the signature and at the call">
-The [Sharing and Mutation](/lectures/sharing-and-mutation/) lecture spelled out the three places Rust needs `&mut` to agree: the owner declared `let mut`, the parameter typed `&mut Vec<i32>`, and the call site written `&mut manifest`. Python needs none of this, because a list is already shared the moment you pass it; a `.append` inside `record_reading` changes the caller's list whether you meant it to or not. Either way, the append here is conditional: nothing is added when the reading is out of range, so the case where `manifest` comes back unchanged is a real case the grader checks.
+<Aside type="danger" title="HAB has a shortcut for the archive. Decide whether to trust it.">
+HAB, the habitat's assistant, offers this: "The archive is the easy half. When a function returns the manifest, the caller gets back a fresh list, a separate one made by the act of returning it. So `archive_manifest` can just return the very manifest it was handed: the returned archive is already its own independent list, and whatever Sol 101 later records into the live manifest stays in the live one alone."
+
+Flight rule: no HAB advice is trusted unverified. Decide whether HAB's claim is right before you build anything on it, and let your test cases settle the question.
 </Aside>
 
-### Problem 3: The Sol Summary and the Alarm Level
+## Step 1: Write Your Acceptance Tests
 
-**Context.** Once the sol's good readings are all recorded, the report needs one number that speaks for the whole day, the average pressure, and one decision built on that number: how loudly to flag the sol. Three tiers are all Mission Control asks for: nominal, caution, and critical.
+Before writing any code, decide what correct behavior looks like. Write a set of test cases for your two functions as a plain table of rows. Do not use `assert`; a table of rows is what this step wants. Because the two functions have two different contracts, your rows look different for each:
 
-**Requirements.**
+- For `record_reading`, each row is the `manifest` before the call, the call itself with its `reading`, `low`, and `high`, and the `manifest` you expect afterward. Work out each expected list by hand from the safe-range rule.
+- For `archive_manifest`, each row is the `manifest` before the call, the call, the list you expect it to return, and the `manifest` after you record one more reading into it, so the row can show whether the returned archive stayed put.
 
-1. `summarize_manifest(manifest)` must return the average of every reading in `manifest`, as a float.
-2. `alarm_level(average)` must return `0` when `average` is between `98` and `102` inclusive (nominal), `1` when `average` is between `95` and `105` inclusive but outside the nominal band (caution), and `2` for every other value (critical).
+Your table must include, and label, at least these cases:
 
-The modeling step is collapsing a whole sol of readings down to one average, and collapsing that average further down to one of three alarm tiers instead of a single true-or-false flag; the analysis step is the sum-then-divide for the average and the ordered comparisons for the tiers, in the order that lets the narrowest band win first.
+- For `record_reading`: a normal in-range reading appended, both boundary readings (exactly `low` and exactly `high`, both recorded), an out-of-range reading that leaves the manifest unchanged, and a case where `manifest` starts empty.
+- For `archive_manifest`: a normal archive of a manifest holding several readings, an **independence** case that records a reading into the original manifest after archiving and shows the returned archive did not change, and a case where `manifest` starts empty.
+- At least one case, for either function, whose expected result you work out fully by hand.
 
-**Interface.**
+Think about what HAB claimed while you do this: a good independence case would catch an archive that turned out to be just another name for the live manifest.
 
-<Tabs syncKey="lang">
-<TabItem label="Python">
-```python title="summary.py"
-def summarize_manifest(manifest):
-    ...
+**Submit your test table in your PDF on Canvas.**
 
-def alarm_level(average):
-    ...
-```
-</TabItem>
-<TabItem label="Rust">
-```rust title="summary.rs"
-fn summarize_manifest(manifest: &Vec<i32>) -> f64 {
-    todo!()
-}
+## Step 2: Write Your Pseudocode
 
-fn alarm_level(average: f64) -> i32 {
-    todo!()
-}
-```
-</TabItem>
-</Tabs>
+Now plan the code, still before writing it. In plain steps (not Python or Rust), describe how each function does its job: for `record_reading`, how you decide whether the reading belongs and how you add it to the caller's list only when it does; for `archive_manifest`, how you build a list that holds the same readings but is genuinely a separate list from the one you were given. Name the intermediate values you intend to create so a reader could follow your plan and write the code from it.
 
-**Acceptance tests.**
+**Submit your pseudocode in your PDF on Canvas.**
 
-| Call | Returns |
-|---|---|
-| `summarize_manifest([98, 101, 99, 102])` | `100.0` |
-| `summarize_manifest([100])` | `100.0` |
-| `summarize_manifest([80, 100])` | `90.0` |
-| `alarm_level(100.0)` | `0` |
-| `alarm_level(98.0)` | `0` |
-| `alarm_level(102.0)` | `0` |
-| `alarm_level(96.0)` | `1` |
-| `alarm_level(95.0)` | `1` |
-| `alarm_level(105.0)` | `1` |
-| `alarm_level(90.0)` | `2` |
-| `alarm_level(110.0)` | `2` |
+## Step 3: Write Your Code
 
-**Assumptions and edge cases.** `manifest` is guaranteed to hold at least one reading whenever `summarize_manifest` is called; Sol 100 never ends with an empty manifest, so you do not need to guard against dividing by zero. `average` can be any float; handle all four tier boundaries, `95`, `98`, `102`, and `105`.
+Implement `record_reading` and `archive_manifest` from the signatures above, in Python or Rust, following your own pseudocode. The automated grader calls each function directly with values it chooses: it inspects the caller's `manifest` after `record_reading`, and it reads the list `archive_manifest` returns and then checks that recording another reading into the original leaves that returned list unchanged.
 
 <WhatDiffers>
 <Fragment slot="differs">
-`summarize_manifest` sums whole-number readings but must return a float, so the division has to happen in floats even though every reading in `manifest` is an `i32`. In Rust that means casting the running total and the length with `as f64` before dividing; in Python, dividing with `/` already produces a float regardless of whether the inputs were whole numbers. Both return the same value; only the path there differs.
+The two languages disagree on how a list reaches a function. In Python a list is shared the moment you pass it, so `record_reading` changes the caller's `manifest` with a plain `.append` and no annotation anywhere, and `archive_manifest` builds and returns a new list of its own. Rust makes the same two intentions explicit in the types: the in-place function takes `manifest: &mut Vec<i32>` and is called as `&mut manifest`, while the copy function takes `manifest: &Vec<i32>` and returns an owned `Vec<i32>` it built itself. Same two behaviors either way; only how each language spells the sharing differs.
 </Fragment>
 </WhatDiffers>
 
-### Problem 4: Archiving the Sol, and One of HAB's Drafts
+**Submit your two functions to Gradescope.**
 
-**Context.** At the end of Sol 100, the report needs a permanent copy of the full manifest for the mission log, one that stays exactly as Sol 100 left it no matter what Sol 101 later does to the live manifest. HAB already drafted this one.
+## Summit Problem (extra credit)
 
-**Requirements.**
+This one is a real stretch, and it earns extra credit. It is also your practice for the graded stretch problem in the recitation room, where a harder problem is waiting.
 
-1. `archive_manifest(manifest)` must build and return a new list holding the same readings currently in `manifest`. The returned list must be independent of `manifest`: any reading recorded into `manifest` after the call must never appear in the list already returned.
-
-The modeling step is recognizing that the mission log needs a second, independent list, not a second name for the same one; the analysis step is building that independent copy, and judging whether HAB's draft actually kept the two apart.
-
-**Interface.**
+Some archives are not stored raw: a reading that drifted outside the safe band is clamped back to the nearest edge before it is logged, so the permanent record never shows a value the cabin is not built to hold. Write `clamped_copy(manifest, low, high)`, which returns a new list holding every reading from `manifest` in the same order, except that any reading below `low` is pulled up to `low` and any reading above `high` is pulled down to `high`. The list you return must be independent of `manifest`, exactly as the archive was: recording a reading into `manifest` after the call must never change the list you returned, and `manifest` itself must come back untouched by the call.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python title="archive.py"
-def archive_manifest(manifest):
+```python title="clamp.py"
+def clamped_copy(manifest, low, high):
     ...
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="archive.rs"
-fn archive_manifest(manifest: &Vec<i32>) -> Vec<i32> {
+```rust title="clamp.rs"
+fn clamped_copy(manifest: &Vec<i32>, low: i32, high: i32) -> Vec<i32> {
     todo!()
 }
 ```
 </TabItem>
 </Tabs>
 
-<Aside type="danger" title="HAB drafted archive_manifest. Sign off or reject it.">
-HAB offered this for the end-of-sol archive. Flight rule: no HAB code runs unverified. Test HAB's draft against the requirements above, and decide whether to sign off on it or reject it and write your own.
+As one worked example, `clamped_copy([90, 100, 110], 95, 105)` returns `[95, 100, 105]`: the `90` is pulled up to `95`, the `110` is pulled down to `105`, and the `100` is already inside the band, so it is copied as it is. The original `[90, 100, 110]` comes back unchanged.
 
-<Tabs syncKey="lang">
-<TabItem label="Python">
-```python title="HAB's draft"
-def archive_manifest(manifest):
-    return manifest
-```
-</TabItem>
-<TabItem label="Rust">
-```rust title="HAB's draft"
-fn archive_manifest(manifest: &Vec<i32>) -> Vec<i32> {
-    return *manifest;
-}
-```
-</TabItem>
-</Tabs>
-</Aside>
-
-**Acceptance tests.** The grader builds `manifest`, calls `archive_manifest`, then records one more reading into `manifest`, and checks that the returned archive did not change:
-
-| `manifest` before | Call | Returns | `manifest` after recording one more reading |
-|---|---|---|---|
-| `[98, 101, 99]` | `archive_manifest(manifest)` | `[98, 101, 99]` | `[98, 101, 99, 999]` (archive stays `[98, 101, 99]`) |
-| `[100]` | `archive_manifest(manifest)` | `[100]` | `[100, 999]` (archive stays `[100]`) |
-| `[]` | `archive_manifest(manifest)` | `[]` | `[999]` (archive stays `[]`) |
-
-**Assumptions and edge cases.** `manifest` may hold any number of readings, including none. Handle the empty manifest: the returned archive is an empty list, and it must stay empty even after the live manifest gains a reading.
-
-### Problem 5: Write the Tests for Validating a Reading
-
-**Context.** Before the Sol 100 report ships, every function carries the cases that prove it. For this problem you write the cases, not the code: you already have the spec for `validate_reading` from Problem 1, and `assert` is available now that the testing lecture has been covered.
-
-**Requirements.**
-
-1. Submit a set of `assert` statements for `validate_reading(reading, low, high)`, each one checking a call against the value you expect it to return. Here is one case pinned down as a worked example:
-
-<Tabs syncKey="lang">
-<TabItem label="Python">
-```python title="Worked example assertion"
-assert validate_reading(100, 95, 105) == True
-```
-</TabItem>
-<TabItem label="Rust">
-```rust title="Worked example assertion"
-assert!(validate_reading(100, 95, 105));
-```
-</TabItem>
-</Tabs>
-
-2. Your set must include, and label with a comment, at least these cases: a normal in-range reading, both boundary readings (exactly `low` and exactly `high`), a reading one unit below `low`, and a reading one unit above `high`. The grader runs your assertions against a correct `validate_reading` (every assertion must pass) and against several broken versions (each broken version must fail at least one of your assertions).
-
-The modeling step is turning the spec's boundary description into concrete readings; the analysis step is predicting each expected boolean by hand before writing the assertion.
+**Submit `clamped_copy` to Gradescope** to earn the extra credit.
 
 ## Paper Practice
 
-Trace this program by hand, on paper. Build a variable table with one row per call to `record_reading`, tracking what `manifest` holds after each line, and then the value bound to `average`. One of the three readings is out of the safe range and must not be recorded; deciding which is part of the trace. Write the exact value the program prints for `manifest` and for `average`. Photograph your table and trace and attach it. This part is graded on completion (the attached photograph), not on whether every cell is right, so attempt it by hand first, then open the reveal to check yourself.
+Trace this program by hand, on paper. It is the aliasing pattern from the [Sharing and Mutation](/lectures/sharing-and-mutation/) lecture: `shadow` is set to `primary`, which gives the one list a second name rather than making a second list. Build a variable table with a row for each line, tracking what `primary` and `shadow` each hold after that line runs. Then write the exact two values the program prints.
 
 ```python title="trace_me.py"
-def record_reading(manifest, reading, low, high):
-    if reading >= low and reading <= high:
-        manifest.append(reading)
+def add_sample(readings, value):
+    readings.append(value)
 
-def summarize_manifest(manifest):
-    total = 0
-    for r in manifest:
-        total = total + r
-    return total / len(manifest)
-
-manifest = [100]
-record_reading(manifest, 96, 95, 105)
-record_reading(manifest, 110, 95, 105)
-record_reading(manifest, 104, 95, 105)
-average = summarize_manifest(manifest)
-print(manifest)
-print(average)
+primary = [100, 98]
+shadow = primary
+add_sample(primary, 101)
+print(primary)
+print(shadow)
 ```
 
 <Reveal label="Reveal the completed trace">
-Each call to `record_reading` reaches into the one shared `manifest` object, but appends only when the reading passes the safe-range check; there is no return value to track, only the object itself changing, and only when the reading belongs.
+The line `shadow = primary` does not copy the list; it makes `shadow` a second name for the very same list object, so anything that changes one is seen through the other.
 
-| Line | Reading | In range `95` to `105`? | `manifest` after |
-|---|---|---|---|
-| `record_reading(manifest, 96, 95, 105)` | `96` | yes | `[100, 96]` |
-| `record_reading(manifest, 110, 95, 105)` | `110` | no, discarded | `[100, 96]` |
-| `record_reading(manifest, 104, 95, 105)` | `104` | yes | `[100, 96, 104]` |
+| Line | `primary` after | `shadow` after |
+|---|---|---|
+| `primary = [100, 98]` | `[100, 98]` | (not yet bound) |
+| `shadow = primary` | `[100, 98]` | `[100, 98]` (same list, second name) |
+| `add_sample(primary, 101)` | `[100, 98, 101]` | `[100, 98, 101]` |
 
-The reading `110` is above `105`, so it is not recorded and the manifest is unchanged for that line. `summarize_manifest` then sums `100 + 96 + 104 = 300` and divides by the manifest's length, `3`, giving `average = 100.0`. The program prints `[100, 96, 104]`, then `100.0`. The same program written in Rust prints `[100, 96, 104]`, then `100`, the `f64` display without Python's trailing `.0`.
+`add_sample` appends `101` to the one shared list, so the change shows through both names. The program prints `[100, 98, 101]`, then `[100, 98, 101]` again. Rust prints a `Vec<i32>` the same way, `[100, 98, 101]`, with no display difference here since every value is a whole number, never a float.
 </Reveal>
+
+Photograph your trace and include it in your PDF on Canvas. This part is graded on completion (the attached photograph), not on whether every cell is right, so attempt it by hand first, then open the reveal to check yourself.
 
 ## Accessibility and Equity Critique
 
@@ -312,21 +195,15 @@ Your one page must address all three of these:
 This critique is graded on completion, evaluated on whether it genuinely engages with all three points about a real tool, not on whether the instructor agrees with your conclusions. It is not shared with anyone but the instructor.
 
 <Aside type="note" title="Why this belongs in the capstone">
-Every function you wrote in this assignment does exactly what its spec says and nothing more; a spec is silent about who benefits from that behavior and who does not. Judging HAB's code all term has been practice for judging code more broadly, including code nobody drafted as a decoy, code that shipped for real and that somebody, right now, cannot use.
+Every function you wrote in this assignment does exactly what its spec says and nothing more; a spec is silent about who benefits from that behavior and who does not. Judging HAB's claims all term has been practice for judging code more broadly, including code nobody drafted as a decoy, code that shipped for real and that somebody, right now, cannot use.
 </Aside>
 
 ## Reflection
 
-In two sentences: first, state plainly whether you used an AI tool on this assignment and, if you did, what you used it for (if you did not use AI at all, say so explicitly); second, name any other help you used (a peer, the official docs, the lecture notes) and one thing you still could not do without that help. This is graded on completion, not on what you say, and it is not shared with anyone but the instructor.
+Include a short reflection in your PDF on Canvas. In two sentences: first, state plainly whether you used an AI tool on this assignment and, if you did, what you used it for (if you did not use AI at all, say so explicitly); second, name any other help you used (a peer, the official docs, the lecture notes) and one thing you still could not do without that help.
 
-## Summit Problem (optional, worth nothing)
+Then add one more sentence: which intermediate values did you choose to name inside `record_reading` and `archive_manifest`, and why those? This is graded on completion, not on what you say, and it is not shared with anyone but the instructor.
 
-This one is a stretch, and it earns no points; it is here so you can practice for the graded stretch problem in the recitation room, where a harder problem does count.
+## Rubric
 
-Write `clamped_copy(manifest, low, high)`, which returns a new list holding every reading from `manifest` in the same order, except that any reading below `low` is pulled up to `low` and any reading above `high` is pulled down to `high`. The list you return must be independent of `manifest`, exactly as the archive was: recording a reading into `manifest` after the call must never change the list you returned, and `manifest` itself must come back untouched by the call. Build the new list by walking `manifest` one reading at a time, the way `summarize_manifest` walks the whole list, rather than reaching for a function this course has not covered.
-
-| `manifest` before | Call | Returns | `manifest` after |
-|---|---|---|---|
-| `[90, 100, 110]` | `clamped_copy(manifest, 95, 105)` | `[95, 100, 105]` | `[90, 100, 110]` (unchanged) |
-| `[80, 120, 95, 105]` | `clamped_copy(manifest, 95, 105)` | `[95, 105, 95, 105]` | `[80, 120, 95, 105]` (unchanged) |
-| `[100]` | `clamped_copy(manifest, 95, 105)` | `[100]` | `[100]` (unchanged) |
+<RubricTable src="canvas/assignments/sol-100-rubrics.tsv" caption="The Sol 100 Report Rubric" />
