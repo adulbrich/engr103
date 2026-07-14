@@ -483,10 +483,11 @@ without AI. If you
 did the practice yourself, the recitation will hold no surprises. Skipping the
 practice only shows up in the 85% of the grade you earn in the room."
 
-Assignments wear the Mission Ares story line (section 8): each problem
-set arrives as a mission episode and includes HAB's subtly wrong snippet
-awaiting sign-off, the take-home rung of the red herring ladder. The upcoming
-recitation assesses the same skeletons in Rubber Duck Robotics costume.
+Assignments wear the Mission Ares story line (section 8): each assignment
+arrives as a mission episode and includes a confident but subtly wrong claim
+from HAB for the student to judge, the take-home rung of the red herring ladder.
+The upcoming recitation assesses the same skeletons in Rubber Duck Robotics
+costume.
 
 ### Structure (weekly, always due before the recitation it prepares)
 
@@ -498,43 +499,66 @@ lectures of the previous week that the next recitation will assess. Students get
 a full week with the earlier of those two lectures and a full weekend with the
 later one before being graded on it.
 
-Each assignment has three parts:
+Each assignment is worked **test first** (design the acceptance tests, then
+pseudocode, then code) and submitted in two places: everything that is not code
+goes in a single **PDF on Canvas** (the acceptance tests, the pseudocode, the
+paper trace, and the reflection), and the code goes to **Gradescope**. Its parts:
 
-1. **Problem set (auto-graded).** Three to five problems in the same families
-   as the upcoming recitation, at the same difficulty: the recitation siblings
-   will differ in costume, values, and at most one small twist, not in level.
-   Starter code is
-   distributed as self-contained git repositories on OSU GitLab, each
-   carrying the spec (as its README), the twin scaffolds, the visible tests,
-   and the `check`/`pack` tools; submission and autograding run on
-   Gradescope, whose Docker-based autograder is language agnostic, so a single
-   custom container image carries both the Python test runner and the Rust
-   toolchain. Passing the visible tests earns the credit. Until the
-   errors-and-validation week (week 8), every problem is a set of functions
-   written against a provided harness: the `main`, all console I/O, and the
-   local test runner are given, so grading is direct function calls rather than
-   fragile output parsing. Twin scaffolds in both languages; through week 3, students must
-   submit at least one problem in each language (to force an informed choice of
-   their main language), free choice afterwards. From week 3 on, one problem
-   per set is the spec-to-tests problem (section 9): given requirements and a
-   signature, write only the test suite.
+1. **The problem (auto-graded).** One substantial problem in the same family
+   as the upcoming recitation and at the same difficulty: the recitation sibling
+   differs in costume, values, and at most one small twist, not in level. The
+   assignment hands the student a mission situation and a goal and fixes only the
+   **observable contract**; how to reach it, which intermediate values to
+   compute, whether to add helper functions, and which constructs to reach for is
+   the student's decision. That freedom is the point: the student must work out
+   how to use what they have learned instead of transcribing a decomposition the
+   spec already made. The challenge is always implementation, never deriving
+   mathematics: simple arithmetic (a unit conversion) is left for the student to
+   work out, but when a problem rests on math a first-year could not be expected to
+   derive, such as a system of equations, the spec gives the solved equations (in
+   LaTeX) and the student's work is turning them into clean, correct code. Before
+   the functions lecture, the contract is the program's
+   printed output in an exact stated format, and grading compares that output.
+   From the functions lecture (week 3) on, the contract is one named entry-point
+   function (a second only when the family is genuinely two independent outputs)
+   with an exact signature and return; the grader calls it directly with values it
+   chooses and reads only what it returns, so every helper written inside is the
+   student's to choose. Starter code is distributed as self-contained git
+   repositories on OSU GitLab, each carrying the spec (as its README), the twin
+   scaffolds, the visible tests, and the `check`/`pack` tools; submission and
+   autograding run on Gradescope, whose Docker-based autograder is language
+   agnostic, so a single custom container image carries both the Python test
+   runner and the Rust toolchain. Passing the visible tests earns the credit. Twin
+   scaffolds in both languages; through week 3 students must submit in each
+   language at least once (to force an informed choice of their main language),
+   free choice afterwards. The work is ordered test first: the student is given
+   one worked example, then writes their own acceptance tests including boundary
+   and regime-stressing cases (a plain input-and-expected table before the testing
+   lecture, assertions after), then writes pseudocode, then the code. The tests
+   and pseudocode go in the Canvas PDF and are graded on coverage and clarity; the
+   code goes to Gradescope. This keeps "did you understand the spec" gradable and
+   makes the planning visible. Every assignment closes with a Canvas rubric
+   (rendered on the page from its TSV) and, when the computation is a
+   straightforward calculation, a small non-printable simulator the student can
+   check answers against.
 2. **Paper practice (self-checked).** One tracing or memory-diagram exercise in
-   exam archetype format, done by hand, photographed and attached. The worked
-   solution sits in a closed reveal on the assignment page: the student attempts
-   the trace, then opens it to self-check. Graded on completion, not
+   exam archetype format, done by hand and photographed into the Canvas PDF. The
+   worked solution sits in a closed reveal on the assignment page: the student
+   attempts the trace, then opens it to self-check. Graded on completion, not
    correctness. This is the only regular rehearsal of the paper modality outside
    lectures, so it is non-negotiable in every assignment.
-3. **Reflection line (two sentences).** The student must explicitly disclose
-   whether they used AI and, if so, for what (and state plainly when they did
-   not), then name any other help used (peers, docs, the notes) and one thing
-   they still cannot do without it. Ungraded content, graded completion; the
-   explicit disclosure normalizes honesty about tool use and feeds the
-   instructor's weekly misconception review.
-4. **Summit problem (optional, worth nothing).** One problem at stretch
-   altitude, the take-home training ground for the recitation's stretch
-   problem. It carries no points at all, on purpose: extra credit at the
-   take-home tier would reward spare time rather than mastery. What it earns
-   is preparation for the +10 that is available in the room.
+3. **Reflection line (two sentences plus the modeling line).** The student must
+   explicitly disclose whether they used AI and, if so, for what (and state
+   plainly when they did not), then name any other help used (peers, docs, the
+   notes) and one thing they still cannot do without it, and then name which
+   intermediate variables they chose to represent the situation and why. Ungraded
+   content, graded completion; it goes in the Canvas PDF. The explicit disclosure
+   normalizes honesty about tool use and feeds the instructor's weekly
+   misconception review.
+4. **Summit problem (extra credit).** One problem at stretch altitude, worth
+   extra credit and the take-home training ground for the recitation's stretch
+   problem. It follows the same rules as the main problem. The assignment page
+   labels it as extra credit and states no point values.
 
 ### Sizing to the weekly budget
 
@@ -543,14 +567,15 @@ work per week**: about 3.5 scheduled hours (the two lectures and the
 recitation) leave about 5.5 hours for everything else. Assignments are authored
 to fit inside that budget, not to fill it:
 
-- **Problem set:** a **median completion time of about 2.5 to 3 hours** for a
-  student who did the reading, tests included. The "three to five problems"
-  count bends to this target and never past it: five short problems or three
-  slightly larger ones, whichever hits the time, all at assignment (not
-  stretch) difficulty.
+- **The problem:** a **median completion time of about 2.5 to 3 hours** for a
+  student who did the reading, the test cases they submit included. One problem,
+  sized to that target and never past it, at assignment (not stretch) difficulty.
+  If it lands well short, the problem is too thin to sit above the activity; make
+  it demand more decisions, not more sub-parts.
 - **Paper practice:** one exercise, 30 minutes or less.
 - **Reflection line:** a few minutes.
-- **Summit problem:** optional and uncounted, so it never enters the budget.
+- **Summit problem:** optional extra credit, so it never enters the required
+  weekly budget.
 - **Pre-lecture reading:** each lecture's notes are sized to about 45 minutes,
   read primarily in the student's chosen language while skimming the other;
   the "what differs" call-out is the part read in full.
@@ -677,10 +702,10 @@ sees its own field in the mission more than once a term.
 
 The recurring character is **HAB**, the habitat's onboard AI assistant, which
 is helpful, tireless, and confidently wrong at narratively convenient moments.
-Flight rule: no HAB code runs unverified. HAB is how find-the-bug and
-judge-this-code problems arrive in story ("HAB drafted this pressure check;
-sign off or reject it"), which makes outcome O8 a weekly reflex instead of a
-week 10 lecture topic. Placing HAB in the assignment tier is deliberate: it is
+Flight rule: no HAB advice is trusted unverified. HAB is how judge-this-claim
+problems arrive in story ("HAB says you can size the margin by adding the percent
+straight to the mass; decide whether to trust it"), which makes outcome O8 a
+weekly reflex instead of a week 10 lecture topic. Placing HAB in the assignment tier is deliberate: it is
 the one tier where students may use AI freely, so a confidently wrong AI whose
 code they must judge is exactly the right training partner there, and the heroic
 tone gives the take-home work a reason to pull the student through practice they
@@ -707,8 +732,9 @@ distractors that scale with the tier:
 
 - **Activities:** none; bare concept.
 - **Assignments:** one mild spec distractor (a quantity that is never needed),
-  plus **HAB's snippet**: a provided function that looks convenient but is
-  subtly wrong or unnecessary. Copying it uncritically costs a visible test.
+  plus **HAB's claim**: a confident assertion about how to approach the problem,
+  or a fact about it, that is subtly wrong. Following it uncritically leads to a
+  wrong answer that a visible test catches.
 - **Recitations:** fuller specifications with irrelevant data fields, plus
   Gary's helper that must be verified before use.
 - **Exams:** the distilled paper version, the find-the-bug archetype.
@@ -732,10 +758,13 @@ spec) and O8 (judge code you did not write).
   stretch problem alone.
 - Activities stay story-free, but may borrow any context that serves the
   concept (a Wordle-style guessing round is a fine strings activity).
-- Every family problem labels its modeling step (building the representation of
-  the engineering situation) and its analysis step (running it and interpreting
-  the result), so the modeling-versus-analysis distinction (O6, catalog outcome
-  4) is rehearsed continuously rather than taught once.
+- Every family problem has a modeling step (building the representation of the
+  engineering situation) and an analysis step (running it and interpreting the
+  result), kept distinct so the modeling-versus-analysis distinction (O6, catalog
+  outcome 4) is rehearsed continuously rather than taught once. On assignments the
+  distinction is drawn out of the student rather than labeled for them: the spec no
+  longer names which step is which, and the reflection asks the student which
+  variables they chose to represent the situation and why.
 
 ---
 
@@ -752,7 +781,7 @@ tutorials), so the table is normative:
 | Language ladder, archetype inventory, language field guide | Reference | Terse tables and lists, no prose |
 | Practicalities | How-to guides | Numbered steps, one goal per page: setup, editors, submitting to Gradescope, the recitation lab, the debugging workflow |
 | Activities | Prompt sheets | Minimal: a listing, a question, room to predict; worked resolution published after class |
-| Assignments | Requirements, scaffolded | Mission episode: same spec template as recitations, plus hints and worked sub-steps |
+| Assignments | Requirements, scaffolded | Mission episode: one open problem, the contract fixed and the decomposition left to the student, plus optional hints |
 | Recitations | Requirements, bare | Gary's ticket: the same template, scaffolding stripped |
 | Exams | Archetype items | Minimal wording, no story skin |
 
@@ -801,10 +830,12 @@ test set share a format, so the format itself is never the surprise. One
 template for both: **Context** (the story beat, skippable), **Requirements**
 (numbered, testable statements), **Interface** (provided signatures and types),
 **Acceptance tests** (the visible cases), **Assumptions and edge cases**.
-Assignments add scaffolding inside that template: hints, worked sub-steps,
-mission commentary, a suggested order of attack. Recitations strip the
-scaffolding and say less. Support moves between the tiers; difficulty holds,
-and the genre never changes. Students never author prose requirements themselves: reading
+Assignments add scaffolding inside that template: optional hints, mission
+commentary, a suggested order of attack. The Interface names only the entry
+point the grader calls; the student owns every decision inside it, which is the
+training the take-home tier exists for. Recitations strip the scaffolding and
+say less. Support moves between the tiers; difficulty holds, and the genre never
+changes. Students never author prose requirements themselves: reading
 specifications is the course skill, and writing them is a later course's job.
 
 ### Tests as requirements (what replaces pre-assignments)
@@ -817,16 +848,14 @@ survive in machine-checkable or supervised forms:
 - **Requirement comprehension** is trained by the red herring ladder (section
   8), probed live by the oral check, and tested on paper by the explain
   archetype.
-- **Test writing** gets a dedicated problem type: from week 3 on, each
-  assignment contains one **spec-to-tests problem**, where the student receives
-  requirements and a function signature and writes only the test suite.
-  Gradescope grades it by running the suite against a hidden reference
-  implementation (every test must pass) and against hidden buggy variants
-  (each must be caught by at least one test). A test suite is an executable
-  statement of the requirements, which makes "did you understand the spec"
-  autogradable. Early sets use a plain data format (input, expected output);
-  assertion syntax arrives with the testing lecture. The same skill appears on
-  paper as archetype 8, and it graduates to the supervised tier in the
+- **Test writing** is the first step of every assignment, worked test first:
+  from week 3 on the student is given one worked example, then designs their own
+  acceptance tests (including boundary and regime-stressing cases) before writing
+  any code. The tests go in the Canvas PDF and are graded on coverage against the
+  rubric, which makes "did you understand the spec" gradable and puts the planning
+  before the coding. Early assignments use a plain data format (input, expected
+  output); assertion syntax arrives with the testing lecture. The same skill
+  appears on paper as archetype 8, and it graduates to the supervised tier in the
   capstone recitation, which requires a test suite alongside the program.
 - **Design and pseudocode** live in the Polya thread below.
 

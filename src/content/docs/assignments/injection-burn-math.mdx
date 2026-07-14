@@ -1,6 +1,6 @@
 ---
 title: "The Injection Burn"
-description: "Write the flight-software functions that turn mission time, speed, and propellant numbers into the values the trans-Mars injection burn needs, and judge one of HAB's drafts before you trust it."
+description: "Plan the two-stage trans-Mars injection burn test-first: design your test cases, write pseudocode, then implement the given linear-system equations as clean, correct code."
 sidebar:
   order: 4
 draft: true
@@ -11,313 +11,226 @@ import Reveal from '/src/components/Reveal.astro';
 import LanguageVersions from '/src/components/LanguageVersions.astro';
 import WhatDiffers from '/src/components/WhatDiffers.astro';
 import Latex from '/src/components/Latex.astro';
+import RubricTable from '/src/components/RubricTable.astro';
+import InjectionBurnForm from '/src/components/InjectionBurnForm.svelte';
 
 {/* ai-summary
 type: assignment
 slug: injection-burn-math
 order: 4
-family: arithmetic with units and time
+family: solving a small linear system by implementing given formulas (arithmetic with units)
 paired_recitation: R4
 prereq_lectures: expressions-and-operators, variables-and-state, functions
 prereq_activities: expressions-and-operators, variables-and-state, functions
 prereq_assignment: none
-new_scope: writing a set of functions against the grader's harness, with unit conversions and integer-versus-float division
+new_scope: designing test cases and pseudocode before implementing a given two-equation linear system as clean functions
+target_construct: writing a function that computes a value from its inputs (functions week)
 persistent_requirements: dual-language, one shared contract; grader reads return values only; no construct beyond the functions week on the ladder
-story_beat: the crew computes the flight numbers for the trans-Mars injection burn and vets one of HAB's helpers
-output: six functions submitted to the grader, a hand trace photographed, a two-sentence reflection
+story_beat: planning the two-stage trans-Mars injection burn
+output: two functions to Gradescope, an optional extra-credit function, and a PDF on Canvas with acceptance tests, pseudocode, a hand trace, and a reflection
 */}
 
 <LanguageVersions />
 
-The habitat's trans-Mars injection burn is the long engine firing that leaves Earth orbit and puts the crew on course for Mars. The flight computer needs three kinds of number before it can run the burn: how much mission time has passed, how fast the ship is going in units the cockpit can read, and how much propellant the burn needs once a safety margin is added. Your job as the new flight-software crew member is to write the functions that produce those numbers. HAB, the habitat's assistant, has already drafted one of the helpers; do not trust it until you have checked it yourself.
+The trans-Mars injection burn is the long engine firing that leaves Earth orbit and puts the crew on course for Mars. It fires in two stages, one engine after the other, and the flight plan has to decide how many seconds each stage burns. Two things must come out exactly right: the two stages together have to add up to the total change in speed the trajectory needs, and together they have to use exactly the fuel budgeted for the burn. Your job as the new flight-software crew member is to write the code that computes each stage's burn time.
 
 ## How This Assignment Works
 
-You write the functions named below and nothing else: the program's `main`, its input, its output, and the local test runner are already written, and the automated grader calls your functions directly with values it chooses, reading only what you `return`. Solve each problem in Python or Rust, whichever you prefer, and you may switch languages between problems; both are checked against the same acceptance cases. Submit your functions to the grader from the course starter repository. The assignment has four parts: the problem set below, a paper trace, a two-sentence reflection, and an optional summit problem.
+You work **test first**, the way flight software is really written: you read the problem, decide what correct behavior looks like by writing your own test cases, plan the code in pseudocode, and only then write the code. The problem is solvable in Python or Rust, whichever you prefer. The equations you need are given below in full, so you never derive or solve anything by hand; the work is turning them into clear, correct code. The order is fixed: design your tests, write your pseudocode, then write your functions. After that comes an optional extra-credit stretch, a short paper trace, and a two-sentence reflection.
 
-## Problem Set
+## What to Submit
 
-### Problem 1: The Mission Clock
+You submit in two places. Mechanics are in [Running and Submitting Your Code](/practicalities/starter-repo-and-check/); each section below also repeats what it asks for.
 
-**Context.** Mission Control tracks elapsed time as a whole number of seconds since launch. The crew display wants it broken into whole sols and the time of day within the current sol. A **sol**, one Martian day, is exactly `88775` seconds.
+- **A single PDF on Canvas** holding everything that is not code: your **acceptance tests**, your **pseudocode**, your **paper trace**, and your **reflection**.
+- **Your code on Gradescope**: the two functions `stage_one_seconds` and `stage_two_seconds`, plus the extra-credit `first_stage_seconds` if you attempt the summit.
 
-**Requirements.**
+## The Problem
 
-1. `whole_sols(seconds)` must return the number of whole sols that have fully elapsed in `seconds` seconds. A sol counts only once it is complete, so `88774` seconds is still zero whole sols.
-2. `leftover_seconds(seconds)` must return the seconds elapsed into the current, not-yet-complete sol: the remainder left after the whole sols are removed.
-3. `sol_hours(seconds)` must return the number of whole hours into the current sol. Take the seconds elapsed into the current sol, then divide by the `3600` seconds in an hour, discarding the minutes and seconds that do not fill a whole hour. This function combines both operators from the two above: the remainder that strips the whole sols, and the integer division that counts whole hours. The order in which you apply them decides the answer, so choose it deliberately.
+Stage one burns for <Latex formula="t_1" /> seconds and stage two for <Latex formula="t_2" /> seconds; these two burn times are what you need to find. Each stage has two known rates. Stage one adds speed at <Latex formula="v_1" /> metres per second for every second it burns and consumes fuel at <Latex formula="f_1" /> kilograms per second; stage two adds speed at <Latex formula="v_2" /> and burns fuel at <Latex formula="f_2" />. The whole burn must deliver a total change in speed of <Latex formula="D" /> metres per second and use exactly <Latex formula="F" /> kilograms of fuel. The two engines together weigh 1,800 kilograms dry.
 
-The modeling step is deciding to represent mission time as whole sols, leftover seconds, and hours into the current sol; the analysis step is computing each with the integer-division and remainder operators from the [Expressions and Operators](/lectures/expressions-and-operators/) lecture, and composing the two of them for `sol_hours`.
+Those two requirements are two equations. The speed each stage adds is its rate times its burn time, and the two must sum to <Latex formula="D" />; the fuel each stage uses is its rate times its burn time, and the two must sum to <Latex formula="F" />:
 
-**Interface.**
+<Latex formula="v_1\,t_1 + v_2\,t_2 = D" inline={false} />
+
+<Latex formula="f_1\,t_1 + f_2\,t_2 = F" inline={false} />
+
+Mission Control has already solved this pair of equations for the two burn times. Writing <Latex formula="\Delta" /> for a shared value that appears in both results, the burn times are:
+
+<Latex formula="\Delta = v_1 f_2 - v_2 f_1" inline={false} />
+
+<Latex formula="t_1 = \frac{D\,f_2 - v_2\,F}{\Delta}" inline={false} />
+
+<Latex formula="t_2 = \frac{v_1\,F - D\,f_1}{\Delta}" inline={false} />
+
+You will write two functions:
+
+1. `stage_one_seconds(v1, v2, f1, f2, total_dv, fuel_budget)` returns <Latex formula="t_1" />, stage one's burn time in seconds.
+2. `stage_two_seconds(v1, v2, f1, f2, total_dv, fuel_budget)` returns <Latex formula="t_2" />, stage two's burn time in seconds.
+
+Both return a float. Here `total_dv` is <Latex formula="D" /> and `fuel_budget` is <Latex formula="F" />. How you compute each formula, and what intermediate values you give names to along the way, is entirely your decision.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python title="clock.py"
-def whole_sols(seconds):
+```python title="burn.py"
+def stage_one_seconds(v1, v2, f1, f2, total_dv, fuel_budget):
     ...
 
-def leftover_seconds(seconds):
-    ...
-
-def sol_hours(seconds):
+def stage_two_seconds(v1, v2, f1, f2, total_dv, fuel_budget):
     ...
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="clock.rs"
-fn whole_sols(seconds: i32) -> i32 {
+```rust title="burn.rs"
+fn stage_one_seconds(v1: f64, v2: f64, f1: f64, f2: f64, total_dv: f64, fuel_budget: f64) -> f64 {
     todo!()
 }
 
-fn leftover_seconds(seconds: i32) -> i32 {
-    todo!()
-}
-
-fn sol_hours(seconds: i32) -> i32 {
+fn stage_two_seconds(v1: f64, v2: f64, f1: f64, f2: f64, total_dv: f64, fuel_budget: f64) -> f64 {
     todo!()
 }
 ```
 </TabItem>
 </Tabs>
 
-**Acceptance tests.** The grader calls your functions and checks the returned value:
+We give you **one** worked example to show the format. With `v1 = 5.0`, `v2 = 8.0`, `f1 = 3.0`, `f2 = 2.0`, `total_dv = 1240.0`, and `fuel_budget = 520.0`:
 
 | Call | Returns |
 |---|---|
-| `whole_sols(200000)` | `2` |
-| `leftover_seconds(200000)` | `22450` |
-| `sol_hours(200000)` | `6` |
-| `whole_sols(88775)` | `1` |
-| `leftover_seconds(88775)` | `0` |
-| `sol_hours(88775)` | `0` |
-| `whole_sols(0)` | `0` |
+| `stage_one_seconds(5.0, 8.0, 3.0, 2.0, 1240.0, 520.0)` | `120.0` |
+| `stage_two_seconds(5.0, 8.0, 3.0, 2.0, 1240.0, 520.0)` | `80.0` |
 
-**Assumptions and edge cases.** `seconds` is a whole number, zero or greater, and small enough to fit an `i32` (under about 2.1 billion). Handle the boundary where `seconds` is an exact multiple of a sol, and the case of zero. `sol_hours` returns a value from `0` to `24`, since a sol is a little under 25 hours long.
+**Inputs and guarantees.** Every input is a float greater than zero. The two stages always have different performance, so <Latex formula="\Delta" /> is never zero and you do not have to guard against dividing by it. Mission Control only plans burns that are physically possible, so both burn times come out greater than zero. Note that <Latex formula="\Delta" /> itself can come out negative, and the formulas still give the right answer when it does.
 
-### Problem 2: The Speed Readout
+<Aside type="danger" title="HAB says there is a shortcut. Decide whether to trust it.">
+HAB, the habitat's assistant, offers this: "You do not need to solve two equations at once. Both stages add speed, so just split the speed target evenly between them: stage one burns for `total_dv / (2 * v1)` seconds and stage two for `total_dv / (2 * v2)`. The fuel takes care of itself."
 
-**Context.** The burn raises the ship's speed by thousands of metres per second, but the cockpit gauge reads in kilometres per hour, and it refreshes ten times a second. The flight software converts each reading it is handed.
-
-**Requirements.**
-
-1. `kmh_from_mps(mps)` must convert a speed in metres per second to kilometres per hour and return it as a float. There are `3600` seconds in an hour and `1000` metres in a kilometre, so a speed in metres per second becomes kilometres per hour when multiplied by `3600` and divided by `1000`.
-
-The modeling step is the unit relationship (3600 seconds per hour, 1000 metres per kilometre); the analysis step is evaluating the expression, with the operator precedence from the expressions lecture.
-
-**Interface.**
-
-<Tabs syncKey="lang">
-<TabItem label="Python">
-```python title="speed.py"
-def kmh_from_mps(mps):
-    ...
-```
-</TabItem>
-<TabItem label="Rust">
-```rust title="speed.rs"
-fn kmh_from_mps(mps: f64) -> f64 {
-    todo!()
-}
-```
-</TabItem>
-</Tabs>
-
-**Acceptance tests.**
-
-| Call | Returns |
-|---|---|
-| `kmh_from_mps(3600.0)` | `12960.0` |
-| `kmh_from_mps(7.5)` | `27.0` |
-
-**Assumptions and edge cases.** `mps` is a float, zero or greater.
-
-<Aside type="caution" title="Keep the arithmetic in floats">
-The grader passes a float and expects a float back, so the division stays exact here. If you are tempted to write the `3600` and `1000` as whole numbers, remember the ladder's rule from week 2: dividing two whole numbers truncates in Rust and floors in Python's `//`, and either would throw away the fractional part of your answer. Write the constants as `3600.0` and `1000.0`.
+Flight rule: no HAB advice is trusted unverified. Decide whether HAB's shortcut is right before you build anything on it, and let your test cases settle the question.
 </Aside>
+
+<Reveal label="New to reading a formula like this? Open for how the symbols map to your parameters">
+Every symbol in the formulas is one of your six parameters. The subscript says which stage: <Latex formula="v_1" /> is the parameter `v1`, <Latex formula="f_2" /> is `f2`. <Latex formula="D" /> is `total_dv` and <Latex formula="F" /> is `fuel_budget`. So <Latex formula="D\,f_2 - v_2\,F" /> is `total_dv * f2 - v2 * fuel_budget` in code. Reading the formula is only this mapping; how you then arrange the arithmetic into variables and functions is up to you.
+</Reveal>
+
+## Step 1: Write Your Acceptance Tests
+
+Before writing any code, decide what correct behavior looks like. Write a set of test cases for your two functions, as a plain table of rows: the six inputs, and the two burn times you expect back. Do not use `assert` yet; a table of rows is what this step wants. For each case, work out the expected burn times by hand from the equations, then confirm them by putting the two times back into the two original equations (the speeds should sum to `total_dv`, the fuel to `fuel_budget`).
+
+Your table must include, and label, at least these cases:
+
+- The worked example above, as a starting check.
+- One case where <Latex formula="\Delta" /> comes out **negative** (pick rates where `v1 * f2` is less than `v2 * f1`), to prove your code handles that sign.
+- One more case of your own, whose burn times you compute fully by hand.
+
+Think about what HAB claimed while you do this: a good set of tests would catch a solution that ignored the fuel equation.
+
+**Submit your test table in your PDF on Canvas.**
+
+## Step 2: Write Your Pseudocode
+
+Now plan the code, still before writing it. In plain steps (not Python or Rust), describe how each function turns its six inputs into the burn time it returns: which intermediate values you will compute, in what order, and how they combine into the final answer. Name the intermediate values you intend to create, for example the shared value <Latex formula="\Delta" />, so a reader could follow your plan and write the code from it.
+
+**Submit your pseudocode in your PDF on Canvas.**
+
+## Step 3: Write Your Code
+
+Implement `stage_one_seconds` and `stage_two_seconds` from the signatures above, in Python or Rust, following your own pseudocode. The automated grader calls each function directly with values it chooses and checks what you `return`, so nothing is graded on how you get there, only on the answer being right. Because these are floating-point results, the grader accepts any answer within a small tolerance, so you never compare floats yourself.
 
 <WhatDiffers>
 <Fragment slot="differs">
-The returned value is the same float in both languages, and the grader checks that value, not printed text. If you print it to debug, the display differs: Python shows a whole-valued float with its trailing zero, so `kmh_from_mps(3600.0)` prints `12960.0`, while Rust's `f64` prints `12960`. Neither is more correct; they are the same number.
+The grader reads the returned value, not printed text, and the value is the same float in both languages. If you print a whole-valued burn time to debug it, the display differs: Python shows `120.0`, Rust shows `120`. The number is the same.
 </Fragment>
 </WhatDiffers>
 
-### Problem 3: The Propellant Budget, and One of HAB's Drafts
+**Submit your two functions to Gradescope.**
 
-**Context.** The burn is planned as three separate firings: the main launch push, a mid-course correction, and the Mars-capture braking. Their budgets add up to the total speed change the propellant must supply, and Mission Control then adds a safety margin on top of the base propellant mass.
+## Summit Problem (extra credit)
 
-**Requirements.**
+This one is a real stretch, and it earns extra credit. It is also your practice for the graded stretch problem in the recitation room, where a harder problem is waiting.
 
-1. `total_delta_v(launch, correction, capture)` must return the sum of the three burn budgets, each a speed change in metres per second.
-2. `fuel_with_margin(base_kg, margin_percent)` must return the base propellant mass scaled up by a safety margin: the base mass plus `margin_percent` percent of it. A base of `1000` kilograms with a margin of `15` percent needs `1150` kilograms.
+Some injection burns fire in **three** stages, not two, and then a third requirement is added: the whole burn must also last an exact number of seconds. With stage burn times <Latex formula="t_1, t_2, t_3" />, speed rates <Latex formula="v_1, v_2, v_3" />, fuel rates <Latex formula="f_1, f_2, f_3" />, a total speed target <Latex formula="D" />, a fuel budget <Latex formula="F" />, and a total burn time <Latex formula="T" />, the three requirements are three equations:
 
-The modeling step is writing "add a fifteen percent margin" as an arithmetic expression; the analysis step is computing it, and checking HAB's draft against your own.
+<Latex formula="v_1 t_1 + v_2 t_2 + v_3 t_3 = D" inline={false} />
 
-**Interface.**
+<Latex formula="f_1 t_1 + f_2 t_2 + f_3 t_3 = F" inline={false} />
+
+<Latex formula="t_1 + t_2 + t_3 = T" inline={false} />
+
+One standard way to solve a three-equation system like this is **Cramer's rule**, which is given here for you to implement. First, the value of a three-by-three determinant is:
+
+<Latex formula="\det\begin{pmatrix} a & b & c \\ d & e & f \\ g & h & i \end{pmatrix} = a(ei - fh) - b(di - fg) + c(dh - eg)" inline={false} />
+
+Let <Latex formula="\Delta" /> be the determinant of the grid of coefficients on the left-hand sides (the three <Latex formula="v" /> values on the first row, the three <Latex formula="f" /> values on the second, and `1, 1, 1` on the third). Let <Latex formula="\Delta_1" /> be that same determinant but with the first column replaced by the three right-hand-side values <Latex formula="D, F, T" />. Then stage one's burn time is:
+
+<Latex formula="t_1 = \frac{\Delta_1}{\Delta}" inline={false} />
+
+Write `first_stage_seconds`, returning <Latex formula="t_1" />:
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python title="propellant.py"
-def total_delta_v(launch, correction, capture):
-    ...
-
-def fuel_with_margin(base_kg, margin_percent):
+```python title="three_stage.py (signature)"
+def first_stage_seconds(v1, v2, v3, f1, f2, f3, total_dv, fuel_budget, total_time):
     ...
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="propellant.rs"
-fn total_delta_v(launch: f64, correction: f64, capture: f64) -> f64 {
-    todo!()
-}
-
-fn fuel_with_margin(base_kg: f64, margin_percent: f64) -> f64 {
+```rust title="three_stage.rs (signature)"
+fn first_stage_seconds(
+    v1: f64, v2: f64, v3: f64, f1: f64, f2: f64, f3: f64,
+    total_dv: f64, fuel_budget: f64, total_time: f64,
+) -> f64 {
     todo!()
 }
 ```
 </TabItem>
 </Tabs>
 
-<Aside type="danger" title="HAB drafted fuel_with_margin. Sign off or reject it.">
-HAB offered this for the margin helper. Flight rule: no HAB code runs unverified. Decide whether it is correct before you use anything from it.
+`first_stage_seconds(5.0, 8.0, 6.0, 3.0, 2.0, 4.0, 1220.0, 580.0, 200.0)` returns `100.0`, within the grader's tolerance. For that burn the three stage times come out to `100`, `60`, and `40` seconds; you can check yourself by confirming those three satisfy all three equations. The three stages are always well differentiated, so <Latex formula="\Delta" /> is never zero and every stage time comes out positive.
 
-<Tabs syncKey="lang">
-<TabItem label="Python">
-```python title="HAB's draft"
-def fuel_with_margin(base_kg, margin_percent):
-    return base_kg * 1.0 + margin_percent / 100.0
-```
-</TabItem>
-<TabItem label="Rust">
-```rust title="HAB's draft"
-fn fuel_with_margin(base_kg: f64, margin_percent: f64) -> f64 {
-    return base_kg * 1.0 + margin_percent / 100.0;
-}
-```
-</TabItem>
-</Tabs>
-
-Test HAB's draft against the requirements above, and decide whether to sign off on it or reject it and write your own.
-</Aside>
-
-**Acceptance tests.**
-
-| Call | Returns |
-|---|---|
-| `total_delta_v(3600.0, 45.0, 1900.0)` | `5545.0` |
-| `fuel_with_margin(1000.0, 15.0)` | `1150.0` |
-| `fuel_with_margin(2000.0, 5.0)` | `2100.0` |
-
-**Assumptions and edge cases.** All inputs are floats, zero or greater. `margin_percent` is a percentage, so `15.0` means fifteen percent. A margin of `0.0` must return the base mass unchanged.
-
-### Problem 4: Write the Tests for the Clock
-
-**Context.** Before the flight-software review, every function ships with the cases that prove it. For this problem you write the cases, not the code: you already have the spec for `whole_sols` from Problem 1.
-
-**Requirements.**
-
-1. Submit a set of test cases for `whole_sols(seconds)` as a plain table of rows, each row an input and the whole-sols value you expect it to return. Do not write any `assert` statements; assertions arrive with the testing lecture. A row is just a pair, like this worked example:
-
-   | `seconds` | expected `whole_sols` |
-   |---|---|
-   | `200000` | `2` |
-
-2. Your table must include, and label, at least these four cases: a normal mid-range value, zero seconds, a value that lands exactly on a sol boundary (an exact multiple of `88775`), and a value one second short of a boundary. The grader runs your rows against a correct `whole_sols` (every row must match) and against several broken versions (each broken version must be caught by at least one of your rows).
-
-The modeling step is turning the spec into cases that pin it down; the analysis step is predicting each expected value by hand.
+**Submit `first_stage_seconds` to Gradescope** to earn the extra credit.
 
 ## Paper Practice
 
-Trace this program by hand, on paper. Build a variable table: for each call to `burn`, write the values its `dv` and `rate` parameters hold, and then the values bound to `a`, `b`, and `total`. Write the exact value the program prints. Photograph your table and trace and attach it. This part is graded on completion (the attached photograph), not on whether every cell is right, so attempt it by hand first, then open the reveal to check yourself.
+Trace this program by hand, on paper. It uses nested function calls, the pattern from the [Functions](/lectures/functions/) lecture. The transfer pump moves propellant out of a tank in two steps. Build a table: for each call to `litres_left`, write the values its `total` and `used` parameters hold and what it returns; then, for `remaining_after_two`, write the values bound to `step` and to `result`. Write the exact value the program prints.
 
 ```python title="trace_me.py"
-def burn(dv, rate):
-    return dv * rate
+def litres_left(total, used):
+    return total - used
 
-a = burn(1200.0, 2.0)
-b = burn(800.0, 3.0)
-total = a + b
-print(total)
+def remaining_after_two(total, first, second):
+    step = litres_left(total, first)
+    result = litres_left(step, second)
+    return result
+
+answer = remaining_after_two(100.0, 40.0, 35.0)
+print(answer)
 ```
 
 <Reveal label="Reveal the completed trace">
-Each call copies its arguments into the parameters `dv` and `rate`, runs `return dv * rate`, and binds the returned value to `a`, then to `b`.
+The call `remaining_after_two(100.0, 40.0, 35.0)` runs `litres_left(100.0, 40.0)` first, which returns `60.0` and is bound to `step`; then `litres_left(60.0, 35.0)`, which returns `25.0` and is bound to `result`.
 
-| Line | `dv` | `rate` | `a` | `b` | `total` |
+| Line | call | `total` | `used` | `step` | `result` |
 |---|---|---|---|---|---|
-| `a = burn(1200.0, 2.0)` | `1200.0` | `2.0` | `2400.0` | | |
-| `b = burn(800.0, 3.0)` | `800.0` | `3.0` | `2400.0` | `2400.0` | |
-| `total = a + b` | | | `2400.0` | `2400.0` | `4800.0` |
+| `step = litres_left(total, first)` | `litres_left(100.0, 40.0)` | `100.0` | `40.0` | `60.0` | |
+| `result = litres_left(step, second)` | `litres_left(60.0, 35.0)` | `60.0` | `35.0` | `60.0` | `25.0` |
 
-The program prints `4800.0`. That trailing `.0` is Python's display of a whole-valued float; the same program written in Rust prints the `f64` as `4800`.
+The program prints `25.0`. That trailing `.0` is Python's display of a whole-valued float; the same program written in Rust prints the `f64` as `25`.
 </Reveal>
+
+Photograph your trace and include it in your PDF on Canvas. This part is graded on completion (the attached photograph), not on whether every cell is right, so attempt it by hand first, then open the reveal to check yourself.
 
 ## Reflection
 
-In two sentences: first, state plainly whether you used an AI tool on this assignment and, if you did, what you used it for (if you did not use AI at all, say so explicitly); second, name any other help you used (a peer, the official docs, the lecture notes) and one thing you still could not do without that help. This is graded on completion, not on what you say, and it is not shared with anyone but the instructor.
+Include a short reflection in your PDF on Canvas. In two sentences: first, state plainly whether you used an AI tool on this assignment and, if you did, what you used it for (if you did not use AI at all, say so explicitly); second, name any other help you used (a peer, the official docs, the lecture notes) and one thing you still could not do without that help.
 
-## Summit Problem (optional, worth nothing)
+Then add one more sentence: which intermediate variables did you create to build the formulas, and why those? This is graded on completion, not on what you say, and it is not shared with anyone but the instructor.
 
-This one is a real stretch, and it earns no points; it is here so you can practice for the graded stretch problem in the recitation room, where a harder problem does count.
+## Simulators
 
-**The blend.** On approach, the crew mixes three propellant stocks into the reaction mass. Each stock carries three constituents, call them A, B, and C, in known proportions. Stock 1 has proportions <Latex formula="a_1, b_1, c_1"/>, stock 2 has <Latex formula="a_2, b_2, c_2"/>, and stock 3 has <Latex formula="a_3, b_3, c_3"/> (each a value between 0 and 1). You choose the blend fractions <Latex formula="M_1, M_2, M_3"/>, the share of the final mix drawn from each stock, and they must sum to 1. Your job is to find the blend fractions that make the final mix **balanced**: equal total proportions of A, B, and C.
+<InjectionBurnForm client:load />
 
-**The math.** The balance conditions and the fact that the fractions sum to 1 give three equations in three unknowns. Solving that system by hand (substituting <Latex formula="M_3 = 1 - M_1 - M_2"/> and reducing) yields closed forms for each fraction. Writing <Latex formula="d = a_2 - a_3 + b_3 - b_2"/> for the shared denominator, the results are:
+<div class="print:block hidden italic">The simulator is not printed to PDF. Consult the online textbook to use it.</div>
 
-<Latex formula="M_1 = \frac{(c_3 - a_3) + (a_3 - a_2 + c_2 - c_3)\frac{b_3 - a_3}{d}}{(c_3 - a_3 + a_1 - c_1) + (a_3 - a_2 + c_2 - c_3)\frac{a_1 - a_3 + b_3 - b_1}{d}}" inline={false} />
+## Rubric
 
-<Latex formula="M_2 = \frac{b_3 - a_3 - M_1(a_1 - a_3 + b_3 - b_1)}{d}" inline={false} />
-
-<Latex formula="M_3 = 1 - M_1 - M_2" inline={false} />
-
-These expressions are long and easy to mistype, so build them from small pieces: compute <Latex formula="d"/> first, then each numerator and denominator on its own, exactly as the requirements name them.
-
-**Requirements.** Write three functions, each taking the same nine proportions in the order shown and returning one blend fraction:
-
-1. `mix_first` returns <Latex formula="M_1"/>.
-2. `mix_second` returns <Latex formula="M_2"/>.
-3. `mix_third` returns <Latex formula="M_3"/>.
-
-**Interface.**
-
-<Tabs syncKey="lang">
-<TabItem label="Python">
-```python title="blend.py (signatures)"
-def mix_first(a1, a2, a3, b1, b2, b3, c1, c2, c3):
-    ...
-
-def mix_second(a1, a2, a3, b1, b2, b3, c1, c2, c3):
-    ...
-
-def mix_third(a1, a2, a3, b1, b2, b3, c1, c2, c3):
-    ...
-```
-</TabItem>
-<TabItem label="Rust">
-```rust title="blend.rs (signatures)"
-fn mix_first(a1: f64, a2: f64, a3: f64, b1: f64, b2: f64, b3: f64, c1: f64, c2: f64, c3: f64) -> f64 {
-    todo!()
-}
-
-fn mix_second(a1: f64, a2: f64, a3: f64, b1: f64, b2: f64, b3: f64, c1: f64, c2: f64, c3: f64) -> f64 {
-    todo!()
-}
-
-fn mix_third(a1: f64, a2: f64, a3: f64, b1: f64, b2: f64, b3: f64, c1: f64, c2: f64, c3: f64) -> f64 {
-    todo!()
-}
-```
-</TabItem>
-</Tabs>
-
-**Acceptance test.** With stock 1 rich in A, stock 2 rich in B, and stock 3 rich in C, calling all three functions with `(0.07, 0.03, 0.05, 0.01, 0.09, 0.04, 0.02, 0.02, 0.12)`:
-
-| Call | Returns (approximately) |
-|---|---|
-| `mix_first(0.07, 0.03, 0.05, 0.01, 0.09, 0.04, 0.02, 0.02, 0.12)` | `0.330645` |
-| `mix_second(0.07, 0.03, 0.05, 0.01, 0.09, 0.04, 0.02, 0.02, 0.12)` | `0.379032` |
-| `mix_third(0.07, 0.03, 0.05, 0.01, 0.09, 0.04, 0.02, 0.02, 0.12)` | `0.290323` |
-
-The true `f64` values carry many more digits; the grader accepts any answer within a small tolerance, so you do not need to compare floats yourself. To check your own work, confirm the blend is really balanced: the three totals <Latex formula="M_1 a_1 + M_2 a_2 + M_3 a_3"/>, <Latex formula="M_1 b_1 + M_2 b_2 + M_3 b_3"/>, and <Latex formula="M_1 c_1 + M_2 c_2 + M_3 c_3"/> should all come out equal (about `0.049032` for this input). If they do not, there is a typo in one of the reduced expressions.
-
-**Assumptions and edge cases.** Assume the three stocks are well differentiated, each concentrated in a different constituent, so the denominator <Latex formula="d"/> is not zero and the blend fractions come out positive. Blends that produce a zero denominator or a negative fraction are inherent limits of the problem, not failures of your functions, and are not tested.
+<RubricTable src="canvas/assignments/injection-burn-math-rubrics.tsv" caption="The Injection Burn Rubric" />
