@@ -25,27 +25,27 @@
     </p>
     <div class="grid grid-cols-2 gap-3">
       <div>
-        <label class="font-bold text-sm block mb-1" for="v1">Stage 1 speed rate (v1)</label>
+        <label class="font-bold text-sm block mb-1 min-h-[2.5rem]" for="v1">Stage 1 speed rate (v1)</label>
         <input class="border rounded p-2 w-full" type="number" id="v1" bind:value={v1} step="0.1" />
       </div>
       <div>
-        <label class="font-bold text-sm block mb-1" for="v2">Stage 2 speed rate (v2)</label>
+        <label class="font-bold text-sm block mb-1 min-h-[2.5rem]" for="v2">Stage 2 speed rate (v2)</label>
         <input class="border rounded p-2 w-full" type="number" id="v2" bind:value={v2} step="0.1" />
       </div>
       <div>
-        <label class="font-bold text-sm block mb-1" for="f1">Stage 1 fuel rate (f1)</label>
+        <label class="font-bold text-sm block mb-1 min-h-[2.5rem]" for="f1">Stage 1 fuel rate (f1)</label>
         <input class="border rounded p-2 w-full" type="number" id="f1" bind:value={f1} step="0.1" />
       </div>
       <div>
-        <label class="font-bold text-sm block mb-1" for="f2">Stage 2 fuel rate (f2)</label>
+        <label class="font-bold text-sm block mb-1 min-h-[2.5rem]" for="f2">Stage 2 fuel rate (f2)</label>
         <input class="border rounded p-2 w-full" type="number" id="f2" bind:value={f2} step="0.1" />
       </div>
       <div>
-        <label class="font-bold text-sm block mb-1" for="total_dv">Total speed target (total_dv)</label>
+        <label class="font-bold text-sm block mb-1 min-h-[2.5rem]" for="total_dv">Total speed target (total_dv)</label>
         <input class="border rounded p-2 w-full" type="number" id="total_dv" bind:value={total_dv} step="1" />
       </div>
       <div>
-        <label class="font-bold text-sm block mb-1" for="fuel_budget">Fuel budget (fuel_budget)</label>
+        <label class="font-bold text-sm block mb-1 min-h-[2.5rem]" for="fuel_budget">Fuel budget (fuel_budget)</label>
         <input class="border rounded p-2 w-full" type="number" id="fuel_budget" bind:value={fuel_budget} step="1" />
       </div>
     </div>

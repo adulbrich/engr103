@@ -1,14 +1,15 @@
 ---
 title: "Transit Checks"
-description: "Write the boolean interlock functions that clear a suit and a hatch, then a multi-outcome habitat status check with an emergency override, and judge one of HAB's drafts before it clears something that is not safe."
+description: "Write the habitat status check test-first: design your test cases, write pseudocode, then implement a multi-outcome status code with an emergency override that outranks every reading, and judge HAB's claim before it clears something that is not safe."
 sidebar:
   order: 5
 draft: true
 ---
 
-import { Tabs, TabItem, Aside, Steps } from '@astrojs/starlight/components';
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 import Reveal from '/src/components/Reveal.astro';
 import LanguageVersions from '/src/components/LanguageVersions.astro';
+import RubricTable from '/src/components/RubricTable.astro';
 
 {/* ai-summary
 type: assignment
@@ -19,195 +20,50 @@ paired_recitation: R5
 prereq_lectures: functions, scope-and-the-call-stack, booleans-and-conditionals
 prereq_activities: functions, scope-and-the-call-stack, booleans-and-conditionals
 prereq_assignment: injection-burn-math
-new_scope: writing boolean-returning functions that call one another across stack frames, and building a multi-outcome decision with an override guard clause from combined comparisons joined by and/or/not, expressed as nested if/else because elif is not on the ladder yet
+new_scope: turning a four-outcome status spec with a priority override into one entry-point function, using comparisons joined by and, or, and not
+target_construct: booleans and conditionals shaped as a multi-outcome decision with a priority override, so a branching decision is the natural tool
 persistent_requirements: dual-language, one shared contract; grader reads return values only; no elif/else-if chains, loops, or collections on the ladder yet; no function returns a string slice
-story_beat: mid-transit to Mars, the crew writes the interlock and status checks that keep the habitat safe before Mars orbit insertion
-output: seven functions submitted to the grader, a test-case table, a hand trace photographed, a two-sentence reflection
+story_beat: mid-transit to Mars, the crew writes the status check that keeps the habitat safe before Mars orbit insertion
+output: one function submitted to the grader, an optional summit function, and a PDF on Canvas with acceptance tests, pseudocode, a hand trace, and a reflection
 */}
 
 <LanguageVersions />
 
-Six weeks into the cruise to Mars, the crew keeps the habitat's daily safety checks running exactly the way they will once nobody on Earth can talk you through a bad call. Flight software leans on a family of interlocks: small yes-or-no checks that decide whether a suit is safe to don and whether a hatch is safe to open, and a larger status check that decides whether the habitat is nominal, needs attention, needs it right now, or has to hand control to the crew. HAB, the habitat's assistant, has already drafted one of these checks. Your job is to write the interlock and status functions the flight software depends on, and to catch HAB's mistake before it clears something that is not actually safe.
+Six weeks into the cruise to Mars, the crew keeps the habitat's daily safety checks running exactly the way they will once nobody on Earth can talk you through a bad call. The command module has one number that matters most: a single status code that condenses the whole habitat's health into nominal, advisory, critical, or an emergency override when a crew member has taken manual control. HAB, the habitat's assistant, has already offered its own rule for part of that check. Your job as the flight-software crew member is to write the status function the command display depends on, and to catch HAB's mistake before it clears something that is not actually safe.
 
 ## How This Assignment Works
 
-You write the functions named below and nothing else: the program's `main`, its input, its output, and the local test runner are already written, and the automated grader calls your functions directly with values it chooses, reading only what you `return`. Solve each problem in Python or Rust, whichever you prefer, and you may switch languages between problems; both are checked against the same acceptance cases. Submit your functions to the grader from the course starter repository, as described in [Running and Submitting Your Code](/practicalities/starter-repo-and-check/). The assignment has four parts: the problem set below, a paper trace, a two-sentence reflection, and an optional summit problem.
+You work **test first**, the way flight software is really written: you read the problem, decide what correct behavior looks like by writing your own test cases, plan the code in pseudocode, and only then write the code. The problem is solvable in Python or Rust, whichever you prefer. The program's `main`, its console input and output, and the local test runner are already written; you write the one function named below, and the automated grader calls it directly with values it chooses, reading only what you `return`. The order is fixed: design your tests, write your pseudocode, then write your function. After that comes an optional extra-credit stretch, a short paper trace, and a two-sentence reflection.
 
-## Problem Set
+## What to Submit
 
-### Problem 1: The Suit Check, and One of HAB's Drafts
+You submit in two places. Mechanics are in [Running and Submitting Your Code](/practicalities/starter-repo-and-check/); each section below also repeats what it asks for.
 
-**Context.** Suits stay staged and ready throughout the cruise so the donning drill is second nature before the first Mars EVA. Before a suit is cleared for a drill, flight software checks its oxygen tank level, its battery charge, and whether its pressure seal reads intact.
+- **A single PDF on Canvas** holding everything that is not code: your **acceptance tests**, your **pseudocode**, your **paper trace**, and your **reflection**.
+- **Your code on Gradescope**: the function `system_status`, plus the extra-credit `approach_clearance` if you attempt the summit.
 
-**Requirements.**
+## The Problem
 
-1. `oxygen_ok(oxygen_percent)` must return `true` when `oxygen_percent` is at least `20`, the minimum flight rules allow before a suit counts as safe to don.
-2. `battery_ok(battery_percent)` must return `true` when `battery_percent` is at least `30`.
-3. `suit_ready(oxygen_percent, battery_percent, seal_intact)` must return `true` only when all three checks hold at once: `oxygen_ok(oxygen_percent)` is `true`, `battery_ok(battery_percent)` is `true`, and `seal_intact` is `true`, joined with `and`. It must call the two functions above rather than repeating their comparisons.
+The crew display in the command module condenses the habitat's health into a single status code: `0` for nominal, `1` for advisory, `2` for critical, and `3` for an emergency override, when a crew member has thrown the manual switch and taken control by hand. The code drives a colored ring on the display that refreshes twice a second. Two live readings feed the decision, the cabin pressure and the cabin oxygen level, but the manual switch outranks both: when it is thrown, the code is `3` no matter what the readings say.
 
-The modeling step is deciding that suit readiness needs all three yes-or-no checks to hold at once, joined with `and`; the analysis step is calling `oxygen_ok` and `battery_ok` from inside `suit_ready`, pushing and popping their stack frames as the [Scope and the Call Stack](/lectures/scope-and-the-call-stack/) lecture described, and combining what they return with `seal_intact`.
+Write `system_status(cabin_pressure_kpa, oxygen_percent, emergency_override)`, returning the status code. What it must return, in this priority order:
 
-**Interface.**
+1. Return `3` whenever `emergency_override` is `true`, no matter what the two readings say. The override outranks every other check.
+2. Otherwise, return `2` when the cabin pressure is below `95.0` kilopascals or the oxygen level is below `18` percent. Either reading on its own breaching its hard floor is critical.
+3. Otherwise, return `1` when the two readings are not both comfortably in range. Comfortably in range means the cabin pressure is at least `99.0` kilopascals and the oxygen level is at least `20` percent, both at once. A reading that clears its hard floor but has not reached that comfortable range is an advisory.
+4. Otherwise, return `0`.
 
-<Tabs syncKey="lang">
-<TabItem label="Python">
-```python title="suit.py"
-def oxygen_ok(oxygen_percent):
-    ...
-
-def battery_ok(battery_percent):
-    ...
-
-def suit_ready(oxygen_percent, battery_percent, seal_intact):
-    ...
-```
-</TabItem>
-<TabItem label="Rust">
-```rust title="suit.rs"
-fn oxygen_ok(oxygen_percent: i32) -> bool {
-    todo!()
-}
-
-fn battery_ok(battery_percent: i32) -> bool {
-    todo!()
-}
-
-fn suit_ready(oxygen_percent: i32, battery_percent: i32, seal_intact: bool) -> bool {
-    todo!()
-}
-```
-</TabItem>
-</Tabs>
-
-<Aside type="danger" title="HAB drafted suit_ready. Sign off on it, or reject it.">
-HAB offered this for `suit_ready`. Flight rule: no HAB code runs unverified.
-
-<Tabs syncKey="lang">
-<TabItem label="Python">
-```python title="HAB's draft"
-def suit_ready(oxygen_percent, battery_percent, seal_intact):
-    return oxygen_ok(oxygen_percent) or (battery_ok(battery_percent) and seal_intact)
-```
-</TabItem>
-<TabItem label="Rust">
-```rust title="HAB's draft"
-fn suit_ready(oxygen_percent: i32, battery_percent: i32, seal_intact: bool) -> bool {
-    return oxygen_ok(oxygen_percent) || (battery_ok(battery_percent) && seal_intact);
-}
-```
-</TabItem>
-</Tabs>
-
-Test HAB's draft against the requirements above, and decide whether to sign off on it or reject it and write your own.
-</Aside>
-
-**Acceptance tests.**
-
-| Call | Returns |
-|---|---|
-| `oxygen_ok(20)` | `true` |
-| `oxygen_ok(19)` | `false` |
-| `battery_ok(30)` | `true` |
-| `battery_ok(29)` | `false` |
-| `suit_ready(25, 50, true)` | `true` |
-| `suit_ready(15, 90, true)` | `false` |
-| `suit_ready(25, 50, false)` | `false` |
-
-**Assumptions and edge cases.** `oxygen_percent` and `battery_percent` are whole percents from `0` to `100`. `seal_intact` is read directly from the seal sensor as a boolean. `20` and `30` are exact boundaries: a reading exactly at the minimum counts as safe.
-
-<Steps>
-
-1. Write `oxygen_ok` and `battery_ok` first, and check each against its own acceptance tests.
-
-2. Write `suit_ready` last, calling both of the functions above rather than rewriting their comparisons.
-
-</Steps>
-
-### Problem 2: The Airlock Interlock
-
-**Context.** Once a week the crew drills moving between the habitat's two pressurized modules through the connecting corridor, which holds about six cubic meters of air. Before the inner hatch may open, flight software checks that the connecting valve has equalized pressure across both sides and that the valve itself is fully closed, with no venting in progress.
-
-**Requirements.**
-
-1. `pressure_equalized(pressure_diff_kpa)` must return `true` when the pressure difference across the valve sits strictly between `-0.5` and `0.5` kilopascals, the tolerance flight rules allow before the two sides count as equalized. A difference of exactly `0.5` or exactly `-0.5` does not count as equalized.
-2. `hatch_can_open(pressure_diff_kpa, valve_closed)` must return `true` only when `pressure_equalized(pressure_diff_kpa)` is `true` and `valve_closed` is `true`.
-
-The modeling step is deciding that opening the hatch needs two independent yes-or-no checks, a pressure tolerance and a valve state, to both hold; the analysis step is calling `pressure_equalized` from inside `hatch_can_open`, and building the tolerance check from strict `<`/`>` comparisons, the way the [Booleans and Conditionals](/lectures/booleans-and-conditionals/) lecture compares floats, rather than an exact `==`.
-
-**Interface.**
-
-<Tabs syncKey="lang">
-<TabItem label="Python">
-```python title="airlock.py"
-def pressure_equalized(pressure_diff_kpa):
-    ...
-
-def hatch_can_open(pressure_diff_kpa, valve_closed):
-    ...
-```
-</TabItem>
-<TabItem label="Rust">
-```rust title="airlock.rs"
-fn pressure_equalized(pressure_diff_kpa: f64) -> bool {
-    todo!()
-}
-
-fn hatch_can_open(pressure_diff_kpa: f64, valve_closed: bool) -> bool {
-    todo!()
-}
-```
-</TabItem>
-</Tabs>
-
-**Acceptance tests.**
-
-| Call | Returns |
-|---|---|
-| `pressure_equalized(0.0)` | `true` |
-| `pressure_equalized(0.4)` | `true` |
-| `pressure_equalized(0.5)` | `false` |
-| `pressure_equalized(-0.5)` | `false` |
-| `hatch_can_open(0.2, true)` | `true` |
-| `hatch_can_open(0.2, false)` | `false` |
-| `hatch_can_open(0.6, true)` | `false` |
-
-**Assumptions and edge cases.** `pressure_diff_kpa` is a float and can be negative, when the far side of the valve reads higher than the near side. `valve_closed` is read directly from the valve sensor as a boolean. The corridor's volume plays no part in either check; only the pressure difference and the valve state decide whether the hatch may open.
-
-### Problem 3: The Habitat Status Code
-
-**Context.** The crew display in the command module condenses the habitat's health into a single status code: `0` for nominal, `1` for advisory, `2` for critical, and `3` for an emergency override, when a crew member has thrown the manual switch and taken control by hand. Two live readings feed the decision, the cabin pressure and the cabin oxygen level, but the override switch outranks both: when it is thrown, the code is `3` no matter what the readings say.
-
-**Requirements.**
-
-1. `readings_nominal(cabin_pressure_kpa, oxygen_percent)` must return `true` only when the cabin pressure is at least `99.0` kilopascals *and* the oxygen level is at least `20` percent: both readings comfortably in range at once.
-2. `system_status(cabin_pressure_kpa, oxygen_percent, emergency_override)` must return the status code, in this priority order:
-   - Return `3` whenever `emergency_override` is `true`, no matter what the two readings say. The override collapses every other check: once it is thrown, nothing below it is even asked.
-   - Otherwise, return `2` when the cabin pressure is below `95.0` kilopascals *or* the oxygen level is below `18` percent. Either reading breaching its hard floor is critical on its own.
-   - Otherwise, return `1` when the readings are *not* nominal. Call `readings_nominal` and negate its result with `not`; a reading that is above its hard floor but not yet comfortably in range is an advisory.
-   - Otherwise, return `0`.
-
-Because `elif` is not on the ladder yet, write these four outcomes as nested `if`/`else` blocks: check the override first, and only once you have ruled it out ask about the readings, nesting each further decision inside the `else` of the one before it. `system_status` must call `readings_nominal` rather than repeating its two comparisons.
-
-The modeling step is choosing the priority order, override first, then the hard-floor critical check, then advisory, then nominal, and deciding which comparisons and which of `and`, `or`, and `not` each row needs; the analysis step is writing that priority as nested `if`/`else` blocks that call `readings_nominal`, checking the highest-priority condition first so a thrown override is never masked by a good reading.
-
-**Interface.**
+The function returns a whole-number status code (`0`, `1`, `2`, or `3`). How you arrange the comparisons, which of `and`, `or`, and `not` each outcome needs, and what intermediate values you give names to along the way, is entirely your decision.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
 ```python title="status.py"
-def readings_nominal(cabin_pressure_kpa, oxygen_percent):
-    ...
-
 def system_status(cabin_pressure_kpa, oxygen_percent, emergency_override):
     ...
 ```
 </TabItem>
 <TabItem label="Rust">
 ```rust title="status.rs"
-fn readings_nominal(cabin_pressure_kpa: f64, oxygen_percent: i32) -> bool {
-    todo!()
-}
-
 fn system_status(cabin_pressure_kpa: f64, oxygen_percent: i32, emergency_override: bool) -> i32 {
     todo!()
 }
@@ -215,46 +71,85 @@ fn system_status(cabin_pressure_kpa: f64, oxygen_percent: i32, emergency_overrid
 </TabItem>
 </Tabs>
 
-**Acceptance tests.**
+We give you **one** worked example to show the format. With both readings comfortably in range and no override thrown, the habitat is nominal:
 
 | Call | Returns |
 |---|---|
-| `readings_nominal(99.0, 20)` | `true` |
-| `readings_nominal(98.9, 20)` | `false` |
-| `readings_nominal(101.3, 19)` | `false` |
-| `system_status(80.0, 5, true)` | `3` |
-| `system_status(101.3, 17, false)` | `2` |
-| `system_status(94.9, 21, false)` | `2` |
-| `system_status(95.0, 18, false)` | `1` |
-| `system_status(98.0, 19, false)` | `1` |
-| `system_status(99.0, 20, false)` | `0` |
 | `system_status(101.3, 21, false)` | `0` |
 
-**Assumptions and edge cases.** `cabin_pressure_kpa` is a float and `oxygen_percent` is a whole percent; `emergency_override` is a boolean read from the manual switch. The boundaries are exact: `95.0` and `18` are the hard floors, and a reading exactly at a hard floor is not below it, so it is not critical. Nominal needs `99.0` and `20` exactly met, so `system_status(95.0, 18, false)` is an advisory, not critical and not nominal. A thrown override always returns `3`, even when both readings are fine, so check `emergency_override` first and let it short-circuit the rest.
+**Assumptions and edge cases.** `cabin_pressure_kpa` is a float and `oxygen_percent` is a whole percent; `emergency_override` is a boolean read from the manual switch. The boundaries are exact: `95.0` and `18` are the hard floors, and a reading exactly at a hard floor is not below it, so it is not critical. Comfortably in range needs `99.0` and `20` exactly met, so a habitat sitting exactly on a hard floor is an advisory, not critical and not nominal. A thrown override always returns `3`, even when both readings would otherwise be nominal.
 
-<Aside type="tip" title="Nesting without elif">
-You have `if`/`else` only this week; `elif` arrives with the next lecture. Put each later decision inside the `else` of the one above it, so the four outcomes nest three levels deep rather than chaining. The override is the outermost check because it outranks everything else.
+<Aside type="danger" title="HAB has a rule for the critical check. Decide whether to trust it.">
+HAB, the habitat's assistant, offers this: "The habitat only goes critical when it is genuinely in trouble, so the critical code means both life-support readings have failed at once: return `2` only when the cabin pressure is below its floor and the oxygen is below its floor together. A single reading dipping low on its own is just an advisory, not a critical."
+
+Flight rule: no HAB advice is trusted unverified. Decide whether HAB's rule is right before you build anything on it, and let your test cases settle the question.
 </Aside>
 
-### Problem 4: Write the Tests for the Status Code
+## Step 1: Write Your Acceptance Tests
 
-**Context.** Before the flight-software review, every function ships with the cases that prove it. For this problem you write the cases, not the code: you already have the full spec for `system_status` from Problem 3.
+Before writing any code, decide what correct behavior looks like. Write a set of test cases for `system_status` as a plain table of rows: the three inputs (`cabin_pressure_kpa`, `oxygen_percent`, `emergency_override`) and the status code you expect back. Do not use `assert` yet; a table of rows is what this step wants. For each row, work out the expected code by hand from the priority order, paying attention to which readings sit exactly on a hard floor or on the comfortable-range floor.
 
-**Requirements.**
+Your table must include, and label, at least these cases:
 
-1. Submit a set of test cases for `system_status(cabin_pressure_kpa, oxygen_percent, emergency_override)` as a plain table of rows, each row the three inputs and the status code you expect it to return. Do not write any `assert` statements; assertions arrive with the testing lecture. A row is just the inputs paired with the expected code, like this worked example:
+- An override case that returns `3` while the readings themselves would be critical, to prove the override really outranks the readings.
+- A critical case driven by low pressure.
+- A critical case driven by low oxygen.
+- An advisory case.
+- A nominal case.
+- One case that lands exactly on a boundary: a reading exactly at `95.0`, `99.0`, `18`, or `20`.
+- At least one more case whose expected code you compute fully by hand.
 
-   | `cabin_pressure_kpa` | `oxygen_percent` | `emergency_override` | expected code |
-   |---|---|---|---|
-   | `101.3` | `21` | `false` | `0` |
+Think about what HAB claimed while you do this: a good set of tests would catch a rule that treated the critical check the wrong way.
 
-2. Your table must include, and label, at least these six cases: an override case that returns `3` while the readings themselves would be critical (to prove the override really outranks the readings), a critical case driven by low pressure, a critical case driven by low oxygen, an advisory case, a nominal case, and one case that lands exactly on a boundary (a reading exactly at `95.0`, `99.0`, `18`, or `20`). The grader runs your rows against a correct `system_status` (every row must match) and against several broken versions (each broken version must be caught by at least one of your rows).
+**Submit your test table in your PDF on Canvas.**
 
-The modeling step is turning the four-outcome spec into cases that pin down the override, each critical route, and both boundaries; the analysis step is predicting each expected code by hand, paying attention to which readings sit exactly on a hard floor or a nominal floor.
+## Step 2: Write Your Pseudocode
+
+Now plan the code, still before writing it. In plain steps (not Python or Rust), describe how `system_status` turns its three inputs into the code it returns: in what order you check the outcomes, which comparisons each outcome rests on, and which intermediate values, if any, you will give names to along the way. Write it so a reader could follow your plan and produce the function from it.
+
+**Submit your pseudocode in your PDF on Canvas.**
+
+## Step 3: Write Your Code
+
+Implement `system_status` from the signature above, in Python or Rust, following your own pseudocode. The automated grader calls the function directly with values it chooses and checks what you `return`, so nothing is graded on how you get there, only on the code being right for every input. The returned status code is a whole number and reads the same in both languages, so there is nothing to compare with a tolerance and nothing to print.
+
+**Submit your function to Gradescope.**
+
+## Summit Problem (extra credit)
+
+This one is a real stretch, and it earns extra credit. It is also your practice for the graded stretch problem in the recitation room, where a harder problem is waiting.
+
+On final approach to the docking port before Mars orbit insertion, the flight software clears the automated approach in five levels, and two of them are overrides that outrank the readings. Write `approach_clearance(range_m, closing_speed_mps, abort_commanded, lock_confirmed)`, returning the clearance code in this priority order:
+
+1. Return `4` whenever `abort_commanded` is `true`, no matter anything else: a commanded abort outranks every other check.
+2. Otherwise, return `3` when the capture lock is not confirmed (`lock_confirmed` is `false`): the approach holds until the lock is made.
+3. Otherwise, return `2` when the ship is closing faster than `2.0` metres per second and is nearer than `50.0` metres: too hot, too close, wave off.
+4. Otherwise, return `1` when the range is still greater than `200.0` metres: too far out to commit, keep holding.
+5. Otherwise, return `0`: cleared to dock.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="approach.py"
+def approach_clearance(range_m, closing_speed_mps, abort_commanded, lock_confirmed):
+    ...
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="approach.rs"
+fn approach_clearance(range_m: f64, closing_speed_mps: f64, abort_commanded: bool, lock_confirmed: bool) -> i32 {
+    todo!()
+}
+```
+</TabItem>
+</Tabs>
+
+As one worked example, `approach_clearance(30.0, 3.0, true, true)` returns `4`: the commanded abort wins even though the lock is confirmed and the ship is close and fast. The five clearance levels never overlap once you honor the priority order, and every input is a clean reading from the approach sensors.
+
+**Submit `approach_clearance` to Gradescope** to earn the extra credit.
 
 ## Paper Practice
 
-Trace this program by hand, on paper. Build a variable table: for the call to `is_low_power`, write the value its `battery_percent` parameter holds and what it returns; then, for `check_drill_status`, write the values bound to its two parameters, to `low_power`, and to `result`. Write the exact value the program prints. Photograph your table and trace and attach it. This part is graded on completion (the attached photograph), not on whether every cell is right, so attempt it by hand first, then open the reveal to check yourself.
+Trace this program by hand, on paper. It uses nested function calls and a boolean condition, the patterns from the [Scope and the Call Stack](/lectures/scope-and-the-call-stack/) and [Booleans and Conditionals](/lectures/booleans-and-conditionals/) lectures. Build a variable table: for the call to `is_low_power`, write the value its `battery_percent` parameter holds and what it returns; then, for `check_drill_status`, write the values bound to its two parameters, to `low_power`, and to `result`. Write the exact value the program prints.
 
 ```python title="trace_me.py"
 def is_low_power(battery_percent):
@@ -286,29 +181,14 @@ The call `check_drill_status(22, 18)` pushes a frame with `oxygen_percent = 22` 
 The condition checks `22 >= 20`, which is `true`, `and`ed with `not low_power`, which is `not true`, or `false`. `true and false` is `false`, so the `if` block is skipped and the `else` block runs, binding `result` to `0`. The program prints `0`.
 </Reveal>
 
+Photograph your trace and include it in your PDF on Canvas. This part is graded on completion (the attached photograph), not on whether every cell is right, so attempt it by hand first, then open the reveal to check yourself.
+
 ## Reflection
 
-In two sentences: first, state plainly whether you used an AI tool on this assignment and, if you did, what you used it for (if you did not use AI at all, say so explicitly); second, name any other help you used (a peer, the official docs, the lecture notes) and one thing you still could not do without that help. This is graded on completion, not on what you say, and it is not shared with anyone but the instructor.
+Include a short reflection in your PDF on Canvas. In two sentences: first, state plainly whether you used an AI tool on this assignment and, if you did, what you used it for (if you did not use AI at all, say so explicitly); second, name any other help you used (a peer, the official docs, the lecture notes) and one thing you still could not do without that help.
 
-## Summit Problem (optional, worth nothing)
+Then add one more sentence: which intermediate values, if any, did you choose to name inside `system_status`, and why those? This is graded on completion, not on what you say, and it is not shared with anyone but the instructor.
 
-This one is a stretch, and it earns no points; it is here so you can practice for the graded stretch problem in the recitation room, where a harder problem does count.
+## Rubric
 
-On final approach to the docking port, the flight software clears the automated approach in five levels, and two of them are overrides that outrank the readings. Write `approach_clearance(range_m, closing_speed_mps, abort_commanded, lock_confirmed)`, returning the clearance code in this priority order:
-
-1. Return `4` whenever `abort_commanded` is `true`, no matter anything else: a commanded abort outranks every other check.
-2. Otherwise, return `3` when the capture lock is *not* confirmed (`lock_confirmed` is `false`): the approach holds until the lock is made.
-3. Otherwise, return `2` when the ship is closing faster than `2.0` metres per second *and* is nearer than `50.0` metres: too hot, too close, wave off.
-4. Otherwise, return `1` when the range is still greater than `200.0` metres: too far out to commit, keep holding.
-5. Otherwise, return `0`: cleared to dock.
-
-Build it the way you built `system_status`: two override rows first, checked with `not` and a plain boolean, then the combined-comparison rows nested in the `else` blocks below them. Reuse the priority-nesting idea rather than rewriting it from scratch.
-
-| Call | Returns |
-|---|---|
-| `approach_clearance(30.0, 3.0, true, true)` | `4` |
-| `approach_clearance(30.0, 3.0, false, false)` | `3` |
-| `approach_clearance(30.0, 3.0, false, true)` | `2` |
-| `approach_clearance(300.0, 1.0, false, true)` | `1` |
-| `approach_clearance(100.0, 1.0, false, true)` | `0` |
-| `approach_clearance(49.0, 2.0, false, true)` | `0` |
+<RubricTable src="canvas/assignments/transit-checks-rubrics.tsv" caption="Transit Checks Rubric" />

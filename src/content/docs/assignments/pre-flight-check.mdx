@@ -1,6 +1,6 @@
 ---
 title: "Pre-Flight Check"
-description: "Complete three pre-flight programs that print a mixed instrument panel, a precedence-sensitive manifest total, and a status word built from binary readings, then reject one of HAB's precedence mistakes and reduce two expressions by hand."
+description: "Complete one pre-flight panel program that prints the week-one literal types and precedence-sensitive arithmetic, work test first, judge one of HAB's precedence claims, and reduce an expression by hand."
 sidebar:
   order: 2
 draft: true
@@ -10,6 +10,7 @@ import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 import Reveal from '/src/components/Reveal.astro';
 import LanguageVersions from '/src/components/LanguageVersions.astro';
 import WhatDiffers from '/src/components/WhatDiffers.astro';
+import RubricTable from '/src/components/RubricTable.astro';
 
 {/* ai-summary
 type: assignment
@@ -20,41 +21,51 @@ paired_recitation: R2
 prereq_lectures: how-programs-run, data-representation
 prereq_activities:
 prereq_assignment: systems-checkout
-new_scope: completing provided programs that print the five week-one literal types and evaluate precedence-sensitive arithmetic and binary-literal arithmetic, graded by output comparison
-persistent_requirements: dual-language; graded by comparing printed output; no variables or functions yet; every division uses float operands so both languages agree; no mixing of integer and float in one expression
+new_scope: completing one provided program that prints the week-one literal types and precedence-sensitive arithmetic, graded by comparing printed output
+target_construct: arithmetic expressions with correct operator precedence over literal types (whole numbers, floats, booleans, binary literals)
+persistent_requirements: dual-language; graded by comparing printed output; no variables or functions yet; every division uses float operands so both languages agree; no mixing of whole numbers and floats in one expression
 story_beat: the crew runs the pre-flight panel and status checks before the launch window opens
-output: three completed pre-flight programs, two hand reductions photographed, a two-sentence reflection
+output: one completed pre-flight panel program to Gradescope; one hand reduction, acceptance tests, pseudocode, and a reflection in a Canvas PDF
 */}
 
 <LanguageVersions />
 
-Before the launch window opens, the crew runs a pre-flight check: bring up the instrument panel, confirm the manifest, and read the status word off the bus. This is your first coding assignment, and it is deliberately at the foundation of everything that follows. You have only just seen how a program runs and how values are stored, so each program here is nearly complete; you fill in the readings. HAB has offered one of them, so check it before it goes on the board.
+Before the launch window opens, the crew runs a pre-flight check: bring up the instrument panel, confirm the cargo manifest, and read the status word off the bus. This is your first coding assignment, and it sits at the foundation of everything that follows, so the panel program is handed to you nearly complete. You have only just seen how a program runs and how values are stored, so your job is to fill in the readings the panel is missing. HAB has offered its own version of one reading, so check that before it goes on the board.
 
 ## How This Assignment Works
 
-You have not learned variables or functions yet, so each problem gives you a **complete, runnable program with marked `TODO` lines**. You replace each placeholder with a literal or an arithmetic expression that computes the reading described, and the automated grader runs your program and compares its printed output to the expected output shown below the problem. Solve each problem in Python or Rust; both are checked against the expected output for that language. Submit from the starter repository as described in [Running and Submitting Your Code](/practicalities/starter-repo-and-check/). The assignment has three parts: the three programs below, two paper reductions, and a two-sentence reflection.
+You work **test first**, the way flight software is really written: you read the problem, decide what correct output looks like by writing your own test rows, plan the program in pseudocode, and only then finish the code. You have not learned variables or functions yet, so the panel program comes as a **complete, runnable file with marked `TODO` lines**; you replace each placeholder with the literal or arithmetic expression that produces the reading described. The automated grader runs your program and compares its printed output, line by line, against the expected output. Solve it in Python or Rust, whichever you prefer; both are checked against the same panel.
 
-Two rules hold for every program here, and both come straight from the [Data Representation and Memory](/lectures/data-representation/) lecture. First, an expression may not mix a whole number with a decimal number: Rust refuses to compile `3 + 2.5`, so any reading that needs a fraction must be written with **every** number as a float (for example `100.5`, not `100`). Second, to get a real fraction from division you must divide floats, because dividing two whole numbers is a separate rule you have not met yet.
+Two rules hold for every reading here, and both come straight from the [Data Representation and Memory](/lectures/data-representation/) lecture. First, an expression may not mix a whole number with a decimal number: Rust refuses to compile `3 + 2.5`, so any reading that needs a fraction must be written with **every** number as a float (for example `100.5`, not `100`). Second, to get a real fraction from division you must divide floats, because dividing two whole numbers is a separate rule you have not met yet.
 
-## Problem Set
+## What to Submit
 
-### Problem 1: The Instrument Panel
+You submit in two places. The mechanics are in [Running and Submitting Your Code](/practicalities/starter-repo-and-check/); each section below also repeats what it asks for.
 
-**Context.** The pre-flight panel shows five fields at once: a text label, a power flag, the crew count, the cabin pressure, and the status word. Two fields are already written for you; you fill in the other three.
+- **A single PDF on Canvas** holding everything that is not code: your **acceptance tests**, your **pseudocode**, your **paper reduction**, and your **reflection**.
+- **Your code on Gradescope**: the completed panel program, plus the summit program if you attempt it.
 
-**Requirements.** In the provided program:
+## The Problem
 
-1. Replace the first `0` with the crew count: `3` flight crew plus `1` mission specialist.
-2. Replace the second `0` with the cabin pressure in kilopascals, the average of the two sensor readings `100.5` and `102.0`. This is a decimal number, so write both readings and the divisor as floats.
-3. Replace the third `0` with the status word, written directly as the binary literal `0b101010`, and let the program print its value.
+The pre-flight panel prints one reading per line, in a fixed order. The label and the main-bus power flag are already written for you; you fill in the five readings below them. The cargo manifest records that each pallet is rated to carry `20` units, though the panel never prints that rating.
 
-The modeling step is deciding what each field means as a value and which literal type fits it; the analysis step is writing the literal or the arithmetic that produces it.
+Your finished program must print exactly seven lines, in this order:
+
+1. The panel label, the text `PRE-FLIGHT` (already written).
+2. The main-bus power flag, the boolean value for "online" (already written).
+3. The crew count: `3` flight crew plus `1` mission specialist. This is a whole number.
+4. The cabin pressure in kilopascals: the average of the two sensor readings `100.5` and `102.0`. This is a decimal number, so write both readings and the divisor as floats.
+5. The status word, written directly as the binary literal `0b101010`, printed as its value.
+6. The manifest total: a base of `6` units, plus `5` pallets carrying `8` units each, minus the `2` units reserved on each of those `5` pallets. All whole numbers.
+7. The combined status code: the life-support code `0b1010`, plus the power code `0b110` counted once for each of the `2` power buses, minus the `0b11` units held in reserve. Write the three codes as binary literals and combine them with arithmetic.
+
+Do not type the final numbers directly. Each reading must be written as the literal or the arithmetic expression that produces it.
 
 **The program.**
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python title="panel.py (provided)"
+```python title="preflight.py (provided)"
 print("PRE-FLIGHT")          # panel label (already written)
 print(True)                  # main bus power: online (already written)
 # TODO: crew count, 3 flight crew plus 1 mission specialist
@@ -63,10 +74,14 @@ print(0)
 print(0)
 # TODO: the status word, written as the binary literal 0b101010
 print(0)
+# TODO: manifest total: base of 6, plus 5 pallets of 8 units each, minus 2 reserved on each of the 5 pallets
+print(0)
+# TODO: combined status code: 0b1010, plus 0b110 once for each of 2 buses, minus 0b11 reserved
+print(0)
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="panel.rs (provided)"
+```rust title="preflight.rs (provided)"
 fn main() {
     println!("PRE-FLIGHT");         // panel label (already written)
     println!("{}", true);           // main bus power: online (already written)
@@ -76,150 +91,80 @@ fn main() {
     println!("{}", 0);
     // TODO: the status word, written as the binary literal 0b101010
     println!("{}", 0);
+    // TODO: manifest total: base of 6, plus 5 pallets of 8 units each, minus 2 reserved on each of the 5 pallets
+    println!("{}", 0);
+    // TODO: combined status code: 0b1010, plus 0b110 once for each of 2 buses, minus 0b11 reserved
+    println!("{}", 0);
 }
 ```
 </TabItem>
 </Tabs>
 
-**Expected output.**
+We give you **one** worked reading to show the format. The cabin-pressure line, the average of the sensor readings `100.5` and `102.0`, prints:
 
-<Tabs syncKey="lang">
-<TabItem label="Python">
-```text frame="terminal" title="Output (Python)"
-PRE-FLIGHT
-True
-4
-101.25
-42
-```
-</TabItem>
-<TabItem label="Rust">
-```text frame="terminal" title="Output (Rust)"
-PRE-FLIGHT
-true
-4
-101.25
-42
-```
-</TabItem>
-</Tabs>
+| Panel field | Prints |
+|---|---|
+| Cabin pressure, the average of `100.5` and `102.0` | `101.25` |
+
+You work out the other four readings yourself in Step 1.
+
+**Assumptions and edge cases.** The crew count, the status word, the manifest total, and the combined status code are all whole numbers; only the cabin pressure is a decimal number. Keep whole numbers and decimals apart within a single expression, and remember that the manifest total and the combined status code each mix multiplication with addition and subtraction, so the order the operators run in decides the answer.
+
+<Aside type="danger" title="HAB drafted the manifest reading. Decide whether to trust it.">
+HAB, the habitat's assistant, offers this for the manifest total: "Read it straight across, left to right, exactly as the sentence says it. Start with the base of `6`, add the `5` pallets to make `11`, multiply by the `8` units each pallet carries, then take off the `2` reserved on each of the `5` pallets. That comes to `78` units on the panel. Arithmetic runs in reading order, so there is nothing more to it."
+
+HAB is confident. HAB is not always right. Check the reading against the requirement before you let it onto the panel.
+</Aside>
+
+## Step 1: Write Your Acceptance Tests
+
+Before finishing any code, decide what correct output looks like. Write a set of test rows, as a plain table: one row per panel line, each naming the reading (the scenario) and the exact text you expect that line to print. Do not use `assert` yet; a table of rows is what this step wants. Work out each expected value by hand from the requirements, not by running the program.
+
+Your table must include, and label, at least these rows:
+
+- The worked reading above, `101.25`, as a starting check.
+- The two precedence-sensitive lines, the manifest total and the combined status code, each reduced fully by hand one operator at a time, so your row shows the value a correct precedence gives. These are the rows HAB's claim would get wrong.
+- The power-flag line, noting that its printed text is not the same in both languages.
+
+Think about HAB's claim while you build this table: a row worked out with the right precedence is exactly what catches a reading that added before it multiplied.
+
+**Submit your test table in your PDF on Canvas.**
+
+## Step 2: Write Your Pseudocode
+
+Now plan the readings, still before finishing the code. In plain steps, not Python or Rust, describe for each of the five missing lines what value it must print and how you will build it from the literals given: which numbers you combine, with which operations, and in what order. Name the readings, for example "cabin pressure" or "manifest total," so a reader could follow your plan and write the expressions from it.
+
+**Submit your pseudocode in your PDF on Canvas.**
+
+## Step 3: Write Your Code
+
+Replace each `TODO` placeholder in the provided program with the literal or expression that produces its reading, in Python or Rust, following your own pseudocode. The grader runs your program and compares the printed output line by line, so what matters is that each line prints exactly the expected text.
 
 <WhatDiffers>
 <Fragment slot="differs">
-The power flag prints differently: Python spells the boolean `True` with a capital letter, and Rust spells it `true` in lowercase. Both are the same value, printed the way each language writes it. The other four lines print identically in both languages.
+One line prints differently between the languages: the power flag. Python spells the boolean `True` with a capital letter, and Rust spells it `true` in lowercase. Both are the same value, printed the way each language writes it. The other six lines, including the cabin pressure `101.25`, print identically in both languages, because none of the whole-number readings and no fraction here lands on a value the two languages display differently.
 </Fragment>
 </WhatDiffers>
 
-**Assumptions and edge cases.** The crew count and the status word are whole numbers; the cabin pressure is a decimal number. Write each reading as an expression or literal that produces the value, not as the final number typed directly.
+**Submit your completed program to Gradescope.**
 
-### Problem 2: The Manifest Total, and One of HAB's Suggestions
+## Summit Problem (extra credit)
 
-**Context.** The cargo manifest reading combines a fixed base with several loaded pallets, minus the units reserved on each pallet. HAB has drafted a version of this reading, and it is waiting for your sign-off.
+This part is a stretch, and it earns extra credit. It is also your practice for the harder problem waiting in the recitation room.
 
-**Requirements.** In the provided program:
+Two altitude readings come in as the whole numbers `7` and `8`, and the panel needs their exact midpoint printed as a decimal, `7.5`. Write a single `print` (in Python) or `println!` (in Rust) that computes and prints `7.5` from the two readings, without typing `7.5` directly. The catch is the division rule from the cabin-pressure line: dividing two whole numbers will not give you the fraction you want, and the same expression must print `7.5` in both languages. Decide how every number in your expression has to be written for that to hold.
 
-1. Replace the `0` with the manifest total: a base of `6` units, plus `5` pallets carrying `8` units each, minus `2` reserved units held back on each of those `5` pallets. All values are whole numbers.
-
-The modeling step is turning the sentence into "a base, plus a product, minus a product"; the analysis step is writing the expression so each product is formed before it is added to or subtracted from the base.
-
-**The program.**
-
-<Tabs syncKey="lang">
-<TabItem label="Python">
-```python title="manifest.py (provided)"
-# TODO: replace the 0 with the manifest total described above.
-print(0)
-```
-</TabItem>
-<TabItem label="Rust">
-```rust title="manifest.rs (provided)"
-fn main() {
-    // TODO: replace the 0 with the manifest total described above.
-    println!("{}", 0);
-}
-```
-</TabItem>
-</Tabs>
-
-**Expected output.**
-
-```text frame="terminal" title="Output"
-36
-```
-
-<Aside type="danger" title="HAB drafted this expression. Sign off on it, or reject it.">
-HAB offered this for the manifest total:
-
-<Tabs syncKey="lang">
-<TabItem label="Python">
-```python title="HAB's draft"
-print((6 + 5) * 8 - 2 * 5)
-```
-</TabItem>
-<TabItem label="Rust">
-```rust title="HAB's draft"
-fn main() {
-    println!("{}", (6 + 5) * 8 - 2 * 5);
-}
-```
-</TabItem>
-</Tabs>
-
-Work out by hand what HAB's expression prints, and compare it to the expected output above. Decide whether to use HAB's version or write your own. HAB is confident. HAB is not always right.
-</Aside>
-
-**Assumptions and edge cases.** All values are whole numbers. Do not type `36` directly; write the expression that computes it from the base, the pallets, and the reserved units.
-
-### Problem 3: The Status Word From the Bus
-
-**Context.** Three subsystems each report a status code, and each code arrives written in binary the way the hardware sends it. The panel shows one combined number built from all three.
-
-**Requirements.** In the provided program:
-
-1. Replace the `0` with the combined code: the life-support code `0b1010`, plus the power code `0b110` counted once for each of the `2` power buses, minus the `0b11` units held in reserve. Write the three codes as binary literals and combine them with arithmetic.
-
-The modeling step is reading each subsystem's binary code as the whole number it stands for; the analysis step is combining them so the power code is doubled before the reserve is subtracted.
-
-**The program.**
-
-<Tabs syncKey="lang">
-<TabItem label="Python">
-```python title="status.py (provided)"
-# TODO: replace the 0 with the combined status code described above.
-print(0)
-```
-</TabItem>
-<TabItem label="Rust">
-```rust title="status.rs (provided)"
-fn main() {
-    // TODO: replace the 0 with the combined status code described above.
-    println!("{}", 0);
-}
-```
-</TabItem>
-</Tabs>
-
-**Expected output.**
-
-```text frame="terminal" title="Output"
-19
-```
-
-**Assumptions and edge cases.** All three codes are whole numbers written as binary literals. The printed result is an ordinary decimal number, because printing a whole number always shows it in decimal no matter how the literal was written.
+**Submit your summit program to Gradescope** to earn the extra credit.
 
 ## Paper Practice
 
-Reduce each expression by hand, on paper, one operator at a time, and write the single value it comes out to. Photograph your steps and attach them. This part is graded on completion, not correctness, so reduce them yourself first, then open the reveal to check.
+Reduce this expression by hand, on paper, one operator at a time, and write the single value it comes out to. It is all whole numbers, and it includes a binary literal and a set of parentheses, the same precedence and literal rules the panel readings turn on.
 
-The first is all whole numbers and includes a binary literal and a set of parentheses. The second is all decimals and includes a division. Keep the two kinds of number separate, exactly as the programs above required.
-
-```text title="Reduce these two expressions"
+```text title="Reduce this expression"
 3 * 4 - 2 * (0b101 - 1) + 6
-
-10.0 / 4.0 + 3.0 * 2.0 - 1.0
 ```
 
-<Reveal label="Reveal the two reductions">
+<Reveal label="Reveal the reduction">
 ```text title="Reducing 3 * 4 - 2 * (0b101 - 1) + 6"
 3 * 4 - 2 * (0b101 - 1) + 6
 3 * 4 - 2 * (5 - 1) + 6       (0b101 is the whole number 5)
@@ -228,21 +173,17 @@ The first is all whole numbers and includes a binary literal and a set of parent
 10                          (left to right: 12 - 8 is 4, then 4 + 6 is 10)
 ```
 
-```text title="Reducing 10.0 / 4.0 + 3.0 * 2.0 - 1.0"
-10.0 / 4.0 + 3.0 * 2.0 - 1.0
-2.5 + 6.0 - 1.0             (the / and the * run before the + and -: 10.0 / 4.0 is 2.5, 3.0 * 2.0 is 6.0)
-7.5                        (left to right: 2.5 + 6.0 is 8.5, then 8.5 - 1.0 is 7.5)
-```
-
-Parentheses reduce first, then multiplication and division before addition and subtraction, and operators of equal standing run left to right. Because every number in the second expression is a float, the division gives a real fraction and both languages print `7.5`.
+Parentheses reduce first, then multiplication and division before addition and subtraction, and operators of equal standing run left to right.
 </Reveal>
+
+Photograph your reduction and include it in your PDF on Canvas. This part is graded on completion, not correctness, so reduce it yourself first, then open the reveal to check.
 
 ## Reflection
 
-In two sentences: first, state plainly whether you used an AI tool on this assignment and, if so, what for (if you did not, say so explicitly); second, name any other help you used (a peer, the official docs, the lecture notes) and one thing you still could not do without that help. This is graded on completion and is seen only by the instructor.
+Include a short reflection in your PDF on Canvas. In two sentences: first, state plainly whether you used an AI tool on this assignment and, if you did, what you used it for (if you did not use AI at all, say so explicitly); second, name any other help you used (a peer, the official docs, the lecture notes) and one thing you still could not do without that help.
 
-## Summit Problem (optional)
+Then add one more sentence: for the manifest total and the combined status code, how did you decide the order the operations run in, and how did you convince yourself that order was right? This is graded on completion, not on what you say, and it is seen only by the instructor.
 
-This part is optional and worth no points. It is here for the challenge.
+## Rubric
 
-Two altitude readings come in as the whole numbers `7` and `8`, and the panel needs their exact midpoint printed as a decimal, `7.5`. Write a single `print` (in Python) or `println!` (in Rust) that computes and prints `7.5` from the readings, without typing `7.5` directly. The catch is the rule from Problem 1: dividing two whole numbers will not give you the fraction you want, and the same expression must print `7.5` in both languages. Decide how every number in your expression has to be written for that to hold.
+<RubricTable src="canvas/assignments/pre-flight-check-rubrics.tsv" caption="Pre-Flight Check Rubric" />

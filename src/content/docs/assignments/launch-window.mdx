@@ -1,6 +1,6 @@
 ---
 title: "The Launch Window"
-description: "Complete three short launch-prep programs that split a countdown into minutes and seconds, add a fuel margin, and solve a break-even equation for the number of supply runs, using integer division and the remainder, and reject one of HAB's integer-division mistakes."
+description: "Plan the launch-window console readout test-first: design your test cases, write pseudocode, then complete a program that splits the countdown, adds the fuel margin, and solves the supply-run break-even to a whole number of runs."
 sidebar:
   order: 3
 draft: true
@@ -10,6 +10,9 @@ import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 import Reveal from '/src/components/Reveal.astro';
 import LanguageVersions from '/src/components/LanguageVersions.astro';
 import WhatDiffers from '/src/components/WhatDiffers.astro';
+import Latex from '/src/components/Latex.astro';
+import RubricTable from '/src/components/RubricTable.astro';
+import LaunchWindowForm from '/src/components/LaunchWindowForm.svelte';
 
 {/* ai-summary
 type: assignment
@@ -20,179 +23,182 @@ paired_recitation: R3
 prereq_lectures: expressions-and-operators, variables-and-state
 prereq_activities: expressions-and-operators, variables-and-state
 prereq_assignment: pre-flight-check
-new_scope: completing a provided program with variables, integer division, and the remainder operator, including solving a linear break-even equation with an integer ceiling, graded by output comparison
-persistent_requirements: dual-language; all programs graded by comparing printed output; no functions yet
-story_beat: the crew computes the countdown, fuel, and supply-run numbers for the launch window
-output: three completed launch-prep programs, a hand trace photographed, a two-sentence reflection
+new_scope: designing test cases and pseudocode before completing a provided program that solves a break-even count to a whole number of runs, graded by output comparison
+target_construct: variables with integer division and the remainder operator (pre-functions)
+persistent_requirements: dual-language, one shared contract; graded by comparing printed output; no functions yet
+story_beat: the crew computes the launch-window console numbers (countdown, fuel, supply runs)
+output: the completed program to Gradescope, and a Canvas PDF with acceptance tests, pseudocode, a hand trace, and a reflection
 */}
 
 <LanguageVersions />
 
-The launch window is the short span when the burn can begin. Mission Control needs three numbers on the console before it opens: the countdown split into whole minutes and leftover seconds, the fuel load once a safety margin is added, and the number of supply runs needed to break even on the station's mass budget. Each is a small program that is almost written; your job is to fill in the arithmetic. HAB has offered a suggestion for the fuel number, so check it before you use it.
+The launch window is the short span when the burn can begin, and Mission Control needs a small console readout before it opens. The readout carries three things: the countdown split into whole minutes and the leftover seconds, the fuel load once a safety margin is added on top of the base propellant, and the number of automated supply runs the station must fly to erase a fixed mass deficit before departure. The habitat carries a crew of four. Your job as flight software crew is to complete the program that prints these numbers for the console.
 
 ## How This Assignment Works
 
-You have not learned to write your own functions yet, so for now each problem gives you a **complete, runnable program with a marked `TODO`**. You replace the placeholder in that region with the right computation, and the automated grader runs your program and compares its printed output to the expected output shown below each problem. From week 3, once you have functions, the grader will call your functions directly instead. Solve each problem in Python or Rust; both are checked against the same expected output. Submit from the starter repository as described in [Running and Submitting Your Code](/practicalities/starter-repo-and-check/). The assignment has three parts: the three programs below, a paper trace, and a two-sentence reflection.
+You work **test first**, the way flight software is really written: you read the problem, decide what correct behavior looks like by writing your own test cases, plan the program in pseudocode, and only then write the code. You have not learned to write your own functions yet, so the contract is the program's **printed output**: the automated grader runs your program and compares the lines it prints to the expected lines. The problem is solvable in Python or Rust, whichever you prefer, against the same expected output. The order is fixed: design your tests, write your pseudocode, then complete the program. After that comes an optional extra-credit stretch, a short paper trace, and a two-sentence reflection.
 
-## Problem Set
+## What to Submit
 
-### Problem 1: The Countdown
+You submit in two places. Mechanics are in [Running and Submitting Your Code](/practicalities/starter-repo-and-check/); each section below also repeats what it asks for.
 
-**Context.** The launch sequence is `500` seconds long. The console shows it as whole minutes and the seconds left over, not as one large number.
+- **A single PDF on Canvas** holding everything that is not code: your **acceptance tests**, your **pseudocode**, your **paper trace**, and your **reflection**.
+- **Your code on Gradescope**: the completed program, plus the extra-credit surplus program if you attempt the summit.
 
-**Requirements.**
+## The Problem
 
-1. In the provided program, set `minutes` to the number of whole minutes in `total_seconds`, and `seconds` to the seconds left over after those whole minutes. There are `60` seconds in a minute. Use integer division for the whole minutes and the remainder operator for the leftover seconds.
+The console readout is built from six input values the starter program sets for you: the countdown length in seconds, the base propellant mass, the margin percent, the mass deficit the station must erase, the usable mass one supply run delivers, and the mass one run spends to launch. A single supply run delivers its usable mass but spends some of its own mass to launch, so a run nets only the difference between the two.
 
-The modeling step is choosing to show the countdown as a (minutes, seconds) pair; the analysis step is computing each with the operators from the [Expressions and Operators](/lectures/expressions-and-operators/) lecture.
+The number of supply runs is a break-even calculation, and Mission Control has already solved the break-even relation for you. Writing `deficit` for the mass deficit, `delivered` for the mass one run delivers, and `cost` for the mass one run spends to launch, the exact break-even point is:
 
-**The program.**
+<Latex formula="r = \dfrac{\text{deficit}}{\text{delivered} - \text{cost}}" inline={false} />
 
-<Tabs syncKey="lang">
-<TabItem label="Python">
-```python title="countdown.py (provided)"
-total_seconds = 500
-# TODO: replace each 0 with the right computation.
-minutes = 0    # whole minutes in total_seconds
-seconds = 0    # leftover seconds after the whole minutes
-print(minutes)
-print(seconds)
-```
-</TabItem>
-<TabItem label="Rust">
-```rust title="countdown.rs (provided)"
-fn main() {
-    let total_seconds = 500;
-    // TODO: replace each 0 with the right computation.
-    let minutes = 0;   // whole minutes in total_seconds
-    let seconds = 0;   // leftover seconds after the whole minutes
-    println!("{}", minutes);
-    println!("{}", seconds);
-}
-```
-</TabItem>
-</Tabs>
+Here <Latex formula="r" /> is the exact, possibly fractional, number of runs whose combined net mass would meet the deficit precisely, and `delivered - cost` is the net mass a single run adds. The console does not need this fractional <Latex formula="r" />; it needs the number of complete runs the crew must actually fly, because a partial run cannot be flown.
 
-**Expected output.**
+**What your program must print.** Print exactly four lines, one whole number per line, in this order and nothing else on any line:
+
+1. The whole minutes in the countdown, where there are `60` seconds in a minute.
+2. The leftover seconds after those whole minutes.
+3. The fueled mass: the base propellant plus a margin of the given percent of the base propellant. Every value here is a whole number.
+4. The number of complete supply runs needed to erase the deficit. A partial run cannot be flown and does not count toward the deficit.
+
+We give you **one** worked example to show the format. With `countdown_seconds = 500`, `base_fuel_kg = 1000`, `margin_percent = 15`, `deficit_kg = 1000`, `delivered_kg = 200`, and `cost_kg = 50`, the program prints:
 
 ```text frame="terminal" title="Output"
 8
 20
-```
-
-**Assumptions and edge cases.** `total_seconds` is a whole number, zero or greater. Your two lines must work by the same rule if the starter later changes `total_seconds` to another value, so compute from `total_seconds`, never hard-code `8` and `20`.
-
-<WhatDiffers>
-<Fragment slot="differs">
-Python writes integer division as `//` and Rust writes it as `/` between two whole numbers; both discard the fraction. The remainder operator is `%` in both. The two printed numbers are the same in each language.
-</Fragment>
-</WhatDiffers>
-
-### Problem 2: The Fuel Margin, and One of HAB's Suggestions
-
-**Context.** The burn needs its base propellant plus a safety margin on top. The base load is `1000` kilograms and the margin is `15` percent, so the fueled mass should be `1150` kilograms.
-
-**Requirements.**
-
-1. In the provided program, set `fueled_kg` to the base mass plus `margin_percent` percent of the base mass. All three values are whole numbers, so use integer arithmetic. For a base of `1000` and a margin of `15`, the result is `1150`.
-
-The modeling step is writing "add a fifteen percent margin" as an arithmetic expression; the analysis step is computing it and checking HAB's version against your own.
-
-**The program.**
-
-<Tabs syncKey="lang">
-<TabItem label="Python">
-```python title="fuel.py (provided)"
-base_kg = 1000
-margin_percent = 15
-# TODO: replace the 0 with the fueled mass, base plus the margin.
-fueled_kg = 0
-print(fueled_kg)
-```
-</TabItem>
-<TabItem label="Rust">
-```rust title="fuel.rs (provided)"
-fn main() {
-    let base_kg = 1000;
-    let margin_percent = 15;
-    // TODO: replace the 0 with the fueled mass, base plus the margin.
-    let fueled_kg = 0;
-    println!("{}", fueled_kg);
-}
-```
-</TabItem>
-</Tabs>
-
-**Expected output.**
-
-```text frame="terminal" title="Output"
 1150
+7
 ```
 
-<Aside type="danger" title="HAB drafted this line. Sign off on it, or reject it.">
-HAB offered `base_kg * (1 + margin_percent // 100)` for the fueled mass (in Rust, `base_kg * (1 + margin_percent / 100)`). Test HAB's line against the requirement above, and decide whether to use it or write your own.
+**Assumptions and edge cases.** Every input is a whole number. `countdown_seconds` is zero or greater. `margin_percent` is zero or greater, and a margin of `0` must leave the base propellant unchanged. `delivered_kg` is greater than `cost_kg`, so the net a run adds is a positive whole number, and `deficit_kg` is a positive whole number. The grader may replace the six input values, so compute every printed number from the named variables and never hard-code a result such as `8` or `7`.
+
+<Aside type="danger" title="HAB drafted a rule for the supply runs. Sign off on it, or reject it.">
+HAB, the habitat's assistant, offers this: "The supply runs are just the deficit divided by the net a run adds. Whole-number division already throws away the fraction for you, so take `deficit_kg` divided by the net per run and read off that whole number. There is nothing left to round." Test HAB's rule against the requirement above before you rely on it, and let your test cases settle the question.
 </Aside>
 
-**Assumptions and edge cases.** `base_kg`, `margin_percent`, and the result are whole numbers. A margin of `0` must leave the base mass unchanged.
+## Step 1: Write Your Acceptance Tests
 
-### Problem 3: Break-Even on the Supply Runs
+Before writing any code, decide what correct behavior looks like. Write a set of test cases as a plain table of rows: the six input values, and the four lines you expect the program to print. Do not use `assert` yet; a table of rows is what this step wants. For each row, work out the four printed numbers by hand from the requirements.
 
-**Context.** The station begins the mission with a fixed mass deficit it must make up. Each automated supply run delivers a fixed amount of usable mass but also spends some mass to launch, so each run nets the difference between the two. You need the number of complete runs required to erase the deficit.
+Your table must include, and label, at least these cases:
 
-**Requirements.**
+- The worked example above, as a starting check.
+- One case where the net a run adds divides the deficit **evenly**, so the exact break-even point lands on a whole number.
+- One case where it does **not** divide evenly, so the exact break-even point falls between two whole numbers.
+- One more case of your own, whose four lines you compute fully by hand, including a `margin_percent` of `0`.
 
-1. In the provided program, set `net_per_run` to the mass a single run adds after its own launch cost: the delivered mass `delivered_kg` minus the launch cost `cost_kg`.
-2. Set `runs` to the smallest whole number of runs whose combined net mass reaches the deficit `deficit_kg`. A partial run is not possible, so round the number of runs up to the next whole number.
+While you design these, think about what HAB claimed: a good set of tests would catch a rule that never adds the extra run when one is needed.
 
-This is a break-even calculation: you are solving for the number of equal net steps that first covers a fixed target. The modeling step is seeing "erase a fixed deficit with equal net steps, rounding up" as that break-even count; the analysis step is computing the net per run and the rounded-up count with the variables and integer division from the [Variables and State](/lectures/variables-and-state/) lecture.
+**Submit your test table in your PDF on Canvas.**
 
-**The program.**
+## Step 2: Write Your Pseudocode
+
+Now plan the program, still before writing it. In plain steps (not Python or Rust), describe how the six inputs turn into the four printed lines: which intermediate values you will compute, in what order, and how they combine into each printed number. Name the intermediate values you intend to create, such as the net mass a single run adds, so a reader could follow your plan and write the code from it.
+
+**Submit your pseudocode in your PDF on Canvas.**
+
+## Step 3: Write Your Code
+
+Complete the provided program so it prints the four lines, in Python or Rust, following your own pseudocode. The starter sets the six input variables and prints the four result variables; you replace each `0` with the right computation. The automated grader runs your program with input values it chooses and compares the printed lines, so nothing is graded on how you get there, only on the printed output being right.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python title="supply.py (provided)"
-deficit_kg = 1000     # mass deficit the station must erase
-delivered_kg = 200    # usable mass one run delivers
-cost_kg = 50          # mass spent to launch one run
-# TODO: replace each 0 with the right computation.
-net_per_run = 0       # mass one run adds after its launch cost
-runs = 0              # whole runs needed to erase the deficit, rounded up
-print(net_per_run)
+```python title="launch_window.py (provided)"
+countdown_seconds = 500
+base_fuel_kg = 1000
+margin_percent = 15
+deficit_kg = 1000
+delivered_kg = 200
+cost_kg = 50
+
+# TODO: replace each 0 below with the right computation from the variables above.
+minutes = 0
+seconds = 0
+fueled_kg = 0
+runs = 0
+
+print(minutes)
+print(seconds)
+print(fueled_kg)
 print(runs)
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="supply.rs (provided)"
+```rust title="launch_window.rs (provided)"
 fn main() {
-    let deficit_kg = 1000;    // mass deficit the station must erase
-    let delivered_kg = 200;   // usable mass one run delivers
-    let cost_kg = 50;         // mass spent to launch one run
-    // TODO: replace each 0 with the right computation.
-    let net_per_run = 0;      // mass one run adds after its launch cost
-    let runs = 0;             // whole runs needed to erase the deficit, rounded up
-    println!("{}", net_per_run);
+    let countdown_seconds = 500;
+    let base_fuel_kg = 1000;
+    let margin_percent = 15;
+    let deficit_kg = 1000;
+    let delivered_kg = 200;
+    let cost_kg = 50;
+
+    // TODO: replace each 0 below with the right computation from the variables above.
+    let minutes = 0;
+    let seconds = 0;
+    let fueled_kg = 0;
+    let runs = 0;
+
+    println!("{}", minutes);
+    println!("{}", seconds);
+    println!("{}", fueled_kg);
     println!("{}", runs);
 }
 ```
 </TabItem>
 </Tabs>
 
-**Expected output.**
+<WhatDiffers>
+<Fragment slot="differs">
+Python writes whole-number (integer) division as `//` and Rust writes it as `/` between two whole numbers; both discard the fraction. The remainder operator is `%` in both. Every value in this program is a whole number, so the four printed lines are identical in each language.
+</Fragment>
+</WhatDiffers>
 
-```text frame="terminal" title="Output"
-150
-7
+**Submit your completed program to Gradescope.**
+
+## Summit Problem (extra credit)
+
+This one is a stretch, and it earns extra credit. It is also your practice for the graded stretch problem in the recitation room.
+
+After the crew flies the whole number of complete supply runs, their combined net mass usually overshoots the deficit, and Mission Control wants that surplus on the console too. Write a separate program that prints one line: the surplus, meaning the total net mass the complete runs deliver minus the deficit, using the same three supply values.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="surplus.py (provided)"
+deficit_kg = 1000
+delivered_kg = 200
+cost_kg = 50
+
+# TODO: replace the 0 with the surplus net mass beyond the deficit.
+surplus_kg = 0
+
+print(surplus_kg)
 ```
+</TabItem>
+<TabItem label="Rust">
+```rust title="surplus.rs (provided)"
+fn main() {
+    let deficit_kg = 1000;
+    let delivered_kg = 200;
+    let cost_kg = 50;
 
-<Aside type="tip" title="Rounding up without a fraction">
-You have not met a rounding function or an `if` statement yet, but there is an arithmetic way to get the smallest whole number of equal steps that reaches a target. For positive whole numbers, `(target + step - 1) // step` gives exactly that count: it lands on the next whole number whenever the plain division would have left a remainder, and lands exactly when the target divides evenly. Here the target is the deficit and the step is the net per run. Decide for yourself which value is the target and which is the step.
-</Aside>
+    // TODO: replace the 0 with the surplus net mass beyond the deficit.
+    let surplus_kg = 0;
 
-**Assumptions and edge cases.** `delivered_kg` is greater than `cost_kg`, so `net_per_run` is a positive whole number, and `deficit_kg` is a positive whole number. If the starter later changes these three values, your two lines must still be correct, so compute `runs` from the named values, never hard-code `7`.
+    println!("{}", surplus_kg);
+}
+```
+</TabItem>
+</Tabs>
+
+For the values above the program prints `50`, because seven complete runs net `1050` kilograms against a deficit of `1000`.
+
+**Submit your surplus program to Gradescope** to earn the extra credit.
 
 ## Paper Practice
 
-Trace this program by hand, on paper. Build a variable table showing the value of `level` after each line runs, and write the two values the program prints. Photograph your table and attach it. This part is graded on completion, not correctness, so attempt it by hand first, then open the reveal to check yourself.
+Trace this program by hand, on paper. It reassigns one variable in place, the pattern from the [Variables and State](/lectures/variables-and-state/) lecture. Build a variable table showing the value of `level` after each line runs, and write the two values the program prints.
 
 ```python title="tank.py"
 level = 500
@@ -214,6 +220,20 @@ print(level)
 Each `level = level - ...` line reads the current value of `level`, subtracts, and stores the result back into the same variable. The program prints `380`, then `350`.
 </Reveal>
 
+Photograph your trace and include it in your PDF on Canvas. This part is graded on completion (the attached photograph), not on whether every cell is right, so attempt it by hand first, then open the reveal to check yourself.
+
 ## Reflection
 
-In two sentences: first, state plainly whether you used an AI tool on this assignment and, if so, what for (if you did not, say so explicitly); second, name any other help you used (a peer, the official docs, the lecture notes) and one thing you still could not do without that help. This is graded on completion and is seen only by the instructor.
+Include a short reflection in your PDF on Canvas. In two sentences: first, state plainly whether you used an AI tool on this assignment and, if you did, what you used it for (if you did not use AI at all, say so explicitly); second, name any other help you used (a peer, the official docs, the lecture notes) and one thing you still could not do without that help.
+
+Then add one more sentence: which intermediate variables did you create to build the four printed numbers, and why those? This is graded on completion, not on what you say, and it is not shared with anyone but the instructor.
+
+## Simulators
+
+<LaunchWindowForm client:load />
+
+<div class="print:block hidden italic">The simulator is not printed to PDF. Consult the online textbook to use it.</div>
+
+## Rubric
+
+<RubricTable src="canvas/assignments/launch-window-rubrics.tsv" caption="The Launch Window Rubric" />

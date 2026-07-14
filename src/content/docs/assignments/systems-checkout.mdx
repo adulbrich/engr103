@@ -8,6 +8,7 @@ draft: true
 
 import { Tabs, TabItem, Steps, Aside } from '@astrojs/starlight/components';
 import LanguageVersions from '/src/components/LanguageVersions.astro';
+import RubricTable from '/src/components/RubricTable.astro';
 
 {/* ai-summary
 type: assignment
@@ -35,6 +36,13 @@ Unlike every later assignment, this page walks you through each step. Later assi
 ## How This Assignment Works
 
 Follow the steps below in order. You will set up your toolchain, run a first program in both Python and Rust, look at the parts of a starter repository that the automated grader uses, run the local check harness, and submit to Gradescope. Two how-to guides carry the details this page points to: [The Starter Repo and the Check Harness](/practicalities/starter-repo-and-check/) and [Finding Documentation and Helpers](/practicalities/finding-docs-and-helpers/).
+
+## What to Submit
+
+This checkout submits in two places, the same two places every later assignment uses:
+
+- **Your packed checkout to Gradescope**, so the grader runs the same check you ran locally.
+- **Your reflection on Canvas.**
 
 ## The Checkout
 
@@ -107,4 +115,8 @@ Follow the steps below in order. You will set up your toolchain, run a first pro
 
 ## Reflection
 
-In one or two sentences: state plainly whether you used an AI tool to get set up and, if so, for what (if you did not, say so explicitly), and name one tool or step that is still unclear. This is graded on completion and is seen only by the instructor.
+In one or two sentences: state plainly whether you used an AI tool to get set up and, if so, for what (if you did not, say so explicitly), and name one tool or step that is still unclear. Submit it on Canvas. This is graded on completion and is seen only by the instructor.
+
+## Rubric
+
+<RubricTable src="canvas/assignments/systems-checkout-rubrics.tsv" caption="Systems Checkout Rubric" />
