@@ -1,6 +1,6 @@
 ---
 title: "The First Drive"
-description: "Write the loop functions that project the rover's compounding solar charge and budget its first drive across the landing site, and judge one of HAB's drafts before you trust it."
+description: "Write the function that projects the rover's compounding solar charge over the coming sols test-first: design your test cases, write pseudocode, then implement the accumulation, and judge HAB's claim before you trust it."
 sidebar:
   order: 8
 draft: true
@@ -10,53 +10,51 @@ import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 import Reveal from '/src/components/Reveal.astro';
 import LanguageVersions from '/src/components/LanguageVersions.astro';
 import WhatDiffers from '/src/components/WhatDiffers.astro';
-import Latex from '/src/components/Latex.astro';
+import RubricTable from '/src/components/RubricTable.astro';
 
 {/* ai-summary
 type: assignment
 slug: first-drive
 order: 8
-family: loops over state
+family: loops over state (accumulating a compounding total by repeated multiplication)
 paired_recitation: R8
 prereq_lectures: loops, loop-patterns
 prereq_activities: loops, loop-patterns
 prereq_assignment: flight-qualification
-new_scope: writing functions that accumulate a compounding total by repeated multiplication, count down with a while loop, search with an early return, and nest two loops over a grid, all without collections and without a power operator
+new_scope: writing one entry-point function that accumulates a compounding total by repeated multiplication over a data-dependent number of sols, without a power operator and without collections
+target_construct: a loop that carries a running product across a data-dependent number of passes, so iteration is the natural tool
 persistent_requirements: dual-language, one shared contract; grader reads return values only; every function returns i32, f64, or bool; no construct beyond the loops week on the ladder
-story_beat: touchdown is confirmed and the crew drives the rover down the ramp for its first traverse across the landing site, projecting the banked solar charge, budgeting the battery, and surveying the ground before the wheels turn
-output: five functions and a test suite submitted to the grader, a hand trace photographed, a two-sentence reflection
+story_beat: touchdown is confirmed and the crew projects the parked rover's banked solar charge before it drives down the ramp for its first traverse
+output: one function submitted to the grader, an optional summit function, and a PDF on Canvas with acceptance tests, pseudocode, a hand trace, and a reflection
 */}
 
 <LanguageVersions />
 
-Touchdown is confirmed, and the rover is cleared to drive down the ramp for its first traverse across the landing site. The ramp deployment itself took forty-three seconds, a detail for the mission log and nothing your functions need. Before the wheels turn, flight software needs three things: a projection of how much charge the parked rover's solar array will bank over the coming sols, a budget of how many drive steps the battery can afford and when to warn the crew, and a scan of the ground ahead for spots the descent thrusters kicked dust onto. Your job as the flight-software crew member on shift is to write the functions that produce those numbers, one loop at a time. HAB has already drafted one of them; do not trust it until you have checked it yourself.
+Touchdown is confirmed, and the rover is cleared to drive down the ramp for its first traverse across the landing site. The ramp deployment itself took forty-three seconds, a detail for the mission log and nothing your function needs. Before the wheels turn, the crew wants to know how much charge the parked rover's solar array will have banked over the coming sols, so they can decide whether to hold and let it gather more before committing to the drive. Your job as the flight-software crew member on shift is to write the function that projects that banked charge. HAB has already offered its own idea for how to compute it; do not trust that idea until you have checked it yourself.
 
 ## How This Assignment Works
 
-You write the functions named below and nothing else: the program's `main`, its input, its output, and the local test runner are already written, and the automated grader calls your functions directly with values it chooses, reading only what you `return`. Solve each problem in Python or Rust, whichever you prefer, and you may switch languages between problems; both are checked against the same acceptance cases. Submit your functions to the grader from the course starter repository. The assignment has four parts: the problem set below, a paper trace, a two-sentence reflection, and an optional summit problem.
+You work **test first**, the way flight software is really written: you read the problem, decide what correct behavior looks like by writing your own test cases, plan the code in pseudocode, and only then write the code. The problem is solvable in Python or Rust, whichever you prefer. The program's `main`, its console input and output, and the local test runner are already written; you write the one function named below, and the automated grader calls it directly with values it chooses, reading only what you `return`. The order is fixed: design your tests, write your pseudocode, then write your function. After that comes an optional extra-credit stretch, a short paper trace, and a two-sentence reflection.
 
-## Problem Set
+## What to Submit
 
-### Problem 1: Banking Charge Before the Drive
+You submit in two places. Mechanics are in [Running and Submitting Your Code](/practicalities/starter-repo-and-check/); each section below also repeats what it asks for.
 
-**Context.** While the rover sits parked in the sun, mission modeling treats its stored charge as growing by a fixed percentage of its current level each sol, so the charge compounds: a larger reserve gathers a larger gain the next sol. Planners want to know how much charge will be banked after a given number of sols before they commit to the drive.
+- **A single PDF on Canvas** holding everything that is not code: your **acceptance tests**, your **pseudocode**, your **paper trace**, and your **reflection**.
+- **Your code on Gradescope**: the function `solar_charge_after`, plus the extra-credit `count_clear_cells` if you attempt the summit.
 
-**Requirements.**
+## The Problem
 
-1. `solar_charge_after(start_charge, growth_percent, sols)` must return the stored charge, in watt-hours, after `sols` whole sols of compounding growth, as a float. Each sol multiplies the current charge by `1 + growth_percent / 100`, so a `growth_percent` of `25` leaves the charge `1.25` times as large at the end of a sol as at its start. There is no exponentiation operator on the language ladder, so build the compounding one sol at a time with a loop rather than raising a factor to the `sols` power. A `sols` of `0` means no sols have passed, so the charge is unchanged and the function returns `start_charge`.
-2. `charge_gained(start_charge, growth_percent, sols)` must return only the charge gained over those sols: the value `solar_charge_after` would return for the same `start_charge`, `growth_percent`, and `sols`, minus the `start_charge` it began with.
+While the rover sits parked in the sun, mission modeling treats its stored charge as growing by a fixed percentage of its current level each sol. Because the gain each sol is a percentage of the current charge, the charge compounds: a larger reserve gathers a larger gain the next sol. A `growth_percent` of `25` means the charge ends each sol `1.25` times as large as it started that sol, so `25` percent of the current level is added on. The crew hands you a starting charge, that growth percentage, and a number of whole sols the rover will sit parked, and wants back the charge it projects to have banked at the end.
 
-The modeling step is deciding that each sol's gain is a fixed fraction of the current charge, so the charge compounds rather than growing by a fixed amount; the analysis step is accumulating that growth as a running product in a loop, because the ladder has no exponentiation operator, then reusing the result to isolate the gain.
+Write `solar_charge_after(start_charge, growth_percent, sols)`, returning the projected stored charge in watt-hours after `sols` whole sols of this compounding growth, as a float. Each sol the charge grows by `growth_percent` percent of its current level. A `sols` of `0` means no sols have passed, so the charge is returned unchanged. There is no exponentiation operator on the language ladder, so you cannot raise a factor to the `sols` power; the number of sols also varies from call to call, so you cannot write the growth out by hand.
 
-**Interface.**
+The function returns a float. How you carry the charge across the sols, and what intermediate values you give names to along the way, is entirely your decision.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
 ```python title="solar_charge.py"
 def solar_charge_after(start_charge, growth_percent, sols):
-    ...
-
-def charge_gained(start_charge, growth_percent, sols):
     ...
 ```
 </TabItem>
@@ -65,30 +63,48 @@ def charge_gained(start_charge, growth_percent, sols):
 fn solar_charge_after(start_charge: f64, growth_percent: f64, sols: i32) -> f64 {
     todo!()
 }
-
-fn charge_gained(start_charge: f64, growth_percent: f64, sols: i32) -> f64 {
-    todo!()
-}
 ```
 </TabItem>
 </Tabs>
 
-**Acceptance tests.**
+We give you **one** worked example to show the format. With a starting charge of `100.0` watt-hours growing `25.0` percent each sol for `3` sols, the charge reaches `125.0` after the first sol, `156.25` after the second, and `195.3125` after the third:
 
 | Call | Returns |
 |---|---|
 | `solar_charge_after(100.0, 25.0, 3)` | `195.3125` |
-| `solar_charge_after(100.0, 25.0, 0)` | `100.0` |
-| `solar_charge_after(100.0, 25.0, 1)` | `125.0` |
-| `solar_charge_after(200.0, 50.0, 2)` | `450.0` |
-| `charge_gained(100.0, 25.0, 3)` | `95.3125` |
-| `charge_gained(80.0, 0.0, 4)` | `0.0` |
 
-**Assumptions and edge cases.** `start_charge` and `growth_percent` are floats, zero or greater. `sols` is a whole number, zero or greater. Handle `sols` of `0`, where the loop body never runs and the charge is returned unchanged, and a `growth_percent` of `0.0`, where each sol multiplies by `1.0` and nothing is gained.
+**Assumptions and edge cases.** `start_charge` and `growth_percent` are floats, zero or greater. `sols` is a whole number, zero or greater. Handle a `sols` of `0`, where no growth applies and the charge is returned unchanged, and a `growth_percent` of `0.0`, where each sol leaves the charge exactly where it was and nothing is gained.
 
-<Aside type="tip" title="Build the compounding with a loop">
-This is a loops exercise, so build the compounding the loop way: start the charge at `start_charge` and multiply it by `1 + growth_percent / 100` once per sol, `sols` times over. This is the running-product form of the accumulator from the loop patterns lecture, where the accumulator starts at a value and is multiplied rather than added on each pass. Rust has no exponentiation operator at all, and although Python has `**`, reaching for it here would skip the very pattern this problem exists to practice. In both languages the loop is the point.
+<Aside type="danger" title="HAB has a way to count the sols. Decide whether to trust it.">
+HAB, the habitat's assistant, offers this: "The charge only changes when a sol ticks over. The rover is already parked at the start of the first sol, so between the start and the end of `sols` sols there are `sols - 1` tick-overs. Apply the growth that many times, one fewer than `sols`, and you will have the banked charge."
+
+Flight rule: no HAB advice is trusted unverified. Decide whether HAB's counting is right before you build anything on it, and let your test cases settle the question.
 </Aside>
+
+## Step 1: Write Your Acceptance Tests
+
+Before writing any code, decide what correct behavior looks like. Write a set of test cases for `solar_charge_after` as a plain table of rows: the three inputs (`start_charge`, `growth_percent`, `sols`) and the charge you expect back. Now that the testing lecture has been covered you may pin each case down with an `assert` if you prefer, but a plain table of rows is all this step asks for. For each row, work out the expected charge by hand from the growth rule, applying the per-sol multiplication once for each sol that passes.
+
+Your table must include, and label, at least these cases:
+
+- The worked example above, as a starting check.
+- The boundary case `sols` of `0`, where no sols have passed and the charge must come back unchanged.
+- A `growth_percent` of `0.0` over several sols, where the charge never changes and nothing is gained.
+- At least one more case whose expected charge you compute fully by hand.
+
+Think about what HAB claimed while you do this: a good set of tests would catch a rule that applied the growth the wrong number of times.
+
+**Submit your test table in your PDF on Canvas.**
+
+## Step 2: Write Your Pseudocode
+
+Now plan the code, still before writing it. In plain steps (not Python or Rust), describe how `solar_charge_after` turns its three inputs into the charge it returns: what running value you carry, how you start it, what you do to it for each sol, and how you know when to stop. Name the intermediate values you intend to create, so a reader could follow your plan and write the code from it.
+
+**Submit your pseudocode in your PDF on Canvas.**
+
+## Step 3: Write Your Code
+
+Implement `solar_charge_after` from the signature above, in Python or Rust, following your own pseudocode. The automated grader calls the function directly with values it chooses and checks what you `return`, so nothing is graded on how you get there, only on the answer being right. Because the result is a floating-point value, the grader accepts any answer within a small tolerance, so you never compare floats yourself.
 
 <WhatDiffers>
 <Fragment slot="differs">
@@ -96,130 +112,15 @@ The returned value is the same f64 in both languages, and the grader checks that
 </Fragment>
 </WhatDiffers>
 
-### Problem 2: How Many Steps Until the Battery Runs Out, and One of HAB's Drafts
+**Submit your function to Gradescope.**
 
-**Context.** On a flatter stretch of ground the drain per step holds steady instead of growing. Mission control wants to know, before the rover sets out, how many complete steps it can take before the next one would push the charge below zero.
+## Summit Problem (extra credit)
 
-**Requirements.**
+This one is a real stretch, and it earns extra credit. It is also your practice for the graded stretch problem in the recitation room, where a harder problem is waiting.
 
-1. `steps_until_empty(start_charge, drain_per_step)` must return the number of whole drive steps the rover can complete before taking one more step would drop the charge below `0.0`. A step counts as completed if the charge remains at or above `0.0` after it is taken; a reading of exactly `0.0` still counts as a completed step.
+Before the rover crosses the ramp's shadow, the crew scans the ground the descent thrusters may have kicked dust onto. The scan covers a grid of `rows` rows and `cols` columns, numbered from `0`. A cell's dust reading, in instrument units, is `3 * row + 5 * col`, where `row` runs from `0` through `rows - 1` and `col` from `0` through `cols - 1`. A cell is safe to drive across without a re-scan only if its dust reading is strictly below a clearance threshold.
 
-The modeling step is deciding that a step is allowed only if the battery can still cover it, landing at or above zero, not merely above zero; the analysis step is a `while` loop that checks the remaining charge before committing to each step.
-
-**Interface.**
-
-<Tabs syncKey="lang">
-<TabItem label="Python">
-```python title="battery_countdown.py"
-def steps_until_empty(start_charge, drain_per_step):
-    ...
-```
-</TabItem>
-<TabItem label="Rust">
-```rust title="battery_countdown.rs"
-fn steps_until_empty(start_charge: f64, drain_per_step: f64) -> i32 {
-    todo!()
-}
-```
-</TabItem>
-</Tabs>
-
-**Acceptance tests.**
-
-| Call | Returns |
-|---|---|
-| `steps_until_empty(10.0, 3.0)` | `3` |
-| `steps_until_empty(9.0, 3.0)` | `3` |
-| `steps_until_empty(2.0, 5.0)` | `0` |
-
-**Assumptions and edge cases.** Both arguments are floats, zero or greater, and `drain_per_step` is greater than `0.0`, so the charge is guaranteed to shrink each step. Handle the case where the rover cannot complete even one step, `steps_until_empty(2.0, 5.0)`, which must return `0`.
-
-<Aside type="danger" title="HAB drafted steps_until_empty. Sign off or reject it.">
-HAB offered this for the battery countdown. Flight rule: no HAB code runs unverified. Decide whether it is correct before you use anything from it.
-
-<Tabs syncKey="lang">
-<TabItem label="Python">
-```python title="HAB's draft"
-def steps_until_empty(start_charge, drain_per_step):
-    charge = start_charge
-    count = 0
-    while charge > 0.0:
-        charge = charge - drain_per_step
-        count = count + 1
-    return count
-```
-</TabItem>
-<TabItem label="Rust">
-```rust title="HAB's draft"
-fn steps_until_empty(start_charge: f64, drain_per_step: f64) -> i32 {
-    let mut charge = start_charge;
-    let mut count = 0;
-    while charge > 0.0 {
-        charge = charge - drain_per_step;
-        count = count + 1;
-    }
-    return count;
-}
-```
-</TabItem>
-</Tabs>
-
-Test HAB's draft against the requirements above, and decide whether to sign off on it or reject it and write your own.
-</Aside>
-
-### Problem 3: The First Low-Battery Warning
-
-**Context.** Mission control also wants the earliest step at which the charge would fall to a warning level, so the drive can be cut short if it comes too soon. The crew only surveys a fixed number of steps ahead, since the plan can always be recomputed later.
-
-**Requirements.**
-
-1. `first_warning_step(start_charge, drain_per_step, threshold, max_steps)` must return the smallest step number `n`, counting from `1` through `max_steps`, at which the charge after `n` steps, `start_charge - drain_per_step * n`, first falls to or below `threshold`. If no step from `1` through `max_steps` reaches `threshold`, return `-1`.
-
-The modeling step is choosing `-1` as a signal meaning "no warning inside the surveyed steps," a value that can never be a real step number; the analysis step is a loop over the surveyed steps that returns the moment it finds the first one that qualifies, never checking a later step once it has.
-
-**Interface.**
-
-<Tabs syncKey="lang">
-<TabItem label="Python">
-```python title="battery_warning.py"
-def first_warning_step(start_charge, drain_per_step, threshold, max_steps):
-    ...
-```
-</TabItem>
-<TabItem label="Rust">
-```rust title="battery_warning.rs"
-fn first_warning_step(start_charge: f64, drain_per_step: f64, threshold: f64, max_steps: i32) -> i32 {
-    todo!()
-}
-```
-</TabItem>
-</Tabs>
-
-**Acceptance tests.**
-
-| Call | Returns |
-|---|---|
-| `first_warning_step(100.0, 15.0, 40.0, 10)` | `4` |
-| `first_warning_step(100.0, 5.0, 10.0, 5)` | `-1` |
-| `first_warning_step(50.0, 10.0, 0.0, 5)` | `5` |
-
-**Assumptions and edge cases.** `max_steps` is a whole number greater than `0`. `drain_per_step` is greater than `0.0`, so the charge strictly decreases every step. Handle the case where the threshold is never reached within `max_steps`, which must return `-1`, and the case where the first qualifying step is the very last one surveyed.
-
-<Aside type="tip" title="Stop looking the moment you find it">
-This is the search pattern from the loop patterns lecture, applied inside a function. You do not need a separate found flag here: a function can simply `return` the step number the instant it qualifies, and the loop never runs another pass after that. If the loop finishes without ever returning, fall through to `return -1` after it.
-</Aside>
-
-### Problem 4: The Calibration Sweep
-
-**Context.** Before the rover crosses the ramp's shadow, the crew scans the ground the descent thrusters may have kicked dust onto. The scan covers a grid of `rows` rows and `cols` columns, numbered from `0`. A cell's dust reading, in instrument units, is <Latex formula="3 \times row + 5 \times column" />. A cell is safe to drive across without a re-scan only if its reading is strictly below a clearance threshold.
-
-**Requirements.**
-
-1. `count_clear_cells(rows, cols, threshold)` must return how many of the `rows * cols` grid positions, row from `0` through `rows - 1` and column from `0` through `cols - 1`, have a dust reading of `3 * row + 5 * column` strictly less than `threshold`. Do not build or store the grid itself; only count the positions that qualify.
-
-The modeling step is writing the dust reading as a function of a cell's row and column instead of storing a reading per cell; the analysis step is a pair of nested loops, one for the row and one for the column, that count without keeping anything but the running count.
-
-**Interface.**
+Write `count_clear_cells(rows, cols, threshold)`, returning how many of the `rows * cols` grid positions have a dust reading strictly less than `threshold`. Do not build or store the grid itself; only count the positions that qualify.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
@@ -237,44 +138,13 @@ fn count_clear_cells(rows: i32, cols: i32, threshold: i32) -> i32 {
 </TabItem>
 </Tabs>
 
-**Acceptance tests.**
+As one worked example, `count_clear_cells(3, 3, 10)` returns `5`: of the nine cells, the five with readings `0`, `5`, `3`, `8`, and `6` fall below `10`, and the four with readings `10`, `13`, `11`, and `16` do not. Here `rows`, `cols`, and `threshold` are whole numbers, zero or greater, so handle a `threshold` of `0`, where no reading can be strictly less than it and the count is `0`.
 
-| Call | Returns |
-|---|---|
-| `count_clear_cells(3, 3, 10)` | `5` |
-| `count_clear_cells(1, 1, 1)` | `1` |
-| `count_clear_cells(2, 2, 0)` | `0` |
-
-**Assumptions and edge cases.** `rows`, `cols`, and `threshold` are whole numbers, zero or greater. Handle a `1` by `1` grid, and a `threshold` of `0`, where no reading can ever be strictly less than the threshold and the count is `0`.
-
-### Problem 5: Write the Tests for the First Warning
-
-**Context.** Before flight software review, every function ships with the cases that prove it. For this problem you write the cases, not the code: you already have the spec for `first_warning_step` from Problem 3, and the `assert` statement is available now that the testing lecture has been covered.
-
-**Requirements.**
-
-1. Submit a set of `assert` statements for `first_warning_step(start_charge, drain_per_step, threshold, max_steps)`, each one checking a call against the value you expect it to return. Here is a worked example, one case pinned down as an assertion in each language:
-
-   <Tabs syncKey="lang">
-   <TabItem label="Python">
-   ```python title="one worked case"
-   assert first_warning_step(100.0, 15.0, 40.0, 10) == 4
-   ```
-   </TabItem>
-   <TabItem label="Rust">
-   ```rust title="one worked case"
-   assert!(first_warning_step(100.0, 15.0, 40.0, 10) == 4);
-   ```
-   </TabItem>
-   </Tabs>
-
-2. Your set must include, and label with a comment, at least these three cases: a normal case where the warning is found partway through the surveyed steps, a case where the threshold is never reached and the function returns `-1`, and a boundary case where the qualifying step is exactly the last one surveyed (step `max_steps`). The grader runs your assertions against a correct `first_warning_step` (every assertion must pass) and against several broken versions (each broken version must fail at least one of your assertions).
-
-The modeling step is turning the spec's three named cases into concrete arguments; the analysis step is predicting each expected return value by hand before writing the assertion.
+**Submit `count_clear_cells` to Gradescope** to earn the extra credit.
 
 ## Paper Practice
 
-Trace this program by hand, on paper. Build a variable table with a row for each pass of the `while` loop, tracking `n` and `charge`. Write the exact value the program prints. Photograph your table and trace and attach it. This part is graded on completion (the attached photograph), not on whether every cell is right, so attempt it by hand first, then open the reveal to check yourself.
+Trace this program by hand, on paper. It uses the running-product accumulator from the [Loop Patterns](/lectures/loop-patterns/) lecture. Build a variable table with a row for each pass of the `while` loop, tracking `n` at the start of the pass and `charge` after it. Write the exact value the program prints.
 
 ```python title="trace_me.py"
 charge = 64.0
@@ -298,17 +168,14 @@ Each pass multiplies `charge` by the fixed `factor`, compounding it, and then ad
 After the third pass, `n` becomes `4`, and the condition `n <= 3` is false, so the loop ends. The program prints `216.0`. The same program written in Rust prints its whole-valued `f64` without the trailing zero, `216`.
 </Reveal>
 
+Photograph your trace and include it in your PDF on Canvas. This part is graded on completion (the attached photograph), not on whether every cell is right, so attempt it by hand first, then open the reveal to check yourself.
+
 ## Reflection
 
-In two sentences: first, state plainly whether you used an AI tool on this assignment and, if you did, what you used it for (if you did not use AI at all, say so explicitly); second, name any other help you used (a peer, the official docs, the lecture notes) and one thing you still could not do without that help. This is graded on completion, not on what you say, and it is not shared with anyone but the instructor.
+Include a short reflection in your PDF on Canvas. In two sentences: first, state plainly whether you used an AI tool on this assignment and, if you did, what you used it for (if you did not use AI at all, say so explicitly); second, name any other help you used (a peer, the official docs, the lecture notes) and one thing you still could not do without that help.
 
-## Summit Problem (optional, worth nothing)
+Then add one more sentence: which intermediate values did you choose to name inside `solar_charge_after`, and why those? This is graded on completion, not on what you say, and it is not shared with anyone but the instructor.
 
-This one is a stretch, and it earns no points; it is here so you can practice for the graded stretch problem in the recitation room, where a harder problem does count.
+## Rubric
 
-Write `first_hazard_row(rows, cols, threshold)`, which returns the smallest row number that contains at least one cell whose dust reading, `3 * row + 5 * column`, is at or above `threshold`. Search row by row and, within a row, column by column, and stop at the first row that qualifies rather than finishing the whole grid. If no row qualifies, return `-1`. Reuse the dust reading idea from Problem 4 rather than rewriting it.
-
-| Call | Returns |
-|---|---|
-| `first_hazard_row(4, 4, 20)` | `2` |
-| `first_hazard_row(2, 2, 100)` | `-1` |
+<RubricTable src="canvas/assignments/first-drive-rubrics.tsv" caption="The First Drive Rubric" />

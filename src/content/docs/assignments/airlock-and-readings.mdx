@@ -1,6 +1,6 @@
 ---
 title: "The Airlock and the Readings"
-description: "Write the flight-software functions that decide when the airlock may cycle, classify a pressure reading into its tier, and sort a live sensor reading into trusted, out-of-range, or disagreeing-with-the-backup before the crew acts on it."
+description: "Write the airlock's sensor check test-first: design your test cases, write pseudocode, then implement a tiered classifier that sorts a live pressure reading into trusted, out-of-range, or disagreeing-with-the-backup before the crew acts on it, and judge HAB's claim about the tolerance before you build on it."
 sidebar:
   order: 6
 draft: true
@@ -10,6 +10,7 @@ import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 import Reveal from '/src/components/Reveal.astro';
 import LanguageVersions from '/src/components/LanguageVersions.astro';
 import WhatDiffers from '/src/components/WhatDiffers.astro';
+import RubricTable from '/src/components/RubricTable.astro';
 
 {/* ai-summary
 type: assignment
@@ -20,169 +21,31 @@ paired_recitation: R6
 prereq_lectures: booleans-and-conditionals, decision-structures, errors-input-and-validation
 prereq_activities: decision-structures, errors-input-and-validation
 prereq_assignment: transit-checks
-new_scope: else-if/elif chains and match for tiered classifiers, a decision table with an override that collapses rows, console input with parsing handled by the harness, and classifying a parsed reading into fault categories against a plausible range and a float tolerance with a fallback default
-persistent_requirements: dual-language, one shared contract; grader reads return values only; no loops or collections on the ladder yet; no function returns a string slice or an owned String; student functions take only scalar parameters, never a string
-story_beat: the crew codes the airlock's decision rules and the checks that classify a live sensor reading before trusting it
-output: four functions submitted to the grader, a hand trace photographed, a two-sentence reflection
+new_scope: classifying a parsed sensor reading into fault categories against a plausible physical range and a float tolerance with a trusted fallback, using an elif/else-if (or match) chain checked in a fixed priority order
+target_construct: an else-if/elif chain (or Rust match on comparisons) shaped as a tiered classifier over a physical range and a float tolerance, so an ordered decision chain is the natural tool
+persistent_requirements: dual-language, one shared contract; grader reads return values only; no loops or collections on the ladder yet; student functions take only scalar parameters, never a string
+story_beat: the crew writes the check that classifies a live airlock sensor reading before trusting it
+output: one function submitted to the grader, an optional summit function, and a PDF on Canvas with acceptance tests, pseudocode, a hand trace, and a reflection
 */}
 
 <LanguageVersions />
 
-The surface airlock is the one hatch standing between the crew and an atmosphere that would kill them in under a minute, so its cycle sequencer never trusts a single yes-or-no check alone. The outer hatch takes forty-five seconds to fully cycle once it starts, which is exactly why flight software has to be certain before it commits: a full decision table for when the airlock may open, a tiered pressure read-out with more outcomes than a plain `if`/`else` can hold cleanly, and a way to sort a live sensor reading into trusted or faulty before anyone acts on it. HAB has already drafted one of the tier checks. Your job is to finish the airlock's decision rules, catch HAB's mistake, and write the checks that decide whether a live reading is worth trusting at all.
+The surface airlock is the one hatch between the crew and an atmosphere that would kill them in under a minute, so its flight software never acts on a single sensor reading without checking it first. The outer hatch takes forty-five seconds to fully cycle once it starts, which is exactly why the software has to be certain before it commits: the primary pressure sensor is read live, and a live reading can be untrustworthy in more than one way at once. Your job on the flight software crew is to write the check that sorts each live reading into trusted or faulty before anyone acts on it. HAB has already offered its own rule for part of that check, and the flight rule is simple: no HAB advice runs unverified.
 
 ## How This Assignment Works
 
-You write the functions named below and nothing else: the program's `main`, its input, its output, and the local test runner are already written, and the automated grader calls your functions directly with values it chooses, reading only what you `return`. Solve each problem in Python or Rust, whichever you prefer, and you may switch languages between problems; both are checked against the same acceptance cases. Submit your functions to the grader from the course starter repository, as described in [Running and Submitting Your Code](/practicalities/starter-repo-and-check/). The assignment has four parts: the problem set below, a paper trace, a two-sentence reflection, and an optional summit problem.
+You work **test first**, the way flight software is really written: you read the problem, decide what correct behavior looks like by writing your own test cases, plan the code in pseudocode, and only then write the code. The problem is solvable in Python or Rust, whichever you prefer. The program's `main`, its console input and output, and the local test runner are already written; you write the one function named below, and the automated grader calls it directly with values it chooses, reading only what you `return`. The order is fixed: design your tests, write your pseudocode, then write your function. After that comes an optional extra-credit stretch, a short paper trace, and a two-sentence reflection.
 
-## Problem Set
+## What to Submit
 
-### Problem 1: The Airlock Cycle Table
+You submit in two places. Mechanics are in [Running and Submitting Your Code](/practicalities/starter-repo-and-check/); each section below also repeats what it asks for.
 
-**Context.** Before the outer hatch may cycle, flight software checks three things: whether the vestibule has equalized pressure with the outside, whether the inner seal is fully engaged, and whether the flight director has thrown the manual override for an emergency egress. The override is a flight rule of its own: it clears the hatch to cycle no matter what the other two readings say, because a crew member in trouble outside cannot wait on a seal sensor.
+- **A single PDF on Canvas** holding everything that is not code: your **acceptance tests**, your **pseudocode**, your **paper trace**, and your **reflection**.
+- **Your code on Gradescope**: the function `reading_status`, plus the extra-credit `airlock_cleared_for_cycle` if you attempt the summit.
 
-**Requirements.**
+## The Problem
 
-1. Before writing any code, lay out the decision table below: three boolean conditions and one outcome. Overriding collapses four of the eight possible combinations into one row, since the other two readings stop mattering the moment the override is thrown.
-
-   | `pressure_equalized` | `seal_engaged` | `override_engaged` | may cycle |
-   |---|---|---|---|
-   | any | any | `true` | `true` |
-   | `true` | `true` | `false` | `true` |
-   | `true` | `false` | `false` | `false` |
-   | `false` | `true` | `false` | `false` |
-   | `false` | `false` | `false` | `false` |
-
-2. `airlock_may_cycle(pressure_equalized, seal_engaged, override_engaged)` must return `true` whenever `override_engaged` is `true`, regardless of what `pressure_equalized` and `seal_engaged` read.
-3. When `override_engaged` is `false`, it must return `true` only when both `pressure_equalized` and `seal_engaged` are `true`, and `false` for every other combination of the two.
-
-The modeling step is building the five-row table above, the one that exposes the override's collapse before any code exists to hide it; the analysis step is turning that table into a working function, in an order that checks the override first, exactly the way the [Decision Structures](/lectures/decision-structures/) lecture ordered its rain check ahead of the soil-dryness check.
-
-**Interface.**
-
-<Tabs syncKey="lang">
-<TabItem label="Python">
-```python title="cycle_table.py"
-def airlock_may_cycle(pressure_equalized, seal_engaged, override_engaged):
-    ...
-```
-</TabItem>
-<TabItem label="Rust">
-```rust title="cycle_table.rs"
-fn airlock_may_cycle(pressure_equalized: bool, seal_engaged: bool, override_engaged: bool) -> bool {
-    todo!()
-}
-```
-</TabItem>
-</Tabs>
-
-**Acceptance tests.**
-
-| Call | Returns |
-|---|---|
-| `airlock_may_cycle(true, true, false)` | `true` |
-| `airlock_may_cycle(true, false, false)` | `false` |
-| `airlock_may_cycle(false, true, false)` | `false` |
-| `airlock_may_cycle(false, false, false)` | `false` |
-| `airlock_may_cycle(false, false, true)` | `true` |
-
-**Assumptions and edge cases.** All three parameters are booleans, read directly from the habitat's pressure sensor, seal sensor, and the override switch. The last acceptance test is the boundary the table exists to catch: even with both ordinary readings false, the override alone still clears the hatch.
-
-### Problem 2: The Pressure Tier, and One of HAB's Drafts
-
-**Context.** Once the airlock is cleared to cycle, the crew display needs more than a yes or no about the vestibule's pressure: it needs a tier code, from a critical low that means abort the cycle to a critical high that means the same thing from the other direction. HAB has already drafted the classifier. Flight rule: no HAB code runs unverified.
-
-**Requirements.**
-
-1. `pressure_tier(pressure_kpa)` must return an integer tier code for a vestibule pressure reading, using the five bands below. The bands share their edges, so exactly one band owns every possible reading.
-
-   | Band | Returns |
-   |---|---|
-   | `pressure_kpa` below `60.0` | `0` (critical low) |
-   | `60.0` up to but not including `90.0` | `1` (caution low) |
-   | `90.0` up to and including `105.0` | `2` (nominal) |
-   | above `105.0` up to and including `130.0` | `3` (caution high) |
-   | above `130.0` | `4` (critical high) |
-
-2. This function does not need to check whether the reading is plausible in the first place; that check belongs to Problem 3. `pressure_tier` classifies whatever float it is given, using only the bands above.
-
-The modeling step is reading the band table so that every boundary's inclusive or exclusive side is unambiguous, especially the closed top of the nominal band; the analysis step is writing an `elif`/`else if` chain (or a Rust `match` on comparisons) that checks the bands in order, the way the [Decision Structures](/lectures/decision-structures/) lecture chained the grade thresholds.
-
-**Interface.**
-
-<Tabs syncKey="lang">
-<TabItem label="Python">
-```python title="pressure_tier.py"
-def pressure_tier(pressure_kpa):
-    ...
-```
-</TabItem>
-<TabItem label="Rust">
-```rust title="pressure_tier.rs"
-fn pressure_tier(pressure_kpa: f64) -> i32 {
-    todo!()
-}
-```
-</TabItem>
-</Tabs>
-
-<Aside type="danger" title="HAB drafted pressure_tier. Sign off or reject it.">
-HAB offered this for the classifier. Flight rule: no HAB code runs unverified. Decide whether it is correct before you use anything from it.
-
-<Tabs syncKey="lang">
-<TabItem label="Python">
-```python title="HAB's draft"
-def pressure_tier(pressure_kpa):
-    if pressure_kpa < 60.0:
-        return 0
-    elif pressure_kpa < 90.0:
-        return 1
-    elif pressure_kpa < 105.0:
-        return 2
-    elif pressure_kpa <= 130.0:
-        return 3
-    else:
-        return 4
-```
-</TabItem>
-<TabItem label="Rust">
-```rust title="HAB's draft"
-fn pressure_tier(pressure_kpa: f64) -> i32 {
-    if pressure_kpa < 60.0 {
-        return 0;
-    } else if pressure_kpa < 90.0 {
-        return 1;
-    } else if pressure_kpa < 105.0 {
-        return 2;
-    } else if pressure_kpa <= 130.0 {
-        return 3;
-    } else {
-        return 4;
-    }
-}
-```
-</TabItem>
-</Tabs>
-
-Test HAB's draft against the requirements above, and decide whether to sign off on it or reject it and write your own.
-</Aside>
-
-**Acceptance tests.**
-
-| Call | Returns |
-|---|---|
-| `pressure_tier(45.0)` | `0` |
-| `pressure_tier(60.0)` | `1` |
-| `pressure_tier(90.0)` | `2` |
-| `pressure_tier(105.0)` | `2` |
-| `pressure_tier(105.5)` | `3` |
-| `pressure_tier(130.0)` | `3` |
-| `pressure_tier(140.0)` | `4` |
-
-**Assumptions and edge cases.** `pressure_kpa` is a float and may be any value the sensor reports; nothing about this function assumes the reading is physically sensible. The four band edges (`60.0`, `90.0`, `105.0`, and `130.0`) are exact boundaries, and each is tested directly above. Read the table carefully to decide which band owns each edge before you write the chain.
-
-### Problem 3: Classifying the Sensor Reading
-
-**Context.** The primary pressure sensor is read live from the console, as text, the way the [Errors, Input, and Validation](/lectures/errors-input-and-validation/) lecture describes. The provided harness already reads that line and parses it, using exactly the `try`/`except` or `parse`-and-`match` idiom from the lecture; you are not writing that part. Text that does not parse at all (a blank line, a stray word) never reaches your function: the harness reports it as `unreadable` on its own, the way the lecture's parse step guards every call that follows it. What does reach your function is a number, and a number can still be untrustworthy in more than one way, so flight software sorts each parsed reading into a status code before it acts. `BACKUP_KPA` and `TOLERANCE_KPA` below are constants the harness already defines from the backup sensor's own line.
+The primary pressure sensor is read live from the console, as text, the way the [Errors, Input, and Validation](/lectures/errors-input-and-validation/) lecture describes. The provided harness already reads that line and parses it, using exactly the `try`/`except` or `parse`-and-`match` idiom from the lecture, so text that does not parse at all (a blank line, a stray word) never reaches your function: the harness reports it as `unreadable` on its own. What does reach your function is a number, and a number can still be untrustworthy in more than one way, so flight software sorts each parsed reading into a status code before it acts. `BACKUP_KPA` and `TOLERANCE_KPA` are constants the harness already sets from the backup sensor's own line.
 
 ```python title="Provided in the harness: you do not write this"
 reading_text = input("Live sensor reading (kPa): ")
@@ -197,12 +60,6 @@ except ValueError:
 ```
 
 ```rust title="Provided in the harness: you do not write this"
-println!("Live sensor reading (kPa): ");
-let mut reading_text = String::new();
-io::stdin()
-    .read_line(&mut reading_text)
-    .expect("failed to read line");
-
 match reading_text.trim().parse::<f64>() {
     Ok(reading) => {
         if reading_status(reading, BACKUP_KPA, TOLERANCE_KPA) == 0 {
@@ -217,31 +74,23 @@ match reading_text.trim().parse::<f64>() {
 
 <WhatDiffers>
 <Fragment slot="differs">
-Both snippets reach the same `unreadable` outcome for garbage text, but by the two different routes the errors lecture described. Python's `float` raises a `ValueError` the instant the text fails to parse, and the surrounding `try`/`except` catches it after the fact. Rust's `parse::<f64>()` never raises anything; it always finishes and hands back a `Result`, and the `match` reads that value and picks the `Ok` or `Err` arm. Either way, `reading_status` is only ever called once a reading has already parsed into a number.
+Both snippets reach the same `unreadable` outcome for garbage text, but by the two routes the errors lecture described. Python's `float` raises a `ValueError` the instant the text fails to parse, and the surrounding `try`/`except` catches it. Rust's `parse::<f64>()` never raises; it always finishes and hands back a `Result`, and the `match` reads that value and picks the `Ok` or `Err` arm. Either way, `reading_status` is only ever called once a reading has already parsed into a number.
 </Fragment>
 </WhatDiffers>
 
-**Requirements.**
+Write `reading_status(reading_kpa, backup_kpa, tolerance_kpa)`, returning the status code for a parsed reading. What it must return, checking the conditions in this priority order:
 
-1. `reading_status(reading_kpa, backup_kpa, tolerance_kpa)` must sort a parsed reading into one of four status codes, checking the conditions in this order:
-   - Return `1` when `reading_kpa` is below `0.0`. A pressure below zero is physically impossible, and in practice a shorted sensor line reads negative, so this code flags a hardware fault at the low end.
-   - Return `2` when `reading_kpa` is above `200.0`. A reading above the vestibule sensor's physical ceiling means the sensor has railed high, a different hardware fault the crew log records separately.
-   - Otherwise the reading sits inside the physically possible range, `0.0` to `200.0` inclusive, so compare it to the backup: return `3` when the absolute difference between `reading_kpa` and `backup_kpa` is greater than `tolerance_kpa`, meaning the two sensors disagree by more than the allowed slack and at least one cannot be trusted.
-   - Return `0` when the reading is inside the physical range and agrees with the backup (its absolute difference from `backup_kpa` is `tolerance_kpa` or less). This is the only trusted case.
-2. The order matters: a reading is compared to the backup only after it has passed the physical-range check, so an out-of-range value is always reported as a range fault (`1` or `2`), never as a disagreement (`3`), even when it also happens to be far from the backup.
-3. `trusted_or_default(reading_kpa, backup_kpa, tolerance_kpa)` must return the value the display should actually use: `reading_kpa` when the reading is trusted (its status is `0`), and `backup_kpa` otherwise. This is the override the crew relies on, so that a rejected live reading falls back to the backup sensor rather than showing a fault value on the panel.
+1. Return `1` when `reading_kpa` is below `0.0`. A pressure below zero is physically impossible, and in practice a shorted sensor line reads negative, so this flags a hardware fault at the low end.
+2. Otherwise, return `2` when `reading_kpa` is above `200.0`. A reading above the vestibule sensor's physical ceiling means the sensor has railed high, a different hardware fault the crew log records separately.
+3. Otherwise the reading sits inside the physically possible range, `0.0` to `200.0` inclusive, so compare it to the backup: return `3` when the reading and the backup disagree by more than the allowed slack, meaning at least one of the two sensors cannot be trusted.
+4. Otherwise, return `0`. The reading is in range and agrees with the backup. This is the only trusted case.
 
-The modeling step is naming the four states a reading can be in, a fault at each end of the physical range, a disagreement with the backup, and a trusted reading, and fixing the order they are checked in; the analysis step is computing them with an `elif`/`else if` chain, comparing the absolute difference against the tolerance rather than checking for exact equality, the same tolerance idea the [Booleans and Conditionals](/lectures/booleans-and-conditionals/) lecture introduced for comparing floats.
-
-**Interface.**
+The order matters: a reading is compared to the backup only after it has passed the physical-range check, so an out-of-range value is always reported as a range fault (`1` or `2`), never as a disagreement (`3`), even when it also happens to be far from the backup. Two sensors agree when the size of the gap between them is `tolerance_kpa` or less; a gap larger than `tolerance_kpa` is a disagreement. A gap exactly equal to `tolerance_kpa` still counts as agreeing, so it returns `0`, not `3`. The function returns a whole-number status code (`0`, `1`, `2`, or `3`). How you arrange the comparisons and what intermediate values you give names to along the way is entirely your decision.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
 ```python title="classify_reading.py"
 def reading_status(reading_kpa, backup_kpa, tolerance_kpa):
-    ...
-
-def trusted_or_default(reading_kpa, backup_kpa, tolerance_kpa):
     ...
 ```
 </TabItem>
@@ -250,54 +99,83 @@ def trusted_or_default(reading_kpa, backup_kpa, tolerance_kpa):
 fn reading_status(reading_kpa: f64, backup_kpa: f64, tolerance_kpa: f64) -> i32 {
     todo!()
 }
+```
+</TabItem>
+</Tabs>
 
-fn trusted_or_default(reading_kpa: f64, backup_kpa: f64, tolerance_kpa: f64) -> f64 {
+We give you **one** worked example to show the format. A reading of `101.3` kilopascals, with the backup reading `101.0` and a tolerance of `0.5`, sits in range and agrees with the backup, so it is trusted:
+
+| Call | Returns |
+|---|---|
+| `reading_status(101.3, 101.0, 0.5)` | `0` |
+
+**Assumptions and edge cases.** `reading_kpa`, `backup_kpa`, and `tolerance_kpa` are all floats, and `tolerance_kpa` is zero or greater. `0.0` and `200.0` are exact boundaries of the physical range and both count as in-range. Because two sensor readings that are close enough to agree are almost never bit-for-bit identical, the agreement test is about the size of the gap between the reading and the backup, not exact equality; a gap exactly equal to `tolerance_kpa` counts as agreeing and returns `0`.
+
+<Aside type="danger" title="HAB has a rule for the disagreement check. Decide whether to trust it.">
+HAB, the habitat's assistant, offers this: "The point of a tolerance is that it is the limit of what you will accept, so a reading disagrees with the backup the moment the gap between them reaches the tolerance: return `3` whenever the size of the gap is `tolerance_kpa` or more. Once the two sensors have drifted that far apart, one of them is already untrustworthy."
+
+Flight rule: no HAB advice is trusted unverified. Decide whether HAB's rule is right before you build anything on it, and let your test cases settle the question.
+</Aside>
+
+## Step 1: Write Your Acceptance Tests
+
+Before writing any code, decide what correct behavior looks like. Write a set of test cases for `reading_status` as a plain table of rows: the three inputs (`reading_kpa`, `backup_kpa`, `tolerance_kpa`) and the status code you expect back. Do not use `assert` yet; a table of rows is what this step wants. For each row, work out the expected code by hand from the priority order, paying attention to which readings sit exactly on the physical boundary or exactly on the tolerance gap.
+
+Your table must include, and label, at least these cases:
+
+- A trusted case, in range and agreeing with the backup, that returns `0`.
+- A low-end hardware fault, a reading below `0.0`, that returns `1`.
+- A high-railed fault, a reading above `200.0`, that returns `2`.
+- A disagreement case, in range but too far from the backup, that returns `3`.
+- A case where the gap between the reading and the backup is exactly equal to `tolerance_kpa`.
+- A case that lands exactly on a physical boundary: a reading of exactly `0.0` or exactly `200.0`.
+- At least one more case whose expected code you compute fully by hand.
+
+Think about what HAB claimed while you do this: a good set of tests would catch a rule that treated the tolerance gap the wrong way.
+
+**Submit your test table in your PDF on Canvas.**
+
+## Step 2: Write Your Pseudocode
+
+Now plan the code, still before writing it. In plain steps (not Python or Rust), describe how `reading_status` turns its three inputs into the code it returns: in what order you check the outcomes, which comparison each outcome rests on, and which intermediate values, if any, you will give names to along the way (the size of the gap between the reading and the backup is one you may want to name). Write it so a reader could follow your plan and produce the function from it.
+
+**Submit your pseudocode in your PDF on Canvas.**
+
+## Step 3: Write Your Code
+
+Implement `reading_status` from the signature above, in Python or Rust, following your own pseudocode. The automated grader calls the function directly with values it chooses and checks what you `return`, so nothing is graded on how you get there, only on the code being right for every input. The returned status code is a whole number and reads the same in both languages, so there is nothing to compare with a tolerance and nothing to print.
+
+**Submit your function to Gradescope.**
+
+## Summit Problem (extra credit)
+
+This one is a real stretch, and it earns extra credit. It is also your practice for the graded stretch problem in the recitation room, where a harder problem is waiting.
+
+Before the outer hatch may cycle, two things must both be true: the airlock's interlock must clear it, and the live reading must be trusted. Write `airlock_cleared_for_cycle(pressure_equalized, seal_engaged, override_engaged, reading_kpa, backup_kpa, tolerance_kpa)`, returning `true` only when both hold. The interlock clears the hatch when the flight director has thrown the manual override (`override_engaged` is `true`), or, with no override, when the vestibule has equalized pressure and the inner seal is engaged (`pressure_equalized` and `seal_engaged` are both `true`). The reading is trusted exactly when your `reading_status` returns `0`.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="cleared.py"
+def airlock_cleared_for_cycle(pressure_equalized, seal_engaged, override_engaged, reading_kpa, backup_kpa, tolerance_kpa):
+    ...
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="cleared.rs"
+fn airlock_cleared_for_cycle(pressure_equalized: bool, seal_engaged: bool, override_engaged: bool, reading_kpa: f64, backup_kpa: f64, tolerance_kpa: f64) -> bool {
     todo!()
 }
 ```
 </TabItem>
 </Tabs>
 
-<Aside type="caution" title="No == on a float">
-Do not compare `reading_kpa` to `backup_kpa` with `==`. Two sensor readings that are close enough to agree are almost never bit-for-bit identical, so an exact-equality check would report nearly every reading that should pass as a disagreement. Compute the absolute difference and compare that against `tolerance_kpa` instead, the same tolerance pattern from the booleans lecture. Python's `abs(reading_kpa - backup_kpa)` and Rust's `(reading_kpa - backup_kpa).abs()` are both built into the language; neither needs an import.
-</Aside>
+As one worked example, `airlock_cleared_for_cycle(true, true, false, 101.3, 101.0, 0.5)` returns `true`: the interlock clears because both readings are engaged with no override, and the live reading is trusted because it is in range and agrees with the backup. A commanded override clears the interlock on its own, but the hatch still stays shut if the live reading is not trusted. Reuse your `reading_status` rather than rewriting its logic.
 
-**Acceptance tests.**
-
-| Call | Returns |
-|---|---|
-| `reading_status(101.3, 101.0, 0.5)` | `0` |
-| `reading_status(-1.0, 101.0, 0.5)` | `1` |
-| `reading_status(250.0, 101.0, 0.5)` | `2` |
-| `reading_status(101.3, 105.0, 0.5)` | `3` |
-| `reading_status(0.0, 0.2, 0.5)` | `0` |
-| `reading_status(200.0, 200.0, 0.0)` | `0` |
-| `reading_status(100.5, 100.0, 0.5)` | `0` |
-| `trusted_or_default(101.3, 101.0, 0.5)` | `101.3` |
-| `trusted_or_default(-1.0, 101.0, 0.5)` | `101.0` |
-| `trusted_or_default(101.3, 105.0, 0.5)` | `105.0` |
-
-**Assumptions and edge cases.** `reading_kpa`, `backup_kpa`, and `tolerance_kpa` are all floats, and `tolerance_kpa` is zero or greater. `0.0` and `200.0` are exact boundaries of the physical range and both count as in-range; a difference exactly equal to `tolerance_kpa` still counts as agreeing, so it returns `0`, not `3`. `trusted_or_default` reaches the same trusted-or-not decision as `reading_status`, so it may call `reading_status` rather than repeat the checks.
-
-### Problem 4: Write the Tests for the Pressure Tier
-
-**Context.** Before the flight-software review, every function ships with the cases that prove it. For this problem you write the cases, not the code: you already have the full band table for `pressure_tier` from Problem 2.
-
-**Requirements.**
-
-1. Submit a set of test cases for `pressure_tier(pressure_kpa)` as a plain table of rows, each row an input and the tier code you expect it to return. Do not write any `assert` statements; assertions arrive with the testing lecture. A row is just a pair, like this worked example:
-
-   | `pressure_kpa` | expected `pressure_tier` |
-   |---|---|
-   | `95.0` | `2` |
-
-2. Your table must include, and label, at least these four cases: a normal mid-range value in a band of your choice other than the worked example above, the nominal band's closed top edge at exactly `105.0`, a value one tenth of a kilopascal below that edge, and a value one tenth of a kilopascal above it. The grader runs your rows against a correct `pressure_tier` (every row must match) and against several deliberately broken versions (each broken version must be caught by at least one of your rows).
-
-The modeling step is turning the band table into cases that pin down each shared boundary, especially the closed top of the nominal band; the analysis step is predicting each expected tier by hand, paying close attention to which side of `105.0` each value falls on.
+**Submit `airlock_cleared_for_cycle` to Gradescope** to earn the extra credit.
 
 ## Paper Practice
 
-Trace this program by hand, on paper. Build a variable table: for each call to `status_code`, write the values held by its `pressure_kpa` and `override_engaged` parameters and the value it returns, then the values bound to `a`, `b`, and `total`. Write the exact value the program prints. Photograph your table and trace and attach it. This part is graded on completion (the attached photograph), not on whether every cell is right, so attempt it by hand first, then open the reveal to check yourself.
+Trace this program by hand, on paper. Build a variable table: for each call to `status_code`, write the values held by its `pressure_kpa` and `override_engaged` parameters and the value it returns, then the values bound to `a`, `b`, and `total`. Write the exact value the program prints.
 
 ```python title="trace_me.py"
 def status_code(pressure_kpa, override_engaged):
@@ -326,19 +204,14 @@ The first call, `status_code(75.0, False)`, binds `pressure_kpa` to `75.0` and `
 The second call, `status_code(75.0, True)`, checks `override_engaged` first again, and this time it is `True`, so the function returns `1` immediately; the `pressure_kpa < 90.0` condition is never evaluated at all, because the chain stops at the first branch that matches. That `1` is bound to `b`. Finally `total = a + b` computes `0 + 1`, and the program prints `1`.
 </Reveal>
 
+Photograph your trace and include it in your PDF on Canvas. This part is graded on completion (the attached photograph), not on whether every cell is right, so attempt it by hand first, then open the reveal to check yourself.
+
 ## Reflection
 
-In two sentences: first, state plainly whether you used an AI tool on this assignment and, if you did, what you used it for (if you did not use AI at all, say so explicitly); second, name any other help you used (a peer, the official docs, the lecture notes) and one thing you still could not do without that help. This is graded on completion, not on what you say, and it is not shared with anyone but the instructor.
+Include a short reflection in your PDF on Canvas. In two sentences: first, state plainly whether you used an AI tool on this assignment and, if you did, what you used it for (if you did not use AI at all, say so explicitly); second, name any other help you used (a peer, the official docs, the lecture notes) and one thing you still could not do without that help.
 
-## Summit Problem (optional, worth nothing)
+Then add one more sentence: which intermediate values, if any, did you choose to name inside `reading_status`, and why those? This is graded on completion, not on what you say, and it is not shared with anyone but the instructor.
 
-This one is a stretch, and it earns no points; it is here so you can practice for the graded stretch problem in the recitation room, where a harder problem does count.
+## Rubric
 
-Write `airlock_cleared_for_cycle(pressure_equalized, seal_engaged, override_engaged, reading_kpa, backup_kpa, tolerance_kpa)`, which returns `true` only when the airlock's interlock table from Problem 1 clears it to cycle **and** the live reading from Problem 3 is trusted (its `reading_status` is `0`). Reuse `airlock_may_cycle` and `reading_status` rather than rewriting any of their logic.
-
-| Call | Returns |
-|---|---|
-| `airlock_cleared_for_cycle(true, true, false, 101.3, 101.0, 0.5)` | `true` |
-| `airlock_cleared_for_cycle(false, false, true, 101.3, 101.0, 0.5)` | `true` |
-| `airlock_cleared_for_cycle(false, false, true, 300.0, 101.0, 0.5)` | `false` |
-| `airlock_cleared_for_cycle(true, false, false, 101.3, 101.0, 0.5)` | `false` |
+<RubricTable src="canvas/assignments/airlock-and-readings-rubrics.tsv" caption="The Airlock and the Readings Rubric" />
