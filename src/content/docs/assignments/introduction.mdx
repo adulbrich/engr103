@@ -3,11 +3,11 @@ title: Introduction
 description: The story and structure of the ENGR 103 assignments, Mission Ares, and the list of assignment chapters in order.
 sidebar:
   order: 0
-draft: true
+draft: false
 pageActions: false
 ---
 
-The assignments are your take-home practice: the place to work through a problem family with any tool you like, including AI, before a proctored recitation tests the same skeleton without them. They are low-stakes on purpose. Together they are worth a small share of your grade. Your grade on an assignment combines completeness and correctness: the auto-graded problem set is scored for **correctness**, so your code has to produce the right answers, while the paper practice and the reflection are graded only for **completeness**, so you get credit simply for doing them. The point is still not the points. The point is that you arrive at each recitation having already built the thing it will ask you to build again.
+The assignments are your take-home practice: the place to work through a problem with any tool you like, including AI, before a proctored recitation tests the same skeleton without them. They are low-stakes on purpose, and worth a small share of your grade. You work each one **test first**, the way real software is written: you read the problem, design your own test cases, plan the code in pseudocode, and only then write it. Your grade combines those parts, most of it for code that produces the right answers and the rest for the test design, the pseudocode, the paper practice, and the reflection you do along the way; every assignment's page carries its exact rubric. The point is still not the points. The point is that you arrive at each recitation having already built the thing it will ask you to build again.
 
 Because they are the tier where AI is allowed, they are also the tier that trains you to **judge** code, not just produce it. That is where HAB comes in.
 
@@ -15,18 +15,22 @@ Because they are the tier where AI is allowed, they are also the tier that train
 
 You are a member of the flight software crew of **Mission Ares**, the first crewed habitat on Mars. Across the term the assignments follow one mission, one episode at a time: preparing the vehicle, the launch, the burn that sends you to Mars, the long transit, the first days on the surface, and finally the Sol 100 status report that sums up everything the software has to get right. Each assignment opens with a mission beat that sets the scene and hands you a job.
 
-Your crewmate on every assignment is **HAB**, the habitat's onboard AI. HAB is helpful, tireless, and, at exactly the wrong moment, confidently wrong. In most assignments HAB drafts a piece of code and asks you to sign off on it. Sometimes it is fine. Sometimes it has a quiet defect: a precedence slip, an off-by-one, a value that leaks where it should have been copied. Your job is to work out which, and to reject and rewrite what does not hold up. HAB is on the assignment tier deliberately: this is the one tier where you may use AI, so learning to catch a confident machine when it is wrong is part of the training, not a distraction from it.
+Your crewmate on every assignment is **HAB**, the habitat's onboard AI. HAB is helpful, tireless, and, at exactly the wrong moment, confidently wrong. On each assignment HAB offers a **claim**: a confident, plausible statement about how to solve the problem, which is sometimes subtly wrong. Your job is to judge it and reject what does not hold up, letting your own test cases settle the question. HAB is on the assignment tier deliberately: this is the one tier where you may use AI, so learning to catch a confident machine when it is wrong is part of the training, not a distraction from it.
 
-The story is a spine, not a cage. Every requirement is numbered and testable, and you can earn full marks with the plot skipped entirely. The mission never hides the technical ask.
+The story is a spine, not a cage. The technical ask is always clear and testable, and you can earn full marks with the plot skipped entirely. The mission never hides what you have to build.
 
 ## How an Assignment Works
 
-Each regular assignment has the same parts, in this order:
+Each regular assignment is one problem, worked in a fixed order:
 
-- **A problem set**, the main work, checked by an automatic grader and **scored for correctness**. Before the Functions lecture, you complete a provided program and the grader compares its printed output to what is expected. From the Functions lecture on, you write named functions against a provided harness, and the grader calls your functions directly and checks what they return.
-- **A paper practice**, one tracing or diagram exercise done by hand and photographed, in the same format the exams use. The worked solution is on the page, hidden until you open it, so you attempt it first and then check yourself. It is **graded for completeness**, not correctness.
-- **A reflection**, two sentences on what you used help for, including whether and how you used AI. It is **graded for completeness**.
-- **An optional summit problem** on some assignments, a harder stretch worth no points, there for the challenge.
+- **Design your acceptance tests.** Before writing any code, you decide what correct behavior looks like: a set of test cases, including the boundary and tricky ones, each with the answer worked out by hand. We give you one worked example; you write the rest.
+- **Write your pseudocode.** A plain-language plan of how your code turns its inputs into its answer, naming the intermediate values you will create.
+- **Write your code.** The functions themselves, or, before the Functions lecture, a short program that prints the answer, checked for correctness by an automatic grader.
+- **A paper practice**, one tracing or diagram exercise done by hand and photographed, in the same format the exams use, with the worked solution hidden on the page so you attempt it first and then check yourself.
+- **A reflection**, two sentences on what you used help for, including whether and how you used AI.
+- **An optional summit problem** on most assignments, a harder stretch that earns extra credit.
+
+You submit in two places: everything that is not code, meaning your test cases, your pseudocode, your paper trace, and your reflection, goes in a single **PDF on Canvas**, and your **code goes to Gradescope**. Each assignment's page lists exactly what to hand in where and carries its own grading rubric.
 
 Every assignment is solvable using only the language features the course has taught by the week it is due, so you are never blocked by something you have not seen yet. The [Language Ladder](/reference/language-ladder/) lists what that is, as a recommendation you can lean on when you are unsure; you are always free to use a feature you already know. See the [Schedule](/overview/schedule/) for which recitation each assignment prepares you for, and read [Running and Submitting Your Code](/practicalities/starter-repo-and-check/) for the mechanics of the starter repository and how to submit.
 
