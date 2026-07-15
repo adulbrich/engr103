@@ -11,7 +11,7 @@ A recitation is a **printable handout of problems, and nothing else.** It is aut
 
 ## Two Rules That Override Everything
 
-1. **Recitations are private. They stay `draft: true` at all times and are never published.** They are printed by the instructor and used only in the room. If a recitation were published, students could find and pre-solve it, which defeats the point of a proctored assessment. Never flip `draft` to `false`, on any recitation, ever. `schedule.mdx` names recitations by topic but never links to a recitation page.
+1. **Recitations are private. They stay `draft: true` at all times and are never published.** They are printed by the instructor and used only in the room. If a recitation were published, students could find and pre-solve it, which defeats the point of a proctored assessment. Never flip `draft` to `false` on any graded recitation, ever. `schedule.mdx` names recitations by topic but never links to a graded recitation page. **The one exception is Recitation 1**, the ungraded onboarding session: it has nothing to pre-solve, so it may be published (`draft: false`).
 
 2. **Recitations are answerable on paper, first and foremost.** Present every problem language-neutrally: name the function and its parameters, describe in plain words what it must compute, and give a small table of example results. Do **not** write dual-language Python and Rust code blocks, do not show function signatures with types, and do not mention any language, tool, autograder, submission system, or the word "paper" itself. A student reads the problem and writes their answer by hand, in whatever form the room calls for.
 
@@ -110,7 +110,7 @@ private: instructor-only print handout, never published
 
 ## The Week-1 Onboarding Recitation
 
-Recitation 1 is ungraded onboarding, not the warm-up/checks/core/extra-credit shape. Author it as a short guided session, mark `graded: false` in the `ai-summary`, and give it no extra-credit problem and no Gary's-helper rung. Every other recitation (2 to 10) uses the full structure above. It stays `draft: true` like every recitation.
+Recitation 1 is ungraded onboarding, not the warm-up/checks/core/extra-credit shape. Author it as a short, gentle guided session, mark `graded: false` in the `ai-summary`, and give it no core problems and no extra-credit problem. It is the **only recitation that may be published** (`draft: false`), since an ungraded onboarding session has nothing to pre-solve. Every other recitation (2 to 10) uses the full structure above and stays `draft: true` forever.
 
 ## Style
 
