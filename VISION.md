@@ -330,30 +330,28 @@ consolidated, never first-taught in week 10.
 
 ### Format
 
-110 minutes, weekly, between the two lectures, in person, on **locked-down lab
-machines** provided by the course. Each machine is imaged with the
-toolchains and editors only (Python 3, Rust, VS Code, vim); the week's
-starter repository, cloned at session start, brings the problem specs,
-scaffolds, tests, and the local `check` command. Each machine
-enforces its own allowlist (baked into a read-only image, no student root):
-the official Python and Rust documentation, the course starter repositories
-on OSU GitLab, and Gradescope for submission, plus the login chain those
-require, over ordinary campus WiFi. No
-search engines, no AI, no mail or chat, no personal devices (Canvas is
-deliberately excluded during sessions: its messaging is a live channel).
-`ARCHITECTURE.md` specifies the full setup. Fallback if machines are
-unavailable: locked-down laptops or a paper-based contingency version of the
-problem set (each recitation is authored with a paper variant for DAS and
-make-up cases anyway). Whether that paper variant should instead become the
-primary format, replacing the locked-down machines entirely, is an open
-question (section 12).
+110 minutes, weekly, between the two lectures, in person. Each recitation is a
+**printed handout** the instructor hands out in the room; students work the
+problems by hand and are graded on their written answers, so the problems are
+stated language-neutrally and are first and foremost answerable on paper. The
+handouts are **kept private**: a recitation is never published on the course
+site, because a published one could be found and pre-solved, which would defeat
+a proctored assessment. They live in the course repository as permanent drafts,
+authored there for the instructor to print. Each handout carries only the
+problems (a warm-up, a couple of multiple-choice quick checks, two core
+problems, and one extra-credit problem), with no submission mechanics, no
+autograder, and no rubric on the page. The paper format also makes the session
+robust: it needs no lab machine, no network, and no toolchain, and it doubles as
+the DAS and make-up format.
 
 ### Scope and difficulty
 
 Recitations wear the Rubber Duck Robotics story line and its weekly ticket
-(section 8); each session is one ticket from Gary, and the find-the-bug portions
-arrive as Gary's subtly wrong helper awaiting sign-off. Recitation in week N
-assesses the **two lectures of week N-1**, which students have had a full
+(section 8); each session is one ticket from Gary, the senior engineer, handing
+the intern the week's gadget work. Recitations carry **no distractors and no
+trick helpers**: they are honest, straightforward problem sheets, and the
+judging-provided-code skill lives on the assignment tier instead. Recitation in
+week N assesses the **two lectures of week N-1**, which students have had a full
 weekend and one assignment to practice; the current week's Monday lecture is
 assessed the following week.
 
@@ -379,11 +377,12 @@ transferred off the keyboard.
 
 - **Warm-up (15 min, 25% of points).** One direct application of the current
   problem family, at assignment difficulty. Everyone should finish it.
-- **Core problems (70 min, 75% of points).** Two problems at assignment
+- **Quick checks (a few minutes).** One or two multiple-choice questions on the
+  week's ideas, alongside the warm-up.
+- **Core problems (75% of points).** Two problems at assignment
   difficulty: the same skeletons students practiced, in fresh Rubber Duck costume with
-  new values and at most one small twist, each solvable in either language.
-  Provided test suites give partial credit objectively; hidden cases run at
-  grading time. Warm-up plus core is the full 100%: a prepared student can earn
+  new values and at most one small twist, answerable in either language by hand.
+  Warm-up, quick checks, and core are the full 100%: a prepared student can earn
   a perfect session without touching the stretch.
 - **Stretch problem (remaining time, extra credit up to +10).** The one place
   where difficulty genuinely rises, and sometimes it deliberately tests
@@ -418,22 +417,15 @@ transferred off the keyboard.
   midterm,
   so it is both a graded performance assessment and the best possible exam
   rehearsal.
-- Submission is continuous and direct: students upload to Gradescope from
-  their seats as often as they like, exactly as they do for take-home
-  assignments, and the last submission before the TA closes the window
-  counts. Same workflow at both tiers, no minute-110 crunch, no lost work
-  when a machine dies late. Gradescope's submission list doubles as the TA
-  dashboard, which lets the oral-check sampling target students whose code
-  exists, and its timestamps are the audit trail. If the classroom WiFi
-  fails mid-session, students keep working (`check` is local), a TA phone
-  hotspot serves as the emergency uplink (enforcement lives on the device,
-  not the network), and a TA-carried USB stick is the deep fallback
-  (`ARCHITECTURE.md`, failure ladder). Rubric: provided tests 50%,
-  hidden tests 30%, style and decomposition 20%, with the style share scored
-  by the course linter configurations (ruff, clippy) and TAs spot-checking
-  only what linters cannot see.
-- Language choice is per problem. The starter repo contains twin scaffolds
-  (`problem1/py/` and `problem1/rs/`) with identical test cases.
+- The instructor collects the written handouts at the end of the session and
+  grades them by hand: the warm-up, the quick checks, and the two core problems
+  make up the 100%, and the extra-credit problem adds up to +10 on top. There is
+  no autograder and no online submission at the recitation tier; the written
+  answers are the audit trail. Because the work is on paper, a WiFi or machine
+  failure cannot cost a student their session.
+- Students may answer in either language, by hand. The problems are stated
+  language-neutrally, so a correct Python answer and a correct Rust answer both
+  earn full marks.
 
 ### Staffing and scale (25 students, two undergraduate TAs)
 
@@ -717,8 +709,8 @@ The graded recitations are set at **Rubber Duck Robotics**, a mediocre but
 lovable novelty-gadget company (self-stirring mugs, motivational bathtub ducks,
 the occasional smart hot tub). In the room the student is the new firmware
 intern; each recitation arrives as a ticket from **Gary**, the senior engineer,
-who is enthusiastic, overcommitted, and reliably wrong about one thing, and
-Gary's subtly wrong helper is the code to verify before use. The tone is comic
+who is enthusiastic and overcommitted and hands the intern the week's gadget
+work. The tone is comic
 where the take-home mission is heroic, and that is deliberate: the comedy
 lightens the test anxiety a high-stakes proctored room otherwise breeds (a
 novelty-mug problem worth points is still worth points), and the company name is
@@ -735,8 +727,8 @@ distractors that scale with the tier:
   plus **HAB's claim**: a confident assertion about how to approach the problem,
   or a fact about it, that is subtly wrong. Following it uncritically leads to a
   wrong answer that a visible test catches.
-- **Recitations:** fuller specifications with irrelevant data fields, plus
-  Gary's helper that must be verified before use.
+- **Recitations:** none. The recitation is a straight test of practiced work;
+  its problems carry no distractors and no trick helper.
 - **Exams:** the distilled paper version, the find-the-bug archetype.
 
 The rule that keeps this honest: a correct solution never depends on noticing

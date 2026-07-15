@@ -1,73 +1,71 @@
 ---
 name: engr103-recitations
-description: Use when creating or editing recitation files (MDX in src/content/docs/recitations/). Enforces the in-lab, dual-language, Rubber Duck Robotics structure of the ENGR 103 recitations: Gary's ticket, the warm-up plus two core problems plus stretch, bare requirements, and Gary's subtly wrong helper. Always load this skill before writing or editing any recitation file.
+description: Use when creating or editing recitation files (MDX in src/content/docs/recitations/). Enforces the ENGR 103 recitations as private, printable, paper-answerable problem handouts in the Rubber Duck Robotics story: Gary's ticket, a warm-up, a couple of multiple-choice quick checks, two core problems, and an extra-credit problem, with no distractors or trick helpers. Always load this skill before writing or editing any recitation file.
 ---
 
 # Recitation Style Guide
 
-This skill governs how recitations are written and revised for the ENGR 103 course website (Astro/Starlight, MDX format). Recitations are the **test set**: the proctored, in-lab performance where a student demonstrates, alone and without AI, that they can do the work they practiced at home on the paired assignment. VISION.md section 5 is the authority for this tier; this skill operationalizes it. When this skill and VISION.md disagree, VISION.md wins and this skill is the bug.
+This skill governs how recitations are written and revised for the ENGR 103 course. Recitations are the **test set**: the in-class problem set a student works alone, on paper, having practiced the same problem family at home on the paired assignment. VISION.md section 5 is the authority for this tier; this skill operationalizes it. When this skill and VISION.md disagree, VISION.md wins and this skill is the bug.
 
-A recitation is a **bare specification**. It states what to build, the contract each piece must satisfy, and the cases it will be checked against, and it stops there. It carries none of the assignment tier's scaffolding: no hints, no worked sub-steps, no suggested order of attack, and none of the assignment's test-first steps. The student reads the requirements and writes the code, in the room, in 110 minutes.
+A recitation is a **printable handout of problems, and nothing else.** It is authored as MDX so it lives beside the rest of the course, but the instructor prints it and hands it out in class; students answer on paper. The page carries the problems only: a warm-up, a couple of multiple-choice quick checks, two core problems, and one extra-credit problem. It carries no mechanics, no submission instructions, no rubric, and no worked solutions.
+
+## Two Rules That Override Everything
+
+1. **Recitations are private. They stay `draft: true` at all times and are never published.** They are printed by the instructor and used only in the room. If a recitation were published, students could find and pre-solve it, which defeats the point of a proctored assessment. Never flip `draft` to `false`, on any recitation, ever. `schedule.mdx` names recitations by topic but never links to a recitation page.
+
+2. **Recitations are answerable on paper, first and foremost.** Present every problem language-neutrally: name the function and its parameters, describe in plain words what it must compute, and give a small table of example results. Do **not** write dual-language Python and Rust code blocks, do not show function signatures with types, and do not mention any language, tool, autograder, submission system, or the word "paper" itself. A student reads the problem and writes their answer by hand, in whatever form the room calls for.
 
 ## What a Recitation Is
 
-A recitation is paired with exactly one assignment and its problem family, and it assesses the **same skeleton the assignment practiced**, in fresh costume. Under the course's one-week lag, recitation N assesses the two lectures of week N-1, which the student has had a weekend and the paired assignment to practice. The recitation exists to certify that the practiced work transferred: a student who did the assignment honestly should walk in expecting to succeed.
+A recitation is paired with exactly one assignment and its problem family, and it assesses the **same skeleton the assignment practiced**, in fresh Rubber Duck costume. It exists to certify that the practiced work transferred: a student who did the assignment honestly should be able to work the recitation.
 
-Recitations are **not harder than the assignment that prepares them.** The only variable a recitation adds is the conditions: locked down, alone, docs only, time-boxed. Difficulty rises in exactly one disclosed place, the stretch problem, and only as extra credit. The graded core never ambushes: every core problem is a fresh variation of a practiced skeleton, with new values and at most one small structural twist, never new territory.
-
-Like the assignment, a recitation is **dual-language**: every problem is solvable in Python or Rust against one shared contract, and the student chooses per problem. The starter repository carries twin scaffolds and identical test cases; students submit to Gradescope from their seats, continuously, exactly as they do for assignments.
+Recitations are **not harder than the assignment that prepares them.** The only variable a recitation adds is doing the work alone, in the room, from memory. Difficulty rises in exactly one place, the extra-credit problem. The core never ambushes: every core problem is a fresh variation of a practiced skeleton, with new values and at most one small twist, never new territory.
 
 ## The Story: Rubber Duck Robotics
 
-Recitations wear the **Rubber Duck Robotics** story line: a mediocre but lovable novelty-gadget company (self-stirring mugs, motivational bathtub ducks, duck-race timers, the occasional smart hot tub). In the room the student is the new firmware intern, and each recitation arrives as a **ticket from Gary**, the senior engineer, who is enthusiastic, overcommitted, and reliably wrong about exactly one thing. The tone is comic where the assignment's Mission Ares is heroic, and that is deliberate: the comedy lightens the test anxiety a proctored room otherwise breeds. The company name is a planted joke that pays off when rubber-duck debugging is introduced.
+Recitations wear the **Rubber Duck Robotics** story line: a mediocre but lovable novelty-gadget company (self-stirring mugs, motivational bathtub ducks, duck-race timers, the occasional smart hot tub). In the room the student is the new firmware intern, and each recitation is a **ticket from Gary**, the senior engineer: he hands the intern the gadget work for the week. The tone is comic where the assignment's Mission Ares is heroic, which lightens the test-day nerves. The company name is a planted joke that pays off when rubber-duck debugging is introduced.
 
-The recurring beat is **Gary's subtly wrong helper**: on one core problem, Gary hands the intern a small provided function he wrote, and it looks convenient but has a quiet defect. This is the recitation's rung of the red herring ladder and its find-the-bug archetype (O8). Unlike the assignment tier, where HAB states a wrong claim in prose, the recitation keeps the wrong helper as **code the student must verify before use**, because verifying provided code under the documentation-only conditions is exactly the skill this tier certifies. Gary's helper is a **separate small utility**, never the whole solution: the student can ignore it and write their own, and a correct solution never depends on noticing the defect. Copying it uncritically costs a visible test.
+Recitations carry **no distractors, no red herrings, and no trick helpers.** They are straightforward problem sheets: the intern reads each ticket and solves it. Do not plant a subtly wrong helper to catch, an unused quantity to notice, or any other misdirection. The judging-provided-code skill lives on the assignment tier (HAB); the recitation is an honest test of whether the practiced work transferred.
 
-The story is a spine, not a cage: every requirement is numbered, testable, and fully understandable with the Rubber Duck plot skipped.
+The story is a spine, not a cage: every problem is fully understandable with the Rubber Duck plot skipped.
 
-## Structure of a Session
+## The Parts of a Handout
 
-Every recitation page authors these parts, in this order:
+Author these parts, in this order, and nothing else:
 
-1. **Warm-up (25% of points).** One direct application of the current problem family, at assignment difficulty, that everyone should finish. One function (or one short program before the functions lecture).
-2. **Core problem 1 (part of the 75%).** A fresh Rubber Duck variation of a practiced skeleton, at assignment difficulty.
-3. **Core problem 2 (part of the 75%).** A second fresh variation, at assignment difficulty. **Exactly one core problem carries Gary's subtly wrong helper.**
-4. **Stretch problem (extra credit, up to +10).** The one place difficulty genuinely rises; it may test composure in unpracticed territory. It carries, verbatim, the disclosed label: **"This is beyond what you practiced. Attempting it can only help you."** Give complex math it needs in LaTeX (never make the student derive it), the same calibration as the assignment tier.
+1. **Gary's ticket** (no heading, 2 to 4 sentences): the Rubber Duck beat that frames the session and says, in a sentence, what the intern is working on. No mechanics.
+2. **Warm-up** (`## Warm-up`): one direct, easy application of the week's family that everyone should finish. One function.
+3. **Quick Checks** (`## Quick Checks`): one or two **multiple-choice questions** that probe the week's concepts (a predicted result, a distinction like return-versus-display or whole-number-versus-ordinary division). Each is a stem and four options labelled `(a)` to `(d)`, with exactly one correct answer and distractors drawn from real misconceptions. Do not mark the answer on the page.
+4. **Core Problem 1** (`## Core Problem 1`): a fresh Rubber Duck variation of a practiced skeleton, at assignment difficulty.
+5. **Core Problem 2** (`## Core Problem 2`): a second fresh variation, at assignment difficulty.
+6. **Extra Credit** (`## Extra Credit`): the one harder problem, which may reach into unpracticed territory. It carries, verbatim, the disclosed label in an `<Aside>`: **"This one is beyond what you practiced. Attempting it can only help you."** Give any complex math it needs in LaTeX (never make the student derive it), the same calibration as the assignment tier.
 
-Warm-up plus the two core problems is the full 100%; a prepared student earns a perfect session without touching the stretch. The **oral check** is an in-room event run by the TA, not authored on the page; do not write it into the recitation.
+Every problem is stated straight, with no distractor or trick to catch (see the story section). There is no "how this session works" section, no rubric section, no submission section, and no oral-check text. Just Gary's ticket and the problems.
 
-## Genre: Requirements, Bare
+## How Each Problem Reads
 
-Recitations and assignments share one spec template; the recitation strips the scaffolding. Each problem is written with this structure, in this fixed order, and nothing more:
+Bare and language-neutral. Each problem is:
 
-- **Context** (one or two sentences): the Rubber Duck ticket beat for this problem, skippable.
-- **Requirements** (numbered, testable statements): exactly what each function must compute, in plain language. State units and rounding or truncation explicitly.
-- **Interface** (a `<Tabs syncKey="lang">` pair, functions era): the exact function signature in Python and Rust, with a title on each block. Before the functions lecture, state the exact printed-output format instead.
-- **Acceptance tests** (a short table): visible cases as call-to-value pairs (or input-to-printed-output before functions), including at least one boundary case. Hidden cases run at grading time.
-- **Assumptions and edge cases**: what the input is guaranteed to be.
+- **One or two sentences of Rubber Duck context**, skippable.
+- **A plain-language statement of what to write**: name the function and its parameters inline (for example, "Write `heatup_minutes(current_c, target_c, minutes_per_degree, margin_percent)`, which returns ..."), then describe exactly what it must compute, stating units and any rounding or truncation in words ("how many **whole** servings", "discarding any partial serving").
+- **A small example table** of calls and their results, including at least one boundary case (a zero, an exact division, a "not even one" case). Write results as their plain mathematical value: `44`, not `44.0`, and `500`, not `500.0`, since the handout names no language.
 
-There is **no scaffolding section**, no hint `<Aside>`, no `<Steps>`, no `<Reveal>`, and no test-first steps. The only `<Aside>` a recitation uses is the one presenting Gary's wrong helper (a `danger`/`caution` callout naming it as Gary's and asking the intern to sign off or reject), and the callout carries no verdict, no defect name, and no fix. The stretch's disclosed label is a plain `<Aside>` too.
+No hints, no suggested steps, no worked solutions. State what to compute, never how.
 
-## Reused Components
+## Components
 
-Recitations import only what they use, and only from this list:
+Recitations import only what they use, and only from this short list:
 
 ```mdx
-import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
-import LanguageVersions from '/src/components/LanguageVersions.astro';
-import WhatDiffers from '/src/components/WhatDiffers.astro';
+import { Aside } from '@astrojs/starlight/components';
 import Latex from '/src/components/Latex.astro';
-import RubricTable from '/src/components/RubricTable.astro';
 ```
 
-- **`Tabs` / `TabItem`**: the dual-language pair, always `syncKey="lang"`, Python first. Use it for every interface signature and for Gary's helper (shown wrong in both languages).
-- **`LanguageVersions`**: at the very top of the body.
-- **`WhatDiffers`**: when a shown snippet differs between the languages beyond the standard `fn main`/`println!` boilerplate (the `f64` print display, integer-division split, `True`/`true`).
-- **`Latex`**: for a formula the stretch (or a core problem) hands the student; give complex math, never make the student derive it.
-- **`Aside`**: only for Gary's wrong-helper callout and the stretch's disclosed label. Never for hints.
-- **`RubricTable`**: required at the end, in a `## Rubric` section, loading the recitation's Canvas rubric TSV.
+- **`Aside`**: only for the extra-credit disclosed label (a `note`). Never for hints.
+- **`Latex`**: for a formula the extra-credit problem (or a core problem) hands the student. Give complex math; never make the student derive it.
+- A plain fenced code block (use a neutral ```text``` block, not a language) only if a multiple-choice question genuinely needs a small snippet, kept language-neutral. Most recitations need no code blocks at all.
 
-Do not import `Reveal`, `Steps`, a simulator, or any lecture-only or assignment-only component. A recitation has no worked solutions on the page, no scaffolding, and no simulator.
+Do not import `Tabs`, `TabItem`, `LanguageVersions`, `WhatDiffers`, `RubricTable`, `Reveal`, `Steps`, a simulator, or any lecture-only or assignment-only component. A recitation has no dual-language tabs, no version banner, no rubric, no worked solutions, no scaffolding, and no simulator.
 
 ## Frontmatter and the `ai-summary` Block
 
@@ -75,13 +73,15 @@ Do not import `Reveal`, `Steps`, a simulator, or any lecture-only or assignment-
 
 ```yaml
 ---
-title: "Recitation N: Short Rubber-Duck Ticket Title"
-description: "One sentence naming the ticket and the family the session assesses."
+title: "Short Rubber-Duck Handout Name"
+description: "One sentence naming Gary's ticket and the family the session assesses."
 sidebar:
   order: <the recitation number>
 draft: true
 ---
 ```
+
+The `title` is the handout's name only, with **no `Recitation N:` prefix** (for example `Gadget Firmware Math`, not `Recitation 4: Gadget Firmware Math`). The number lives in `sidebar.order`. `draft: true` is mandatory and permanent.
 
 ### The `ai-summary` block
 
@@ -96,69 +96,48 @@ family: <the problem family, by description>
 paired_assignment: <the assignment slug this recitation certifies>
 assesses_lectures: <comma-separated lecture slugs from week N-1>
 new_twist: <the at-most-one small twist over the assignment skeleton, or none>
-story_beat: <Gary's Rubber Duck Robotics ticket, one clause>
+story_beat: <Gary's Rubber Duck ticket, one clause>
 graded: <true, or false for the week-1 onboarding recitation>
+private: instructor-only print handout, never published
 */}
 ````
 
-## Page Structure
-
-1. **`<LanguageVersions />`** at the top of the body.
-2. **Gary's ticket** (no heading, 2 to 4 sentences): the Rubber Duck Robotics beat that frames the session and names, in one sentence, what the intern is building today. No requirements, no concept teaching.
-3. **How this session works** (a short `##` section): one or two sentences naming the parts (warm-up, two core, stretch), the per-problem language choice, that the grader calls the functions directly, and that submission is continuous to Gradescope. Link [Running and Submitting Your Code](/practicalities/starter-repo-and-check/).
-4. **Warm-up** (`## Warm-up`): one problem, the bare template.
-5. **Core Problem 1** (`## Core Problem 1`): the bare template.
-6. **Core Problem 2** (`## Core Problem 2`): the bare template, carrying Gary's wrong helper.
-7. **Stretch** (`## Stretch Problem (extra credit)`): the bare template plus the disclosed label; complex math in LaTeX.
-8. **Rubric** (`## Rubric`, last): `<RubricTable src="canvas/recitations/<slug>-rubrics.tsv" caption="..." />`.
-
-## The Rubric
-
-Every recitation ends with a `## Rubric` section rendering `<RubricTable src="canvas/recitations/<slug>-rubrics.tsv" caption="..." />`, and you author the TSV alongside the page. It follows VISION's recitation weighting: **provided (visible) tests 50, hidden tests 30, style and decomposition 20**, summing to 100, plus the stretch as a separate extra-credit row (up to 15). The style share is scored by the course linters (ruff, clippy) with TAs spot-checking only what linters cannot see. The TSV is headerless Canvas format, the same shape as the assignment rubric TSVs in `canvas/assignments/`; put recitation TSVs in `canvas/recitations/`. Within the 100, the warm-up carries 25 and the two core problems 75, split across the visible/hidden/style criteria as fits the session.
-
-## Dual-Language Rule
-
-Every problem works identically in both languages against one shared contract. Show each signature in both, Python first. Where a shown snippet (an acceptance-test demo, Gary's wrong helper) differs beyond the standard boilerplate, add a `<WhatDiffers>` naming the real difference. Python signatures carry no type annotations; Rust signatures carry explicit parameter types and an explicit `-> ReturnType` with an explicit `return`.
-
 ## Difficulty and the Ladder
 
-- **Core problems sit at assignment difficulty, never above.** If a core problem is harder than the paired assignment's problem, it is wrong; move that difficulty to the stretch.
-- **Solvable within what has been taught.** Use only constructs the recitation's week has reached on the [language ladder](/reference/language-ladder/). A recitation before the functions lecture cannot ask for student-written functions; check the ladder first.
-- **Fresh variation, not new territory.** The core is the assignment's skeleton in new Rubber Duck costume with new values and at most one small twist (an extra edge case, one more parameter). Name that twist in the `ai-summary` `new_twist` field.
+- **Core problems sit at assignment difficulty, never above.** If a core problem is harder than the paired assignment's problem, move that difficulty to the extra-credit problem.
+- **Solvable within what has been taught.** Use only ideas the recitation's week has reached on the [language ladder](/reference/language-ladder/). A recitation before the functions lecture asks the student to complete a computation and state its printed result rather than to write a named function; check the ladder first.
+- **Fresh variation, not new territory.** The core is the assignment's skeleton in new Rubber Duck costume with new values and at most one small twist. Name that twist in the `ai-summary` `new_twist` field.
 
 ## The Week-1 Onboarding Recitation
 
-Recitation 1 is ungraded onboarding (environment, editor, terminal, git, a "hello" run in both languages), not the warm-up/core/stretch shape. Author it as a short guided session like the `systems-checkout` assignment, mark `graded: false` in the `ai-summary`, and give it no stretch and no Gary's-helper rung. Every other recitation (2 to 10) uses the full structure above.
-
-## Draft Policy
-
-Set `draft: true` while a recitation is in development. **Never flip it to `false` yourself and never remove the key**; only the instructor publishes. A draft recitation is not a source of truth, and `schedule.mdx` must not link to it while it is a draft.
+Recitation 1 is ungraded onboarding, not the warm-up/checks/core/extra-credit shape. Author it as a short guided session, mark `graded: false` in the `ai-summary`, and give it no extra-credit problem and no Gary's-helper rung. Every other recitation (2 to 10) uses the full structure above. It stays `draft: true` like every recitation.
 
 ## Style
 
-**Bare specification voice.** Direct and imperative. State what to build, not how. Use "must" for hard requirements. No hints, ever: if a sentence starts to help the student decide *how*, cut it.
+**Bare specification voice.** Direct and imperative. State what to build, not how. Use "must" for hard requirements. No hints, ever.
 
-**Plain language.** Write for a first-year reader who may not speak English as a first language: short sentences, common words, every technical term already defined in the lecture. The Rubber Duck flavor never obscures the ask.
+**Plain language.** Write for a first-year reader who may not speak English as a first language: short sentences, common words, every term already defined in the lecture. The Rubber Duck flavor never obscures the ask.
 
 **No emdashes.** Never use the emdash character or a double hyphen as a dash. Use a colon, a semicolon, a comma, or a period.
 
 ## The Accuracy Pass
 
-A recitation is not done until every function and every claimed value on the page has been run and confirmed in Python (`python3`, 3.14) and Rust (`rustc`, 1.88). Run **Gary's wrong helper** too, and confirm it really produces the wrong result on a visible case, and that a correct version passes. Confirm each language's exact display, including the `f64` versus Python-float difference. Fix any mismatch before shipping.
+A recitation is not done until every example result and every multiple-choice answer has been confirmed by actually computing it. Because a student may answer in either language, confirm each example holds in both Python (`python3`, 3.14) and Rust (`rustc`, 1.88), and write the result on the page as the plain shared value (no trailing `.0`, no language-specific display). Confirm each multiple-choice question has exactly one correct option. This verification lives in your work log, never on the page.
 
 ## Validation
 
-After writing or editing a recitation, run `npm run build` (this runs `astro check` and the link validator) and fix every error.
+After writing or editing a recitation, run `npm run build` (this runs `astro check` and the link validator) and fix every error. The recitation stays `draft: true`, so it is not itself built into a route; the build still compiles its MDX and catches syntax errors.
 
 ## What Recitations Must NOT Contain
 
-- No scaffolding: no hints, no `<Steps>`, no worked sub-steps, no suggested order of attack, no test-first steps. That support belongs to the assignment tier.
-- No `<Reveal>` and no worked solutions on the page; a recitation is a test.
-- No simulator.
-- No core problem harder than the paired assignment; difficulty above assignment level belongs only in the stretch.
+- No published state: `draft: true` always, never flipped. Recitations are instructor-only print handouts.
+- No mechanics: no mention of any autograder, submission system, grading tool, lab machine, or the word "paper". No "how this session works" section and no rubric section.
+- No language names and no dual-language code: present every problem language-neutrally, by naming the function and describing what it computes, with an example table. No `Tabs`, no typed signatures, no version banner.
+- No scaffolding: no hints, no `Steps`, no worked sub-steps, no suggested order of attack.
+- No `Reveal` and no worked solutions or marked answers on the page; a recitation is a test.
+- No `Recitation N:` prefix in the title; the number lives in `sidebar.order`.
+- No core problem harder than the paired assignment; extra difficulty belongs only in the extra-credit problem.
 - No construct beyond the recitation's week on the language ladder.
 - No Mission Ares or HAB; recitations are Rubber Duck Robotics and Gary.
-- No Gary's-helper giveaway: never state the helper is wrong, name the defect, or hand the fix; show it in both languages and ask for sign-off.
-- No point values in prose; points live only in the rubric TSV. The stretch is labeled `(extra credit)` with the disclosed label.
-- No oral-check text on the page; the oral check is an in-room TA event.
+- No distractors, red herrings, or trick helpers (no Gary's-wrong-helper, no unused quantities); recitations are straightforward problem sheets.
 - No emdashes, and no pairing language; author for one individual intern.
