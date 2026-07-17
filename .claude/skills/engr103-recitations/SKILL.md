@@ -110,7 +110,7 @@ private: instructor-only print handout, never published
 
 ## The Week-1 Onboarding Recitation
 
-Recitation 1 is ungraded onboarding, not the warm-up/checks/core/extra-credit shape. Author it as a short, gentle guided session, mark `graded: false` in the `ai-summary`, and give it no core problems and no extra-credit problem. It is the **only recitation that may be published** (`draft: false`), since an ungraded onboarding session has nothing to pre-solve. Every other recitation (2 to 10) uses the full structure above and stays `draft: true` forever.
+Recitation 1 is ungraded onboarding, and it is a **hands-on environment-setup walkthrough**, not the warm-up/checks/core/extra-credit shape and not a paper problem sheet: the intern creates an OSU engineering account, connects to the ENGR servers over SSH, runs a first "Hello, World!" in both languages, and adds SSH keys to skip Duo (adapted from the retired `environment-setup` studio). Because it is a guided tutorial rather than a problem handout, it is the **one recitation that may use `Steps`, `Tabs`/`TabItem`, and real code blocks**, and the language-neutral and no-mechanics rules do not apply to it. Mark `graded: false` in the `ai-summary`, and give it no core or extra-credit problems. It is also the **only recitation that may be published** (`draft: false`), since onboarding has nothing to pre-solve. Every other recitation (2 to 10) uses the full structure above, stays language-neutral, and stays `draft: true` forever.
 
 ## Style
 
