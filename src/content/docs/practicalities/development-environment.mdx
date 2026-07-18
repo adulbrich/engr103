@@ -1,0 +1,201 @@
+---
+title: "Development Environment"
+description: "A step-by-step introduction to the tools you write programs with: the terminal, the file system and paths (on macOS, Linux, and Windows), the everyday shell commands, and text editors (vim, Zed, VS Code). Written for students new to all of this."
+---
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+Your **development environment** is the set of tools you use to write and run programs: a **terminal** to type commands into, the **files and folders** your work lives in, a **text editor** to write code, and the **Python and Rust tools** that run it. This guide explains each piece from the very beginning. You do not need any prior experience with any of it.
+
+You have two ways to work, and either is fine:
+
+- **On the OSU ENGR servers.** You connect to them from your own computer, and Python and Rust are already installed there. Setting up that connection is walked through in the first recitation.
+- **On your own computer.** You install Python and Rust yourself (see [Installing Python and Rust](#installing-python-and-rust) below) and work locally.
+
+The terminal, the files and folders, the shell commands, and the editors in this guide work the same way in both.
+
+## The Terminal
+
+A **terminal** (also called the **command line**) is a program where you control the computer by **typing commands and pressing Enter**, instead of clicking with a mouse. Each command is a short instruction. When you press Enter, the computer runs it and usually prints a line or two in response. It looks bare at first, but for the work you will do it is faster and more precise than clicking, and it is how you will control the ENGR servers.
+
+Every computer already has a terminal. Open yours:
+
+<Tabs syncKey="os">
+<TabItem label="macOS">
+Open **Spotlight** (press Command and the spacebar, or click the magnifying glass in the top-right corner), type `terminal`, and press Enter. A window opens with some text and a blinking cursor.
+</TabItem>
+<TabItem label="Linux">
+Open your terminal application. On many systems the shortcut **Ctrl and Alt and T** opens one, or you can search your applications for "terminal".
+</TabItem>
+<TabItem label="Windows">
+Open the **Start menu**, type `powershell`, and click **Windows PowerShell**. A window opens with some text and a blinking cursor.
+</TabItem>
+</Tabs>
+
+### The Prompt
+
+The line the terminal shows, waiting for you to type, is the **prompt**. A common one looks like this:
+
+```shell title="A prompt"
+alex@server:~$
+```
+
+Each part tells you something:
+
+- `alex`: the account you are logged in as.
+- `server`: the computer you are connected to. This matters once you connect to the ENGR servers, so you can tell "my computer" apart from "the server".
+- `~`: the folder you are currently in. A `~` is a shorthand for your **home folder** (more on folders below).
+- `$`: this just marks the end of the prompt. You type your command right after it.
+
+Two habits save a lot of typing: press the **Tab** key to have the terminal finish a file or folder name for you, and press the **up arrow** to bring back a command you typed earlier so you do not have to retype it.
+
+## Files, Folders, and Paths
+
+Everything on a computer is stored in **files**. Files are organized into **folders** (also called **directories**), and a folder can hold other folders, forming a tree. This is the same idea as the Finder on a Mac or File Explorer on Windows; the terminal simply lets you move through that tree by typing.
+
+At any moment, your terminal is "inside" exactly one folder, called the **working directory**. Commands act on that folder unless you say otherwise.
+
+A **path** is the address of a file or folder: it lists the folders you pass through to reach it, separated by a slash. The slash and the way the address starts differ by system:
+
+<Tabs syncKey="os">
+<TabItem label="macOS">
+Folders are separated by a forward slash `/`, and an address can start at the top of the disk, also written `/`:
+
+```text frame="terminal" title="A file's full address on macOS"
+/Users/alex/engr103/hello.py
+```
+
+This is the file `hello.py`, inside the folder `engr103`, inside `alex`, inside `Users`, at the top of the disk.
+</TabItem>
+<TabItem label="Linux">
+Folders are separated by a forward slash `/`, and an address can start at the top of the disk, also written `/`:
+
+```text frame="terminal" title="A file's full address on Linux"
+/home/alex/engr103/hello.py
+```
+
+This is the file `hello.py`, inside the folder `engr103`, inside `alex`, inside `home`, at the top of the disk. The ENGR servers use Linux, so this is the style of path you will use once you connect (your home folder there looks like `/nfs/stak/users/<your_ONID>`).
+</TabItem>
+<TabItem label="Windows">
+Folders are separated by a backslash `\`, and an address starts with a drive letter such as `C:`:
+
+```text frame="terminal" title="A file's full address on Windows"
+C:\Users\Alex\engr103\hello.py
+```
+
+This is the file `hello.py`, inside the folder `engr103`, inside `Alex`, inside `Users`, on the `C:` drive. Note that this course's servers run Linux, so the work you do there uses forward slashes `/`; the backslash is only for paths on your own Windows computer.
+</TabItem>
+</Tabs>
+
+There are two ways to write a path:
+
+- An **absolute path** gives the full address from the top, like the examples above. It always points to the same place, no matter where you currently are.
+- A **relative path** starts from your working directory. If you are already inside `engr103`, the relative path to the same file is just `hello.py`.
+
+A few shorthands appear everywhere:
+
+- `.` means "the current folder".
+- `..` means "the folder one level up" (the parent).
+- `~` means "my home folder", the folder you start in.
+
+## Everyday Shell Commands
+
+Here are the commands you will use constantly. Type the command, press Enter, and read what it prints. Try each one as you read.
+
+**See where you are.** `pwd` stands for "print working directory". It prints the full path of the folder you are currently in:
+
+```bash title="Where am I?"
+pwd
+```
+
+**See what is here.** `ls` (for "list") prints the files and folders in your current folder:
+
+```bash title="What is in this folder?"
+ls
+```
+
+**Make a folder.** `mkdir` (for "make directory") creates a new folder. Adding `-p` also creates any missing parent folders along the way:
+
+```bash title="Make a place for your work"
+mkdir -p engr103/recitation1
+```
+
+**Move into a folder.** `cd` (for "change directory") moves you into a folder, which becomes your new working directory. `cd ..` moves up one level, and `cd` on its own returns you home:
+
+```bash title="Go into the folder you just made"
+cd engr103/recitation1
+```
+
+These few, plus the ones in the table, cover almost everything you will do:
+
+| Command | What it does |
+|---|---|
+| `pwd` | Print the folder you are currently in. |
+| `ls <path>` | List what is in a folder (the current one if you leave off `<path>`). |
+| `cd <path>` | Move into a folder. `cd ..` goes up one level; `cd` alone goes home. |
+| `mkdir <path>` | Make a new folder. `mkdir -p a/b/c` makes any missing parents too. |
+| `cp <from> <to>` | Copy a file. `cp -r <from> <to>` copies a whole folder. |
+| `mv <from> <to>` | Move a file or folder, or rename it. |
+| `rm <path>` | Delete a file. `rm -r <path>` deletes a whole folder. |
+| `cat <path>` | Print a file's contents onto the screen. |
+| `clear` | Clear the screen (your files are untouched). |
+
+<Aside type="caution" title="rm does not ask twice">
+`rm` deletes immediately, with no trash can to recover from. Read the path you typed before pressing Enter, especially with `rm -r`.
+</Aside>
+
+Every command has the same shape:
+
+```shell title="The shape of a command"
+command [options] [arguments]
+```
+
+- The **command** is the program to run, like `ls`.
+- **Options** (or **flags**) change how it behaves and usually start with a dash, like the `-p` in `mkdir -p` or the `-l` in `ls -l` (which lists in a longer, more detailed format).
+- **Arguments** are what the command acts on, usually files or folders, like the folder name in `cd engr103`.
+
+## Text Editors
+
+To write a program you need a **text editor**: a tool for typing and changing the text of your code files (not a word processor like Microsoft Word, which adds hidden formatting). You have a few good choices.
+
+- **vim** runs *inside the terminal*, with no separate window. Because of that, it works even when you are connected to the ENGR servers over the network, which is why this course expects you to know the basics of it. vim has an unusual way of switching between moving around and typing; the [Vim Cheat Sheet](/practicalities/vim/) walks you through opening a file, editing it, and saving and quitting. Learn just enough vim to edit a file on the servers.
+- **VS Code** is a popular graphical editor you install on your own computer. It can also connect to the ENGR servers and edit files there through its "Remote - SSH" feature, so you get a full editor window while your files stay on the server.
+- **Zed** is a newer, very fast graphical editor, a good alternative to VS Code if you prefer it.
+
+<Aside type="tip" title="A workable setup">
+Learn enough vim to make quick edits directly on the servers, and use VS Code or Zed on your own computer (connecting to the servers when needed) for longer work. Any of the three is fine; what matters is that you can open, change, and save a file.
+</Aside>
+
+## Installing Python and Rust
+
+If you use the ENGR servers, Python and Rust are already installed there, and you can skip this section. If you want to work on your **own computer** instead, install both tools once. Each has an official installer with step-by-step instructions for macOS, Linux, and Windows.
+
+**Python.** Download and run the installer from the official downloads page:
+
+- [python.org/downloads](https://www.python.org/downloads/)
+
+<Aside type="caution" title="On Windows, check 'Add python.exe to PATH'">
+When the Windows installer asks, tick the box that says **"Add python.exe to PATH"** on the first screen. This is what lets you run `python3` from the terminal.
+</Aside>
+
+After installing, close and reopen your terminal, then confirm it works by asking for the version:
+
+```bash title="Confirm Python is installed"
+python3 --version
+```
+
+You should see a line like `Python 3.14.0`. (On Windows, if `python3` is not found, try `python --version`.)
+
+**Rust.** Install Rust with `rustup`, the official installer, following the instructions on:
+
+- [rust-lang.org/tools/install](https://www.rust-lang.org/tools/install)
+
+On macOS and Linux this is a single command you paste into the terminal; on Windows you download and run a small installer. When it finishes, close and reopen your terminal and confirm the compiler is available:
+
+```bash title="Confirm Rust is installed"
+rustc --version
+```
+
+You should see a line like `rustc 1.88.0`. With both commands responding, you can write and run programs on your own computer.
+
+Once you can open a terminal, move around your files, edit them, and run Python and Rust (on the servers or on your own computer), you are ready to start writing programs.
