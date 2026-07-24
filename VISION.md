@@ -50,8 +50,8 @@ assignment, then holds), wearing a different story line at each tier:
 |---|---|---|---|---|
 | 1. Activity | Lecture, guided, in pairs | Completion (submit .py/.rs on Canvas) | Instructor, peers | None, bare concept |
 | 2. Assignment | Take-home, independent | Low (completion + auto-graded correctness) | Anything, including GenAI | Mission Ares |
-| 3. Recitation | In person, locked-down computer | High (graded like exams) | Official docs only | Rubber Duck Robotics |
-| 4. Exam | In person, on paper, no notes | High | None | None, bare concept |
+| 3. Recitation | In person, on paper | High (graded like exams) | None (printed handout only) | Rubber Duck Robotics |
+| 4. Exam | In person, on paper, multiple choice, no notes | High | None | None, bare concept |
 
 This makes the GenAI question moot by construction. Students may use any tool on
 assignments, and we say so openly: the assignment is the training set, and the
@@ -202,9 +202,9 @@ O2, O4.
 
 | Component | Weight | Venue | Integrity model |
 |---|---|---|---|
-| Final exam | 25% | In person, paper, no notes, finals week | Proctored |
-| Midterm exam | 20% | In person, paper, no notes, 45 min in a week 6 lecture slot | Proctored |
-| Recitations (9 graded, lowest dropped) | 40% | In person, locked-down computer, 110 min | Proctored + oral check |
+| Final exam | 25% | In person, paper, multiple choice, no notes, finals week | Proctored |
+| Midterm exam | 20% | In person, paper, multiple choice, no notes, 45 min in a week 6 lecture slot | Proctored |
+| Recitations (9 graded, lowest dropped) | 40% | In person, on paper, 110 min | Proctored + oral check |
 | Assignments (10) | 10% | Take-home | Anything goes; completion plus auto-graded correctness |
 | Lecture preparation and activities | 5% | Pre-lecture checks + activities (completion, .py/.rs on Canvas) | Low stakes by design |
 
@@ -247,16 +247,25 @@ altitude without splitting the class into tracks:
 
 ### Format
 
+Both exams are **multiple choice**: every item is a stem with one correct
+option and distractors mined from real misconceptions (the wrong answers
+students actually produce in activities, assignments, and recitations). The
+format is chosen deliberately: it grades identically for every student, scales
+to any section size with zero grading load, and pairs naturally with the
+archetype inventory below, whose items all pose cleanly as selections. The
+production skills the exams cannot observe directly (writing a whole program)
+are trained on assignments and certified in the recitations; the exams certify
+that the underlying concepts transferred.
+
 - Midterm: 45 minutes maximum, on paper, no notes, no devices, held during the
   second lecture slot of week 6 (the 50-minute slot leaves room for seating and
-  collection). The time box shapes the paper: five to six short items drawn
-  from the quicker archetypes (evaluate, trace, predict output, find the bug,
-  complete the code, plus one short write-a-function). Breadth is the final's
-  job; the midterm is an early, reliable signal on core mechanics. The week 6
-  recitation, held two days earlier, is a cumulative synthesis session that
-  doubles as the midterm's performance-tier rehearsal.
-- Final: 110 minutes, on paper, in the university final slot. Cumulative, with
-  roughly 60% of points on weeks 6 to 10 material.
+  collection). It covers **everything taught so far** (lectures 1 to 10), and
+  that is the whole coverage rule: no special emphasis, no rehearsal session,
+  no curated subset. The time box shapes the paper: roughly twenty to
+  twenty-five items drawn across the archetypes.
+- Final: 110 minutes, on paper, in the university final slot. It covers
+  **everything taught in the term**, with roughly 60% of points on weeks 6 to
+  10 material because that material is fresher and builds on the rest.
 - Both exams test **introductory programming concepts only**: no git, no shell,
   no editor trivia, no professional-development content, no library trivia
   beyond the published subset. Exam problems wear no story skin: like
@@ -264,37 +273,47 @@ altitude without splitting the class into tracks:
 
 ### Language policy on paper
 
-Code-reading questions appear in Python, in Rust, or in both (same program twice,
-side by side, when the point is the concept). Code-writing questions may be
-answered in Python, Rust, or the course pseudocode, and the rubric is
-**concept-strict, syntax-lenient**: a missing semicolon or `mut` costs nothing;
-an off-by-one loop bound or a wrong condition costs points. Each exam's cover
-page restates this rule.
+Code in exam items appears in Python, in Rust, or in both (same program twice,
+side by side, when the point is the concept). Students never write code on an
+exam: every answer is a selection. Where an archetype is about producing code,
+the item shows candidate versions and asks which one is correct, so the
+judgment being tested is the same and the grading is mechanical. Each exam's
+cover page restates this rule.
 
 ### The public archetype inventory
 
-Exams are built exclusively from ten published question archetypes. Students see
-the complete list in week 1, practice every archetype in activities and
-assignments, and face fresh variations (new values, new contexts, same skeleton)
-on exam day. Few problem families with variations, fully disclosed.
+Exams are built exclusively from ten published question archetypes, each posed
+in multiple-choice form. Students see the complete list in week 1, practice
+every archetype in activities, assignments, and recitations, and face fresh
+variations (new values, new contexts, same skeleton) on exam day. Few problem
+families with variations, fully disclosed.
 
-1. **Evaluate.** Compute the value and type of expressions (precedence, integer
-   vs float division, boolean logic, string operations).
-2. **Trace.** Fill a variable-value table for a loop or a call, line by line.
-3. **Predict output.** Short program, write exactly what it prints.
-4. **Find the bug.** A program with one or two logic errors; identify and fix.
-5. **Write a function.** From a short spec, on paper (8 to 15 lines).
-6. **Draw memory.** Diagram names, values, and references before and after a
-   marked line; or draw the call stack at a marked moment.
-7. **Explain.** One or two sentences: what does this function do, at the level
-   of purpose.
-8. **Choose tests.** Given a spec, propose test cases and identify the boundary
-   and error cases (and, for the final, the floating-point traps).
-9. **Complete the code.** Fill labeled blanks in a mostly-written program.
-10. **Concept short answer.** For example: compile-time vs run-time error, why
+1. **Evaluate.** Which value (and type) does this expression produce
+   (precedence, integer vs float division, boolean logic, string operations)?
+2. **Trace.** Which variable-value table correctly traces this loop or call;
+   or what is the value of `x` after the marked line?
+3. **Predict output.** Short program; which of these is exactly what it
+   prints?
+4. **Find the bug.** A program with one logic error; which line is wrong, or
+   which fix makes it correct?
+5. **Choose the implementation.** From a short spec, which of these candidate
+   functions meets it? (The multiple-choice face of write-a-function; the
+   production form lives in assignments and recitations.)
+6. **Pick the memory diagram.** Which diagram of names, values, and references
+   matches the state after the marked line; or which call stack matches the
+   marked moment?
+7. **Explain.** Which one-sentence description states what this function does,
+   at the level of purpose?
+8. **Choose tests.** Given a spec, which test case can tell a correct
+   implementation from a given broken one; which case is the boundary case?
+9. **Complete the code.** Which line correctly fills the labeled blank in a
+   mostly-written program?
+10. **Concept question.** For example: compile-time vs run-time error, why
     `0.1 + 0.2 != 0.3`, when a copy happens vs when a name is shared.
 
-### Coverage split
+### Coverage
+
+Each exam covers everything taught up to it, and nothing else.
 
 - **Midterm (lectures 1 to 10):** values and types, how values are stored (bits,
   bytes, sizes; integer vs floating-point representation), expressions and
@@ -344,6 +363,25 @@ autograder, and no rubric on the page. The paper format also makes the session
 robust: it needs no lab machine, no network, and no toolchain, and it doubles as
 the DAS and make-up format.
 
+Two rules govern what a recitation problem may ask, both consequences of the
+paper format:
+
+- **Every item is quickly and fairly gradeable from an answer key.** The
+  answer forms are: a selected option, a numeric value, a filled trace table,
+  a short written answer of a sentence or two, or a short code fragment. A TA
+  grading a stack of handouts should be able to mark most items against the
+  key without judgment calls; the judgment-call grading budget is spent on the
+  short fragments and the stretch problem.
+- **No extensive code writing.** Writing whole programs is assignment work,
+  done at a keyboard with a toolchain. On paper a student may be asked for a
+  short function or fragment (a handful of lines), never a full program. The
+  recitation certifies that the practiced understanding transferred, and
+  reading, tracing, predicting, and fixing code demonstrate that as well as
+  writing it does. Each handout therefore mixes item kinds across the
+  archetypes: at least one item has the student reading real code (a trace, a
+  predict-output, or a find-the-bug over a short listing shown in both
+  languages), alongside the short production items.
+
 ### Scope and difficulty
 
 Recitations wear the Rubber Duck Robotics story line and its weekly ticket
@@ -357,7 +395,7 @@ assessed the following week.
 
 Recitations are deliberately **not much harder than the assignments** that
 prepare them. The variable a recitation adds is the conditions, not the
-difficulty: locked down, alone, docs only, time-boxed. High-stakes events are
+difficulty: on paper, alone, from memory, time-boxed. High-stakes events are
 stressful enough on their own, so testing practiced content under supervision
 measures understanding, while testing novel difficulty under supervision
 measures stress tolerance. The course does test composure, because working
@@ -382,8 +420,12 @@ transferred off the keyboard.
 - **Core problems (75% of points).** Two problems at assignment
   difficulty: the same skeletons students practiced, in fresh Rubber Duck costume with
   new values and at most one small twist, answerable in either language by hand.
-  Warm-up, quick checks, and core are the full 100%: a prepared student can earn
-  a perfect session without touching the stretch.
+  The two cores mix archetypes rather than repeating one form: a typical pair is
+  one code-reading problem (a trace table, a predict-output, or a find-the-bug
+  over a short listing printed in both languages, the student reading either)
+  and one short production problem (a short function or fragment, never a full
+  program). Warm-up, quick checks, and core are the full 100%: a prepared
+  student can earn a perfect session without touching the stretch.
 - **Stretch problem (remaining time, extra credit up to +10).** The one place
   where difficulty genuinely rises, and sometimes it deliberately tests
   composure in unpracticed territory, because engineering practice includes
@@ -412,11 +454,11 @@ transferred off the keyboard.
 
 - Weeks 2 to 10 are graded (9 recitations); the lowest is dropped, so 8 count
   at exactly 5% each. Week 1 is an ungraded onboarding session (environment,
-  editor, terminal, git, "hello" in both languages). The week 6 recitation is
-  cumulative synthesis over the midterm scope and sits two days before the
-  midterm,
-  so it is both a graded performance assessment and the best possible exam
-  rehearsal.
+  editor, terminal, git, "hello" in both languages). Every graded week,
+  including week 6 and week 10, is a regular session over the previous week's
+  two lectures; no recitation is a cumulative synthesis session, because the
+  exams simply cover everything taught before them and need no dedicated
+  rehearsal event.
 - The instructor collects the written handouts at the end of the session and
   grades them by hand: the warm-up, the quick checks, and the two core problems
   make up the 100%, and the extra-credit problem adds up to +10 on top. There is
@@ -434,12 +476,13 @@ labs. TAs proctor and check; they do not tutor during the session. The place
 for help is office hours and the assignment week, so no help queue competes
 with the oral checks. Per session, that leaves passive proctoring (both TAs,
 continuous), about six oral checks per TA at two to three minutes each, and
-closing the Gradescope window at the end; submission happens seat-by-seat,
-directly to Gradescope, throughout the session. Grading afterward is autograded tests plus
-linter-scored style; the human share is stretch-problem Polya plans and
-whatever the linters cannot judge, done asynchronously in Gradescope's
-problem-at-a-time rubric view. That is one to two hours per TA per week, which
-two undergraduates can actually sustain.
+collecting the handouts at the end. Grading afterward is by hand against an
+answer key, and the item rules above are what make that sustainable: selected
+options, numeric values, and trace tables mark mechanically; the short written
+answers and code fragments are the only judgment calls, and they are short by
+construction. The stretch problem's Polya plans are the largest single grading
+item. That is one to two hours per TA per week, which two undergraduates can
+actually sustain.
 
 The current course's integrity tool, the one-on-one assignment demo, is
 retired entirely and deliberately: demos cost three rounds of TA time per
@@ -523,7 +566,17 @@ paper trace, and the reflection), and the code goes to **Gradescope**. Its parts
    runner and the Rust toolchain. Passing the visible tests earns the credit. Twin
    scaffolds in both languages; through week 3 students must submit in each
    language at least once (to force an informed choice of their main language),
-   free choice afterwards. The work is ordered test first: the student is given
+   free choice afterwards. Because the recitations and exams ask for no
+   extensive code, the assignment is the one tier where all substantial
+   programs get written, and it is sized accordingly: a problem here may be a
+   genuinely consequential piece of work, not a warm-up. An assignment may
+   also ship **provided code** beyond the harness: a module the student's
+   function must plug into, a parser that feeds it, or a provided function the
+   student must write tests against or find the fault in. Provided code widens
+   what a week can practice (reading, testing, judging, and extending code the
+   student did not write, the O5 and O8 skills) and never decomposes the
+   student's own solution; the student's part remains one open contract. The
+   work is ordered test first: the student is given
    one worked example, then writes their own acceptance tests including boundary
    and regime-stressing cases (a plain input-and-expected table before the testing
    lecture, assertions after), then writes pseudocode, then the code. The tests
@@ -532,7 +585,14 @@ paper trace, and the reflection), and the code goes to **Gradescope**. Its parts
    makes the planning visible. Every assignment closes with a Canvas rubric
    (rendered on the page from its TSV) and, when the computation is a
    straightforward calculation, a small non-printable simulator the student can
-   check answers against.
+   check answers against. The rubric does one more job: it carries an
+   **implementation criterion** that makes the intended practice non-optional.
+   Hidden tests vary sizes and values so a hardcoded answer fails outright, and
+   where the week's construct is the point, the rubric names it and grades it
+   (a loops-week charge must be computed by iteration, not a pasted closed
+   form; a conditionals-week status must branch, not table-lookup the visible
+   cases). The spec stays open about how to solve the problem; the rubric
+   closes the door on not solving it.
 2. **Paper practice (self-checked).** One tracing or memory-diagram exercise in
    exam archetype format, done by hand and photographed into the Canvas PDF. The
    worked solution sits in a closed reveal on the assignment page: the student
@@ -559,11 +619,14 @@ work per week**: about 3.5 scheduled hours (the two lectures and the
 recitation) leave about 5.5 hours for everything else. Assignments are authored
 to fit inside that budget, not to fill it:
 
-- **The problem:** a **median completion time of about 2.5 to 3 hours** for a
+- **The problem:** a **median completion time of about 2.5 to 3.5 hours** for a
   student who did the reading, the test cases they submit included. One problem,
   sized to that target and never past it, at assignment (not stretch) difficulty.
-  If it lands well short, the problem is too thin to sit above the activity; make
-  it demand more decisions, not more sub-parts.
+  The upper half of the band is not a stretch: since the assignment is the only
+  tier where substantial code gets written, a problem that lands at 3.5 hours of
+  honest implementation work is doing its job. If it lands well short, the
+  problem is too thin to sit above the activity; make it demand more decisions,
+  not more sub-parts.
 - **Paper practice:** one exercise, 30 minutes or less.
 - **Reflection line:** a few minutes.
 - **Summit problem:** optional extra credit, so it never enters the required
@@ -774,8 +837,8 @@ tutorials), so the table is normative:
 | Practicalities | How-to guides | Numbered steps, one goal per page: setup, editors, submitting to Gradescope, the recitation lab, the debugging workflow |
 | Activities | Prompt sheets | Minimal: a listing, a question, room to predict; worked resolution published after class |
 | Assignments | Requirements, scaffolded | Mission episode: one open problem, the contract fixed and the decomposition left to the student, plus optional hints |
-| Recitations | Requirements, bare | Gary's ticket: the same template, scaffolding stripped |
-| Exams | Archetype items | Minimal wording, no story skin |
+| Recitations | Problem sheets, bare | Gary's ticket: mixed archetype items on paper, scaffolding stripped |
+| Exams | Archetype items | Multiple-choice items, minimal wording, no story skin |
 
 ### The plain-language rule (applies to every genre)
 
@@ -815,20 +878,25 @@ The worked resolution, published after class, is what serves absentees. The
 only true tutorials in the course are week 1's onboarding (R1, A1, and the
 setup how-tos they lean on).
 
-### Assignments and recitations: one genre, two scaffolding densities
+### Assignments and recitations: shared skeletons, two formats
 
-Both read as requirements, and that is the point: the training set and the
-test set share a format, so the format itself is never the surprise. One
-template for both: **Context** (the story beat, skippable), **Requirements**
-(numbered, testable statements), **Interface** (provided signatures and types),
-**Acceptance tests** (the visible cases), **Assumptions and edge cases**.
-Assignments add scaffolding inside that template: optional hints, mission
-commentary, a suggested order of attack. The Interface names only the entry
-point the grader calls; the student owns every decision inside it, which is the
-training the take-home tier exists for. Recitations strip the scaffolding and
-say less. Support moves between the tiers; difficulty holds, and the genre never
-changes. Students never author prose requirements themselves: reading
-specifications is the course skill, and writing them is a later course's job.
+Assignments read as requirements under one template: **Context** (the story
+beat, skippable), **Requirements** (numbered, testable statements),
+**Interface** (provided signatures and types), **Acceptance tests** (the
+visible cases), **Assumptions and edge cases**, plus scaffolding inside it:
+optional hints, mission commentary, a suggested order of attack. The Interface
+names only the entry point the grader calls; the student owns every decision
+inside it, which is the training the take-home tier exists for.
+
+Recitation production items use the same requirements shape, stripped of all
+scaffolding, so the format is never the surprise. Recitation reading items
+(a trace, a predict-output, a find-the-bug) instead show a short listing in
+both languages and ask the archetype's question, which is exactly the shape
+the exam's multiple-choice items take; the recitation is where that modality
+is rehearsed with real stakes before exam day. Support moves between the
+tiers; difficulty holds. Students never author prose requirements themselves:
+reading specifications is the course skill, and writing them is a later
+course's job.
 
 ### Tests as requirements (what replaces pre-assignments)
 
@@ -847,8 +915,8 @@ survive in machine-checkable or supervised forms:
   rubric, which makes "did you understand the spec" gradable and puts the planning
   before the coding. Early assignments use a plain data format (input, expected
   output); assertion syntax arrives with the testing lecture. The same skill
-  appears on paper as archetype 8, and it graduates to the supervised tier in the
-  capstone recitation, which requires a test suite alongside the program.
+  appears on paper as archetype 8, and it graduates to the supervised tier as
+  choose-tests recitation items (the testing-week recitation especially).
 - **Design and pseudocode** live in the Polya thread below.
 
 ### The Polya thread
@@ -913,15 +981,15 @@ teaches its concept).
 | 4 | 7 | **Booleans and conditionals.** Comparisons, logical operators, short-circuit; `if`/`else`; building conditions from specifications; the floating-point equality trap and comparison with tolerance, grounded in lecture 2. | | |
 | 5 | 8 | **Decision structures.** `elif`/`else if` chains and `match`; nesting vs chaining; decision tables; guard clauses; common boundary bugs. | R5: conditionals and decision tables. | A5: Decision-table rule families + paper trace. |
 | 5 | 9 | **Errors, input, and validation.** Kinds of errors (syntax, run-time, logic); console input and parsing; exceptions vs `Result`; validating a value and failing loudly. (The loop-based validate-until-correct pattern is deferred to lecture 12.) | | |
-| 6 | 10 | **Testing.** Test cases from a specification; boundary and error cases; assertions and test functions in both languages; consolidates the spec-to-tests skill practiced since week 3. | R6: cumulative synthesis over lectures 1 to 10; doubles as midterm rehearsal. | A6: cumulative families + paper trace. |
-| 6 | | **Midterm**, on paper during the second lecture slot (lectures 1 to 10: foundations, functions, scope, conditionals, errors, testing; no loops). | | |
+| 6 | 10 | **Testing.** Test cases from a specification; boundary and error cases; assertions and test functions in both languages; consolidates the spec-to-tests skill practiced since week 3. | R6: decision tables and errors (from week 5). | A6: decision-table and validation families + paper trace. |
+| 6 | | **Midterm**, multiple choice on paper during the second lecture slot, covering everything taught so far (lectures 1 to 10; no loops). | | |
 | 7 | 11 | **Loops.** `while` for unknown counts, counted loops; loop variables; termination; `do-while` as a C++-only "what differs"; tracing loops. | R7: loops. | A7: Loop families + paper trace. |
 | 7 | 12 | **Loop patterns.** Accumulate, count, search, sentinel, validate-until-correct; nested loops (ASCII rendering); choosing the pattern from the problem statement. | | |
 | 8 | 13 | **Strings and characters.** Strings as sequences; characters and character encoding (ASCII, introduced here and grounded in lecture 2's bits and bytes); slicing, searching, building strings. | R8: strings and lists (ciphers and checksums). | A8: Encode/decode families + paper trace. |
 | 8 | 14 | **Collections I: lists and vectors.** Indexing, length, iteration; growing and mutating; out-of-bounds as Python's `IndexError` vs Rust's panic (and the C++ buffer-overflow danger that motivates both). | | |
 | 9 | 15 | **The memory model: aliasing and ownership.** Names point at values; aliasing in Python (two names, one list) and ownership/moves/borrows-lite in Rust; the C++ dangling/buffer-overflow danger as why memory safety matters; drawing memory diagrams. Uses the memory stepper. (Late because aliasing needs lists to exist first; the foundation and the stepper are early.) | R9: memory model and sharing (packet buffers). | A9: memory/sharing families + memory-diagram paper practice. |
 | 9 | 16 | **Sharing and mutation.** Passing collections to functions; when the caller sees your changes; defensive copying; Rust `&`/`&mut` and why Rust makes you declare intent. Uses the memory stepper. | | |
-| 10 | 17 | **Collections II: dictionaries and maps** (advanced extra, not required for the outcomes). Dictionaries and hashmaps; key-value thinking; choosing between list and map; frequency counting and lookup. | R10: capstone recitation, a cumulative Rubber Duck synthesis over the term's families. | A10: the list-based Sol 100 mission-status capstone program with tests; accessibility/equity critique; paper trace. |
+| 10 | 17 | **Collections II: dictionaries and maps** (advanced extra, not required for the outcomes). Dictionaries and hashmaps; key-value thinking; choosing between list and map; frequency counting and lookup. | R10: memory model and sharing (from week 9). | A10: the list-based Sol 100 mission-status capstone program with tests; accessibility/equity critique; paper trace. |
 | 10 | 18 | **Computing with judgment** (advanced extra, not required for the outcomes). Evaluating code you did not write (a peer's, a library's, an AI's); limitations and failure modes; who is excluded by our tools; course synthesis and final-exam concept map. | | |
 
 Alignment checks built into the table:
@@ -980,30 +1048,20 @@ Alignment checks built into the table:
 - **Canvas rubric and PDF tooling** carries over. Assignment distribution moves
   to Canvas downloads and autograding moves from GitHub Classroom to Gradescope
   (its Docker-based autograder is language agnostic, and community Rust/Cargo
-  autograder examples exist). Recitations add the self-filtering device
-  fleet with its golden image, and the local `check`/`pack` tooling, as new
-  infrastructure (`ARCHITECTURE.md`).
+  autograder examples exist). The local `check`/`pack` tooling is new
+  infrastructure for the assignment tier (`ARCHITECTURE.md`); recitations,
+  being paper handouts, need none.
 
 ## 12. Risks and open questions
 
-- **Lab logistics** are the long pole: machine imaging, seat capacity for
-  every section, and the on-device allowlist need a full-room dry run before
-  week 1, including running the filter in log-only mode during mock sessions
-  to pin the real hostname list (`ARCHITECTURE.md`).
-  The paper-variant contingency per recitation is the hedge.
-- **Paper-based recitations as the primary format (alternative, deferred).**
-  Rather than locked-down lab machines with paper only as a fallback,
-  recitations could run entirely on paper, the way the exams already do,
-  promoting the existing paper variant to the main delivery mode. The appeal,
-  raised in colleague discussion, is that it removes the lab-logistics long
-  pole above outright: no machine imaging, no on-device allowlist, no
-  seat-capacity-per-machine, and proctoring as simple as an exam. The cost is
-  that a paper recitation no longer certifies that a student can drive the real
-  toolchain and the `check` loop under test conditions, which is part of what
-  the locked-down format exists to prove, and it narrows what a problem can ask
-  (no running code, no live test feedback, tighter time budget). If adopted, the
-  assessment-tier table in section 2 and the recitation format in section 5 both
-  change. Revisit before finalizing recitation logistics.
+- **Paper-based recitations (decided).** Recitations run entirely on paper,
+  the way the exams do. This removes the former long pole (machine imaging,
+  on-device allowlists, seat capacity per machine) outright; proctoring is as
+  simple as an exam, and the remaining logistics are printing, secure storage
+  of unused handouts, and the DAS timing arrangements. The accepted cost is
+  that a paper recitation does not certify driving the real toolchain under
+  test conditions; that skill is trained on assignments, where all substantial
+  code is written, and observed live through the oral checks.
 - **Rust in week 1** is a bet. The mitigations are the restricted subset (no
   borrowing until week 7) and Python as the always-available softer on-ramp;
   monitor week 2 to 3 pre-checks and be ready to let struggling students go

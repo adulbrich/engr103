@@ -136,6 +136,8 @@ python3 area.py
 
 This applies to every command (`python3 ...`, `rustc ...`, `./program`) and every captured run of a program, error output included. Source-code examples that are not terminal sessions keep their normal `python`/`rust` code blocks inside `<Tabs>`.
 
+**Show the run mechanics sparingly.** The first lectures teach how to run a program, and there the full command-plus-output pair is the point. From the expressions lecture on, the reader has run dozens of programs: for a routine example, show the **output block alone** (```` ```text frame="terminal" title="Output" ````) and skip the command block entirely. Repeat the command block only when the command itself carries the lesson (a new flag, piped input, a compile step that fails). Repeated "Run the program" blocks after every trivial example are the single biggest length multiplier in a note and read as how-to instructions, which belong to the practicalities tier.
+
 ## Staying Within What Has Been Taught
 
 Every ENGR 103 example should draw only on constructs the course has already introduced by that lecture's week, because a reader following the course in order cannot understand a construct they have not met yet. The language ladder at `/reference/language-ladder` records what has been introduced by each week and grows one week at a time; a construct introduced in week 3 stays available in every later week. This is a teaching-quality rule, not a restriction on what students may write: the ladder is a recommendation for them, but a lecture that leans on an untaught construct simply fails to teach.
@@ -255,7 +257,7 @@ Favor flowing prose over bullet lists. Reach for a list only to enumerate genuin
 
 ### Takeaways
 
-The penultimate section of every lecture is titled `## Takeaways`. It is prose, not bullets, and it synthesizes the lecture's concepts into one coherent picture: how the ideas in this lecture fit together, and what the reader can now reason about that they could not before. It may name adjacent lectures in prose to orient the reader ("the next lecture builds on this to introduce functions"), but never links to them.
+The penultimate section of every lecture is titled `## Takeaways`. It is prose, not bullets, and it synthesizes the lecture's concepts into one coherent picture: how the ideas in this lecture fit together, and what the reader can now reason about that they could not before. It may name adjacent lectures in prose to orient the reader ("the next lecture builds on this to introduce functions"), but never links to them. **Keep it scannable**: three to five short paragraphs of two to four sentences each, one idea per paragraph, never one wall paragraph. Students reread this section before exams, and a single 300-word paragraph defeats a rereader, especially one reading in a second language.
 
 ### Resources (optional, final section)
 
