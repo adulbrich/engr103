@@ -145,7 +145,7 @@ The empty list `[]` would break it too, for the same reason. But `C` is the shar
 
 ## Predict the Failure at the Filtered Edge
 
-You picked the all-negative list. Before you run it, commit to exactly what it does, because the two languages do not agree here, and predicting the split is how you learn to expect it instead of being surprised by it.
+You picked the all-negative list. Before you run it, commit to exactly what each language does with it.
 
 Read both programs below, which call `average_positive` on `[-5, -2, -9]`. On paper or in a comment, write down what each one prints or does. Do not run them yet.
 
@@ -220,13 +220,13 @@ The mechanism to commit to is this: the list is *not* empty, yet `count` still r
 
 ---
 
-## Diagnose and Guard the Emptied Count
+## Diagnose and Repair the Function
 
 The all-negative list has no defined positive-average in this function: one language told you so loudly, the other did not tell you at all. Now make the function handle it, using the systematic method: read the symptom, form one hypothesis, make a single change, re-run.
 
-Reconstruct the specification first, because the author never wrote it down: the average of no positive readings should be a safe default of `0.0` that a caller can check for. A natural first instinct is to copy the fix from the lecture, which guarded the empty list before the loop. Try that hypothesis first, then decide whether it is enough.
+Reconstruct the specification first, because the author never wrote it down: the average of no positive readings should be a safe default of `0.0` that a caller can check for. A natural first instinct is to copy the fix from the lecture, which guarded the empty list before the loop. Try that hypothesis first, then test it and decide.
 
-<Reveal label="Reveal the diagnosis, the fix that is not enough, and the one that is">
+<Reveal label="Reveal the diagnosis and the tested fixes">
 **Symptom.** On `[-5, -2, -9]`, Python stops with `ZeroDivisionError: division by zero` and Rust returns `NaN`. Neither returns the `0.0` the specification asks for.
 
 **First hypothesis: guard the empty list, as the lecture did.** The lecture fixed the plain average by returning `0.0` when `len(readings) == 0` before the loop. Try the same guard here:
@@ -336,7 +336,7 @@ The one change that works is the `if count == 0` guard after the loop, returning
 
 ## Write the Average, Then Name Where It Fails
 
-Write a function `average(a, b)` that takes two whole numbers and returns their average. Then, in one sentence, name an input for which your function gives a surprising or wrong answer, and say why.
+Write a function `average(a, b)` that takes two whole numbers and returns their average. Then, in one sentence, name an input for which your function returns something other than the true average and say why, or argue that no such input exists for your version.
 
 <Reveal label="Reveal a sample solution">
 This is a sample solution: more than one correct `average` is possible.
@@ -380,7 +380,9 @@ rustc average.rs
 3
 ```
 
-`average(3, 4)` is the surprising input: the true average of 3 and 4 is 3.5, but Python's `//` and Rust's integer `/` on two `i32` values both discard the fractional part, so the function silently returns `3` instead.
+`average(3, 4)` is the surprising input for this sample: the true average of 3 and 4 is 3.5, but Python's `//` and Rust's `/` on two `i32` values both discard the fractional part, so the function silently returns `3` instead.
+
+Your function may not have this edge at all. If you wrote `(a + b) / 2` in Python, it returns the exact `3.5`, and the honest sentence says that no pair of whole numbers makes it stray from the true average; the question that version leaves open is a design one, whether a caller averaging whole numbers wanted the `.5` or a whole number back. Rust keeps that choice visible: with everything `i32`, the division is whole-number division and the half is dropped, and returning `3.5` instead means changing the signature to return `f64` and casting. Either sentence is a correct answer; the rep is in going looking for the edge instead of assuming there is none.
 </Reveal>
 
 ---

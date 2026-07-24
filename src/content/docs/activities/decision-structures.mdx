@@ -1,6 +1,6 @@
 ---
 title: "Decision Structures"
-description: "Predict which branch of an else-if chain runs, trace a two-condition interlock into a decision table, and fix a silent boundary bug in Python and Rust."
+description: "Predict which branch of an else-if chain runs, trace a two-condition interlock into a decision table, and fix a silent bug in a priority chain, in Python and Rust."
 sidebar:
   order: 8
 draft: true
@@ -24,7 +24,7 @@ output: a reconciled single-line prediction, a completed decision table confirme
 
 <LanguageVersions />
 
-This activity puts into practice the [Decision Structures](/lectures/decision-structures/) lecture. You will predict the output of an else-if chain whose conditions overlap on a boundary value, trace a two-condition interlock into a decision table before checking it against code, and hunt down a silent boundary bug that prints a plausible wrong answer. By the end, you will be able to reason about which single branch of a chain wins, build a decision table to order that chain correctly, and catch an off-by-one comparison that never raises an error.
+This activity puts into practice the [Decision Structures](/lectures/decision-structures/) lecture. You will predict the output of an else-if chain whose conditions overlap on a boundary value, trace a two-condition interlock into a decision table before checking it against code, and hunt down a silent bug that prints a plausible wrong answer. By the end, you will be able to reason about which single branch of a chain wins, build a decision table to order that chain correctly, and catch an off-by-one comparison that never raises an error.
 
 ## Warm-up
 
@@ -73,11 +73,11 @@ go
 
 Rust prints the same values, except each boolean is spelled `true` rather than `True`. With comparisons and a plain `if`/`else` fresh, the sections below extend that single decision into a chain.
 
-## Predict Which Branch Wins
+## Predict Which Branch Runs
 
-An else-if chain checks its conditions top to bottom and stops at the first one that is true, so overlapping conditions do not each get a turn. The trap this section sets is a value that sits *exactly* on a later branch's threshold: your eye jumps to the branch whose number matches, but an earlier, broader condition has already claimed the decision. You commit to a prediction first, then run the program to check it.
+The program below classifies a vibration reading, in millimetres per second, from a machine sensor. You commit to a prediction first, then run the program to check it.
 
-The program classifies a vibration reading, in millimetres per second, from a machine sensor. Read it and write down, on paper or in a comment, the exact output you expect. Do not run it yet. Notice that `velocity` holds `7`, and `7` makes three of the conditions true at once: `velocity > 2`, `velocity >= 5`, and `velocity >= 7`. One of those, `velocity >= 7`, is an exact match on the boundary. Decide which single branch actually prints, and how many lines appear.
+Read the program and write down, on paper or in a comment, the exact output you expect: which line or lines print, and in what order. Do not run it yet.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
@@ -133,7 +133,7 @@ rustc vibration.rs
 reduced
 ```
 
-Only `reduced` prints, on a single line. If you predicted `maintenance`, you were pulled in by the exact match: `velocity >= 7` is `true` for `7`, and the word `maintenance` sits right next to the reading, so it looks like the branch built for this value. It is not. The chain never reaches it. The very first condition, `velocity > 2`, is already `true` for `7`, so its block runs and the first-match-wins rule ends the decision immediately, skipping `velocity >= 5`, `velocity >= 7`, and `velocity >= 11` without evaluating a single one of them. The exact match on the boundary is a distraction, not a tiebreaker: reaching that branch would require every earlier condition to be false first, and a reading of `7` fails that the instant it clears `> 2`. Because `velocity > 2` is so broad, the `watch`, `maintenance`, and `shutdown` branches are in fact unreachable for *every* reading above `2`; the chain as written can only ever print `reduced` or `normal`. The lesson is that a boundary value belongs to the first condition it satisfies reading downward, not to the branch whose threshold it equals.
+Only `reduced` prints, on a single line. A reading of `7` makes three of the conditions true at once, `velocity > 2`, `velocity >= 5`, and `velocity >= 7`, but an else-if chain checks top to bottom and stops at the first true condition, so overlapping conditions do not each get a turn. If you predicted `maintenance`, you were pulled in by the exact match: `velocity >= 7` is `true` for `7`, and the word `maintenance` sits right next to the reading, so it looks like the branch built for this value. It is not. The chain never reaches it. The very first condition, `velocity > 2`, is already `true` for `7`, so its block runs and the first-match-wins rule ends the decision immediately, skipping `velocity >= 5`, `velocity >= 7`, and `velocity >= 11` without evaluating a single one of them. The exact match on the boundary is a distraction, not a tiebreaker: reaching that branch would require every earlier condition to be false first, and a reading of `7` fails that the instant it clears `> 2`. Because `velocity > 2` is so broad, the `watch`, `maintenance`, and `shutdown` branches are in fact unreachable for *every* reading above `2`; the chain as written can only ever print `reduced` or `normal`. The lesson is that a boundary value belongs to the first condition it satisfies reading downward, not to the branch whose threshold it equals.
 </Reveal>
 
 ---
@@ -229,9 +229,9 @@ Python negates with the word `not` and Rust with the `!` symbol, so `not is_guar
 
 ---
 
-## Find the Silent Boundary Bug
+## Find the Silent Bug
 
-A boundary bug does not crash. The program runs, prints a tier, and lies: the value that sits exactly on a threshold lands in the wrong branch. The chain below sorts an emergency call by its response time, in whole minutes, into a priority tier. The intended rule is: under `4` minutes is `immediate`, up to and including `8` minutes is `urgent`, up to and including `15` minutes is `routine`, and anything longer is `deferred`. A call that took exactly `8` minutes should therefore be `urgent`. It is not. You find the bug with the systematic method: read the symptom, form a hypothesis, test it.
+Not every bug crashes. The program below runs, prints a tier, and lies: the tier is simply wrong. The chain sorts an emergency call by its response time, in whole minutes, into a priority tier. The intended rule is: under `4` minutes is `immediate`, up to and including `8` minutes is `urgent`, up to and including `15` minutes is `routine`, and anything longer is `deferred`. A call that took exactly `8` minutes should therefore be `urgent`. It is not. You find the bug with the systematic method: read the symptom, form a hypothesis, test it.
 
 Run the program with `minutes` at exactly `8`, see what it actually prints, then work out why `8` misses the tier it belongs to and how one change fixes it.
 

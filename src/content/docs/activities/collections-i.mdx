@@ -1,6 +1,6 @@
 ---
 title: "Collections I: Lists and Vectors"
-description: "Predict, compare, and debug short list and vector programs in Python and Rust to lock in indexing, length, iteration, push, mutation, and out-of-bounds errors."
+description: "Predict, compare, and complete short list and vector programs in Python and Rust to lock in indexing, length, iteration, push, mutation, and out-of-bounds errors."
 sidebar:
   order: 14
 draft: true
@@ -16,15 +16,15 @@ type: activity
 slug: collections-i
 order: 14
 paired_lecture: collections-i
-practices: predicts the final list and the largest element after creating a sequence, pushing elements, reading a just-changed element with an index, and overwriting one by index; names what changes and what stays fixed between Python's negative index used inside iteration and Rust's computed last index with iteration by reference; diagnoses an out-of-bounds index raised on the last pass of a loop that reads one element ahead, from its exact error message, and fixes the off-by-one
+practices: predicts the final list and the largest element after creating a sequence, pushing elements, reading a just-changed element with an index, and overwriting one by index; names what changes and what stays fixed between Python's negative index used inside iteration and Rust's computed last index with iteration by reference; chooses the loop bound that completes an adjacent-sums loop reading one element ahead, and works out that one wrong candidate crashes past the end while the other silently drops the last pair
 prereq_activities:
-block_types: predict-then-run, same-program-two-languages, live-debugging
-output: a reconciled prediction of a grown list and its largest element, a named cross-language difference in reaching the last element while iterating, and a corrected loop bound that stops reading past the end for each of the three sections
+block_types: predict-then-run, same-program-two-languages, peer-instruction
+output: a reconciled prediction of a grown list and its largest element, a named cross-language difference in reaching the last element while iterating, and a chosen loop bound with both wrong candidates' failures explained
 */}
 
 <LanguageVersions />
 
-This activity puts into practice the [Collections I: Lists and Vectors](/lectures/collections-i/) lecture. You will predict what a list holds after several pushes and an overwrite and which of its elements is largest, compare how Python and Rust reach the last element while walking the sequence, and hunt down an out-of-bounds index that only shows itself on the final pass of a loop. By the end, you will be able to trace a growing sequence by hand and read the exact error a bad index produces in each language.
+This activity puts into practice the [Collections I: Lists and Vectors](/lectures/collections-i/) lecture. You will predict what a list holds after several pushes and an overwrite and which of its elements is largest, compare how Python and Rust reach the last element while walking the sequence, and choose the one loop line that completes a program reading each element and its neighbor. By the end, you will be able to trace a growing sequence by hand and read the exact error a bad index produces in each language.
 
 ## Warm-up
 
@@ -65,9 +65,9 @@ Rust prints the same three lines, using `{:?}` to show the whole vector and `num
 
 ## Predict the List and the Largest Element
 
-Pushing an element, reading an element back by its index, and overwriting one all change or depend on the list at the moment they run, so the order matters and the final list is easy to get wrong. Finding the largest element then depends on getting that final list exactly right. You commit to an answer first, then run the program to check it.
+The program below pushes, overwrites, and reads back elements, then hunts for the largest one, and the final list is easy to get wrong. You commit to an answer first, then run the program to check it.
 
-Read both programs below and write down, on paper or in a comment, three things: the length the program prints, the exact final list, and the largest element its loop finds. Do not run them yet. Trace the list one line at a time: start from the literal, apply each push in turn, and watch closely what value the third push actually appends, since it reads an element you just changed. Then scan the final list for its largest value. Predict for both languages, and notice whether your two answers agree.
+Read both programs below and write down, on paper or in a comment, three things: the length the program prints, the exact final list, and the largest element its loop finds. Do not run them yet. Trace the list one line at a time, starting from the literal and applying each change in turn. Then scan the final list for its largest value. Predict for both languages, and notice whether your two answers agree.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
@@ -139,7 +139,7 @@ Both languages print the identical three lines. Append, index assignment, readin
 
 ## Measure Every Element Against the Last
 
-A common job over a sequence is to compare every element against one fixed element, and the last element is the fixed one here. The catch is that reaching the last element is exactly where Python and Rust part ways, and in this task that reach happens on every pass of the loop, so the difference is not a one-line detail but shows up all through the walk. You read both tabs and name what genuinely changes and what stays fixed.
+A common job over a sequence is to compare every element against one fixed element, and the last element is the fixed one here. You read both tabs and name what genuinely changes and what stays fixed.
 
 Study the two programs below. Each prints the last element of the same four-value sequence, then walks the whole sequence and prints how far each element sits below that last one, computed as the last element minus the current element. Before opening the reveal, write down the five lines you expect each program to print, then name one thing that is truly different between the languages and one thing that is the same.
 
@@ -202,25 +202,23 @@ Python reaches the last element with a negative index, `nums[-1]`, which counts 
 
 ---
 
-## Find the Bug in the Loop That Reads Ahead
+## Complete the Adjacent-Sums Loop
 
-Reaching one position past the end of a sequence is the classic list mistake, and it is at its sneakiest inside a loop that reads one element ahead of the current one, because the loop runs correctly for a while and only fails on the very last pass. The program below means to print the sum of each element and the next one, but its loop reads past the end. You find the bug with the systematic method: read the error, form a hypothesis, test it.
-
-Each program walks a three-element sequence and, for each position `i`, prints `nums[i] + nums[i + 1]`, the current element added to the one after it. Run it, read the error it produces, then work out on which pass the reach goes wrong and how one change to the loop fixes it.
+One line of the program below is unfinished: the loop line itself. The finished program walks `[10, 20, 30]` and prints the sum of each element and the one after it, exactly two lines, `30` then `50`, and exits cleanly. You choose the bound that makes it do that, and commit to what the other two candidates would do.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python title="bounds.py"
+```python title="bounds.py (one bound missing)"
 nums = [10, 20, 30]
-for i in range(len(nums)):
+for i in range(____):  # the missing bound
     print(nums[i] + nums[i + 1])
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="bounds.rs"
+```rust title="bounds.rs (one range missing)"
 fn main() {
     let nums = vec![10, 20, 30];
-    for i in 0..nums.len() {
+    for i in ____ {  // the missing range
         println!("{}", nums[i] + nums[i + 1]);
     }
 }
@@ -228,8 +226,31 @@ fn main() {
 </TabItem>
 </Tabs>
 
-<Reveal label="Reveal the diagnosis and the fix">
-```bash title="Run the buggy Python program"
+The candidates for the blank:
+
+- **A.** `len(nums)` in Python, `0..nums.len()` in Rust.
+- **B.** `len(nums) - 1` in Python, `0..nums.len() - 1` in Rust.
+- **C.** `len(nums) - 2` in Python, `0..nums.len() - 2` in Rust.
+
+Commit to one, and write down exactly what the program prints or does with each of the other two, before opening the reveal.
+
+<Reveal label="Reveal the completing bound and what the other candidates do">
+**B completes the program.** With `range(len(nums) - 1)`, or `0..nums.len() - 1`, the loop runs `i` over `0` and `1`: the first pass prints `nums[0] + nums[1]`, which is `10 + 20 = 30`, and the second prints `nums[1] + nums[2]`, which is `20 + 30 = 50`. Because the body reads `nums[i + 1]`, one position ahead of `i`, the loop must stop at the second-to-last element so that `i + 1` still names a real element on the final pass.
+
+```bash title="Run the completed Python program"
+python3 bounds.py
+```
+
+```text frame="terminal" title="Output"
+30
+50
+```
+
+Rust prints the same two lines.
+
+**A runs one pass too many.** `range(len(nums))` lets `i` reach `2`, and that pass reads `nums[2] + nums[3]`; position `3` does not exist in a three-element list, so both languages stop the program right after the two correct sums:
+
+```bash title="Run it with candidate A"
 python3 bounds.py
 ```
 
@@ -243,7 +264,7 @@ Traceback (most recent call last):
 IndexError: list index out of range
 ```
 
-```bash title="Compile and run the buggy Rust program"
+```bash title="Compile and run the Rust version with candidate A"
 rustc bounds.rs
 ./bounds
 ```
@@ -256,42 +277,17 @@ index out of bounds: the len is 3 but the index is 3
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
-**Symptom.** Both programs print two correct sums, `30` and `50`, and then stop. Python halts with an `IndexError: list index out of range`, and Rust panics with `index out of bounds: the len is 3 but the index is 3`. The two good lines matter: the bug is not in the sum itself but in how far the loop runs.
+**C stops one pass too soon.** `range(len(nums) - 2)` runs `i` over `0` only, so the program prints `30`, skips the `20 + 30` pair entirely, and exits with no error at all:
 
-**Hypothesis.** The loop runs `i` over `0`, `1`, and `2`, the three valid positions of a three-element list. On `i = 0` it reads `nums[0] + nums[1]`, which is `10 + 20 = 30`; on `i = 1` it reads `nums[1] + nums[2]`, which is `20 + 30 = 50`. On `i = 2` it reads `nums[2] + nums[3]`, and position `3` does not exist in a three-element list, so the reach for `nums[i + 1]` goes one past the end. This is an off-by-one that hides until the last pass: because the body reads `nums[i + 1]`, the loop must stop one position sooner than usual, at the second-to-last element, so that `i + 1` never runs past the end.
-
-**Test.** Stop the loop one position early, at `len - 1`, so the last pass reads the second-to-last and last elements together:
-
-<Tabs syncKey="lang">
-<TabItem label="Python">
-```python title="bounds.py (fixed)"
-nums = [10, 20, 30]
-for i in range(len(nums) - 1):
-    print(nums[i] + nums[i + 1])
-```
-</TabItem>
-<TabItem label="Rust">
-```rust title="bounds.rs (fixed)"
-fn main() {
-    let nums = vec![10, 20, 30];
-    for i in 0..nums.len() - 1 {
-        println!("{}", nums[i] + nums[i + 1]);
-    }
-}
-```
-</TabItem>
-</Tabs>
-
-```bash title="Run the fixed Python program"
+```bash title="Run it with candidate C"
 python3 bounds.py
 ```
 
 ```text frame="terminal" title="Output"
 30
-50
 ```
 
-Rust prints the same two lines. The fix is a single `- 1` on the loop bound, which stops `i` at the second-to-last position so `nums[i + 1]` always names a real element. The lesson is that a loop reading one element ahead must run one position shorter than a loop reading just the current element, and when it does not, the mistake stays invisible until the final pass, where both languages catch it and stop, Python with an `IndexError` and Rust with a panic.
+C is the quieter mistake of the two: nothing crashes, and only holding the output against the two lines the task promises reveals the missing sum. A loop that reads one element ahead must run exactly one position short of the length. Shorter than that loses pairs, longer than that reads past the end, and only one of those failures announces itself.
 </Reveal>
 
 ---

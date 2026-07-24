@@ -24,7 +24,7 @@ output: a reconciled three-line prediction, a named cross-language difference on
 
 <LanguageVersions />
 
-This activity puts into practice the [Sharing and Mutation](/lectures/sharing-and-mutation/) lecture. You will predict which of a function's arguments survive the call unchanged, compare a function that reads a collection and then grows it in Python and Rust, and fix a Python helper that changes the caller's list when it was only meant to preview a change. By the end, you will be able to tell from a call whether a function can reach back and modify your collection, and say what Rust forces into the open that Python leaves silent.
+This activity puts into practice the [Sharing and Mutation](/lectures/sharing-and-mutation/) lecture. You will predict which of a function's arguments survive the call unchanged, compare a function that reads a collection and then grows it in Python and Rust, and fix a Python helper that does not keep the promise its author intended. By the end, you will be able to tell from a call whether a function can reach back and modify your collection, and say what Rust forces into the open that Python leaves silent.
 
 ## Warm-up
 
@@ -61,9 +61,9 @@ Rust prints the same `[10, 20, 30, 40]`. Keep in mind the other piece the lectur
 
 ## Predict What the Caller Keeps
 
-One function can touch a list argument and a scalar argument in the very same body, and the two arguments come back to the caller looking nothing alike: the list keeps what the function did to it, the scalar does not. Telling those two apart inside a single call, and separating both from what the function hands back with `return`, is the skill this section drills. You commit to an answer first, then run the program to check it.
+One function can touch a list argument and a scalar argument in the very same body. Telling apart, from the caller's seat, what each argument looks like after the call, and separating both from what the function hands back with `return`, is the skill this section drills. You commit to an answer first, then run the program to check it.
 
-Read the program below and write down, on paper or in a comment, exactly what all three `print` lines will show. Do not run it yet. `record` does three things to its parameters: it appends to `samples`, it reassigns `count`, and it returns the new `count`. For each of the three prints, decide whether you are looking at the caller's own value, a value the function changed only in its private copy, or a value the function computed and handed back.
+Read the program below and write down, on paper or in a comment, exactly what all three `print` lines will show. Do not run it yet. `record` does three things to its parameters: it appends to `samples`, it reassigns `count`, and it returns the new `count`. For each of the three prints, ask what the caller's name refers to once the call is over.
 
 ```python title="predict.py"
 def record(samples, count, value):
@@ -97,7 +97,7 @@ Three arguments went in, and the three lines tell three different stories from t
 
 ## Read Then Grow, in Two Languages
 
-A function that first reads every element of a collection and then adds a new one to it is the ordinary shape of real work: summarize what is there, then record the summary. Both languages let that function reach the caller's own collection, but only one lets you write it the same way whether the function reads or writes. Studying the two versions side by side is how you see what Rust makes you spell out. You read both tabs and name what genuinely differs and what stays fixed.
+A function that first reads every element of a collection and then adds a new one to it is the ordinary shape of real work: summarize what is there, then record the summary. You read both tabs and name what genuinely differs and what stays fixed.
 
 Study the two programs below. Each defines `append_total`, which walks the collection to add up its elements and then pushes that total onto the end, so the function both reads and modifies the same collection in one call. Each then prints the collection afterward. Before opening the reveal, write down what each prints, then name one thing Rust requires here that Python does not.
 
@@ -161,9 +161,9 @@ Both print `[10, 20, 30, 60]`: each function reads the three elements, totals th
 
 ---
 
-## Find the Silent Mutation
+## Find the Bug the Program Never Reports
 
-This bug never crashes and never prints an error, which is what makes it dangerous. A helper is meant to show what a list *would* look like with one more value, leaving the caller's real list untouched, but it forgot to defend the original and quietly edits it instead. You find it not from a compiler message but from an output that is wrong in a way you have to notice, then you reason back to the shared object behind it.
+This bug never crashes and never prints an error, which is what makes it dangerous. A helper is meant to show what a list *would* look like with one more value, leaving the caller's real list untouched. You find the bug not from a compiler message but from an output that is wrong in a way you have to notice, then you reason back to the cause.
 
 Read the program. `preview_with` is supposed to build and return a preview list with `value` tacked on, without disturbing `readings`. Predict both printed lines, then decide whether the last line really shows the untouched original the author intended.
 
@@ -178,7 +178,7 @@ print(preview)
 print(readings)
 ```
 
-<Reveal label="Reveal the diagnosis and the defensive-copy fix">
+<Reveal label="Reveal the diagnosis and the fix">
 ```bash title="Run the Python program"
 python3 preview.py
 ```

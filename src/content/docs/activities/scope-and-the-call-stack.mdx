@@ -1,6 +1,6 @@
 ---
 title: "Scope and the Call Stack"
-description: "Trace a three-function call chain by hand, predict how two nested Rust blocks that each shadow a name print against Python's function scope, and diagnose the scope trap each language springs on a discount function."
+description: "Trace a three-function call chain by hand, predict which rate each print sees when a function's local shares its name with an outer variable, and diagnose the scope trap each language springs on a discount function."
 sidebar:
   order: 6
 draft: true
@@ -16,15 +16,15 @@ type: activity
 slug: scope-and-the-call-stack
 order: 6
 paired_lecture: scope-and-the-call-stack
-practices: traces the call stack of a three-function chain by hand, tracking each frame's variables as three frames stack up and pop back down and a return value flows up through the chain; predicts the printed lines when two nested Rust blocks each shadow a name against Python's single function scope; diagnoses the scope trap each language springs, a Python UnboundLocalError from reading a global-looking name it then assigns and a Rust E0425 from using a value after its block ended
+practices: traces the call stack of a three-function chain by hand, tracking each frame's variables as three frames stack up and pop back down and a return value flows up through the chain; predicts what each print shows when a function's local variable shares its name with an outer variable, through Python's shadowed module-level name and Rust's separate per-function locals; diagnoses the scope trap each language springs, a Python UnboundLocalError from reading a global-looking name it then assigns and a Rust E0425 from using a value after its block ended
 prereq_activities:
 block_types: paper-tracing, predict-then-run, live-debugging
-output: a completed three-frame call-stack trace, a reconciled prediction of nested-shadowing output, and a corrected scope trap for each language across the three sections
+output: a completed three-frame call-stack trace, a reconciled prediction of shadowed prints, and a corrected scope trap for each language across the three sections
 */}
 
 <LanguageVersions />
 
-This activity puts into practice the [Scope and the Call Stack](/lectures/scope-and-the-call-stack/) lecture. You will trace by hand how a call stack pushes and pops a frame for each function call in a three-function chain, predict how two nested Rust blocks that each shadow a name print differently from Python's single function scope, and diagnose the different scope trap each language springs on the same discount function. By the end, you will be able to say which frame any variable lives in, how long it lasts, and why reaching for a name outside its scope fails in each language.
+This activity puts into practice the [Scope and the Call Stack](/lectures/scope-and-the-call-stack/) lecture. You will trace by hand how a call stack pushes and pops a frame for each function call in a three-function chain, predict what each print shows when a function's local variable shares its name with a variable outside it, and diagnose the different scope trap each language springs on the same discount function. By the end, you will be able to say which frame any variable lives in, how long it lasts, and why reaching for a name outside its scope fails in each language.
 
 ## Warm-up
 
@@ -161,92 +161,74 @@ Rust prints the same `2.5`. Three `seconds` boxes, one in each frame, sat on the
 
 ---
 
-## Predict the Nested Shadowing
+## Predict What Each Print Shows
 
-Rust's block scope and shadowing combine here at two levels of nesting, set against Python's single function-wide scope, and the last two lines Rust prints are the ones that catch people out. You commit to a full prediction first.
+The two programs below use the name `rate` in two places: once at the top level and once inside a function. Real programs reuse good names like this constantly, and the prediction is which `rate` each print sees. You commit to all three printed lines first.
 
-Both functions below start `n` at `2`, then build it up with `+ 3` and `* 2`. In Rust each step happens inside its own nested `{ }` block; in Python the steps run one after another with no blocks at all. Write down every line each program prints, in order, before opening the reveal. Pay attention to what the last two lines print in each.
+Write down every line each program prints, in order, before opening the reveal.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python title="predict.py"
-def layers():
-    n = 2
-    print(n)
+```python title="rate.py"
+rate = 10
 
-    n = n + 3
-    print(n)
+def total_cost(hours):
+    rate = 12
+    print(rate)
+    return hours * rate
 
-    n = n * 2
-    print(n)
-
-    print(n)
-    print(n)
-
-layers()
+print(total_cost(3))
+print(rate)
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="predict.rs"
-fn layers() {
-    let n = 2;
-    println!("{}", n);
-
-    {
-        let n = n + 3;
-        println!("{}", n);
-
-        {
-            let n = n * 2;
-            println!("{}", n);
-        }
-
-        println!("{}", n);
-    }
-
-    println!("{}", n);
+```rust title="rate.rs"
+fn total_cost(hours: i32) -> i32 {
+    let rate = 12;
+    println!("{}", rate);
+    return hours * rate;
 }
 
 fn main() {
-    layers();
+    let rate = 10;
+    println!("{}", total_cost(3));
+    println!("{}", rate);
 }
 ```
 </TabItem>
 </Tabs>
 
-<Reveal label="Reveal the real output of each language">
+<Reveal label="Reveal the real output and which rate each print saw">
 ```bash title="Run the Python program"
-python3 predict.py
+python3 rate.py
 ```
 
 ```text frame="terminal" title="Output"
-2
-5
-10
-10
+12
+36
 10
 ```
 
 ```bash title="Compile and run the Rust program"
-rustc predict.rs
-./predict
+rustc rate.rs
+./rate
 ```
 
 ```text frame="terminal" title="Output"
-2
-5
+12
+36
 10
-5
-2
 ```
+
+Both programs print `12`, then `36`, then `10`. The call `total_cost(3)` runs first, and inside the function the name `rate` refers to the function's own variable holding `12`: that is what the first printed line shows and what `hours * rate` uses, so the call returns `3 * 12`, the `36` on the second line. The final print runs back at the top level, where `rate` still holds `10`: the assignment inside the function never touched it.
+
+If you predicted `10` for the first line, you had the function reading the outer `rate` past its own; if you predicted `12` for the last line, you had the function's assignment overwriting the outer variable. Neither happens: the function's `rate` is a separate box in the function's own frame, created when the call starts and discarded when it returns.
 
 <WhatDiffers>
 <Fragment slot="differs">
-Both print five lines, and the first three lines match: `2`, then `5`, then `10`. Python has one variable `n` for the whole function. Each `n = ...` reassigns that same box, so after `n = n * 2` the box holds `10` and stays there; the last two `print(n)` lines both read that same box and print `10`, `10`. Rust's two `let n = ...` lines each sit inside a nested `{ }` block, so each creates a new variable that shadows the one outside it only until its own block's closing brace. The inner `let n = n * 2` uses the middle block's `n` of `5` to make `10`; when its block ends, that box is dropped and the name refers to the middle `n` again, still `5`. When the middle block ends too, that box is dropped and the name refers to the outer `n`, still `2`. So Rust prints `5` then `2` as it unwinds back out through the two blocks. Neither outer `n` was ever changed, because each `let` adds a new box rather than overwriting an existing one.
+The printed lines are identical, but the reason differs. In Python, the module-level `rate` would normally be visible inside the function; it is the assignment `rate = 12` that makes `rate` a local variable of `total_cost` and shadows the outer one for the whole body. Delete that assignment and the function's prints would see `10`. In Rust, `main`'s `rate` is a local variable of `main`, so `total_cost` could never have seen it in the first place: its `let rate = 12;` hides nothing, because it is the only `rate` that function has. Same output, two different scope stories.
 </Fragment>
 </WhatDiffers>
-
-If you predicted `10`, `10` for Rust's last two lines, you read the inner `let`s as reassigning one shared `n` the way Python does, instead of shadowing it inside a block that ends. If you predicted `5` or `2` for Python's last two lines, you treated its blockless reassignments as if they opened scopes that could close: Python cannot, since a name assigned anywhere in a function belongs to that whole function, with nothing to revert to.
 </Reveal>
 
 ---
@@ -351,7 +333,7 @@ python3 debug.py
 70
 ```
 
-Rust compiles and prints the same `70`. In Python, adding `global total` inside the function would also silence the error, but it would reintroduce exactly the shared-global antipattern the lecture warned against; passing the value in as a parameter keeps the function's dependency visible in its own signature instead. In Rust, the fix simply keeps `total` alive past the point it is read, since a variable cannot outlive the block that declares it.
+Rust compiles and prints the same `70`. Notice that the two fixes are not the same shape: Python's function gained a parameter, while Rust's kept its signature and just lifted the `let` out of the bare block. Each is the idiomatic repair for the trap its language sprang, since Python's problem was reaching for a name outside the function, which a parameter brings in honestly, and Rust's problem was a value dying with its block, which moving the declaration up fixes without touching the signature. In Python, adding `global total` inside the function would also silence the error, but it would reintroduce exactly the shared-global antipattern the lecture warned against; passing the value in as a parameter keeps the function's dependency visible in its own signature instead.
 </Reveal>
 
 ---

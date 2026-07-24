@@ -24,7 +24,7 @@ output: a reconciled step-by-step prediction, a named cross-language difference 
 
 <LanguageVersions />
 
-This activity puts into practice the [Expressions and Operators](/lectures/expressions-and-operators/) lecture. You will predict the value of a long mixed-operator expression before running it, compare how Python and Rust handle the negative division case where their rules split, and hunt down a silent precedence bug in a temperature conversion. By the end, you will be able to reduce an expression by hand using precedence, modulo, and each language's division rule, and to catch a wrong answer that never raised an error.
+This activity puts into practice the [Expressions and Operators](/lectures/expressions-and-operators/) lecture. You will predict the value of a long mixed-operator expression before running it, compare how Python and Rust handle a division case where their rules may not agree, and hunt down a silent bug in a temperature conversion. By the end, you will be able to reduce an expression by hand using precedence, modulo, and each language's division rule, and to catch a wrong answer that never raised an error.
 
 ## Warm-up
 
@@ -75,9 +75,9 @@ Rust prints the same values, except the boolean is spelled `true` rather than `T
 
 ## Reduce a Mixed Expression Step by Step
 
-The lecture reduced `10 / 4 + 3 * 2`, an expression with two operators past the addition. This one has four: it combines precedence, the modulo operator `%`, and division all at once, so you cannot eyeball the answer. Precedence decides the order, `%` divides and keeps the remainder, and the same `/` lands on a different value in each language. You commit to an answer first, then run the program to check it.
+The lecture reduced `10 / 4 + 3 * 2`, an expression with two operators past the addition. This one has four, so you cannot eyeball the answer. You commit to an answer first, then run the program to check it.
 
-Read the program below and write down, on paper or in a comment, the exact value you expect it to print in each language. Do not run it yet. Reduce the expression one operator at a time: `%`, `*`, and `/` all outrank `+` and `-`, so they go first, left to right; only then do the addition and subtraction, also left to right. Remember that Python's `/` produces a float while Rust's `/` between two whole numbers truncates. Predict both values before opening the reveal.
+Read the program below and write down, on paper or in a comment, the exact value you expect it to print in each language. Do not run it yet. Reduce the expression one operator at a time, and predict both values before opening the reveal.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
@@ -143,7 +143,7 @@ If you predicted `8` for Python, you almost certainly truncated `6 / 4` to a who
 
 ## The Negative Case Where the Languages Split
 
-For a positive numerator, Python's `//` and Rust's `/` agree: both make `7 / 2` into `3`, so the two rules look interchangeable. They are not. They split the moment the numerator goes negative, and the modulo remainder splits with them. Studying the negative case side by side is how you keep the two rules straight instead of blurring them into one. You read both tabs and name what genuinely changes and what stays fixed.
+For a positive numerator, Python's `//` and Rust's `/` agree: both make `7 / 2` into `3`, so the two rules look interchangeable. Whether they really are is what this section tests. You read both tabs and name what genuinely changes and what stays fixed.
 
 Study the two programs below. Each divides `-7` by `2` as a whole-number division and then takes the modulo remainder. Before opening the reveal, write down the four values you expect, then name one thing that is truly different between the languages and one thing that is the same.
 
@@ -195,9 +195,9 @@ Had the numerator been positive, all of this would have stayed hidden: `7 // 2` 
 
 ---
 
-## Find the Silent Precedence Bug
+## Find the Silent Bug
 
-A precedence bug does not crash. The program runs, prints a number, and lies: the number is simply wrong. The program below is meant to convert `212` degrees Fahrenheit to Celsius using the formula that subtracts `32`, then scales by `5/9`. Boiling water is `212` Fahrenheit, which is `100` Celsius, so the correct answer is `100.0`. It prints something else. You find the bug with the systematic method: read the symptom, form a hypothesis, test it.
+Not every bug crashes. The program below runs, prints a number, and lies: the number is simply wrong. It is meant to convert `212` degrees Fahrenheit to Celsius using the formula that subtracts `32`, then scales by `5/9`. Boiling water is `212` Fahrenheit, which is `100` Celsius, so the correct answer is `100.0`. It prints something else. You find the bug with the systematic method: read the symptom, form a hypothesis, test it.
 
 Run the program, see what it actually prints, then work out why the value is wrong and how one change fixes it.
 

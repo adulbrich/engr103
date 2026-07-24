@@ -16,7 +16,7 @@ type: activity
 slug: the-memory-model
 order: 15
 paired_lecture: the-memory-model
-practices: predicts that two appends through different names of one shared list are visible through all of its names while separately assigned scalar names stay independent; names what one program does when it mixes a scalar copy the Rust compiler accepts with a b = a on a vector the Rust compiler rejects as a move with E0382, against Python aliasing the list and copying the number; traces a names-and-object memory diagram by hand across a sequence where a reassignment splits three names across two objects
+practices: predicts that two appends through different names of one shared list are visible through all of its names while separately assigned scalar names stay independent, sketching the names-and-objects picture before checking; names what one program does when it mixes a scalar copy the Rust compiler accepts with a b = a on a vector the Rust compiler rejects as a move with E0382, against Python aliasing the list and copying the number; traces a names-and-object memory diagram by hand across a sequence where a reassignment splits three names across two objects
 prereq_activities:
 block_types: predict-then-run, same-program-two-languages, paper-tracing
 output: a reconciled prediction, a named cross-language difference, and a completed two-object memory diagram for each of the three sections
@@ -24,7 +24,7 @@ output: a reconciled prediction, a named cross-language difference, and a comple
 
 <LanguageVersions />
 
-This activity puts into practice the [The Memory Model: Aliasing and Ownership](/lectures/the-memory-model/) lecture. You will predict what several names see when they share one list, compare how Python and Rust each read a program that mixes a scalar copy with a `b = a` on a list, and hand-draw the names-and-object picture for a sequence that splits three names across two objects. By the end, you will be able to tell aliasing from copying by tracing what each name points at, and to explain why the same line runs in one language and refuses to compile in the other.
+This activity puts into practice the [The Memory Model: Aliasing and Ownership](/lectures/the-memory-model/) lecture. You will predict what several names see when they share one list, compare how Python and Rust each read a program that mixes a scalar copy with a `b = a` on a list, and hand-draw the names-and-object picture for a sequence that splits three names across two objects. By the end, you will be able to tell aliasing from copying by tracing what each name points at, and to explain why the two languages read the same line so differently.
 
 ## Warm-up
 
@@ -66,9 +66,9 @@ Rust prints the same two lines. With one name on each value, nothing surprising 
 
 ## Predict What Every Name Sees
 
-A second name for a value is where aliasing hides, and a third name deepens it. When three names refer to one list, a change through any one of them is a change to the one shared object, no matter which name did the changing; three separately assigned numbers stay independent instead. The trap here is to imagine each name carries its own append: it does not. You commit to an answer first, then run the program to check it.
+A second name for a value is where aliasing hides, and a third name deepens it. You commit to an answer first, then run the program to check it.
 
-Read the program below and write down, on paper or in a comment, the exact value you expect each of the six `print` lines to produce. Do not run it yet. For the list, watch that the two appends come through different names, `c` and then `b`, and ask which names see each one. For the numbers, ask whether `z = z + 10` and `y = y + 100` reach back to `x` or build fresh values.
+Read the program below and write down, on paper or in a comment, the exact value you expect each of the six `print` lines to produce. Do not run it yet. For the list, watch that the two appends come through different names, `c` and then `b`, and ask which names see each one. For the numbers, ask whether `z = z + 10` and `y = y + 100` reach back to `x` or build fresh values. Before opening the reveal, also sketch the names-and-objects picture as it stands just before the prints: each name in a column on the left, each value or object on the right, and an arrow from every name to the thing it refers to.
 
 ```python title="predict.py"
 a = [1, 2, 3]
@@ -107,13 +107,25 @@ python3 predict.py
 All three list prints are the same fully grown `[1, 2, 3, 4, 5]`. Neither `b = a` nor `c = b` copies anything: each just makes another name for the one list object `a` already refers to, so after the first three lines there are three names and exactly one object. `c.append(4)` reaches that shared object and adds `4` in place, and `b.append(5)` reaches the very same object and adds `5`. Because all three names point at that one object, every name sees both appends, including `a`, which never appears in an `append` line at all. If you wrote `[1, 2, 3, 4]` for `c` and `[1, 2, 3, 5]` for `b`, you gave each name its own private list; the surprise this section exists to catch is that there is only ever one list here.
 
 The three numbers behave oppositely. `y = x` and `z = y` copy the value `1` into two independent names, so `z = z + 10` builds a new `11` and points `z` at it, and `y = y + 100` builds a new `101` and points `y` at it, both leaving `x` untouched at `1`. A whole number is small and sits where its name is, so you can never change one in place and a later name can never reach back to an earlier one. The list is shared because it can be changed in place; the numbers are not, because they cannot.
+
+Check your sketch against the whole picture as it stands just before the prints: one shared object on the list side, three private values on the number side.
+
+```text title="The picture just before the prints"
+a -> obj1 [1, 2, 3, 4, 5]
+b -> obj1
+c -> obj1
+
+x -> 1
+y -> 101
+z -> 11
+```
 </Reveal>
 
 ---
 
 ## The Same b = a, Two Languages
 
-Python and Rust are handed one program that does two things: it copies a small number with `m = n`, then assigns a list to a second name with `b = a`. The two languages agree completely on the number and disagree flatly on the list, and the only way to keep that straight is to read them side by side. You predict what Python prints, then decide what Rust does with each half.
+Python and Rust are handed one program that does two things: it copies a small number with `m = n`, then assigns a list to a second name with `b = a`. You predict what Python prints, then decide what Rust does with each half.
 
 Study the two programs below. They are the same six steps: copy a number and read the original, then build a list, alias it, append through the alias, and read both names. Before opening the reveal, predict what Python prints. Then, for Rust, decide the copy and the list assignment separately: is `n` still usable after `let m = n`, and is `a` still usable after `let b = a`?
 
@@ -133,7 +145,7 @@ print(b)
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="combined.rs (will not compile)"
+```rust title="combined.rs"
 fn main() {
     let n = 5;
     let m = n;
@@ -190,9 +202,9 @@ The Python program runs start to finish with no warning; it copies the number an
 
 ## Draw the Memory Picture
 
-The one habit that makes all of this readable is to draw it: names in a column on the left, objects on the right, and an arrow from each name to the object it refers to. This sequence has a twist the earlier ones did not: one line reassigns a name to a brand new list, so by the end three names are split across two objects. Drawing it is the only reliable way to keep track of which name landed where. You trace it by hand and build the completed picture line by line.
+The one habit that makes all of this readable is to draw it: names in a column on the left, objects on the right, and an arrow from each name to the object it refers to. You trace the sequence below by hand and build the completed picture line by line.
 
-Trace the program below on paper. For each line in order, write which names exist and which object each one points at, and update an object's contents when a line changes it. Remember that `r = q` adds an arrow to the existing object, that `r = [0]` builds a new object and redirects `r` to it, and that an `append` reaches whichever single object the arrow lands on. Then predict the three printed lines.
+Trace the program below on paper. For each line in order, write which names exist and which object each one points at, and update an object's contents when a line changes it. Then predict the three printed lines.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">

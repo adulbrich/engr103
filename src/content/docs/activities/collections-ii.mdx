@@ -16,7 +16,7 @@ type: activity
 slug: collections-ii
 order: 17
 paired_lecture: collections-ii
-practices: predicts the values a dictionary returns after a run of operations that overwrite a key, copy one key's value into another, ask for a missing key with a default, and test membership, where the final values depend on the order of the stores; diagnoses a missing-key crash in a tally loop that reads a first-seen key before it has been inserted, and fixes it with a default lookup or an entry; traces a letter-frequency count over an eleven-letter word, building the count for each letter one pass at a time
+practices: predicts the values a dictionary returns after a run of operations that overwrite a key, copy one key's value into another, and ask for a missing key with a default, where the final values depend on the order of the stores; diagnoses a missing-key crash in a tally loop that reads a first-seen key before it has been inserted, and fixes it with a default lookup or an entry; traces a letter-frequency count over an eleven-letter word, building the count for each letter one pass at a time
 prereq_activities:
 block_types: predict-then-run, live-debugging, paper-tracing
 output: a reconciled set of key lookups, a corrected tally loop, and a completed letter-frequency trace
@@ -24,7 +24,7 @@ output: a reconciled set of key lookups, a corrected tally loop, and a completed
 
 <LanguageVersions />
 
-This activity puts into practice the [Collections II: Dictionaries and Maps](/lectures/collections-ii/) lecture. You will predict what a dictionary returns after a run of stores where the order changes the answer, fix a counting loop that stops the first time it meets a new key, and trace a letter-frequency count by hand over a longer word. By the end, you will be able to read a value back by its key, handle a key that might be missing without crashing, and count how many times each item appears in some data.
+This activity puts into practice the [Collections II: Dictionaries and Maps](/lectures/collections-ii/) lecture. You will predict what a dictionary returns after a run of stores, fix a counting loop that crashes before it prints a single count, and trace a letter-frequency count by hand over a longer word. By the end, you will be able to read a value back by its key, handle a key that might be missing without crashing, and count how many times each item appears in some data.
 
 ## Warm-up
 
@@ -66,9 +66,9 @@ Both programs store the same two pairs and read each value back by its key, so b
 
 ## Predict the Final Scores
 
-Storing a value under a key that already holds one does not add a second pair; it overwrites the old value. But the value you store can itself be read out of the dictionary, so a later line can copy one key's current value into another key, and the answer then depends on which stores have already happened. This program does exactly that, then asks for a missing key with a default and tests two keys for membership. Every one of those ideas appeared separately in the lecture; here they run back to back and the final numbers are not obvious.
+This program stores values under keys that are sometimes new and sometimes already taken, and two of its stores read their value out of the dictionary itself. The final numbers are not obvious. You commit to an answer first, then run the program to check it.
 
-Read the program and write down, on paper or in a comment, the exact value you expect each of the six lines to print. Do not run it yet. Track the dictionary line by line: overwrite `ann`, then copy `ben` into a new key `cara`, then copy `ann` into `ben`, and only then read anything back. Watch the order carefully, because `cara` copies `ben` before `ben` changes, and `ben` copies `ann` after `ann` changes.
+Read the program and write down, on paper or in a comment, the exact value you expect each of the four lines to print. Do not run it yet. Track the dictionary line by line from the first store to the last.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
@@ -81,8 +81,6 @@ print(scores["ann"])
 print(scores["ben"])
 print(scores["cara"])
 print(scores.get("zoe", -1))
-print("cara" in scores)
-print("zoe" in scores)
 ```
 </TabItem>
 <TabItem label="Rust">
@@ -94,10 +92,8 @@ fn main() {
     scores.insert("ann", 10);
     scores.insert("ben", 20);
     scores.insert("ann", 15);
-    let ben_value = scores["ben"];
-    scores.insert("cara", ben_value);
-    let ann_value = scores["ann"];
-    scores.insert("ben", ann_value);
+    scores.insert("cara", scores["ben"]);
+    scores.insert("ben", scores["ann"]);
     println!("{}", scores["ann"]);
     println!("{}", scores["ben"]);
     println!("{}", scores["cara"]);
@@ -105,8 +101,6 @@ fn main() {
         Some(points) => println!("{}", points),
         None => println!("-1"),
     }
-    println!("{}", scores.contains_key("cara"));
-    println!("{}", scores.contains_key("zoe"));
 }
 ```
 </TabItem>
@@ -122,8 +116,6 @@ python3 scores.py
 15
 20
 -1
-True
-False
 ```
 
 ```bash title="Compile and run the Rust program"
@@ -136,22 +128,20 @@ rustc scores.rs
 15
 20
 -1
-true
-false
 ```
 
 Walk the stores in order. `ann` starts at `10`, and `scores["ann"] = 15` overwrites that value rather than adding a second `ann`, so `ann` now holds `15`. The next line copies `ben`'s *current* value, `20`, into `cara`, because `ben` has not changed yet, so `cara` holds `20`. Only then does `scores["ben"] = scores["ann"]` run, and by now `ann` holds `15`, so `ben` becomes `15`. That is the trap: `cara` and `ben` are copies made at different moments, so `cara` keeps the old `20` while `ben` takes the new `15`. If you predicted `cara` at `15` you copied `ben` too late, and if you predicted `ben` at `20` you copied `ann` too early.
 
-The last three lines read the results. `scores.get("zoe", -1)` asks for a key that was never stored and gets the fallback `-1` instead of stopping the program. Then `cara` is a key, so its membership test is true, and `zoe` was never stored, so its test is false. Rust spells the booleans `true` and `false` where Python spells them `True` and `False`, and Rust names the missing-key default in a `match` where Python folds it into `.get`; every other value matches.
+The last line asks for a key that was never stored: `scores.get("zoe", -1)` gets the fallback `-1` instead of stopping the program. Rust names that missing-key default in a `match` where Python folds it into `.get`; every value matches across the two languages.
 </Reveal>
 
 ---
 
-## Fix the Tally That Crashes on the First Vote
+## Fix the Crashing Tally
 
-Counting how often each item appears is the frequency-count pattern from the lecture: walk the data, and for each item add one to its running count. The program below tries to tally a list of votes that way, but it skips the step that starts a brand-new key at zero. The very first vote is a key the dictionary has never seen, and the program reaches for its count before that count exists. You find the bug with the systematic method: read the error, form a hypothesis, then fix it so a first-seen key counts as zero instead of stopping the program.
+Counting how often each item appears is the frequency-count pattern from the lecture: walk the data, and for each item add one to its running count. The program below tries to tally a list of votes that way, but it stops before printing a single count. You find the bug with the systematic method: read the error, form a hypothesis, test it.
 
-The program should report how many `"yes"` and `"no"` votes are in the list. Run it, read what it reports, then work out why it stops on the first item and how to make the tally complete.
+The program should report how many `"yes"` and `"no"` votes are in the list. Run it, read the error, then work out which pass goes wrong and how to make the tally complete.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
@@ -269,7 +259,7 @@ Python's square-bracket read raises a `KeyError` on a first-seen key, and `.get(
 
 ## Trace a Longer Letter Count
 
-Frequency counting keeps a running count for every distinct item at once: the keys are the items, and each value is that item's count so far. The lecture traced the six letters of `banana`; this program counts the eleven letters of `mississippi`, where two different letters both end at four and their counts climb in an interleaved order you cannot eyeball. You trace the count dictionary by hand before running anything.
+Frequency counting keeps a running count for every distinct item at once: the keys are the items, and each value is that item's count so far. The lecture traced the six letters of `banana`; this program counts the eleven letters of `mississippi`, whose counts climb in an interleaved order you cannot eyeball. You trace the count dictionary by hand before running anything.
 
 Work through the letters of `mississippi` in order, `m`, `i`, `s`, `s`, `i`, `s`, `s`, `i`, `p`, `p`, `i`. Start with an empty dictionary and, for each letter, apply the rule the program uses.
 

@@ -1,6 +1,6 @@
 ---
 title: "Loop Patterns"
-description: "Predict two loop patterns running in a single pass, trace a triangular nested loop by hand, and fix a sentinel loop whose accumulator overwrites instead of adds."
+description: "Predict two loop patterns running in a single pass, trace a triangular nested loop by hand, and fix a sentinel loop that reports the wrong total."
 sidebar:
   order: 12
 draft: true
@@ -16,7 +16,7 @@ type: activity
 slug: loop-patterns
 order: 12
 paired_lecture: loop-patterns
-practices: predicts the final values of a loop that accumulates a running total and counts the passes on which that total clears a threshold, both in one pass; traces a triangular nested loop by hand to count how many times the inner body runs when the inner range depends on the outer variable; diagnoses a sentinel loop that overwrites its total each pass instead of accumulating it
+practices: predicts the final values of a loop that accumulates a running total and counts the passes on which that total clears a threshold, both in one pass; traces a triangular nested loop by hand to count how many times the inner body runs when the inner range depends on the outer variable; diagnoses a sentinel loop that overwrites its total each pass instead of accumulating it; states the purpose of a small loop function in one sentence before writing one of their own
 prereq_activities:
 block_types: predict-then-run, paper-tracing, live-debugging
 output: a reconciled two-value prediction, a completed triangular trace with its pass count, and a corrected accumulator for each of the three sections
@@ -24,7 +24,7 @@ output: a reconciled two-value prediction, a completed triangular trace with its
 
 <LanguageVersions />
 
-This activity puts into practice the [Loop Patterns](/lectures/loop-patterns/) lecture. You will predict the final values of a loop that runs two patterns at once, trace a triangular nested loop by hand to count how many times its inner body runs, and fix a sentinel loop whose total comes out wrong because it overwrites instead of accumulates. By the end, you will be able to read a loop, name which patterns it is running, and say what each one keeps across passes and what makes it stop.
+This activity puts into practice the [Loop Patterns](/lectures/loop-patterns/) lecture. You will predict the final values of a loop that runs two patterns at once, trace a triangular nested loop by hand to count how many times its inner body runs, and fix a sentinel loop whose total comes out wrong. By the end, you will be able to read a loop, name which patterns it is running, and say what each one keeps across passes and what makes it stop.
 
 ## Warm-up
 
@@ -64,9 +64,9 @@ The range `range(1, 4)` and `1..4` are half-open: they walk `1, 2, 3` and stop b
 
 ## Predict Two Patterns in One Pass
 
-A single loop can run two patterns at once, and when it does, the second pattern can depend on the first. The loop below keeps a running total, the accumulator from the warm-up, and at the same time counts the passes, but the count's `if` does not test `n`: it tests the running total itself. That coupling is what makes the final values hard to guess without tracing. You commit to both values first, then run the program to check them.
+A single loop can run two patterns at once, and when it does, the second pattern can depend on the first. The loop below keeps a running total, the accumulator from the warm-up, and at the same time counts passes with an `if`. You commit to both final values first, then run the program to check them.
 
-Read the program below and write down, on paper or in a comment, the two exact numbers you expect it to print, `total` first and `count` second. Do not run it yet. Trace both variables pass by pass: add `n` into `total`, then ask whether `total` is now greater than `10` and, if so, bump `count`.
+Read the program below and write down, on paper or in a comment, the two exact numbers you expect it to print, `total` first and `count` second. Do not run it yet. Trace both variables pass by pass.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
@@ -128,7 +128,7 @@ The count is where the two common misses live. The pass at `n` of `4` is the tra
 
 ## Trace the Triangle and Count the Passes
 
-In the lecture's grid the inner loop walked the same range on every row, so the inner body ran a flat rows-times-columns number of times. Here the inner range depends on the outer variable, `range(1, row + 1)`, so each row is a different length and the pass count is no longer a single product. You predict that count by hand before running.
+In the lecture's grid the inner loop walked the same range on every row. Here the inner range is `range(1, row + 1)`. You trace the grid this prints and predict, by hand, how many times the inner body runs.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
@@ -159,15 +159,15 @@ fn main() {
 </TabItem>
 </Tabs>
 
-Trace the program above on paper. The outer loop walks `row` over `1, 2, 3, 4, 5`. For each row, the inner range `range(1, row + 1)` walks `col` from `1` up to `row`, so the row's length equals the row number. Follow these steps.
+Trace the program above on paper, working out each row's inner range fresh before you write its cells. Follow these steps.
 
 <Steps>
 
-1. Set `count` to `0` and `row` to `1`. The inner range is `range(1, 2)`, so `col` takes only `1`: add `1` to `count` and write the single product `row * col`.
+1. Set `count` to `0` and `row` to `1`. Work out which values the inner range `range(1, 2)` gives `col`, write the product `row * col` for each, and add `1` to `count` per cell.
 
-2. Move to `row` of `2` (inner range `range(1, 3)`, so `col` walks `1, 2`), then `row` of `3`, `4`, and `5`, each row one cell longer than the last. Write the products for each row and keep adding `1` to `count` per cell.
+2. Repeat for `row` of `2`, `3`, `4`, and `5`, working out each row's inner range before writing its products.
 
-3. Write down the value of `count` after the last pass, and the triangular grid of products you produced.
+3. Write down the value of `count` after the last pass, and the grid of products you produced.
 
 </Steps>
 
@@ -187,14 +187,14 @@ python3 triangle.py
 Cells: 15
 ```
 
-The Rust version nests the same ranges and prints the same triangle and `Cells: 15`. This is the point of the exercise: because the inner range grows with the outer variable, you cannot reach for the rectangle's rows-times-columns shortcut. A square `5` by `5` grid would run the inner body `25` times; this triangle runs it `15`, the sum of the row lengths, once for every cell that is actually printed.
+The Rust version nests the same ranges and prints the same triangle and `Cells: 15`. Because the inner range grows with the outer variable, the pass count is the sum of the row lengths, `15`, not the rectangle's rows-times-columns `25`.
 </Reveal>
 
 ---
 
-## Fix the Total That Overwrites Itself
+## Fix the Sentinel Loop's Wrong Total
 
-A sentinel loop reads values until a designated stop value appears, and it must check for the sentinel before treating the value as data. The program below gets that order right, and it does not crash, but it prints the wrong total. You find the bug with the systematic method: read the symptom, form a hypothesis, test it.
+A sentinel loop reads values until a designated stop value appears. The program below does not crash, but it prints the wrong total. You find the bug with the systematic method: read the symptom, form a hypothesis, test it.
 
 The program is meant to sum the numbers before the sentinel. For the input `3`, `5`, `2`, `-1`, the correct total is `10`. Run it with that input, see what it actually prints, then work out why the value is wrong and how one change fixes it.
 
@@ -301,9 +301,43 @@ The fix is a single line: `total = number` becomes `total = total + number`, so 
 
 ---
 
-## Write a Function That Counts Evens
+## Name the Purpose, Then Count the Evens
 
-Define a function `count_even(n)` that returns how many whole numbers from `1` up to and including `n` are even, using the count pattern: a counter that starts at `0` and increments only on the passes where the number is even. Then call it with `count_even(10)` and print the result.
+Two reps close the session: first you say what a finished function does, then you write one of your own.
+
+Read the function below and write one sentence saying what it does. State its purpose, the way a comment above it would, not what each line does.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="mystery.py"
+def mystery(n):
+    result = 0
+    for i in range(1, n + 1):
+        if i % 3 == 0:
+            result = result + i
+    return result
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="mystery.rs"
+fn mystery(n: i32) -> i32 {
+    let mut result = 0;
+    for i in 1..(n + 1) {
+        if i % 3 == 0 {
+            result = result + i;
+        }
+    }
+    return result;
+}
+```
+</TabItem>
+</Tabs>
+
+<Reveal label="Reveal a model purpose sentence">
+A model sentence: `mystery(n)` returns the sum of the multiples of `3` from `1` up to and including `n`. That is the whole function at the level of purpose. A line-by-line paraphrase, "it sets `result` to zero, loops `i` from `1` to `n`, and adds `i` when `i % 3` is zero," restates the code without saying what it is for. The pattern is an accumulator guarded by a condition, and naming what it accumulates, and over which numbers, is what makes the sentence worth writing.
+</Reveal>
+
+Now write your own. Define a function `count_even(n)` that returns how many whole numbers from `1` up to and including `n` are even, using the count pattern: a counter that starts at `0` and increments only on the passes where the number is even. Then call it with `count_even(10)` and print the result.
 
 <Reveal label="Reveal a sample solution">
 This is a sample solution; another correct program can shape the loop or the condition differently and still be right.

@@ -16,15 +16,15 @@ type: activity
 slug: strings
 order: 13
 paired_lecture: strings
-practices: predicts a half-open slice, a slice-versus-distractor comparison, the difference of two characters' ASCII numbers, and a character built by adding to a code, all in one program before running it; names why Python reaches a character with s[0] and measures with len while Rust rejects the integer index with E0277 and splits length into bytes and characters; diagnoses a function whose length-relative slice ends one character too early and returns a plausible wrong substring with no error
+practices: predicts a half-open slice, a slice-versus-distractor comparison, the difference of two characters' ASCII numbers, and a character built by adding to a code, all in one program before running it; predicts what Python and Rust each do when asked for position 0 and the length of café, meeting Rust's E0277 refusal of integer indexing and its split of length into 5 bytes and 4 characters; diagnoses a function whose length-relative slice ends one character too early and returns a plausible wrong substring with no error
 prereq_activities:
 block_types: predict-then-run, same-program-two-languages, live-debugging
-output: a reconciled prediction that mixes slicing with character-code arithmetic, a named cross-language indexing and length difference, and a corrected slice boundary inside a function
+output: a reconciled prediction that mixes slicing with character-code arithmetic, a reconciled cross-language prediction of indexing and the two lengths of café, and a corrected slice boundary inside a function
 */}
 
 <LanguageVersions />
 
-This activity puts into practice the [Strings and Characters](/lectures/strings/) lecture. You will predict a short program that folds slicing, comparison, and character-code arithmetic together, compare how Python and Rust reach a single character and measure a string's length, and hunt down an off-by-one slice buried in a function that returns the wrong substring without ever raising an error. By the end, you will be able to read a slice by its half-open range, do arithmetic on a character's ASCII number in both directions, and catch a boundary mistake that a program never complains about.
+This activity puts into practice the [Strings and Characters](/lectures/strings/) lecture. You will predict a short program that folds slicing, comparison, and character-code arithmetic together, predict how Python and Rust each reach a single character and measure a string's length, and hunt down a bug in a function that returns the wrong substring without ever raising an error. By the end, you will be able to read a slice by its half-open range, do arithmetic on a character's ASCII number in both directions, and catch a boundary mistake that a program never complains about.
 
 ## Warm-up
 
@@ -67,9 +67,9 @@ Rust prints the same three lines: it turns a character into its number with the 
 
 ## Predict the Slice and the Code
 
-Positions in a string count from zero, a slice stops just before its end index, and a character is a number you can do arithmetic on. Each rule is easy alone; the program below uses all three at once, and the printed lines are not the values a quick glance suggests. You commit to an answer first, then run the program to check it.
+The program below folds indexing, slicing, comparison, and character arithmetic into four print lines, and the printed values are not what a quick glance suggests. You commit to an answer first, then run the program to check it.
 
-Read the program and write down, on paper or in a comment, the exact value each line prints. Do not run it yet. Number the characters of `compute` from zero, remember that a slice `word[1:5]` includes its start but excludes its end, and recall that `ord` gives a character's ASCII number and `chr` turns a number back into a character.
+Read the program and write down, on paper or in a comment, the exact value each line prints. Do not run it yet. Work with the word written out in front of you, character by character.
 
 ```python title="predict.py"
 word = "compute"
@@ -107,22 +107,22 @@ Line 4: `word[2]` is `m`, whose ASCII number is `ord('m')` is 109. Adding 12 giv
 
 ## Reaching a Character and Measuring Length, Two Languages
 
-Python and Rust agree on almost everything about strings, then disagree sharply on two joined things: reaching a single character by an integer position, and what "length" counts. Seeing the identical indexing line accepted by one language and rejected by the other, and seeing Rust split length into two numbers, is how you remember which is which. You read both tabs and name what genuinely differs.
+Python and Rust are handed the same word, `café`, and asked for the same two things: the character at position 0 and the length. You predict what each language does with each request before the interpreter or the compiler gets a vote.
 
-The two programs below try the same pair of moves on the all-ASCII word `network`: reach the character at position 0, and report the length. Before opening the reveal, predict what Python prints, and whether Rust compiles at all.
+The two programs below make the same pair of moves. Before opening the reveal, write down what Python prints, and decide, line by line, what Rust does with each of its two moves.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
 ```python title="measure.py"
-s = "network"
+s = "café"
 print(s[0])
 print(len(s))
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="measure.rs (will not compile)"
+```rust title="measure.rs"
 fn main() {
-    let s = "network";
+    let s = "café";
     println!("{}", s[0]);
     println!("{}", s.len());
 }
@@ -130,17 +130,28 @@ fn main() {
 </TabItem>
 </Tabs>
 
+Rust can also walk a string with `.chars()`. Predict the exact three lines this second rendering prints, too:
+
+```rust title="measure2.rs"
+fn main() {
+    let s = "café";
+    println!("{:?}", s.chars().nth(0));
+    println!("{}", s.len());
+    println!("{}", s.chars().count());
+}
+```
+
 <Reveal label="Reveal the outputs and what differs">
 ```bash title="Run the Python program"
 python3 measure.py
 ```
 
 ```text frame="terminal" title="Output"
-n
-7
+c
+4
 ```
 
-Python indexes the string directly and hands back the character `n`, then `len(s)` reports 7, the count of characters. The Rust version never produces a program at all, because of the very first indexing line:
+Python indexes the string directly and hands back the character `c`, then `len(s)` reports 4, the count of characters, treating the `é` as one character like any other. The Rust program in the second tab never produces a program at all, because of the very first indexing line:
 
 ```bash title="Compile the Rust program"
 rustc measure.rs
@@ -168,42 +179,33 @@ For more information about this error, try `rustc --explain E0277`.
 
 The two load-bearing lines are the first, `error[E0277]: the type str cannot be indexed by {integer}`, and the note that tells you what to use instead, `you can use .chars().nth() or .bytes().nth()`. Rust stores a string as UTF-8 bytes, so position 0 is ambiguous between the first byte and the first character; rather than guess, Rust refuses the integer index. Notice that the `s.len()` line never even gets a chance to run: a single compile error means no program at all.
 
-The Rust version that works reaches the character with `.chars().nth(0)`, which walks the string as characters and hands back an `Option`, and reports length two ways:
+The second rendering compiles, and its three lines are where the byte story surfaces:
 
-```rust title="measure.rs (corrected)"
-fn main() {
-    let s = "network";
-    println!("{:?}", s.chars().nth(0));
-    println!("{}", s.len());
-    println!("{}", s.chars().count());
-}
-```
-
-```bash title="Compile and run the corrected Rust program"
-rustc measure.rs
-./measure
+```bash title="Compile and run the second Rust program"
+rustc measure2.rs
+./measure2
 ```
 
 ```text frame="terminal" title="Output"
-Some('n')
-7
-7
+Some('c')
+5
+4
 ```
 
-Rust's `.len()` counts bytes and `.chars().count()` counts characters. Here they both report 7, and that agreement is not luck: `network` is all ASCII, and every ASCII character is exactly one byte. The two numbers would part only if a character took more than one byte.
+`.chars().nth(0)` walks the string as characters and hands back an `Option`, printed with `{:?}` as `Some('c')`. Then the two lengths part ways: `.len()` counts bytes, and the `é` takes two bytes under UTF-8, so the four-character word occupies 5 bytes; `.chars().count()` counts characters and agrees with Python's 4. If you predicted 4 and 4, you counted characters twice; the whole reason Rust makes you name a method is that the two counts stop agreeing the moment a character outgrows one byte.
 
 <WhatDiffers>
 <Fragment slot="differs">
-Python indexes a string directly with `s[0]` and returns the character, and `len(s)` counts characters. Rust rejects integer indexing on a string entirely with error E0277, because its UTF-8 storage makes "position 0" ambiguous between a byte and a character; you reach a character with `s.chars().nth(0)` instead, which returns an `Option` (`Some('n')`) printed with `{:?}`. Length splits too: Rust's `.len()` counts bytes and `.chars().count()` counts characters, numbers that agree only while the text is plain ASCII, as `network` is, so both give 7.
+Python indexes a string directly with `s[0]` and returns the character, and `len(s)` counts characters, so `café` measures 4. Rust rejects integer indexing on a string entirely with error E0277, because its UTF-8 storage makes "position 0" ambiguous between a byte and a character; you reach a character with `s.chars().nth(0)` instead, which returns an `Option` (`Some('c')`) printed with `{:?}`. Length splits too: Rust's `.len()` counts bytes, 5 here because the `é` takes two, while `.chars().count()` counts characters and gives Python's 4.
 </Fragment>
 </WhatDiffers>
 </Reveal>
 
 ---
 
-## Find the Silent Off-by-One
+## Find the Silent Bug
 
-A wrong slice boundary does not crash. The program runs, prints a string, and lies: the substring is short or long by a character. This time the slice is inside a function and its boundaries are written in terms of the string's length, which is exactly where a half-open slip hides best. You find the bug with the systematic method: read the symptom, form a hypothesis, test it.
+The program below never raises an error. It runs, prints a string, and the printed string itself is the only clue that something is wrong. You find the bug with the systematic method: read the symptom, form a hypothesis, test it.
 
 The function `last_three` is meant to return the last three characters of any word, so `last_three("planning")` should give `ing`. Run it, see what it actually prints, then work out why the result is wrong and how one change fixes it.
 

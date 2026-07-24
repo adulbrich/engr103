@@ -16,7 +16,7 @@ type: activity
 slug: errors-input-and-validation
 order: 9
 paired_lecture: errors-input-and-validation
-practices: predicts the exact printed line of a Python and a Rust program that read, parse to a decimal, and validate a value against a strict threshold, across several piped inputs including one on the boundary, and names why a whole-valued decimal prints as 100.0 in Python but 100 in Rust while the boundary verdict is identical; names what a Python try/except and a Rust match on Result each do and do not protect when a parse succeeds but a following division fails; diagnoses an off-by-one in an inclusive range check that silently accepts the edge value, using the systematic method
+practices: predicts the exact printed line of a program that reads, parses to a decimal, and validates a value against a strict threshold, across three piped inputs including one sitting exactly on the boundary; names what a Python try/except and a Rust match on Result each do and do not protect when a parse succeeds but a following division fails; diagnoses an off-by-one in an inclusive range check that silently accepts the edge value, using the systematic method
 prereq_activities:
 block_types: predict-then-run, same-program-two-languages, live-debugging
 output: a reconciled multi-input prediction, a named cross-language difference in what each error mechanism protects, and a corrected inclusive-range check that now rejects its boundary
@@ -24,7 +24,7 @@ output: a reconciled multi-input prediction, a named cross-language difference i
 
 <LanguageVersions />
 
-This activity puts into practice the [Errors, Input, and Validation](/lectures/errors-input-and-validation/) lecture. You will predict the exact output of a program that reads, parses, and validates a typed value across several inputs, compare what a Python `try`/`except` and a Rust `match` each actually protect when a second operation can fail, and hunt down a range check that quietly accepts the one value it was meant to reject. By the end, you will be able to trace a read-parse-validate program by hand and catch a validation bug that never raised an error.
+This activity puts into practice the [Errors, Input, and Validation](/lectures/errors-input-and-validation/) lecture. You will predict the exact output of a program that reads, parses, and validates a typed value across several inputs, compare what a Python `try`/`except` and a Rust `match` each actually protect when a second operation can fail, and hunt down a bug that never raises an error. By the end, you will be able to trace a read-parse-validate program by hand and catch a validation bug that no error message announces.
 
 ## Warm-up
 
@@ -75,9 +75,9 @@ Piped input is not echoed to the screen, so the typed `duck` shows up only where
 
 ## Predict the Printed Line
 
-Reading a value is only step one. The moment you parse it, the printed form can differ from the characters that were typed, and the moment you validate it, the exact value of a boundary decides the verdict. Here you commit to the output first, for three different inputs, in both languages, then run the programs to check all three.
+Reading a value is only step one: a real program parses it and checks it before trusting it. Here you commit to the output first, for three different inputs, then run the programs to check all three.
 
-Read the two programs below. Each reads a temperature, parses it to a decimal number, and reports whether it is normal, where "normal" means strictly below `99.5`. The run pipes in three values in turn: `98.60`, `99.50`, and `100`. On paper or in a comment, write the exact line each terminal shows for each input, in Python and in Rust. Predict two things per input: the exact digits of the number that prints, and which of the two messages it gets. Do not run them yet.
+Read the two programs below. Each reads a temperature, parses it to a decimal number, and reports whether it is normal, where "normal" means strictly below `99.5`. The run pipes in three values in turn: `98.60`, `99.50`, and `100`. On paper or in a comment, write the exact message line the Python program prints for each input. Predict two things per input: the exact digits of the number that appears, and which of the two messages it gets. That is six commitments in all. Do not run anything yet.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
@@ -143,15 +143,9 @@ Temperature 100 needs a check.
 
 The printed digits are the number's own, not the ones you typed. `98.60` parses to the value `98.6` in both languages: the trailing zero was never part of the number, only a character you wrote, so it is gone the moment the text became a decimal number. That much is identical across Python and Rust, because it is a fact about parsing, not about display.
 
-The boundary is the surprise that lands the same way in both. `99.50` parses to exactly `99.5`, and the check is `temp < 99.5`, a strict less-than. `99.5 < 99.5` is `False` in Python and in Rust alike, so the value sitting right on the threshold is reported as needing a check, not as normal. A reading typed to land exactly on the limit falls on the reject side, because `<` excludes the limit itself. That single character, `<` versus `<=`, is the whole difference between accepting and rejecting the boundary, and it is exactly the kind of detail the next debugging section turns on.
+The boundary is the surprise that lands the same way in both. `99.50` parses to exactly `99.5`, and the check is `temp < 99.5`, a strict less-than. `99.5 < 99.5` is `False` in Python and in Rust alike, so the value sitting right on the threshold is reported as needing a check, not as normal. A reading typed to land exactly on the limit falls on the reject side, because `<` excludes the limit itself. That single character, `<` versus `<=`, is the whole difference between accepting and rejecting the boundary.
 
-The `100` input is where the two languages part ways, so predict each on its own. Both parse it to the decimal value one hundred, and both reject it, but Python prints `100.0` while Rust prints `100`.
-
-<WhatDiffers>
-<Fragment slot="differs">
-The parse and the verdict are identical: both turn `100` into the decimal value one hundred, and both reject it because `100 < 99.5` is false. Only the printed form of that value differs. Python's `print` shows a `float` with its fractional part even when it is zero, so a whole-valued decimal comes out as `100.0`. Rust's `{}` shows an `f64` in its shortest exact form, so the same value comes out as `100`, with no trailing `.0`. The number is the same on both sides; what changes is how each language chooses to display a decimal that happens to have no fractional digits. The `98.60` and `99.50` inputs hide this difference because their values are not whole, so both languages print the identical `98.6` and `99.5`; only a whole-valued decimal like the one from `100` makes the display rule visible.
-</Fragment>
-</WhatDiffers>
+The `100` input adds one cosmetic wrinkle: both languages parse it to the same whole-valued decimal and both reject it, but Python's `print` shows a `float`'s fractional part even when it is zero, so it prints `100.0`, while Rust's `{}` shows an `f64` in its shortest exact form and prints `100`.
 </Reveal>
 
 ---
@@ -245,7 +239,7 @@ The reason the good runs put `100 divided by 4 is 25` on the prompt line in Pyth
 
 ## Find the Edge That Slips Through
 
-A validation with a wrong boundary does not crash. It runs cleanly, prints a normal-looking answer, and quietly accepts a value it was built to reject. The only way to catch it is to test the exact edge, then read the condition as carefully as the machine does. You find this one with the systematic method: read the symptom, form a hypothesis, test it.
+Not every bug announces itself with an error message. The program below compiles, runs cleanly, and prints a normal-looking answer, yet one of its inputs comes out wrong. You find this one with the systematic method: read the symptom, form a hypothesis, test it.
 
 The program below is meant to accept an age from `0` through `130` inclusive and reject anything outside that range. Run it with `131`, which is one past the top and should be rejected. Before opening the reveal, predict what it prints, then work out why the answer is wrong and what single change fixes it.
 
