@@ -86,10 +86,6 @@ fn main() {
 
 Running either version prints the numbers for `A`, `a`, and the digit character `0`, then turns 65 and 97 back into the letters they encode:
 
-```bash title="Run the Python program"
-python3 code.py
-```
-
 ```text frame="terminal" title="Output"
 65
 97
@@ -172,21 +168,12 @@ fn main() {
 </TabItem>
 </Tabs>
 
-```bash title="Run the Python program"
-python3 index.py
-```
-
-```text frame="terminal" title="Output"
+```text frame="terminal" title="Output (Python)"
 c
 t
 ```
 
-```bash title="Compile and run the Rust program"
-rustc nth.rs
-./nth
-```
-
-```text frame="terminal" title="Output"
+```text frame="terminal" title="Output (Rust)"
 Some('c')
 Some('t')
 ```
@@ -223,21 +210,12 @@ fn main() {
 </TabItem>
 </Tabs>
 
-```bash title="Run the Python program"
-python3 length.py
-```
-
-```text frame="terminal" title="Output"
+```text frame="terminal" title="Output (Python)"
 3
 4
 ```
 
-```bash title="Compile and run the Rust program"
-rustc length.rs
-./length
-```
-
-```text frame="terminal" title="Output"
+```text frame="terminal" title="Output (Rust)"
 3
 5
 4
@@ -257,7 +235,7 @@ It can seem odd that Rust's most obvious length method counts bytes rather than 
 
 Reaching one character is useful, but often you want a whole run of them: the first three letters, the middle word, everything after a marker. A piece of a string taken out as its own smaller string is a **substring**, and the act of taking one by giving a range of positions is called **slicing**. A slice is described by two indices, a start and an end, and it follows the very same half-open convention as the ranges in the loops lecture: it includes the character at the start index and runs up to but does not include the character at the end index.
 
-In Python, a slice is written `s[1:4]`: start at index 1, stop just before index 4. In Rust, you slice with a range inside square brackets and an `&`, written `&s[1..4]`, using the same `..` range you used to drive a `for` loop and the same half-open meaning. Because a Rust slice is taken by byte position, it is exact and safe on ASCII text, where one character is one byte; the caveat from before still applies, so slicing in the middle of a multi-byte character is a boundary Rust checks, but on ASCII every position is a clean character boundary.
+In Python, a slice is written `s[1:4]`: start at index 1, stop just before index 4. In Rust, you slice with a range inside square brackets and an `&`, written `&s[1..4]`, using the same `..` range you used to drive a `for` loop and the same half-open meaning. Read the `&` as lending a look at part of the string without giving the string away; the memory-model lecture, two lectures ahead, explains it fully, and for now it is simply part of how a slice is spelled. Because a Rust slice is taken by byte position, it is exact and safe on ASCII text, where one character is one byte; the caveat from before still applies, so slicing in the middle of a multi-byte character is a boundary Rust checks, but on ASCII every position is a clean character boundary.
 
 Trace `s[1:4]` on the string `engineer`. Its characters sit at indices 0 through 7: `e` at 0, `n` at 1, `g` at 2, `i` at 3, `n` at 4, and so on. The slice starts at index 1, so it includes `n`; it takes index 2, `g`, and index 3, `i`; then it reaches index 4 and stops, because 4 is the end index and a half-open slice excludes its end. The result is the three characters `n`, `g`, `i`, the substring `ngi`.
 
@@ -277,19 +255,6 @@ fn main() {
 ```
 </TabItem>
 </Tabs>
-
-```bash title="Run the Python program"
-python3 slice.py
-```
-
-```text frame="terminal" title="Output"
-ngi
-```
-
-```bash title="Compile and run the Rust program"
-rustc slice.rs
-./slice
-```
 
 ```text frame="terminal" title="Output"
 ngi
@@ -330,23 +295,14 @@ fn main() {
 </TabItem>
 </Tabs>
 
-```bash title="Run the Python program"
-python3 search.py
-```
-
-```text frame="terminal" title="Output"
+```text frame="terminal" title="Output (Python)"
 True
 False
 4
 -1
 ```
 
-```bash title="Compile and run the Rust program"
-rustc search.rs
-./search
-```
-
-```text frame="terminal" title="Output"
+```text frame="terminal" title="Output (Rust)"
 true
 false
 Some(4)
@@ -400,24 +356,15 @@ fn main() {
 </TabItem>
 </Tabs>
 
-Trace the loop. `word` starts as the empty string. The first pass adds `ab`, making `ab`; the second pass adds `ab` to that, making `abab`; the third pass adds `ab` once more, making `ababab`. After the loop, that accumulated string is printed.
+Trace the loop. `word` starts as the empty string. The first pass adds `ab`, making `ab`; the second pass adds `ab` to that, making `abab`; the third pass adds `ab` once more, making `ababab`. After the loop, that accumulated string is printed. Calling this "just the accumulate pattern" hides one real difference underneath: Python's `word = word + "ab"` builds a brand-new, longer string each pass and rebinds the name to it, while Rust's `word.push_str("ab")` grows the one `String` in place, and the memory-model lecture returns to what that difference means.
 
-```bash title="Run the Python program"
-python3 build.py
-```
-
-```text frame="terminal" title="Output"
+```text frame="terminal" title="Output (Python)"
 Hello, World
 Hello, Ada!
 ababab
 ```
 
-```bash title="Compile and run the Rust program"
-rustc build.rs
-./build
-```
-
-```text frame="terminal" title="Output"
+```text frame="terminal" title="Output (Rust)"
 Hello, Ada!
 ababab
 ```
@@ -449,10 +396,6 @@ fn main() {
 </TabItem>
 </Tabs>
 
-```bash title="Run the Python program"
-python3 equal.py
-```
-
 ```text frame="terminal" title="Output"
 True
 False
@@ -462,7 +405,15 @@ Both print `True` (Rust's `true`) for the identical strings and `False` for the 
 
 ## Takeaways
 
-A string is an ordered sequence of characters, and each character is stored as a whole number by a shared agreement called a character encoding. ASCII is the foundational encoding, giving the common English characters numbers from 0 to 127, so that `A` is 65, `a` is 97, and the digit character `0` is 48, each of those numbers being one of the same bytes the data representation lecture taught you to read in binary. Python and Rust let you cross between a character and its number, Python with the functions `ord` and `chr`, Rust with `as` casts on its distinct `char` type. Modern text extends ASCII with Unicode, stored as UTF-8, where a character can take more than one byte, and that single fact drives the deepest split in this lecture: Python treats a string as a plain sequence of characters you can index with `s[0]`, measure with `len`, and slice with `s[1:4]`, while Rust, storing text as UTF-8 bytes, refuses integer indexing as ambiguous and asks you to walk the string with `.chars().nth(i)`, counts bytes with `.len()` and characters with `.chars().count()`, and slices by byte range with `&s[1..4]`. Searching a string is the same idea in both, a yes-or-no with Python's `in` and Rust's `contains` and a where-is-it with `find`, though Python signals a miss with `-1` and Rust with `None` inside an `Option`, the presence-or-absence twin of the `Result` you already knew. Building strings runs the accumulate pattern on text: Python joins with `+` and splices with f-strings, while Rust grows a `String` with `push_str` and builds from a template with `format!`. Under all of it, the half-open range and zero-based positions carry straight over from loops, and the equality operator carries over from numbers. The next lecture generalizes the sequence itself, moving from a string, a sequence of characters, to a list, a sequence of any values, and the indexing, slicing, and searching you learned here reappear there almost unchanged.
+A string is an ordered sequence of characters, and each character is stored as a whole number by a shared agreement called a character encoding. ASCII is the foundational encoding, giving the common English characters numbers from 0 to 127, so that `A` is 65, `a` is 97, and the digit character `0` is 48, each of those numbers being one of the same bytes the data representation lecture taught you to read in binary. Python and Rust let you cross between a character and its number, Python with the functions `ord` and `chr`, Rust with `as` casts on its distinct `char` type.
+
+Modern text extends ASCII with Unicode, stored as UTF-8, where a character can take more than one byte, and that single fact drives the deepest split in this lecture. Python treats a string as a plain sequence of characters you can index with `s[0]`, measure with `len`, and slice with `s[1:4]`. Rust, storing text as UTF-8 bytes, refuses integer indexing as ambiguous and asks you to walk the string with `.chars().nth(i)`, counts bytes with `.len()` and characters with `.chars().count()`, and slices by byte range with `&s[1..4]`.
+
+Searching a string is the same idea in both: a yes-or-no with Python's `in` and Rust's `contains`, and a where-is-it with `find`. Python signals a miss with `-1` and Rust with `None` inside an `Option`, the presence-or-absence twin of the `Result` you already knew.
+
+Building strings runs the accumulate pattern on text: Python joins with `+` and splices with f-strings, while Rust grows a `String` with `push_str` and builds from a template with `format!`. Under all of it, the half-open range and zero-based positions carry straight over from loops, and the equality operator carries over from numbers.
+
+The next lecture generalizes the sequence itself, moving from a string, a sequence of characters, to a list, a sequence of any values, and the indexing, slicing, and searching you learned here reappear there almost unchanged.
 
 ## Resources
 

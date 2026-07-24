@@ -141,19 +141,6 @@ fn main() {
 </TabItem>
 </Tabs>
 
-```bash title="Run the Python program"
-python3 check_discount.py
-```
-
-```text frame="terminal" title="Output"
-all asserts passed
-```
-
-```bash title="Compile and run the Rust program"
-rustc check_discount.rs
-./check_discount
-```
-
 ```text frame="terminal" title="Output"
 all asserts passed
 ```
@@ -210,9 +197,7 @@ fn main() {
 </TabItem>
 </Tabs>
 
-```bash title="Run the Python program"
-python3 wrong_expected.py
-```
+Python reports:
 
 ```text frame="terminal" title="Output"
 Traceback (most recent call last):
@@ -222,10 +207,7 @@ Traceback (most recent call last):
 AssertionError: expected the cap to be 300, not 299
 ```
 
-```bash title="Compile and run the Rust program"
-rustc wrong_expected.rs
-./wrong_expected
-```
+Rust reports:
 
 ```text frame="terminal" title="Output"
 thread 'main' panicked at wrong_expected.rs:12:5:
@@ -303,19 +285,6 @@ fn main() {
 </TabItem>
 </Tabs>
 
-```bash title="Run the Python program"
-python3 test_discount.py
-```
-
-```text frame="terminal" title="Output"
-all tests passed
-```
-
-```bash title="Compile and run the Rust program"
-rustc test_discount.rs
-./test_discount
-```
-
 ```text frame="terminal" title="Output"
 all tests passed
 ```
@@ -344,7 +313,7 @@ def average(a, b):
 <TabItem label="Rust">
 ```rust title="A function that returns a float"
 fn average(a: f64, b: f64) -> f64 {
-    (a + b) / 2.0
+    return (a + b) / 2.0;
 }
 ```
 </TabItem>
@@ -365,7 +334,7 @@ assert average(0.1, 0.2) == 0.15  # fails: 0.1 + 0.2 is not exactly 0.3 as a flo
 <TabItem label="Rust">
 ```rust title="Testing a float with assert_eq! (fails on purpose)"
 fn average(a: f64, b: f64) -> f64 {
-    (a + b) / 2.0
+    return (a + b) / 2.0;
 }
 
 fn main() {
@@ -376,9 +345,7 @@ fn main() {
 </TabItem>
 </Tabs>
 
-```bash title="Run the Python program"
-python3 average_eq.py
-```
+Python reports:
 
 ```text frame="terminal" title="Output"
 0.15000000000000002
@@ -389,10 +356,7 @@ Traceback (most recent call last):
 AssertionError
 ```
 
-```bash title="Compile and run the Rust program"
-rustc average_eq.rs
-./average_eq
-```
+Rust reports:
 
 ```text frame="terminal" title="Output"
 0.15000000000000002
@@ -419,7 +383,7 @@ print("tolerance test passed")
 <TabItem label="Rust">
 ```rust title="Testing a float with a tolerance"
 fn average(a: f64, b: f64) -> f64 {
-    (a + b) / 2.0
+    return (a + b) / 2.0;
 }
 
 fn main() {
@@ -430,25 +394,26 @@ fn main() {
 </TabItem>
 </Tabs>
 
-```bash title="Run the Python program"
-python3 average_tol.py
-```
-
 ```text frame="terminal" title="Output"
 tolerance test passed
 ```
 
-```bash title="Compile and run the Rust program"
-rustc average_tol.rs
-./average_tol
-```
-
-```text frame="terminal" title="Output"
-tolerance test passed
-```
-
-Both versions print `tolerance test passed`, using the same margin of `1e-9` from the earlier lecture on comparing floats. Python spells the absolute value as the function `abs(...)` wrapped around the difference, while Rust spells it as the method `.abs()` called on the difference, but the check is identical: the gap between what the function returned and what the specification promised is far below `1e-9`, so the assertion holds. Whenever a function's specification promises a float result, test it with a tolerance from the start; reaching for `==` first and only fixing it after a confusing failure is a detour worth skipping entirely.
+Both versions print `tolerance test passed`, using the same margin of `1e-9` from the earlier lecture on comparing floats. Python spells the absolute value as the function `abs(...)` wrapped around the difference, while Rust spells it as the method `.abs()` called on the difference, exactly the spelling the Booleans and Conditionals lecture introduced alongside the tolerance idiom, but the check is identical: the gap between what the function returned and what the specification promised is far below `1e-9`, so the assertion holds. Whenever a function's specification promises a float result, test it with a tolerance from the start; reaching for `==` first and only fixing it after a confusing failure is a detour worth skipping entirely.
 
 ## Takeaways
 
-A test case ties one input to the exact output a function's specification promises for it, and writing test cases from the specification, rather than from whatever the code already does, is what makes a passing test mean something: a test copied from buggy code only ever confirms the bug. Typical cases confirm the ordinary path works, boundary cases sit at the edges the specification calls out by name, zero, a stated maximum, or the exact value a comparison turns on, where an off-by-one mistake hides from every middle-of-the-range value and shows itself only at the edge, and error or unusual cases check that inputs outside the expected range are handled the way the specification actually says, rather than left to guesswork. An assertion, Python's `assert` or Rust's `assert!`/`assert_eq!`, is a conditional whose false branch stops the program, turning a written-down expectation into a check the computer performs every time the code runs and reporting loudly, an `AssertionError` in Python, a panic in Rust, the moment reality disagrees with the specification. Packaging several assertions into a test function names that whole set of checks as a single, callable unit you can rerun whenever the function under test changes, though a passing suite is only evidence for the cases it covered, never a proof of full correctness. A function that returns a float needs one adjustment to all of this: comparing its result with `==` reopens the exact floating-point trap from earlier in the course, so a float result is always checked against a tolerance instead. None of this replaces the debugging method from the very first lecture; testing is what tells you a bug exists and exactly which case exposes it, and debugging is still how you track that bug down once a test has found it.
+A test case ties one input to the exact output a function's specification promises for it. Writing test cases from the specification, rather than from whatever the code already does, is what makes a passing test mean something: a test copied from buggy code only ever confirms the bug.
+
+Three kinds of case cover a specification well. Typical cases confirm the ordinary path works. Boundary cases sit at the edges the specification calls out by name, zero, a stated maximum, or the exact value a comparison turns on, where an off-by-one mistake hides from every middle-of-the-range value and shows itself only at the edge. Error or unusual cases check that inputs outside the expected range are handled the way the specification actually says, rather than left to guesswork.
+
+An assertion, Python's `assert` or Rust's `assert!`/`assert_eq!`, is a conditional whose false branch stops the program. It turns a written-down expectation into a check the computer performs every time the code runs, reporting loudly, an `AssertionError` in Python, a panic in Rust, the moment reality disagrees with the specification.
+
+Packaging several assertions into a test function names that whole set of checks as a single, callable unit you can rerun whenever the function under test changes. A passing suite is only evidence for the cases it covered, never a proof of full correctness, and a function that returns a float needs one adjustment: comparing its result with `==` reopens the floating-point trap from earlier in the course, so a float result is always checked against a tolerance instead.
+
+None of this replaces the debugging method from the very first lecture. Testing is what tells you a bug exists and exactly which case exposes it; debugging is still how you track that bug down once a test has found it.
+
+## Resources
+
+- [Python language reference: The assert statement](https://docs.python.org/3/reference/simple_stmts.html#the-assert-statement)
+- [Rust documentation: the assert! macro](https://doc.rust-lang.org/std/macro.assert.html)
+- [Rust documentation: the assert_eq! macro](https://doc.rust-lang.org/std/macro.assert_eq.html)

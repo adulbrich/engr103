@@ -59,18 +59,7 @@ fn main() {
 
 Trace the chain with `temperature` holding `18`. Execution reaches the `if` and evaluates its condition first: `temperature < 10` reduces to `false`, since `18` is not less than `10`, so the `cold` block is skipped and the chain moves on. It evaluates the next condition, `temperature < 25`, which reduces to `true`, since `18` is less than `25`; that block runs and prints `warm`. Now the important part: the final `else` is not even looked at. Once a block has run, the chain is finished, so the `else` is skipped without being considered at all. Change `temperature` to `5` and the very first condition would be `true`, printing `cold` and skipping both the `elif` and the `else`; change it to `30` and both conditions would be `false`, so the chain would fall through to the `else` and print `hot`. A chain can hold as many `elif`/`else if` conditions as the decision needs, and the final `else` is optional in both languages, exactly as it was for a plain `if`/`else`.
 
-```bash title="Run the Python program"
-python3 temperature.py
-```
-
-```text frame="terminal" title="Output"
-warm
-```
-
-```bash title="Compile and run the Rust program"
-rustc temperature.rs
-./temperature
-```
+Both languages print the same single line:
 
 ```text frame="terminal" title="Output"
 warm
@@ -122,20 +111,6 @@ fn main() {
 
 With `x` holding `5`, the first condition `x < 10` is `true`, so `small` prints and the chain stops. Notice that `x < 20` and `x < 30` are both true for `5` as well, yet neither block runs, because the chain never evaluates them: the first match ended the decision. This is the guarantee working exactly as designed, and it is why the effective region of the `medium` branch is only the values from `10` up to `20`, not everything below `20`. This chain also has no final `else`, so it shows the "at most one" half of the guarantee: change `x` to `50` and all three conditions are `false`, so the chain prints nothing at all. Either way, `print("done")` runs, because it sits outside the chain and always executes after it.
 
-```bash title="Run the Python program"
-python3 sizes.py
-```
-
-```text frame="terminal" title="Output"
-small
-done
-```
-
-```bash title="Compile and run the Rust program"
-rustc sizes.rs
-./sizes
-```
-
 ```text frame="terminal" title="Output"
 small
 done
@@ -171,19 +146,6 @@ fn main() {
 </Tabs>
 
 This prints `pass`, and the output is correct today, because `grade < 60` and `grade >= 60` happen to be exact complements: every grade satisfies exactly one of them. But the two conditions are written and evaluated completely separately, and nothing in the code records that they were ever meant to be complements. Imagine the passing threshold later moves to `65`, and someone edits only the first `if` to `grade < 65`, leaving the second as `grade >= 60`. Now a grade of `62` makes `grade < 65` true and `grade >= 60` true, so both blocks run and the program prints `fail` and `pass` at once. Nudge the edit the other way, to `grade < 60` and `grade >= 65`, and a grade of `62` satisfies neither, so nothing prints. In both cases the language reports no error, because two independent `if` statements are exactly what you wrote; the desync is a logic bug the compiler and interpreter cannot see.
-
-```bash title="Run the Python program"
-python3 pass_fail.py
-```
-
-```text frame="terminal" title="Output"
-pass
-```
-
-```bash title="Compile and run the Rust program"
-rustc pass_fail.rs
-./pass_fail
-```
 
 ```text frame="terminal" title="Output"
 pass
@@ -238,23 +200,6 @@ fn main() {
 </Tabs>
 
 With `is_weekend` true and `age` at `10`, the outer `if` picks its first branch, then the inner `if` checks `age < 13`, which is true, so the program prints `8`. This works, but reaching any one of the four prices means reading two levels of blocks, and each level has its own pair of braces or indentation to track.
-
-```bash title="Run the Python program"
-python3 nesting.py
-```
-
-```text frame="terminal" title="Output"
-8
-```
-
-```bash title="Compile and run the Rust program"
-rustc nesting.rs
-./nesting
-```
-
-```text frame="terminal" title="Output"
-8
-```
 
 The same four outcomes can be flattened into a single else-if chain instead, by combining the two conditions with `and`/`&&` directly in each branch.
 
@@ -343,20 +288,6 @@ fn main() {
 </Tabs>
 
 Both calls give the right answer: `discount_percent(0)` returns `0`, and `discount_percent(30)` falls into the `quantity < 50` branch and returns `10`. But the three-way chain handling the normal case is indented one level deeper than it needs to be, purely because it lives inside the `else` of the invalid-quantity check.
-
-```bash title="Run the Python program"
-python3 discount.py
-```
-
-```text frame="terminal" title="Output"
-0
-10
-```
-
-```bash title="Compile and run the Rust program"
-rustc discount.rs
-./discount
-```
 
 ```text frame="terminal" title="Output"
 0
@@ -458,19 +389,6 @@ fn main() {
 
 With soil dry and no rain, the first condition `is_raining` is `false`, so the chain moves to `is_soil_dry`, which is `true`, and prints `water now`, matching the table's third row.
 
-```bash title="Run the Python program"
-python3 watering.py
-```
-
-```text frame="terminal" title="Output"
-water now
-```
-
-```bash title="Compile and run the Rust program"
-rustc watering.rs
-./watering
-```
-
 ```text frame="terminal" title="Output"
 water now
 ```
@@ -515,20 +433,7 @@ fn main() {
 </TabItem>
 </Tabs>
 
-A grade of `95` should earn `distinction`, but the chain prints `pass`. Trace why: `grade >= 50` is checked first and is `true` for `95`, so the first block runs and the mutual-exclusivity mechanism skips everything below it. In fact the `merit` and `distinction` branches are unreachable for *any* grade, because every grade that satisfies them also satisfies the broader `grade >= 50` sitting above them. The fix is to order the conditions from most specific to least: check `grade >= 90` first, then `grade >= 70`, then `grade >= 50`, so the highest threshold gets first refusal and nothing broader can intercept a case meant for it.
-
-```bash title="Run the Python program"
-python3 grades.py
-```
-
-```text frame="terminal" title="Output"
-pass
-```
-
-```bash title="Compile and run the Rust program"
-rustc grades.rs
-./grades
-```
+A grade of `95` should earn `distinction`, but the chain prints `pass`. Trace why: `grade >= 50` is checked first and is `true` for `95`, so the first block runs and the mutual-exclusivity mechanism skips everything below it. In fact the `merit` and `distinction` branches are unreachable for *any* grade, because every grade that satisfies them also satisfies the broader `grade >= 50` sitting above them. The fix is to order the conditions from most specific to least: check `grade >= 90` first, then `grade >= 70`, then `grade >= 50`, so the highest threshold is checked before any broader condition gets the chance to intercept a case meant for it.
 
 ```text frame="terminal" title="Output"
 pass
@@ -566,19 +471,6 @@ fn main() {
 
 A grade of exactly `90` was meant to earn `distinction`, but `grade > 90` is `false` for `90` itself, so the chain skips the first block and falls through to `merit`. The value `90` sits in the one-value gap the wrong operator opened: `> 90` excludes it, and the next branch `>= 70` swallows it. Changing `grade > 90` to `grade >= 90` closes the gap, and a grade of exactly `90` prints `distinction` as intended.
 
-```bash title="Run the Python program"
-python3 boundary.py
-```
-
-```text frame="terminal" title="Output"
-merit
-```
-
-```bash title="Compile and run the Rust program"
-rustc boundary.rs
-./boundary
-```
-
 ```text frame="terminal" title="Output"
 merit
 ```
@@ -591,7 +483,7 @@ None of these three bugs stops the program or raises anything. The grade example
 
 ## Rust's match
 
-Rust offers a second way to write a multi-way decision when the choice comes down to comparing one value against a fixed set of possibilities: the **match** expression. A `match` takes a value and a list of patterns, each written as a pattern, then `=>`, then the result for that pattern. The mechanism is close to an else-if chain: Rust compares the value against the patterns in order and uses the result of the first one that matches, ignoring the rest. What sets `match` apart is that the compiler checks the list is **exhaustive**, meaning every possible value of the matched type is covered by some pattern; if any value could slip through uncovered, the code does not compile at all.
+Rust offers a second way to write a multi-way decision when the choice comes down to comparing one value against a fixed set of possibilities: the **match** expression. A `match` takes a value and a list of arms, and each arm has two parts separated by `=>`. Before the `=>` comes the arm's **pattern**: a description of the values this arm claims, which in this lecture is either a literal value the input must equal, such as `1`, or the underscore `_`, which matches anything. After the `=>` comes the result the arm produces when the value fits its pattern. The mechanism is close to an else-if chain: Rust compares the value against the patterns in order and uses the result of the first one that matches, ignoring the rest. What sets `match` apart is that the compiler checks the list is **exhaustive**, meaning every possible value of the matched type is covered by some pattern; if any value could slip through uncovered, the code does not compile at all.
 
 ```rust title="days.rs"
 fn main() {
@@ -613,11 +505,6 @@ fn main() {
 ```
 
 With `day` holding `3`, Rust compares it against `1`, then `2`, then `3`, which matches, so the whole `match` produces `"Wednesday"` and that value is stored in `name`. The underscore `_` on the last line is a catch-all pattern: it matches any value not already listed above it, filling the same role the final `else` fills in an else-if chain. Here it covers every integer that is not `1` through `7`, which is what makes the list exhaustive.
-
-```bash title="Compile and run the Rust program"
-rustc days.rs
-./days
-```
 
 ```text frame="terminal" title="Output"
 Wednesday
@@ -667,7 +554,15 @@ The compiler can prove a `match` is exhaustive only because it examines the enti
 
 ## Takeaways
 
-An else-if chain extends `if`/`else` into a structure that evaluates its conditions in order, runs the block of the first condition that is true, and skips every remaining condition without evaluating it. That single mechanism is the source of everything else in this lecture. It guarantees mutual exclusivity, exactly one branch when a final `else` is present and at most one when it is not, because each condition is only ever reached once all the earlier ones have failed, so every branch silently carries the negation of the branches above it. That is what makes a chain safer than several independent `if` statements, which are separate decisions with nothing linking their conditions, free to drift out of sync the moment one boundary is edited without the other. The same carried negation lets you flatten a nested conditional into one chain whenever its branches each test only one combination, since the later branches no longer need to re-check what earlier branches already ruled out. A guard clause uses `return` to exit a function the instant an invalid case is found, so the main logic never has to sit nested inside an `else`. A decision table lists every combination of conditions and its outcome before any code is written, turning a decision that is easy to get subtly wrong into one you can check row by row, and revealing collapses and gaps while they are still cheap to fix. The most common bugs in a chain, an earlier branch too broad and stealing cases from a later one, and a boundary written with the wrong comparison operator, do not announce themselves with an error; they print a plausible wrong answer, which is why testing the exact values that sit on each boundary matters. Rust's `match` gives a second tool for the specific case of comparing one value against a fixed set of possibilities, with the compiler itself refusing a `match` that leaves any value uncovered. The next lecture turns to what happens when a value going into one of these decisions cannot be trusted yet: values read in from outside the program, and what a language does when that value turns out to be invalid.
+An else-if chain extends `if`/`else` into a structure that evaluates its conditions in order, runs the block of the first condition that is true, and skips every remaining condition without evaluating it. That single mechanism is the source of everything else in this lecture.
+
+The mechanism guarantees mutual exclusivity: exactly one branch runs when a final `else` is present, and at most one when it is not, because every branch silently carries the negation of the branches above it. That is what makes a chain safer than several independent `if` statements, whose conditions are free to drift out of sync the moment one boundary is edited without the other, and it is also what lets you flatten a nested conditional into one chain, since later branches no longer need to re-check what earlier branches already ruled out.
+
+Two habits keep a decision readable and correct before it is ever run. A guard clause uses `return` to exit a function the instant an invalid case is found, so the main logic never has to sit nested inside an `else`. A decision table lists every combination of conditions and its outcome before any code is written, revealing collapses and gaps while they are still cheap to fix.
+
+The most common bugs in a chain, an earlier branch too broad and stealing cases from a later one, and a boundary written with the wrong comparison operator, do not announce themselves with an error. They print a plausible wrong answer, which is why testing the exact values that sit on each boundary matters so much.
+
+Rust's `match` gives a second tool for the specific case of comparing one value against a fixed set of possibilities, with the compiler itself refusing a `match` that leaves any value uncovered. The next lecture turns to what happens when a value going into one of these decisions cannot be trusted yet: values read in from outside the program, and what a language does when that value turns out to be invalid.
 
 ## Resources
 

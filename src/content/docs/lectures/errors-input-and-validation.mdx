@@ -31,7 +31,11 @@ That guarantee disappears the moment a program reads a value from a person inste
 
 Python reads a line of console input with a single call. `input(prompt)` does three things in order: it prints the `prompt` you give it to the screen, then it pauses the whole program and waits, doing nothing further until the person types something and presses Enter, and finally it returns exactly what they typed as a string. Pressing Enter adds a newline character to the end of what was typed, and `input` strips that trailing newline off for you before handing the string back, so the string you receive is just the typed characters with nothing extra attached.
 
-Rust does the same job with more steps, and each one is worth understanding rather than memorizing, because reading input is the first time a Rust program has to spell out work that Python folds into one call. Reading input needs the `std::io` module, the part of the standard library that deals with input and output, so a `use std::io;` line goes near the top of the file to bring that module into scope. Rust also needs somewhere to put the text once it is read, so the next line creates an empty, mutable `String` with `String::new()`; it has to be mutable, declared with `let mut`, because the read is about to change it by adding the typed text. Then `io::stdin()` asks the operating system for a handle to the console's standard input stream, the channel a typed line arrives on, and calling `.read_line(&mut age_text)` on that handle reads one line of typed text and appends it onto the end of `age_text`. The `&mut age_text` is how you hand `read_line` permission to change your string rather than just look at it. Unlike Python's `input`, `read_line` does not remove the newline the Enter key added; the string it leaves behind still ends with that newline, which matters as soon as you try to turn that string into a number later. Finally, `read_line` returns a value reporting whether the read succeeded, which Rust requires you to do something with; the examples here call `.expect("failed to read line")` on it, a deliberate way of saying "crash with this message if reading input somehow fails." The next section explains exactly what kind of value that is and why Rust insists you handle it.
+Rust does the same job with more steps, because reading input is the first time a Rust program has to spell out work that Python folds into one call. The honest advice is to treat the whole Rust block below as a fixed recipe: the same few lines appear, unchanged, in every Rust program in this course that reads input, so copy them as a unit and let each piece become clear as the course reaches it. The recipe starts with the line `use std::io;` near the top of the file. A **module** is a named bundle of related code a language's standard library ships ready to use; `std::io` is the module for input and output, and the `use` line brings it into your file so its contents can be called by short names.
+
+The recipe's body has three steps. First, Rust needs somewhere to put the text once it is read, so a line creates an empty, mutable `String` with `String::new()`; it has to be declared with `let mut`, because the read is about to change it by adding the typed text. Second, `io::stdin()` asks the operating system for a handle to the console's standard input stream, the channel a typed line arrives on. Third, calling `.read_line(&mut age_text)` on that handle reads one line of typed text and appends it onto the end of `age_text`. Calls written with a dot like this are **methods**: a method is a function attached to a value, called by writing the value, a dot, and the function's name. Everything you know about functions applies; only the attachment and the dot are new, and outside of these dotted calls this course keeps saying function. The `&mut` in front of `age_text` hands `read_line` permission to change your string rather than just look at it; what `&mut` fully means is taught in the memory model lecture later in the course, so until then it stays part of the recipe, copied exactly as written.
+
+Two more details finish the recipe. Unlike Python's `input`, `read_line` does not remove the newline the Enter key added, so the string it leaves behind still ends with that newline, which matters as soon as you try to turn the string into a number later. And `read_line` returns a value reporting whether the read succeeded, which Rust requires you to do something with; the examples here call `.expect("failed to read line")` on it, a deliberate way of saying "crash with this message if reading input somehow fails." The next section explains exactly what kind of value that is and why Rust insists you handle it.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
@@ -104,11 +108,6 @@ fn main() {
 }
 ```
 
-```bash title="Compile and run the Rust program"
-rustc newline.rs
-./newline
-```
-
 ```text frame="terminal" title="Output"
 Err(ParseIntError { kind: InvalidDigit })
 ```
@@ -133,9 +132,7 @@ use std::io;
 fn main() {
     println!("Enter your age: ");
     let mut age_text = String::new();
-    io::stdin()
-        .read_line(&mut age_text)
-        .expect("failed to read line");
+    io::stdin().read_line(&mut age_text).expect("failed to read line"); // read the input as before
 
     let parsed = age_text.trim().parse::<i32>();
     println!("{:?}", parsed);
@@ -213,9 +210,7 @@ use std::io;
 fn main() {
     println!("Enter your age: ");
     let mut age_text = String::new();
-    io::stdin()
-        .read_line(&mut age_text)
-        .expect("failed to read line");
+    io::stdin().read_line(&mut age_text).expect("failed to read line"); // read the input as before
 
     match age_text.trim().parse::<i32>() {
         Ok(age) => println!("You are {} years old.", age),
@@ -263,9 +258,7 @@ use std::io;
 fn main() {
     println!("Enter your age: ");
     let mut age_text = String::new();
-    io::stdin()
-        .read_line(&mut age_text)
-        .expect("failed to read line");
+    io::stdin().read_line(&mut age_text).expect("failed to read line"); // read the input as before
 
     let age: i32 = age_text.trim().parse().expect("age must be a whole number");
     println!("You are {} years old.", age);
@@ -280,12 +273,12 @@ echo "abc" | ./age
 ```text frame="terminal" title="Output"
 Enter your age: 
 
-thread 'main' panicked at age.rs:10:44:
+thread 'main' panicked at age.rs:8:44:
 age must be a whole number: ParseIntError { kind: InvalidDigit }
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
-The crash Rust prints is called a panic, and its report names the exact place it happened, `age.rs:10:44`, along with your message and the underlying error. Notice too that `let age: i32` writes the type on the variable, so this version does not need a turbofish on `parse`: the `i32` on `age` already tells `parse` what to produce.
+The crash Rust prints is called a panic, and its report names the exact place it happened, `age.rs:8:44`, along with your message and the underlying error. Notice too that `let age: i32` writes the type on the variable, so this version does not need a turbofish on `parse`: the `i32` on `age` already tells `parse` what to produce.
 
 :::caution[Reach for expect only when there is no reasonable recovery]
 `.expect` is convenient, but every `.expect` is a place your program will crash outright on a bad value instead of responding to it. That is the right choice only when the value truly means the program cannot sensibly continue, such as a required file that is missing at startup. For anything a person might simply mistype, like an age, crashing is a poor experience: prefer `match` on `Ok`/`Err`, or Python's `try`/`except`, so a bad value is something the program recognizes and answers rather than something that kills it. In real programs, a scattering of `.expect` calls is a warning sign that failures that should have been handled are instead being ignored until they crash.
@@ -325,9 +318,7 @@ use std::io;
 fn main() {
     println!("Enter your age: ");
     let mut age_text = String::new();
-    io::stdin()
-        .read_line(&mut age_text)
-        .expect("failed to read line");
+    io::stdin().read_line(&mut age_text).expect("failed to read line"); // read the input as before
 
     match age_text.trim().parse::<i32>() {
         Ok(age) => {
@@ -384,7 +375,15 @@ Both versions add the same range check after a successful parse. Python nests th
 
 ## Takeaways
 
-Reading console input is the moment a program stops fully controlling its own values. Python's `input` prints a prompt, pauses until the person presses Enter, and hands back the typed line as a string with the newline already stripped, all in one call. Rust's ceremony of `std::io`, a mutable `String`, and `read_line` makes the same job explicit step by step, and leaves the trailing newline on the string until `.trim()` removes it, which is why trimming before parsing is not optional in Rust. Parsing then turns that text into a number, with Python's `int` and `float` and Rust's `parse::<T>` doing the same job through different shapes: named functions that either return the number or raise an exception, versus one generic method that always returns a `Result`. That difference is the deepest one in this lecture. An exception interrupts the program the instant it is raised and unwinds outward looking for a `try`/`except` that will catch it, stopping the program with a traceback if none does. A `Result` interrupts nothing: `parse` finishes, hands back an `Ok` or an `Err`, and your `match` reads the value already in hand and picks a branch, with `.expect` available as a deliberate way to turn an `Err` into a crash carrying a message you chose. Neither parsing nor catching a bad parse checks whether a successfully parsed number actually makes sense; that is what input validation adds, reusing the conditionals from earlier lectures to reject an out-of-range value immediately, so a bad value is caught right where it entered rather than corrupting something downstream. Repeating a request until a person finally gets it right is a natural next question, and it waits for the lecture that introduces loops. The next lecture turns to testing, and to checking systematically that code like this responds correctly to every kind of input, valid and invalid alike.
+Reading console input is the moment a program stops fully controlling its own values. Python's `input` prints a prompt, waits for Enter, and hands back the typed line with the newline already stripped, all in one call. Rust's recipe of `std::io`, a mutable `String`, and `read_line` spells the same job out step by step, and leaves the trailing newline on the string until `.trim()` removes it, which is why trimming before parsing is not optional in Rust.
+
+Parsing turns that text into a number, and the two languages give the job different shapes: Python's `int` and `float` are named functions that either return the number or raise an exception, while Rust's `parse::<T>` is one generic method that always returns a `Result`.
+
+That difference is the deepest one in this lecture. An exception interrupts the program the instant it is raised and unwinds outward looking for a `try`/`except` to catch it, stopping with a traceback if none does. A `Result` interrupts nothing: `parse` finishes, hands back an `Ok` or an `Err`, and your `match` reads the value already in hand and picks a branch, with `.expect` available to turn an `Err` into a deliberate crash carrying a message you chose.
+
+Neither parsing nor catching a bad parse checks whether a successfully parsed number actually makes sense. That is what input validation adds: reusing the conditionals from earlier lectures to reject an out-of-range value immediately, so a bad value is caught right where it entered the program rather than corrupting something downstream.
+
+Repeating a request until a person finally gets it right is a natural next question, and it waits for the lecture that introduces loops. The next lecture turns to testing, and to checking systematically that code like this responds correctly to every kind of input, valid and invalid alike.
 
 ## Resources
 

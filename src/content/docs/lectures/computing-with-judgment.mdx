@@ -40,7 +40,7 @@ The Testing lecture made the same point from the other side: a test case must co
 
 ## A Function That Looks Right
 
-Here is a function that averages a list of sensor readings. Read it before reading on, and decide whether you would trust it.
+Here is a function that averages a list of sensor readings. One spelling in it is new: `total += r` is shorthand for `total = total + r`, adding the reading into the running total, and both languages accept the `+=` form. Read the function before reading on, and decide whether you would trust it.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
@@ -78,20 +78,11 @@ fn main() {
 
 Nothing looks wrong. The loop adds up every reading and counts how many there were, and the function divides the total by the count, which is exactly what an average is. Run it on three numbers and it behaves:
 
-```bash title="Run the Python program"
-python3 average.py
-```
-
-```text frame="terminal" title="Output"
+```text frame="terminal" title="Output (Python)"
 20.0
 ```
 
-```bash title="Compile and run the Rust program"
-rustc average.rs
-./average
-```
-
-```text frame="terminal" title="Output"
+```text frame="terminal" title="Output (Rust)"
 20
 ```
 
@@ -146,11 +137,7 @@ The typical case passes in both. The boundary case is where the two languages pa
 `average` returns a float, and the Testing lecture warned that a float result should be checked against a small tolerance, not with `==`, because most floats are stored as a binary approximation that is a hair off from the value you wrote. The typical case above uses `==` anyway, and it is safe only because 20.0 and 0.0 are among the few values a float can represent exactly, so there is no approximation to trip over. If the specification promised an average like 20.15, the tolerance check from the Testing lecture would be required here too. The rule still holds; this example simply landed on the exact values where `==` happens to be safe.
 :::
 
-```bash title="Run the Python program"
-python3 average_test.py
-```
-
-```text frame="terminal" title="Output"
+```text frame="terminal" title="Output (Python)"
 Traceback (most recent call last):
   File "average_test.py", line 10, in <module>
     assert average([]) == 0.0            # boundary case: the empty list
@@ -161,12 +148,7 @@ Traceback (most recent call last):
 ZeroDivisionError: division by zero
 ```
 
-```bash title="Compile and run the Rust program"
-rustc average_test.rs
-./average_test
-```
-
-```text frame="terminal" title="Output"
+```text frame="terminal" title="Output (Rust)"
 thread 'main' panicked at average_test.rs:15:5:
 assertion `left == right` failed
   left: NaN
@@ -224,20 +206,11 @@ fn main() {
 </TabItem>
 </Tabs>
 
-```bash title="Run the fixed Python program"
-python3 average_fixed.py
-```
-
-```text frame="terminal" title="Output"
+```text frame="terminal" title="Output (Python)"
 all tests passed
 ```
 
-```bash title="Compile and run the fixed Rust program"
-rustc average_fixed.rs
-./average_fixed
-```
-
-```text frame="terminal" title="Output"
+```text frame="terminal" title="Output (Rust)"
 all tests passed
 ```
 
@@ -285,7 +258,15 @@ Woven through all of it were two languages chosen to disagree. Seeing each idea 
 
 ## Takeaways
 
-Code you did not write earns the same review as code you did, and the review does not care who or what produced it. You reconstruct the specification first, because inherited code comes without the intent behind it and the forgotten edges of that specification are where bugs hide; you trace the code on a concrete input; you derive test cases from the specification, especially at the boundaries, and run them; and when one fails you debug with the same one-hypothesis-at-a-time loop from the first lecture. The worked `average` made the payoff plain: code that looked right and gave a right answer still had no correct behavior on an empty list, and only a boundary test derived from the specification exposed it, as a loud crash in Python and a silent wrong `NaN` in Rust. Generated and library code fail in nameable ways, confidently wrong, subtly off at an edge, correct for a different specification than yours, or resting on an assumption that does not hold, and naming them turns review into concrete questions. Correctness is not the only question, either: a program faithfully encodes its builders' assumptions about who will use it, so an engineer has to ask whom those assumptions exclude, from a name a form will not accept to a connection an interface cannot survive. Through all of it you stay the responsible judge, accountable for what you rely on. That is what the whole term was for: not to memorize two languages, but to understand the machine well enough to judge any code that runs on it, and to own what it does.
+Code you did not write earns the same review as code you did, and the review does not care who or what produced it. You reconstruct the specification first, because inherited code comes without the intent behind it, and the forgotten edges of that specification are where bugs hide. Then you trace the code on a concrete input, derive test cases from the specification rather than from the code, and debug any failure with the same one-hypothesis-at-a-time loop from the first lecture.
+
+The worked `average` made the payoff plain. Code that looked right and gave a right answer still had no correct behavior on an empty list. Only a boundary test derived from the specification exposed it, as a loud crash in Python and a silent wrong `NaN` in Rust.
+
+Generated and library code fail in nameable ways: confidently wrong, subtly off at an edge, correct for a different specification than yours, or resting on an assumption that does not hold in your situation. Naming these failure modes turns review from a vague suspicion into concrete questions you can ask.
+
+Correctness is not the only question. A program faithfully encodes its builders' assumptions about who will use it, so an engineer has to ask whom those assumptions exclude, from a name a form will not accept to a connection an interface cannot survive.
+
+Through all of it you stay the responsible judge, accountable for what you rely on. That is what the whole term was for: not to memorize two languages, but to understand the machine well enough to judge any code that runs on it, and to own what it does.
 
 ## Resources
 

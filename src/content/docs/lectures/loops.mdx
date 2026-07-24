@@ -60,10 +60,6 @@ fn main() {
 
 Trace it pass by pass, watching `count`. It starts at `1`. The loop evaluates `count <= 3`: `1 <= 3` is `true`, so the body runs, printing `1`, then setting `count` to `2`. Control returns to the condition: `2 <= 3` is `true`, so the body runs again, printing `2` and setting `count` to `3`. Back to the condition: `3 <= 3` is `true`, so the body prints `3` and sets `count` to `4`. Control returns to the condition one more time, and now `4 <= 3` is `false`. This last check is the one learners skip, and it is the whole point: the loop does not stop because the body decided to, it stops because the condition was re-evaluated and came out false. The body does not run a fourth time; the loop ends, and the program moves on to print `done`.
 
-```bash title="Run the Python program"
-python3 countup.py
-```
-
 ```text frame="terminal" title="Output"
 1
 2
@@ -71,19 +67,13 @@ python3 countup.py
 done
 ```
 
-```bash title="Compile and run the Rust program"
-rustc countup.rs
-./countup
-```
+<WhatDiffers>
+<Fragment slot="differs">
+Rust declares the loop variable with `let mut`, not plain `let`, and that is not optional here: the body reassigns `count` on every pass, and Rust forbids reassigning any variable that was not marked mutable with `mut`, as the Variables lecture described. Python has no such rule; a variable is free to be reassigned at any time, so `count = count + 1` just works.
+</Fragment>
+</WhatDiffers>
 
-```text frame="terminal" title="Output"
-1
-2
-3
-done
-```
-
-The Rust version declares its loop variable with `let mut`, not plain `let`, and that is not optional here. The loop's body reassigns `count` on every pass, and Rust forbids reassigning a variable unless it was marked mutable with `mut`, as the Variables lecture described. Forget the `mut` and the compiler refuses the program rather than letting a broken loop run.
+Forget the `mut` in Rust and the compiler refuses the program rather than letting a broken loop run.
 
 ```rust title="countup_bad.rs, a counter without mut (will not compile)"
 fn main() {
@@ -104,7 +94,7 @@ error[E0384]: cannot assign twice to immutable variable `count`
  --> countup_bad.rs:5:9
 ```
 
-Python has no such rule: a variable is free to be reassigned at any time, so `count = count + 1` inside the loop just works. This is the same static-versus-dynamic difference you have seen throughout the course, now landing on the one line a loop most depends on. Because a loop that never changes its loop variable is almost always a mistake, Rust turning that mistake into a compile error, at least when you also forgot `mut`, is the compiler catching a bug before the program ever runs.
+Because a loop that never changes its loop variable is almost always a mistake, Rust turning a forgotten `mut` into a compile error is the compiler catching a bug before the program ever runs. It is the same checks-before-running difference you have seen throughout the course, now landing on the one line a loop most depends on.
 
 ## Termination and infinite loops
 
@@ -138,22 +128,6 @@ fn main() {
 
 With `n` starting at `3`, the condition `3 > 0` is true and the body prints `3` then sets `n` to `2`; `2 > 0` is true, so it prints `2` and sets `n` to `1`; `1 > 0` is true, so it prints `1` and sets `n` to `0`; then `0 > 0` is false, the loop ends, and `liftoff` prints. Each pass moves `n` strictly closer to the boundary, so the loop is guaranteed to stop.
 
-```bash title="Run the Python program"
-python3 countdown.py
-```
-
-```text frame="terminal" title="Output"
-3
-2
-1
-liftoff
-```
-
-```bash title="Compile and run the Rust program"
-rustc countdown.rs
-./countdown
-```
-
 ```text frame="terminal" title="Output"
 3
 2
@@ -168,7 +142,15 @@ If you ever run a program that is stuck in an infinite loop, printing forever or
 :::
 
 :::note[There is no do-while here, but there is a deliberate forever loop]
-Some languages offer a loop that always runs its body once before checking any condition, often written `do`/`while`. Neither Python nor Rust has that form; a `while` loop in both always checks the condition first, so a body can run zero times if the condition starts out false. When you genuinely want a loop that repeats on purpose until something inside it decides to stop, Python spells that `while True:` and Rust offers a dedicated `loop { ... }` keyword. Both rely on a `break`, described later in this lecture, to escape, and both are easy to turn into an accidental infinite loop if that escape is never reached.
+C++ offers a loop that always runs its body once before checking any condition, written `do`/`while`:
+
+```cpp title="C++'s do-while shape (not in Python or Rust)"
+do {
+    // the body runs once before the condition is ever checked
+} while (condition);
+```
+
+Neither Python nor Rust has that form; a `while` loop in both always checks the condition first, so a body can run zero times if the condition starts out false. When you genuinely want a loop that repeats on purpose until something inside it decides to stop, Python spells that `while True:` and Rust offers a dedicated `loop { ... }` keyword. Both rely on a `break`, described later in this lecture, to escape, and both are easy to turn into an accidental infinite loop if that escape is never reached.
 :::
 
 ## Counting with a for loop
@@ -196,23 +178,6 @@ fn main() {
 </Tabs>
 
 Trace the values the loop variable `i` takes. It begins at `0`, so the body prints `0`. The loop moves `i` to the next value in the sequence, `1`, and prints it. Then `2`, then `3`, then `4`, each printed as the body runs. After printing `4`, the loop asks the sequence for the next value, but `5` is excluded, so there is none: the loop ends. The body ran exactly five times, once for each value in `range(5)` or `0..5`, and at no point did you write an update or a stopping condition by hand.
-
-```bash title="Run the Python program"
-python3 repeat.py
-```
-
-```text frame="terminal" title="Output"
-0
-1
-2
-3
-4
-```
-
-```bash title="Compile and run the Rust program"
-rustc repeat.rs
-./repeat
-```
 
 ```text frame="terminal" title="Output"
 0
@@ -265,22 +230,6 @@ fn main() {
 
 The range here runs from `0` to `9`, so without the `break` the body would run ten times. Trace what actually happens. On the first pass `i` is `0`; the `if` condition `i == 3` is false, so the `break` is skipped and the body prints `0`. The same happens for `i` at `1` and `2`, printing each. On the pass where `i` is `3`, the `if` condition is now true, so the body prints `stopping` and then runs `break`. The loop stops at once: the `print(i)` on the last line never runs for `3`, and the loop never advances to `4` through `9`. Execution jumps straight to after the loop, which here is the end of the program.
 
-```bash title="Run the Python program"
-python3 findfirst.py
-```
-
-```text frame="terminal" title="Output"
-0
-1
-2
-stopping
-```
-
-```bash title="Compile and run the Rust program"
-rustc findfirst.rs
-./findfirst
-```
-
 ```text frame="terminal" title="Output"
 0
 1
@@ -319,22 +268,6 @@ fn main() {
 
 The loop steps `i` through `0, 1, 2, 3, 4`, the full half-open range, and the `continue` changes only one of those passes. When `i` is `0` the `if` is false, so `continue` is skipped and the body prints `0`; the same for `1`. When `i` is `2` the `if` is true, so `continue` runs: the rest of the body, the `print`, is skipped for this pass only, and the loop moves on to the next value. When `i` is `3` and then `4` the `if` is false again, so both print. The result is every value except `2`. Notice that the loop did not stop at `2` the way `break` would have; it skipped just that pass and kept running, which is the entire difference between the two.
 
-```bash title="Run the Python program"
-python3 skip.py
-```
-
-```text frame="terminal" title="Output"
-0
-1
-3
-4
-```
-
-```bash title="Compile and run the Rust program"
-rustc skip.rs
-./skip
-```
-
 ```text frame="terminal" title="Output"
 0
 1
@@ -369,27 +302,6 @@ fn main() {
 
 The outer loop walks `i` through `1, 2, 3`, and for each of those the inner loop walks `j` through `1, 2, 3`. Trace it carefully. The outer loop sets `i` to `1` and runs its body, which is the entire inner loop: `j` becomes `1` and prints `1 * 1`, which is `1`, then `j` becomes `2` and prints `1 * 2`, which is `2`, then `j` becomes `3` and prints `3`. The inner loop is now finished, so the outer loop moves on and sets `i` to `2`, and the inner loop starts over from `j` equal to `1`, printing `2`, then `4`, then `6`. The outer loop sets `i` to `3` one last time, and the inner loop runs once more, printing `3`, then `6`, then `9`.
 
-```bash title="Run the Python program"
-python3 grid.py
-```
-
-```text frame="terminal" title="Output"
-1
-2
-3
-2
-4
-6
-3
-6
-9
-```
-
-```bash title="Compile and run the Rust program"
-rustc grid.rs
-./grid
-```
-
 ```text frame="terminal" title="Output"
 1
 2
@@ -406,7 +318,15 @@ Count the passes and the important property of nesting appears. The outer loop r
 
 ## Takeaways
 
-A loop runs a block of code repeatedly, sending control back to the start of the block instead of moving on after a single pass, which lets one written-out body do work that would otherwise take endless retyping. The `while` loop is the mechanism in its plainest form: it evaluates a condition, runs its body if the condition is true, then returns to evaluate the condition again, repeating until a check finally comes out false. That final false check is what ends the loop, so the body carries the responsibility of changing the loop variable the condition depends on; a body that never makes progress leaves the condition forever true and produces an infinite loop, the classic loop bug, which you interrupt with `Ctrl` and `C` and fix by making the body move toward the condition's boundary. The `for` loop packages the most common counting pattern, walking a loop variable through a known sequence, `range(n)` in Python and `0..n` in Rust, both half-open so they run exactly `n` times and stop one short of the top; Rust adds an inclusive `0..=n` form that keeps the endpoint, while Python raises the stop value instead. Inside any loop, `break` stops the whole loop immediately and `continue` skips only the current pass and moves to the next, giving you finer control than the condition or range alone. Nesting one loop inside another runs the inner loop in full for every pass of the outer, so the pass counts multiply. With these constructs in hand, the next lecture turns from the machinery of loops to the handful of reusable patterns, accumulating a total, counting matches, searching for a value, that the same few loop shapes are used to build over and over.
+A loop runs a block of code repeatedly, sending control back to the start of the block instead of moving on after a single pass. One written-out body can then do work that would otherwise take endless retyping.
+
+The `while` loop is the mechanism in its plainest form: it evaluates a condition, runs its body if the condition is true, then returns to evaluate the condition again, repeating until a check finally comes out false. That final false check is what ends the loop, so the body carries the responsibility of changing the loop variable the condition depends on. A body that never makes progress leaves the condition forever true and produces an infinite loop, the classic loop bug, which you interrupt with `Ctrl` and `C` and fix by making the body move toward the condition's boundary.
+
+The `for` loop packages the most common counting pattern, walking a loop variable through a known sequence: `range(n)` in Python and `0..n` in Rust. Both are half-open, so they run exactly `n` times and stop one short of the top. Rust adds an inclusive `0..=n` form that keeps the endpoint, while Python raises the stop value instead.
+
+Inside any loop, `break` stops the whole loop immediately and `continue` skips only the current pass and moves to the next, giving you finer control than the condition or range alone. Nesting one loop inside another runs the inner loop in full for every pass of the outer, so the pass counts multiply.
+
+With these constructs in hand, the next lecture turns from the machinery of loops to the handful of reusable patterns, accumulating a total, counting matches, searching for a value, that the same few loop shapes are used to build over and over.
 
 ## Resources
 

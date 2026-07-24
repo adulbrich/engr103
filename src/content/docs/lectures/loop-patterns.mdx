@@ -54,19 +54,6 @@ fn main() {
 
 Trace `total` pass by pass, because the whole pattern lives in how that one variable changes. It starts at `0`. The `for` loop walks `n` through `1, 2, 3, 4, 5`, the half-open range from the loops lecture. On the first pass `n` is `1`, so `total = total + n` computes `0 + 1` and stores `1`. On the next pass `n` is `2`, so `total` becomes `1 + 2`, which is `3`. Then `n` is `3` and `total` becomes `3 + 3`, which is `6`; then `n` is `4` and `total` becomes `6 + 4`, which is `10`; then `n` is `5` and `total` becomes `10 + 5`, which is `15`. The range is now exhausted, the loop ends, and `total` holds `15`, the sum of `1` through `5`. Only now, after the loop, does `print` read it.
 
-```bash title="Run the Python program"
-python3 sum.py
-```
-
-```text frame="terminal" title="Output"
-15
-```
-
-```bash title="Compile and run the Rust program"
-rustc sum.rs
-./sum
-```
-
 ```text frame="terminal" title="Output"
 15
 ```
@@ -105,19 +92,6 @@ fn main() {
 </Tabs>
 
 Trace `count` against the passes that matter. It starts at `0`. As `n` walks `1, 2, 3, ..., 20`, most passes leave `count` untouched: `n` of `1` gives `1 % 3` of `1`, not `0`, so the `if` is false and nothing happens. The first pass that changes anything is `n` of `3`, where `3 % 3` is `0`, so the `if` is true and `count` becomes `1`. The same happens at `6`, lifting `count` to `2`, then at `9` to `3`, at `12` to `4`, at `15` to `5`, and at `18` to `6`. No later value up to `20` is divisible by `3`, so the loop finishes with `count` at `6`. The six passes that incremented it, `3, 6, 9, 12, 15, 18`, are exactly the multiples of `3` in range, which is the answer.
-
-```bash title="Run the Python program"
-python3 count.py
-```
-
-```text frame="terminal" title="Output"
-6
-```
-
-```bash title="Compile and run the Rust program"
-rustc count.rs
-./count
-```
 
 ```text frame="terminal" title="Output"
 6
@@ -170,19 +144,6 @@ fn main() {
 </Tabs>
 
 Trace it. Before the loop, `found` is `false` and `answer` is `0`, the values that are correct if nothing is ever found. The loop walks `n` from `1` upward. For `n` of `1` the square is `1`, not at least `50`, so the `if` is false and the loop moves on; the same for `2` through `7`, whose squares are `4, 9, 16, 25, 36, 49`, all below `50`. On the pass where `n` is `8`, the square is `64`, which is at least `50`, so the `if` is finally true: the body stores `8` into `answer`, sets `found` to `true`, and runs `break`. The loop stops at once, never testing `9` or anything above it. After the loop, `found` is `true`, so the first branch runs and prints the answer. Had the range held no qualifying number, the loop would have ended by exhaustion with `found` still `false`, and the `else` branch would report that instead.
-
-```bash title="Run the Python program"
-python3 search.py
-```
-
-```text frame="terminal" title="Output"
-First number whose square reaches 50: 8
-```
-
-```bash title="Compile and run the Rust program"
-rustc search.rs
-./search
-```
 
 ```text frame="terminal" title="Output"
 First number whose square reaches 50: 8
@@ -255,7 +216,7 @@ The order of the two steps in the body, check for the sentinel *before* handling
 
 <WhatDiffers>
 <Fragment slot="differs">
-Reading input inside a loop is where the two languages diverge most. Python's `input` returns the typed line directly, and `int` parses it, so the body is two short lines. Rust reads with `io::stdin().read_line`, which appends the typed text onto a `String` and returns a `Result` you must handle, so the body creates a fresh `String` on each pass, calls `.trim()` to drop the newline `read_line` leaves attached, and parses with `.parse()`; the `.expect` calls turn a failed read or parse into a crash. Creating the `String` inside the loop gives each pass a clean, empty buffer to read into.
+Reading input inside a loop is where the two languages diverge most. Python's `input` returns the typed line directly, and `int` parses it, so the body is two short lines. Rust reads with `io::stdin().read_line`, which appends the typed text onto a `String` and returns a `Result` you must handle, so the body creates a fresh `String` on each pass, calls `.trim()` to drop the newline `read_line` leaves attached, and parses with `.parse()`; the `.expect` calls turn a failed read or parse into a crash. Creating the `String` inside the loop gives each pass a clean, empty buffer to read into. The `&mut line` hands `read_line` permission to change the string rather than just look at it, exactly as in the errors lecture; the memory-model lecture, a few lectures ahead, explains `&mut` fully, so for now the recipe is all you need.
 </Fragment>
 </WhatDiffers>
 
@@ -263,7 +224,7 @@ Reading input inside a loop is where the two languages diverge most. Python's `i
 
 The [errors and input lecture](/lectures/errors-input-and-validation) showed how to read a value, parse it into a number, and validate that the number makes sense, but it stopped at reporting a bad value once, because repeating a request until the answer is finally right is a loop, and loops had not been introduced. The **validate-until-correct** pattern is that missing piece: a loop that keeps re-prompting the person until the input both parses and passes validation, and only then lets the program move on with a value it can trust.
 
-The pattern wraps the read-parse-validate sequence from that lecture in a deliberate-forever loop and uses `continue` to reject a bad value by jumping straight back to the top for another try. Each pass reads a line and attempts to parse it. If the parse fails, the value is not even a number, so the body prints a message and runs `continue`, abandoning the rest of the pass and looping back to re-prompt. If the parse succeeds, the body then checks the value against the program's rules; if that check fails, it likewise prints a message and runs `continue`. Only when both the parse and the validation succeed does the body reach the `break` that ends the loop, so the loop can only exit with a value that is known to be good. After the loop, the program uses that value with no further checking, because the loop's exit condition already guarantees it is valid. The example keeps asking for an age until it receives a whole number between `0` and `130`.
+The pattern wraps the read-parse-validate sequence from that lecture in a deliberate-forever loop and uses `continue` to reject a bad value by jumping straight back to the top for another try. Each pass reads a line and attempts to parse it. If the parse fails, the value is not even a number, so the body prints a message and runs `continue`, abandoning the rest of the pass and looping back to re-prompt. If the parse succeeds, the body then checks the value against the program's rules; if that check fails, it likewise prints a message and runs `continue`. Only when both the parse and the validation succeed does the body reach the `break` that ends the loop, so the loop can only exit with a value that is known to be good. After the loop, the program uses that value with no further checking, because the loop's exit condition already guarantees it is valid. The example keeps asking for an age until it receives a whole number between `0` and `130`. Two spellings in the Rust version are worth a note as you read it: `let age;` declares the variable without giving it a value yet, so the loop can fill it in later, and the parse is written `.parse::<i32>()`, where the `::<i32>` names the target type when Rust cannot infer it from context; both are part of the fixed input recipe, not new machinery to learn.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
@@ -338,6 +299,8 @@ Enter your age:
 You are 21 years old.
 ```
 
+The two transcripts arrange the prompt differently because the languages print it differently: Python's `input("Enter your age: ")` writes the prompt without ending the line, so the answer would be typed right after it, while Rust's `println!` always ends the line, so the answer lands on the line below.
+
 The reason this pattern is worth isolating is the guarantee it produces. Because the loop exits only through the `break`, and the `break` is reachable only after both the parse and the range check have succeeded, every line of code after the loop can treat `age` as a valid number without re-checking it. The validation is concentrated in one place, the loop, and everything downstream is freed from worrying about bad input. That is the payoff of validating in a loop rather than scattering checks throughout the program: the bad values are turned away at a single door.
 
 <WhatDiffers>
@@ -350,7 +313,7 @@ The two languages reject a bad value through the different failure models from t
 
 The patterns so far each produce a single value or a single decision. A **nested-loop pattern** produces a two-dimensional result instead, pairing every value of one thing with every value of another, which is exactly what a table or grid is. The nested loops from the loops lecture supply the structure: an outer loop walks the rows, and for each row an inner loop walks the columns, so the inner body runs once for every row-and-column combination. A multiplication table is the clearest example, where the value in each cell is the row number times the column number.
 
-The mechanism is the nesting you already know, read for its two-dimensional shape. The outer loop's variable names the current row and stays fixed while the entire inner loop runs; the inner loop's variable sweeps across every column for that one row. Each pass of the inner loop prints one cell, and because the printing does not end the line, the cells of a row land next to each other. When the inner loop finishes a row, the outer loop's body prints an empty line to move down to the next row before the inner loop starts over. That combination, print each cell without a newline across a row, then print a newline at the row's end, is what turns a stream of numbers into a visible grid.
+The nesting itself works exactly as the loops lecture traced it; what is new here is the printing. Each pass of the inner loop prints one cell, and because the printing does not end the line, the cells of a row land next to each other. When the inner loop finishes a row, the outer loop's body prints an empty line to move down to the next row before the inner loop starts over. That combination, print each cell without a newline across a row, then print a newline at the row's end, is what turns a stream of numbers into a visible grid.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
@@ -375,24 +338,7 @@ fn main() {
 </TabItem>
 </Tabs>
 
-Trace the structure rather than every cell. The outer loop sets `row` to `1` and runs its body, which is the whole inner loop: `col` sweeps `1, 2, 3, 4, 5`, printing `1*1`, `1*2`, `1*3`, `1*4`, `1*5`, that is `1 2 3 4 5`, each followed by a tab so they sit in a row. The inner loop ends, and the outer body then prints an empty line, dropping to the next row. Now the outer loop sets `row` to `2` and the inner loop starts over from `col` of `1`, printing `2 4 6 8 10`; then `row` of `3` prints `3 6 9 12 15`, `row` of `4` prints `4 8 12 16 20`, and `row` of `5` prints `5 10 15 20 25`. The inner body ran <Latex formula="5 \times 5 = 25" /> times in all, once per cell, exactly as the loops lecture showed the pass counts of nested loops multiply.
-
-```bash title="Run the Python program"
-python3 table.py
-```
-
-```text frame="terminal" title="Output"
-1	2	3	4	5
-2	4	6	8	10
-3	6	9	12	15
-4	8	12	16	20
-5	10	15	20	25
-```
-
-```bash title="Compile and run the Rust program"
-rustc table.rs
-./table
-```
+Trace the structure rather than every cell. With `row` fixed at `1`, the inner loop sweeps `col` through `1` to `5`, printing `1 2 3 4 5` across one line, each cell followed by a tab; the bare print at the row's end then drops to the next line. Each later pass of the outer loop restarts the inner loop for its row, ending with `5 10 15 20 25`. The inner body ran <Latex formula="5 \times 5 = 25" /> times in all, once per cell, the multiplying pass counts the loops lecture already explained.
 
 ```text frame="terminal" title="Output"
 1	2	3	4	5
@@ -422,7 +368,15 @@ Seen this way, the patterns are not six unrelated tricks but a few ideas recombi
 
 ## Takeaways
 
-The loops lecture gave you the machinery of repetition; this one gives you the shapes that machinery almost always takes. An accumulator is a variable set to a neutral value before a loop, updated on every pass, and read after, and it is the root of two more patterns: the count pattern is an accumulator whose update is a fixed step of `1` guarded by an `if`, and a running product is an accumulator that multiplies from a start of `1`. The search pattern trades visiting every item for stopping at the first match, pairing a `break` with a found flag so the code after the loop can tell a success from a search that ran out of items. Reading input in a loop brings two patterns that repeat on purpose until something inside them stops: the sentinel pattern reads until a designated stop value appears, checking for that value before ever treating it as data, and the validate-until-correct pattern re-prompts with `continue` until an input both parses and passes validation, exiting only through a `break` that guarantees every later line can trust the value. Nested loops build a two-dimensional result, an inner loop laying down a row inside an outer loop stacking the rows, so the inner body runs once per cell and the pass counts multiply. Underneath all six is a single skill worth more than any one of them: reading a problem to see what it keeps across passes and what makes it stop, and letting those two answers choose the pattern. The next lecture turns from numbers to text, introducing strings and the characters they are built from, where several of these same patterns, accumulate, count, and search, reappear applied to the letters of a word.
+The loops lecture gave you the machinery of repetition; this one gives you the shapes that machinery almost always takes. An accumulator is a variable set to a neutral value before a loop, updated on every pass, and read after, and it is the root of two more patterns: the count pattern is an accumulator whose update is a fixed step of `1` guarded by an `if`, and a running product is an accumulator that multiplies from a start of `1`.
+
+The search pattern trades visiting every item for stopping at the first match, pairing a `break` with a found flag so the code after the loop can tell a success from a search that ran out of items.
+
+Reading input in a loop brings two patterns that repeat on purpose until something inside them stops. The sentinel pattern reads until a designated stop value appears, checking for that value before ever treating it as data. The validate-until-correct pattern re-prompts with `continue` until an input both parses and passes validation, exiting only through a `break` that guarantees every later line can trust the value.
+
+Nested loops build a two-dimensional result, an inner loop laying down a row inside an outer loop stacking the rows, so the inner body runs once per cell and the pass counts multiply.
+
+Underneath all six is a single skill worth more than any one of them: reading a problem to see what it keeps across passes and what makes it stop, and letting those two answers choose the pattern. The next lecture turns from numbers to text, introducing strings and the characters they are built from, where several of these same patterns, accumulate, count, and search, reappear applied to the letters of a word.
 
 ## Resources
 

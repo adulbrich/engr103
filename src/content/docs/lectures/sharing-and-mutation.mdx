@@ -58,10 +58,6 @@ fn main() {
 
 Run the Python version and the change made inside the function is visible on the caller's list, even though the last line only prints `readings`:
 
-```bash title="Run the Python program"
-python3 mutate_list.py
-```
-
 ```text frame="terminal" title="Output"
 [10, 20, 30, 40]
 ```
@@ -97,16 +93,40 @@ Notice what Rust has forced into the open. In Python, whether `add_reading` shar
 :::note[A scalar argument still does not change the caller]
 The [Functions](/lectures/functions) rule has not been repealed; it applies whenever the argument is a small value. A function that takes a number and reassigns its parameter changes only its private copy:
 
+<Tabs syncKey="lang">
+<TabItem label="Python">
 ```python title="scalar_arg.py"
 def bump(n):
     n = n + 1
+    print(n)
 
 count = 5
 bump(count)
 print(count)
 ```
+</TabItem>
+<TabItem label="Rust">
+```rust title="scalar_arg.rs"
+fn bump(mut n: i32) {
+    n = n + 1;
+    println!("{}", n);
+}
 
-This prints `5`, not `6`. The difference from the list is not that one is passed differently on a whim. A number is small enough to sit where the name is, so `count` and `n` hold two independent copies of `5`, and `n = n + 1` builds a new number for `n` alone. A list is one object that both names refer to, so a change to that object is a change both names see. Same call machinery, different outcome, decided entirely by whether the value is a separate copy or one shared object.
+fn main() {
+    let count = 5;
+    bump(count);
+    println!("{}", count);
+}
+```
+</TabItem>
+</Tabs>
+
+```text frame="terminal" title="Output"
+6
+5
+```
+
+Both versions print `6` from inside the function and then `5`, not `6`, from the caller. The difference from the list is not that one is passed differently on a whim. A number is small enough to sit where the name is, so `count` and `n` hold two independent copies of `5`, and `n = n + 1` changes `n` alone; the `mut` in front of Rust's parameter plays the same role `let mut` always has, marking the private copy as changeable. A list is one object that both names refer to, so a change to that object is a change both names see. Same call machinery, different outcome, decided entirely by whether the value is a separate copy or one shared object.
 :::
 
 ## Borrowing a Collection
@@ -115,7 +135,7 @@ Moving the whole vector into a function is almost never what you mean. You want 
 
 ### Shared References
 
-A **shared reference**, written `&Vec<i32>` (or the slimmer `&[i32]`), lets a function read a collection without owning it and without changing it. The function borrows the vector, reads through the borrow, and leaves the caller's ownership untouched. Here is a function that adds up a vector's elements, taking a shared reference so the caller keeps its vector afterward.
+A **shared reference**, written `&Vec<i32>`, lets a function read a collection without owning it and without changing it. The function borrows the vector, reads through the borrow, and leaves the caller's ownership untouched. Here is a function that adds up a vector's elements, taking a shared reference so the caller keeps its vector afterward.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
@@ -150,28 +170,14 @@ fn main() {
 </TabItem>
 </Tabs>
 
-Both versions read the collection and then still use it. Run the Python program and the sum prints, and `readings` is unchanged because reading never changes anything:
-
-```bash title="Run the Python program"
-python3 read_only.py
-```
+Both versions read the collection and then still use it: the sum prints, and `readings` is unchanged because reading never changes anything.
 
 ```text frame="terminal" title="Output"
 60
 [10, 20, 30]
 ```
 
-The Rust version does the same, and the `&` is what makes it possible. Written as `total(readings)` with a plain value, the vector would move into `total` and `main` could not print it afterward. Written as `total(&readings)`, the function borrows the vector, reads it, and hands nothing over, so `readings` survives the call:
-
-```bash title="Compile and run the Rust program"
-rustc read_only.rs
-./read_only
-```
-
-```text frame="terminal" title="Output"
-60
-[10, 20, 30]
-```
+In the Rust version, the `&` is what makes this possible. Written as `total(readings)` with a plain value, the vector would move into `total` and `main` could not print it afterward. Written as `total(&readings)`, the function borrows the vector, reads it, and hands nothing over, so `readings` survives the call.
 
 The promise in `&Vec<i32>` is not just a convenience; the compiler holds the function to it. A function that borrowed the vector to read it is not allowed to change it, and if it tries, the program does not build.
 
@@ -225,12 +231,7 @@ fn main() {
 </TabItem>
 </Tabs>
 
-Both now change the caller's collection, and both print the grown one. Compile and run the Rust version:
-
-```bash title="Compile and run the Rust program"
-rustc borrow_mut.rs
-./borrow_mut
-```
+Both now change the caller's collection, and both print the grown one:
 
 ```text frame="terminal" title="Output"
 [10, 20, 30, 40]
@@ -337,22 +338,13 @@ fn main() {
 
 Run the Python program and the original is untouched, because the function appended to a separate list that nobody kept:
 
-```bash title="Run the Python program"
-python3 defensive_copy.py
-```
-
-```text frame="terminal" title="Output"
+```text frame="terminal" title="Output (Python)"
 [10, 20, 30]
 ```
 
 Rust makes the copy with `.clone()`, the same method the [memory model](/lectures/the-memory-model) lecture used to duplicate a vector on purpose. `readings.clone()` builds a full, owned copy; the mutable borrow then changes only that copy, and the original prints exactly as it started:
 
-```bash title="Compile and run the Rust program"
-rustc defensive_copy.rs
-./defensive_copy
-```
-
-```text frame="terminal" title="Output"
+```text frame="terminal" title="Output (Rust)"
 [10, 20, 30]
 [10, 20, 30, 40]
 ```
@@ -367,7 +359,15 @@ A defensive copy is a real cost, and naming it keeps the choice honest. Copying 
 
 ## Takeaways
 
-Passing a collection to a function is the [memory model](/lectures/the-memory-model) applied to a call. In Python, matching an argument to a parameter copies the reference, so the parameter and the caller's name point at one shared object, and a function that appends to or otherwise changes its list parameter changes the caller's list too, exactly the aliasing from before, now reaching in through a function. A scalar argument still behaves as [Functions](/lectures/functions) described, because a small value is a separate copy rather than one shared object. Rust starts from the opposite default: passing a vector by value moves it into the function and the caller loses it, rejected as error `E0382` if used again. So Rust asks you to borrow instead, and to say how. A shared reference, `&Vec<i32>`, lets a function read a collection and keep the caller's ownership intact, and the compiler forbids that function from changing what it borrowed. A mutable reference, `&mut Vec<i32>`, lets a function change the caller's collection, and it takes agreement in three places: a `let mut` owner, a `&mut` parameter type, and a `&mut` at the call site, each a promise the compiler checks. That is the deep difference this lecture is built around: in Python you cannot tell from a call or a signature whether a function will change your list, so the safety rests on your discipline; in Rust the signature declares read-only or mutable access and the compiler guarantees the declaration is honored, with a light borrow rule that stops a loud edit from happening during a quiet read. When you want a function kept away from your original entirely, you pass a defensive copy, `list(xs)` or `xs[:]` in Python and `xs.clone()` in Rust, mutating the copy and leaving the original whole, at the real and deliberate cost of duplicating the collection. The next lecture returns to collections themselves and the richer things you can build once you can pass them around safely.
+Passing a collection to a function is the [memory model](/lectures/the-memory-model) applied to a call. In Python, matching an argument to a parameter copies the reference, so the parameter and the caller's name point at one shared object, and a function that appends to or otherwise changes its list parameter changes the caller's list too, exactly the aliasing from before, now reaching in through a function. A scalar argument still behaves as [Functions](/lectures/functions) described, because a small value is a separate copy rather than one shared object.
+
+Rust starts from the opposite default: passing a vector by value moves it into the function and the caller loses it, rejected as error `E0382` if used again. So Rust asks you to borrow instead, and to say how. A shared reference, `&Vec<i32>`, lets a function read a collection and keep the caller's ownership intact, and the compiler forbids that function from changing what it borrowed. A mutable reference, `&mut Vec<i32>`, lets a function change the caller's collection, and it takes agreement in three places: a `let mut` owner, a `&mut` parameter type, and a `&mut` at the call site, each a promise the compiler checks.
+
+That is the deep difference this lecture is built around: in Python you cannot tell from a call or a signature whether a function will change your list, so the safety rests on your discipline; in Rust the signature declares read-only or mutable access and the compiler guarantees the declaration is honored, with a light borrow rule that stops a loud edit from happening during a quiet read.
+
+When you want a function kept away from your original entirely, you pass a defensive copy, `list(xs)` or `xs[:]` in Python and `xs.clone()` in Rust, mutating the copy and leaving the original whole, at the real and deliberate cost of duplicating the collection.
+
+The next lecture returns to collections themselves and the richer things you can build once you can pass them around safely.
 
 ## Resources
 

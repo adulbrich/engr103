@@ -13,7 +13,7 @@ import WhatDiffers from '/src/components/WhatDiffers.astro';
 type: lecture
 slug: collections-i
 order: 14
-covers: lists and vectors as growable sequences; literals; homogeneous vs mixed; indexing and negative indices; length; iteration; append/push and mutation; out-of-bounds errors; sum and search loops
+covers: lists and vectors as growable sequences; literals; mixed types vs one type (heterogeneous vs homogeneous); indexing and negative indices; length; iteration; append/push and mutation; out-of-bounds errors; sum and search loops
 prereq_lectures: strings
 followup_lectures: the-memory-model
 glossary_terms: list, vector, element, index, append, out-of-bounds
@@ -29,7 +29,7 @@ A **list** is an ordered sequence of values, kept in a fixed order and reachable
 
 Two things separate a list from the string of the previous lecture. First, its elements are not limited to characters; a list of whole numbers is the common case, and that alone makes lists the natural home for a set of measurements, scores, or counts. Second, and more important, a list can change size after you create it: you can add an element to the end and make it longer, or remove one and make it shorter. A string literal had a fixed size once written; a list is **growable**, which is why it can collect an amount of data you did not know in advance.
 
-You write a list directly in your code as a **list literal**. In Python, that is a comma-separated run of values inside square brackets, `[1, 2, 3]`. In Rust, you build a vector with the `vec!` macro, `vec![1, 2, 3]`, the exclamation mark marking `vec!` as a macro just as it did for `println!`. To start from nothing and grow, Rust also offers `Vec::new()`, which makes an empty vector; because an empty vector shows the compiler no elements to learn the type from, you write the element type alongside it, as in `let mut nums: Vec<i32> = Vec::new();`, and Python's empty list is simply `[]`.
+You write a list directly in your code as a **list literal**. In Python, that is a comma-separated run of values inside square brackets, `[1, 2, 3]`. In Rust, you build a vector with the `vec!` macro, `vec![1, 2, 3]`, the exclamation mark marking `vec!` as a macro just as it did for `println!`. To start from nothing and grow, Rust also offers `Vec::new()`, which makes an empty vector; because an empty vector shows the compiler no elements to learn the type from, you write the element type alongside it, as in `let mut nums: Vec<i32> = Vec::new();`, where `Vec<i32>` reads as "a vector whose elements are `i32`", and Python's empty list is simply `[]`.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
@@ -48,19 +48,6 @@ fn main() {
 </TabItem>
 </Tabs>
 
-```bash title="Run the Python program"
-python3 list.py
-```
-
-```text frame="terminal" title="Output"
-[1, 2, 3]
-```
-
-```bash title="Compile and run the Rust program"
-rustc list.rs
-./list
-```
-
 ```text frame="terminal" title="Output"
 [1, 2, 3]
 ```
@@ -71,9 +58,9 @@ Python writes a list literal as values inside square brackets, `[1, 2, 3]`, and 
 </Fragment>
 </WhatDiffers>
 
-## Homogeneous vectors, heterogeneous lists
+## Mixed types or one type
 
-The two languages disagree about what may sit inside a single sequence, and the disagreement traces straight back to how each one treats types. A Python list is **heterogeneous**: its elements may be of different types, so a single list can hold a whole number, a piece of text, and a decimal number all at once. A Rust vector is **homogeneous**: every element must be the same type, decided when the vector is created and fixed from then on.
+The two languages disagree about what may sit inside a single sequence, and the disagreement traces straight back to how each one treats types. A Python list may hold mixed types (the technical label is **heterogeneous**): a single list can hold a whole number, a piece of text, and a decimal number all at once. A Rust vector holds one type (the label is **homogeneous**): every element must be the same type, decided when the vector is created and fixed from then on.
 
 The reason is the same static-versus-dynamic split you have seen since the start of the course. Python attaches a type to each value rather than to the name holding it, so a list is just a sequence of values, and nothing requires those values to agree. Rust checks types while it compiles, before the program runs, and to do that it insists on knowing the one type every element of a vector will have. Asking Rust to mix types in a vector is therefore not a run-time surprise but a compile error: the program never builds.
 
@@ -96,10 +83,6 @@ fn main() {
 
 Running the Python version prints the mixed list, the text element shown in quotation marks so you can tell it apart from the numbers:
 
-```bash title="Run the Python program"
-python3 mixed.py
-```
-
 ```text frame="terminal" title="Output"
 [1, 'two', 3.0]
 ```
@@ -120,7 +103,7 @@ error[E0308]: mismatched types
 
 <WhatDiffers>
 <Fragment slot="differs">
-A Python list is heterogeneous: `[1, "two", 3.0]` is fine, holding a whole number, text, and a decimal number together. A Rust vector is homogeneous: every element must share one type, so `vec![1, "two", 3.0]` does not compile, the first element fixing the type as a whole number and the text `"two"` then failing to match it.
+A Python list may mix types (heterogeneous): `[1, "two", 3.0]` is fine, holding a whole number, text, and a decimal number together. A Rust vector holds one type (homogeneous): every element must share it, so `vec![1, "two", 3.0]` does not compile, the first element fixing the type as a whole number and the text `"two"` then failing to match it.
 </Fragment>
 </WhatDiffers>
 
@@ -147,20 +130,6 @@ fn main() {
 </TabItem>
 </Tabs>
 
-```bash title="Run the Python program"
-python3 index.py
-```
-
-```text frame="terminal" title="Output"
-10
-30
-```
-
-```bash title="Compile and run the Rust program"
-rustc index.rs
-./index
-```
-
 ```text frame="terminal" title="Output"
 10
 30
@@ -186,10 +155,6 @@ fn main() {
 </Tabs>
 
 Running the Python version prints the last element:
-
-```bash title="Run the Python program"
-python3 last.py
-```
 
 ```text frame="terminal" title="Output"
 30
@@ -238,19 +203,6 @@ fn main() {
 </TabItem>
 </Tabs>
 
-```bash title="Run the Python program"
-python3 length.py
-```
-
-```text frame="terminal" title="Output"
-3
-```
-
-```bash title="Compile and run the Rust program"
-rustc length.rs
-./length
-```
-
 ```text frame="terminal" title="Output"
 3
 ```
@@ -280,21 +232,6 @@ fn main() {
 ```
 </TabItem>
 </Tabs>
-
-```bash title="Run the Python program"
-python3 iterate.py
-```
-
-```text frame="terminal" title="Output"
-10
-20
-30
-```
-
-```bash title="Compile and run the Rust program"
-rustc iterate.rs
-./iterate
-```
 
 ```text frame="terminal" title="Output"
 10
@@ -340,21 +277,6 @@ fn main() {
 </Tabs>
 
 Trace the three prints. The list starts as `[1, 2, 3]`, so the first print shows that. Appending `4` puts it after the last element, making `[1, 2, 3, 4]`, which the second print shows. Assigning `nums[0] = 9` then overwrites the element at position 0, the `1`, with `9`, leaving the rest untouched, so the third print shows `[9, 2, 3, 4]`.
-
-```bash title="Run the Python program"
-python3 grow.py
-```
-
-```text frame="terminal" title="Output"
-[1, 2, 3]
-[1, 2, 3, 4]
-[9, 2, 3, 4]
-```
-
-```bash title="Compile and run the Rust program"
-rustc grow.rs
-./grow
-```
 
 ```text frame="terminal" title="Output"
 [1, 2, 3]
@@ -413,11 +335,7 @@ fn main() {
 </TabItem>
 </Tabs>
 
-```bash title="Run the Python program"
-python3 bounds.py
-```
-
-```text frame="terminal" title="Output"
+```text frame="terminal" title="Output (Python)"
 Traceback (most recent call last):
   File "bounds.py", line 2, in <module>
     print(nums[5])
@@ -425,12 +343,7 @@ Traceback (most recent call last):
 IndexError: list index out of range
 ```
 
-```bash title="Compile and run the Rust program"
-rustc bounds.rs
-./bounds
-```
-
-```text frame="terminal" title="Output"
+```text frame="terminal" title="Output (Rust)"
 thread 'main' panicked at bounds.rs:3:24:
 index out of bounds: the len is 3 but the index is 5
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
@@ -474,19 +387,6 @@ fn main() {
 
 Trace the total. It starts at `0`. The first pass adds `10`, making `10`; the second adds `20`, making `30`; the third adds `30`, making `60`. After the loop, the accumulated total is printed.
 
-```bash title="Run the Python program"
-python3 sum.py
-```
-
-```text frame="terminal" title="Output"
-60
-```
-
-```bash title="Compile and run the Rust program"
-rustc sum.rs
-./sum
-```
-
 ```text frame="terminal" title="Output"
 60
 ```
@@ -526,26 +426,25 @@ fn main() {
 
 Trace the search. The loop checks `nums[0]`, which is `4`, against the target `15`: not equal, so it moves on. It checks `nums[1]`, `8`, not equal; then `nums[2]`, `15`, which is equal, so it sets `found` true and breaks, never looking at `nums[3]` or `nums[4]`. The flag, now true, is printed.
 
-```bash title="Run the Python program"
-python3 search.py
-```
-
-```text frame="terminal" title="Output"
+```text frame="terminal" title="Output (Python)"
 True
 ```
 
-```bash title="Compile and run the Rust program"
-rustc search.rs
-./search
-```
-
-```text frame="terminal" title="Output"
+```text frame="terminal" title="Output (Rust)"
 true
 ```
 
 ## Takeaways
 
-A list, called a vector in Rust, is an ordered sequence of elements, the same shape as the string of the previous lecture but widened in two ways: its elements can be any values, whole numbers most often, and it can grow and shrink as the program runs rather than being fixed at the size you first wrote. You create one as a literal, `[1, 2, 3]` in Python or `vec![1, 2, 3]` in Rust, and the two languages disagree on what may go inside: a Python list is heterogeneous and may mix types, while a Rust vector is homogeneous and fixes one element type at compile time, refusing to build if you mix them. From there the operations echo the string lecture almost exactly. You reach an element by its zero-based index with `nums[0]`, with Python alone allowing a negative index that counts from the end; you ask the length with `len(nums)` or `nums.len()`; and you visit every element with a `for` loop, written `for x in nums` in Python and `for x in &nums` in Rust, whose `&` keeps the vector usable after the loop for reasons the next lecture explains. What a list adds beyond a string is change: you append an element to the end with `nums.append(4)` or `nums.push(4)`, growing it by one, and overwrite an element with `nums[0] = 9`, and Rust requires a vector you change to be declared `let mut`. Reaching past the end is the canonical error, and both languages catch it at run time, Python with an `IndexError` and Rust with a panic, in deliberate contrast to C and C++, whose raw arrays silently read or write past their end and open the buffer overflow that the next lecture's look at memory explains and that memory safety exists to close. Finally, the accumulate and search patterns from the loop-patterns lecture apply to a list without change, since a list is just a sequence to walk. The next lecture turns from what a list does to where its elements actually live in memory, which is what makes the `&` on `for x in &nums` and the danger of a buffer overflow finally make sense.
+A list, called a vector in Rust, is an ordered sequence of elements, the same shape as the string of the previous lecture but widened in two ways: its elements can be any values, whole numbers most often, and it can grow and shrink as the program runs rather than being fixed at the size you first wrote. You create one as a literal, `[1, 2, 3]` in Python or `vec![1, 2, 3]` in Rust, and the two languages disagree on what may go inside: a Python list may mix types (heterogeneous), while a Rust vector fixes one element type at compile time (homogeneous), refusing to build if you mix them.
+
+From there the operations echo the string lecture almost exactly. You reach an element by its zero-based index with `nums[0]`, with Python alone allowing a negative index that counts from the end; you ask the length with `len(nums)` or `nums.len()`; and you visit every element with a `for` loop, written `for x in nums` in Python and `for x in &nums` in Rust, whose `&` keeps the vector usable after the loop for reasons the next lecture explains.
+
+What a list adds beyond a string is change: you append an element to the end with `nums.append(4)` or `nums.push(4)`, growing it by one, and overwrite an element with `nums[0] = 9`, and Rust requires a vector you change to be declared `let mut`.
+
+Reaching past the end is the canonical error, and both languages catch it at run time, Python with an `IndexError` and Rust with a panic. That is a deliberate contrast to C and C++, whose raw arrays silently read or write past their end and open the buffer overflow that the next lecture's look at memory explains and that memory safety exists to close.
+
+Finally, the accumulate and search patterns from the loop-patterns lecture apply to a list without change, since a list is just a sequence to walk. The next lecture turns from what a list does to where its elements actually live in memory, which is what makes the `&` on `for x in &nums` and the danger of a buffer overflow finally make sense.
 
 ## Resources
 
