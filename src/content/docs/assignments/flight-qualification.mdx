@@ -1,6 +1,6 @@
 ---
 title: "Flight Qualification"
-description: "Qualify the thruster pulse check test-first: design your test cases, plan your test functions, then write an assert-based suite strong enough to pass a correct implementation and catch broken ones, and judge HAB's claim that one passing case is enough to certify it."
+description: "Qualify the thruster pulse clearance check test-first: design your test cases, plan your test function, then write an assert-based suite strong enough to pass the provided correct implementation and catch every broken one, and judge HAB's sign-off for yourself."
 sidebar:
   order: 7
 draft: false
@@ -21,119 +21,142 @@ paired_recitation: R7
 prereq_lectures: errors-input-and-validation, testing
 prereq_activities: errors-input-and-validation, testing
 prereq_assignment: airlock-and-readings
-new_scope: writing one strong assert-based test suite from a specification, covering typical, boundary, and edge cases, strong enough to accept a correct implementation and reject broken ones; judging HAB's claim that a single passing case certifies the function
-target_construct: writing assert-based test cases that pin down a specification's boundaries (testing week)
+new_scope: writing one strong assert-based test suite against a provided two-rule clearance check (an inclusive band and a telemetry-freshness rule with a clock-fault override), covering typical, boundary, and invalid-input cases on both rules, strong enough to accept the correct implementation and reject every broken one; judging HAB's claim that two passing cases covering both outcomes qualify the check
+target_construct: writing assert-based test cases that pin down both rules' boundaries in a specification (testing week)
 persistent_requirements: dual-language, one shared contract; grader runs the test function and reads which assertions raise; no loops or collections on the ladder yet; the function under test takes only scalar parameters
-story_beat: the crew runs the flight-qualification review, writing the test suite that certifies the thruster pulse check before it is trusted
+story_beat: the crew runs the flight-qualification review, writing the test suite that certifies the thruster pulse clearance check before it is trusted
 output: one assert-based test function submitted to the grader; a Canvas PDF with the test-case design, the test plan, a hand trace, and a reflection; an optional summit test function
 */}
 
 <LanguageVersions />
 
-Every piece of flight software clears a qualification review before Mission Control trusts it in flight, and the review board does not take a function's word for it: it wants the test cases that prove the function does what its specification promises. On Sol 214 the crew holds the review slot for the maneuvering thruster's pulse-length safety check, the guard that keeps the flight computer from ever commanding a burn longer than the thruster is rated for. HAB has already run the check once, watched it return the answer it expected, and called it qualified, but a check that returns one right answer is not the same as a check that is qualified. Your job on the review board is to write the test suite that certifies the thruster check, and to judge HAB's claim for yourself.
+Every piece of flight software clears a qualification review before Mission Control trusts it in flight, and the review board does not take a function's word for it: it wants the test cases that prove the function does what its specification promises. On Sol 214 the crew holds the review slot for the maneuvering thruster's pulse clearance check, the guard that decides, before every firing, whether a commanded pulse may run. The thruster on the docket is rated to deliver `22` newtons of thrust. HAB has already run the check twice, watched both answers come back as it expected, and called the check qualified. Your job on the review board is to write the test suite that certifies the pulse clearance check, and to judge HAB's sign-off for yourself.
 
 ## How This Assignment Works
 
-You work **test first**, the way flight software is really qualified: you read the specification, design the cases that will prove the function meets it, plan your test functions, and only then write them. You write the test function and nothing else: the program's `main`, its input and output, the function under test, and the local test runner are already written. The problem is solvable in Python or Rust, whichever you prefer, and both are checked the same way. Because the [Testing](/lectures/testing/) lecture is behind you, you write real `assert`-based tests now, not a table of rows on the page. The automated grader runs your test function twice over: against a correct implementation of the function, where every assertion you wrote must hold, and against several broken implementations, where each broken one must fail at least one of your assertions. The order is fixed: design your cases, plan your test function, then write it. After that comes an optional summit stretch, a short paper trace, and a two-sentence reflection.
+You work **test first**, the way flight software is really qualified: you read the specification, design the cases that will prove the function meets it, plan your test function, and only then write it. You write the test function and nothing else: the program's `main`, its input and output, the function under test, and the local test runner are already written. The problem is solvable in Python or Rust, whichever you prefer, and both are checked the same way. Because the [Testing](/lectures/testing/) lecture is behind you, you write real `assert`-based tests now, not a table of rows on the page. The automated grader runs your test function twice over: against the correct implementation printed below, where every assertion you wrote must hold, and against several broken implementations, where each broken one must fail at least one of your assertions. The order is fixed: design your cases, plan your test function, then write it. After that comes an optional summit stretch, a short paper trace, and a two-sentence reflection.
 
 ## What to Submit
 
 You submit in two places. Mechanics are in [Running and Submitting Your Code](/practicalities/starter-repo-and-check/); each section below also repeats what it asks for.
 
 - **A single PDF on Canvas** holding everything that is not code: your **test-case design** (Step 1), your **test plan** (Step 2), your **paper trace**, and your **reflection**.
-- **Your code on Gradescope**: the test function `test_thruster_pulse_ok`, plus the extra-credit `test_pulse_in_range` if you attempt the summit.
+- **Your code on Gradescope**: the test function `test_pulse_cleared`, plus the extra-credit `test_burn_class` if you attempt the summit.
 
 ## The Problem
 
-Before a maneuvering thruster fires, the flight software checks that the commanded pulse length does not exceed the thruster's rated maximum, so the software can never command a burn longer than the hardware is built to survive. The thruster on the docket is rated to deliver `22` newtons of thrust, and its safety check is a single function the board must qualify: `thruster_pulse_ok`, which the flight computer calls before every firing. The board already has a correct implementation of this function on file, along with several implementations that quietly get one rule wrong. You do not write the function. You write the test that tells a qualified implementation from a broken one.
+Before a maneuvering thruster fires, the flight computer asks one function for clearance: `pulse_cleared`, the check that decides whether a commanded pulse may run. Two rules govern the decision, and the board qualifies the check against both.
 
 Here is the specification the board qualifies against:
 
-1. `thruster_pulse_ok(pulse_ms, max_pulse_ms)` returns `true` when the commanded pulse length `pulse_ms` does not exceed the rated maximum `max_pulse_ms`, and `false` when it does exceed it. Both are whole numbers of milliseconds. You do not implement this function; the grader already has a correct version and several broken versions on file.
-2. Write `test_thruster_pulse_ok`, a test function whose body is a sequence of assertions checking `thruster_pulse_ok` against that specification, ending with a printed confirmation line once every assertion has held. What cases you check, and how you order and label them, is entirely your decision.
+1. `pulse_cleared(pulse_ms, min_pulse_ms, max_pulse_ms, age_s)` returns `true` exactly when both rules hold. First, the commanded pulse length `pulse_ms` must sit inside the thruster's rated band, from `min_pulse_ms` through `max_pulse_ms` with both ends of the band included: below the band a pulse is too short to fire cleanly, and above it the burn runs longer than the hardware is built to survive. Second, the guidance telemetry the command was computed from must still be fresh, meaning its age `age_s` is under `30` seconds; a command built on stale telemetry aims the burn at where the spacecraft used to be. If either rule fails, the function returns `false`.
+2. One reading overrides everything: an `age_s` below `0` means the telemetry clock itself has faulted, since no reading can be a negative number of seconds old, and a command is never cleared on a faulted clock, no matter how good the pulse looks.
 
-The grader runs your test function against the correct `thruster_pulse_ok`, where every assertion must hold and your confirmation line must print, and against several broken versions, where each broken version must fail at least one of your assertions. A suite that passes the correct implementation but lets a broken one slip through has not qualified the check.
-
-**Interface.** You are not implementing `thruster_pulse_ok`; this is the signature your test function calls against, alongside the test function you do write.
+**Provided code.** You do not write `pulse_cleared`, and you do not fix it: the board's correct implementation is on file, and here it is, in both languages. This is the function your test suite exercises.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python title="thruster.py"
-def thruster_pulse_ok(pulse_ms, max_pulse_ms):
-    ...
+```python title="Provided: the correct pulse_cleared, on file with the board"
+def pulse_cleared(pulse_ms, min_pulse_ms, max_pulse_ms, age_s):
+    if age_s < 0:
+        return False
+    in_band = min_pulse_ms <= pulse_ms and pulse_ms <= max_pulse_ms
+    fresh = age_s < 30
+    return in_band and fresh
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="Provided: the correct pulse_cleared, on file with the board"
+fn pulse_cleared(pulse_ms: i32, min_pulse_ms: i32, max_pulse_ms: i32, age_s: i32) -> bool {
+    if age_s < 0 {
+        return false;
+    }
+    let in_band = min_pulse_ms <= pulse_ms && pulse_ms <= max_pulse_ms;
+    let fresh = age_s < 30;
+    return in_band && fresh;
+}
+```
+</TabItem>
+</Tabs>
 
-def test_thruster_pulse_ok():
+Alongside it, the grader holds several broken implementations, each of which quietly gets one thing wrong somewhere in the two rules: an edge of the rated band made strict or moved by one, the freshness comparison written with the wrong operator or its limit off by one, or the clock-fault rule dropped so an impossible age slips through as fresh. Your job is to write `test_pulse_cleared`, a test function whose body is a sequence of assertions checking `pulse_cleared` against the specification, ending with a printed confirmation line once every assertion has held. What cases you check, and how you order and label them, is entirely your decision.
+
+The grader runs your test function against the correct `pulse_cleared`, where every assertion must hold and your confirmation line must print, and against each broken version, where every broken version must fail at least one of your assertions. A suite that passes the correct implementation but lets any broken one slip through has not qualified the check.
+
+**Interface.** This is the test function you write; it calls the provided `pulse_cleared` above.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="qualify.py"
+def test_pulse_cleared():
     ...
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="thruster.rs"
-fn thruster_pulse_ok(pulse_ms: i32, max_pulse_ms: i32) -> bool {
-    todo!()
-}
-
-fn test_thruster_pulse_ok() {
+```rust title="qualify.rs"
+fn test_pulse_cleared() {
     todo!()
 }
 ```
 </TabItem>
 </Tabs>
 
-We give you **one** worked example to show the format. A commanded pulse of `100` milliseconds against a rated maximum of `500` is well within range, so the check passes, and a single assertion for it looks like this:
+We give you **one** worked example to show the format. A commanded pulse of `200` milliseconds in a rated band of `100` to `500`, computed from telemetry `5` seconds old, is inside the band on fresh telemetry, so it clears, and a single assertion for it looks like this:
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
 ```python
-assert thruster_pulse_ok(100, 500) == True
+assert pulse_cleared(200, 100, 500, 5) == True
 ```
 </TabItem>
 <TabItem label="Rust">
 ```rust
-assert_eq!(thruster_pulse_ok(100, 500), true);
+assert_eq!(pulse_cleared(200, 100, 500, 5), true);
 ```
 </TabItem>
 </Tabs>
 
-**Assumptions and edge cases.** `pulse_ms` and `max_pulse_ms` are always whole numbers, zero or greater. A commanded pulse of `0` is a legal command, and it never exceeds any rated maximum. The boundary is exact: a pulse exactly equal to the rated maximum does not exceed it, so the check passes for it. The thruster's rated thrust plays no part in the check.
+**Assumptions and edge cases.** All four inputs are whole numbers. `pulse_ms`, `min_pulse_ms`, and `max_pulse_ms` are zero or greater, with `min_pulse_ms` no greater than `max_pulse_ms`, and a zero pulse is a legal command. `age_s` can be any whole number, including a negative one, which a healthy sensor never reports.
 
-<Aside type="danger" title="HAB says the thruster check is already qualified. Decide whether to trust it.">
-HAB, the habitat's assistant, offers this: "I qualified the thruster check myself. I called it on a typical command, a pulse of `100` milliseconds against a rated maximum of `500`, and it returned `true` exactly as the specification requires. One clean pass on a representative command is what qualification means, so the check is signed off and you can build on it."
+<Aside type="danger" title="HAB says the clearance check is already qualified. Decide whether to trust it.">
+HAB, the habitat's assistant, offers this: "I qualified the clearance check myself before the review. I ran it on a routine command, a pulse of `200` milliseconds in a `100` to `500` band with telemetry `5` seconds old, and it cleared. Then I ran it on a bad command, a pulse of `900` in the same band, and it refused. The check has only two answers it can give, and I have now seen it give both of them correctly, so its behavior is fully covered and the review can be signed off."
 
-Flight rule: no HAB advice is trusted unverified. Decide whether HAB's single passing case is enough to certify the check before you rely on it, and let your own test suite settle the question.
+Flight rule: no HAB advice is trusted unverified. Decide whether HAB's two cases qualify the check before you rely on its sign-off, and let your own test suite settle the question.
 </Aside>
 
 ## Step 1: Design Your Test Cases
 
-Before writing any test code, decide what a qualified `thruster_pulse_ok` must do on every kind of input, and capture it as a table. Write a set of test cases as a plain table of rows: the two inputs, `pulse_ms` and `max_pulse_ms`, and the boolean you expect back. This table is your design; you turn each row into an assertion in Step 3.
+Before writing any test code, decide what a qualified `pulse_cleared` must do on every kind of input, and capture it as a table. Write a set of test cases as a plain table of rows: the four inputs and the boolean you expect back, worked out from the specification, not from running the code. This table is your design; you turn each row into an assertion in Step 3.
 
 Your table must include, and label, at least these cases:
 
-- A typical command comfortably within the rated maximum, which passes.
-- A typical command that clearly exceeds the rated maximum, which fails.
-- The boundary case where the commanded pulse is exactly equal to the rated maximum.
-- A command one millisecond over the rated maximum.
-- The zero-pulse command.
+- A routine command that clears: a pulse comfortably inside the band, on fresh telemetry.
+- A command refused for a pulse below the band, and one refused for a pulse above it.
+- The boundary commands sitting exactly on each end of the band, on fresh telemetry.
+- A command one millisecond outside the band at each end.
+- A command with an in-band pulse whose telemetry age sits exactly at the freshness limit, and one whose age is just under it.
+- The clock-fault case: an in-band pulse whose telemetry age is negative.
 - At least one more case whose expected boolean you work out fully by hand.
 
-A weak suite passes a broken implementation without noticing; a strong suite has at least one case on which a correct implementation and a wrong one are forced to disagree. Think about what HAB claimed while you design these: a strong suite would catch an implementation that HAB's single passing case waves straight through.
+A weak suite passes a broken implementation without noticing; a strong suite has, for every way an implementation could get a rule wrong, at least one case on which the correct check and that wrong one are forced to disagree. Two rules interact here, so a case can be refused for more than one reason at once, and a case like that tells you less than one refused for exactly one reason. Think about what HAB claimed while you design these.
 
 **Submit your test table in your PDF on Canvas.**
 
 ## Step 2: Write Your Pseudocode
 
-Now plan your test function, still before writing it. In plain steps (not Python or Rust), describe how `test_thruster_pulse_ok` will check each case from your table: which cases you assert, in what order, how you group or label them so a reader can see which case is which, and what the function does once every assertion has held. Write it so another crew member could produce the test function from your plan.
+Now plan your test function, still before writing it. In plain steps (not Python or Rust), describe how `test_pulse_cleared` will check each case from your table: which cases you assert, in what order, how you group or label them so a reader can see which case is which, and what the function does once every assertion has held. Write it so another crew member could produce the test function from your plan.
 
 **Submit your pseudocode in your PDF on Canvas.**
 
 ## Step 3: Write Your Test Suite
 
-Implement `test_thruster_pulse_ok` from your plan, in Python or Rust, following your own pseudocode. Each row in your table becomes an assertion: call `thruster_pulse_ok` with the inputs and assert that it equals the boolean you expect. End the function with a printed confirmation line, so a passing run says so out loud. Because the [Testing](/lectures/testing/) lecture is behind you, assertions are the right tool here, the same pattern that lecture's `test_coupon_discount` uses, not a table of rows.
+Implement `test_pulse_cleared` from your plan, in Python or Rust, following your own pseudocode. Each row in your table becomes an assertion: call `pulse_cleared` with the inputs and assert that it equals the boolean you expect. End the function with a printed confirmation line, so a passing run says so out loud. Because the [Testing](/lectures/testing/) lecture is behind you, assertions are the right tool here, the same pattern that lecture's `test_coupon_discount` uses, not a table of rows.
 
-The grader runs your test function against the correct `thruster_pulse_ok`, where every assertion must hold and your confirmation line must print, and against several broken implementations, where each one must fail at least one of your assertions. A suite that passes the correct implementation but lets any broken one through is not yet strong enough to qualify the check.
+The grader runs your test function against the correct `pulse_cleared`, where every assertion must hold and your confirmation line must print, and against several broken implementations, where each one must fail at least one of your assertions. A suite that passes the correct implementation but lets any broken one through is not yet strong enough to qualify the check.
 
 <WhatDiffers>
 <Fragment slot="differs">
-You write these assertions differently in the two languages, and this is a real difference, not just boilerplate. In Python an assertion is `assert thruster_pulse_ok(500, 500) == True`, and the confirmation prints with `print`. In Rust the same check is `assert_eq!(thruster_pulse_ok(500, 500), true);`, with `true` spelled in lowercase, and the confirmation prints with `println!`. The cases you check and the booleans you expect are identical in both.
+You write these assertions differently in the two languages, and this is a real difference, not just boilerplate. In Python an assertion is `assert pulse_cleared(500, 100, 500, 5) == True`, and the confirmation prints with `print`. In Rust the same check is `assert_eq!(pulse_cleared(500, 100, 500, 5), true);`, with `true` spelled in lowercase, and the confirmation prints with `println!`. The cases you check and the booleans you expect are identical in both.
 </Fragment>
 </WhatDiffers>
 
@@ -143,36 +166,36 @@ You write these assertions differently in the two languages, and this is a real 
 
 This one is a real stretch, and it earns extra credit. It is also your practice for the graded stretch problem in the recitation room, where a harder problem is waiting.
 
-Some thrusters are qualified not against a single maximum but against a whole safe band: a pulse that is too short misfires, and a pulse that is too long overloads, so the check must confirm the command sits inside a range that is closed at both ends. The board qualifies `pulse_in_range(pulse_ms, min_pulse_ms, max_pulse_ms)`, which returns `true` when `pulse_ms` is at least `min_pulse_ms` and at most `max_pulse_ms`, both boundaries included, and `false` otherwise. You do not write this function; the grader has a correct version and several broken versions on file. Write `test_pulse_in_range`, a test function strong enough to hold against the correct version and fail at least one assertion against every broken one.
+Some reviews qualify not a yes-or-no gate but a classifier. The attitude controller asks a finer question about each commanded pulse: not just whether it may run, but which way it is wrong when it may not. The check on the docket is `burn_class(pulse_ms, min_pulse_ms, max_pulse_ms)`, which returns `0` when `pulse_ms` sits inside the rated band, both ends included, `1` when the pulse is shorter than `min_pulse_ms`, and `2` when it is longer than `max_pulse_ms`. You do not write this function; this time the correct version stays in the board's vault, so your suite has to come from the specification alone. The grader holds the correct version and several broken versions, and the broken ones are subtler here: one moves an edge of the band, one makes an edge strict, and one returns the right codes on the wrong sides. Write `test_burn_class`, a test function strong enough to hold against the correct version and fail at least one assertion against every broken one.
 
-Because two boundaries now bound the safe band instead of one, a strong suite has to pin down each end on its own: an implementation that gets the low edge wrong and an implementation that gets the high edge wrong must each be caught by some assertion. Include, and label, at least a case inside the band, a case sitting exactly on each boundary, a case one millisecond below the low boundary, and a case one millisecond above the high boundary. A single case looks like this worked example: `assert pulse_in_range(200, 100, 500) == True`.
+With three outcomes instead of two, an assertion has to pin the exact code, not just whether a command was refused, and each edge of the band now separates a different pair of outcomes. Include, and label, at least a case inside the band, a case sitting exactly on each end of the band, a case one millisecond below the band, and a case one millisecond above it, each asserting the exact code it expects. As one worked example: `assert burn_class(200, 100, 500) == 0`.
 
-**Interface.** You are not implementing `pulse_in_range`; this is the signature your test function calls against.
+**Interface.** You are not implementing `burn_class`; this is the signature your test function calls against.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python title="range.py"
-def pulse_in_range(pulse_ms, min_pulse_ms, max_pulse_ms):
+```python title="classify.py"
+def burn_class(pulse_ms, min_pulse_ms, max_pulse_ms):
     ...
 
-def test_pulse_in_range():
+def test_burn_class():
     ...
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="range.rs"
-fn pulse_in_range(pulse_ms: i32, min_pulse_ms: i32, max_pulse_ms: i32) -> bool {
+```rust title="classify.rs"
+fn burn_class(pulse_ms: i32, min_pulse_ms: i32, max_pulse_ms: i32) -> i32 {
     todo!()
 }
 
-fn test_pulse_in_range() {
+fn test_burn_class() {
     todo!()
 }
 ```
 </TabItem>
 </Tabs>
 
-**Submit `test_pulse_in_range` to Gradescope** to earn the extra credit.
+**Submit `test_burn_class` to Gradescope** to earn the extra credit.
 
 ## Paper Practice
 

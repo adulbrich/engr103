@@ -71,11 +71,15 @@ We give you **one** worked example to show the format. With `countdown_seconds =
 7
 ```
 
-**Assumptions and edge cases.** Every input is a whole number. `countdown_seconds` is zero or greater. `margin_percent` is zero or greater, and a margin of `0` must leave the base propellant unchanged. `delivered_kg` is greater than `cost_kg`, so the net a run adds is a positive whole number, and `deficit_kg` is a positive whole number. The grader may replace the six input values, so compute every printed number from the named variables and never hard-code a result such as `8` or `7`.
+**Assumptions and edge cases.** Every input is a whole number. `countdown_seconds` is zero or greater. `margin_percent` is zero or greater, and a margin of `0` must leave the base propellant unchanged. For every graded set of inputs, the margin itself, the given percent of the base propellant, works out to a whole number of kilograms. `delivered_kg` is greater than `cost_kg`, so the net a run adds is a positive whole number, and `deficit_kg` is a positive whole number. The grader may replace the six input values, so compute every printed number from the named variables and never hard-code a result such as `8` or `7`.
 
 <Aside type="danger" title="HAB drafted a rule for the supply runs. Sign off on it, or reject it.">
 HAB, the habitat's assistant, offers this: "The supply runs are just the deficit divided by the net a run adds. Whole-number division already throws away the fraction for you, so take `deficit_kg` divided by the net per run and read off that whole number. There is nothing left to round." Test HAB's rule against the requirement above before you rely on it, and let your test cases settle the question.
 </Aside>
+
+<Reveal label="Optional hint for the supply-run count. Skip it if you already have a plan.">
+This hint is optional, and you may ignore it entirely. Work a case where the division does not come out even, and ask yourself what has to happen to the count when a remainder is left over. Then remember that you are free to do arithmetic before you divide: think about what adding something to the top of the division, before it runs, could do to absorb that leftover, without changing the answer in a case that divides evenly.
+</Reveal>
 
 ## Step 1: Write Your Acceptance Tests
 

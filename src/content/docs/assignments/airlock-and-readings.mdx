@@ -82,10 +82,10 @@ Write `reading_status(reading_kpa, backup_kpa, tolerance_kpa)`, returning the st
 
 1. Return `1` when `reading_kpa` is below `0.0`. A pressure below zero is physically impossible, and in practice a shorted sensor line reads negative, so this flags a hardware fault at the low end.
 2. Otherwise, return `2` when `reading_kpa` is above `200.0`. A reading above the vestibule sensor's physical ceiling means the sensor has railed high, a different hardware fault the crew log records separately.
-3. Otherwise the reading sits inside the physically possible range, `0.0` to `200.0` inclusive, so compare it to the backup: return `3` when the reading and the backup disagree by more than the allowed slack, meaning at least one of the two sensors cannot be trusted.
+3. Otherwise the reading sits inside the physically possible range, `0.0` to `200.0` inclusive, so compare it to the backup: the two readings agree when the size of the gap between them is at or below `tolerance_kpa`, and disagree otherwise. Return `3` when they disagree, meaning at least one of the two sensors cannot be trusted.
 4. Otherwise, return `0`. The reading is in range and agrees with the backup. This is the only trusted case.
 
-The order matters: a reading is compared to the backup only after it has passed the physical-range check, so an out-of-range value is always reported as a range fault (`1` or `2`), never as a disagreement (`3`), even when it also happens to be far from the backup. Two sensors agree when the size of the gap between them is `tolerance_kpa` or less; a gap larger than `tolerance_kpa` is a disagreement. A gap exactly equal to `tolerance_kpa` still counts as agreeing, so it returns `0`, not `3`. The function returns a whole-number status code (`0`, `1`, `2`, or `3`). How you arrange the comparisons and what intermediate values you give names to along the way is entirely your decision.
+The order matters: a reading is compared to the backup only after it has passed the physical-range check, so an out-of-range value is always reported as a range fault (`1` or `2`), never as a disagreement (`3`), even when it also happens to be far from the backup. The function returns a whole-number status code (`0`, `1`, `2`, or `3`). How you arrange the comparisons and what intermediate values you give names to along the way is entirely your decision.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
@@ -109,7 +109,7 @@ We give you **one** worked example to show the format. A reading of `101.3` kilo
 |---|---|
 | `reading_status(101.3, 101.0, 0.5)` | `0` |
 
-**Assumptions and edge cases.** `reading_kpa`, `backup_kpa`, and `tolerance_kpa` are all floats, and `tolerance_kpa` is zero or greater. `0.0` and `200.0` are exact boundaries of the physical range and both count as in-range. Because two sensor readings that are close enough to agree are almost never bit-for-bit identical, the agreement test is about the size of the gap between the reading and the backup, not exact equality; a gap exactly equal to `tolerance_kpa` counts as agreeing and returns `0`.
+**Assumptions and edge cases.** `reading_kpa`, `backup_kpa`, and `tolerance_kpa` are all floats, and `tolerance_kpa` is zero or greater. `0.0` and `200.0` are exact boundaries of the physical range and both count as in-range. The backup can sit on either side of the reading, so the gap between them is a size, never a signed difference.
 
 <Aside type="danger" title="HAB has a rule for the disagreement check. Decide whether to trust it.">
 HAB, the habitat's assistant, offers this: "The point of a tolerance is that it is the limit of what you will accept, so a reading disagrees with the backup the moment the gap between them reaches the tolerance: return `3` whenever the size of the gap is `tolerance_kpa` or more. Once the two sensors have drifted that far apart, one of them is already untrustworthy."

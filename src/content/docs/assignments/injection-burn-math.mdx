@@ -22,7 +22,7 @@ family: solving a small linear system by implementing given formulas (arithmetic
 paired_recitation: R4
 prereq_lectures: expressions-and-operators, variables-and-state, functions
 prereq_activities: expressions-and-operators, variables-and-state, functions
-prereq_assignment: none
+prereq_assignment: launch-window
 new_scope: designing test cases and pseudocode before implementing a given two-equation linear system as clean functions
 target_construct: writing a function that computes a value from its inputs (functions week)
 persistent_requirements: dual-language, one shared contract; grader reads return values only; no construct beyond the functions week on the ladder
@@ -119,7 +119,7 @@ Before writing any code, decide what correct behavior looks like. Write a set of
 Your table must include, and label, at least these cases:
 
 - The worked example above, as a starting check.
-- One case where <Latex formula="\Delta" /> comes out **negative** (pick rates where `v1 * f2` is less than `v2 * f1`), to prove your code handles that sign.
+- One case where <Latex formula="\Delta" /> comes out **positive** (pick rates where `v1 * f2` is greater than `v2 * f1`), to prove your code handles both signs, since the worked example's <Latex formula="\Delta" /> comes out negative.
 - One more case of your own, whose burn times you compute fully by hand.
 
 Think about what HAB claimed while you do this: a good set of tests would catch a solution that ignored the fuel equation.
