@@ -375,12 +375,25 @@ block and are non-negotiable. Only the topic column changes.
   not technically. Delta encoding with a modular wrap is a real low-bandwidth
   telemetry technique, the wraparound exists for a real reason (the value must stay
   one character), and both functions still take and return only `char` and `i32`.
-- **Risk:** this is the slot most likely to need rework once drafted. If base-36
-  proves awkward, the fallback is a rotating station-code check character over the
-  same alphabet, which preserves the constraint and the wrap.
-- **AURA claim sketch:** a claim about the wrap arithmetic, or about a negative
-  delta's remainder (the two languages differ on the sign of `%` for negative
-  operands, which is exactly the kind of trap that belongs here).
+- **Hard constraint on the contract: no negative operand may reach `%`.** Python and
+  Rust disagree on the sign of the remainder for negative operands (`-5 % 36` is
+  `31` in Python and `-5` in Rust). A9's contract is dual-language against **one
+  shared test suite**, so a divergence here does not make an interesting trap, it
+  breaks the slot. The contract must therefore be stated so the natural
+  implementation never takes the remainder of a negative number: either the delta is
+  biased into a non-negative range before the wrap, or the stated precondition puts
+  it there. Settle this at draft time and record the chosen form in the spec text.
+- **Risk and fallback:** this is the slot most likely to need rework once drafted. A
+  check character is **not** a usable fallback, because verifying one is
+  recompute-and-compare rather than decode, so it yields no inverse function and
+  fails the slot's two-function contract. The real fallback is a fixed-alphabet
+  ordinal map, `char_to_index(c) -> i32` and `index_to_char(i) -> char`, with the
+  index wrapped modulo the alphabet size. That is genuinely bidirectional, keeps the
+  wrap, and holds the `char`/`i32` boundary rule. Neither the primary nor the
+  fallback has been run yet.
+- **AURA claim sketch:** a claim about the wrap arithmetic, for example that a delta
+  larger than the alphabet can be clamped rather than wrapped, or that the inverse
+  is the forward operation with the sign flipped.
 
 ### A10: the capstone
 
@@ -482,10 +495,18 @@ From `grep -ril "mission ares\|\bHAB\b"` across the repo, plus the derived artif
 ## 10. Risks and open questions
 
 - **A9 is the fragile slot.** Base-36 delta encoding with a modular wrap satisfies
-  every constraint on paper, but it has not been drafted or run in both languages.
-  Rust and Python disagree on the sign of `%` for negative operands, which is a
-  genuine teaching opportunity and a genuine authoring hazard. Draft and verify A9
-  early rather than last.
+  every constraint on paper, but neither it nor its fallback has been drafted or run
+  in both languages, and the negative-remainder divergence described in the slot
+  entry can break the one-shared-test-suite invariant if the contract is stated
+  carelessly. Draft and verify A9 **second**, right after the skill file, not last.
+- **Three files must agree, atomically.** VISION section 8's family table,
+  `reference/story-bibles.mdx`, and `recitations/index.mdx` all state the two story
+  lines as course canon. They are one edit, not three, and a partial landing leaves
+  the site contradicting itself in public.
+- **Rubric TSVs are a gate, not a cleanup.** The `RubricTable` component reads its
+  TSV by path, so a renamed assignment with a stale TSV path is a broken page rather
+  than a stale row. Each assignment's rubric rewrite belongs in the same step as its
+  page, never in a trailing pass.
 - **Constants are unverified.** Section 4's table is a set of targets. Every figure
   needs a checked primary source and an inline citation before its assignment ships,
   and the implementation plan must gate on that per assignment.
