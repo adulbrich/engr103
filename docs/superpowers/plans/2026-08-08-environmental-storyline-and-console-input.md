@@ -190,13 +190,15 @@ Expected: every line ends in `True`.
 
 - [ ] **Step 4: Write the Rust prototype**
 
+The course teaches exactly one character-arithmetic idiom, in `lectures/strings.mdx:62` and `activities/strings.mdx:64`: a character becomes a number with `as u32`, and a byte-sized number becomes a character with `as char` (`65u8 as char` gives `'A'`). **Byte literals (`b'0'`) appear nowhere in the course and must not be introduced here.** One idiom per concept, forever.
+
 ```rust
 // a9_proto.rs
 fn digit_char(value: i32) -> char {
     if value < 10 {
-        (b'0' + value as u8) as char
+        (('0' as u32 + value as u32) as u8) as char
     } else {
-        (b'a' + (value - 10) as u8) as char
+        (('a' as u32 + (value - 10) as u32) as u8) as char
     }
 }
 
@@ -213,10 +215,10 @@ fn code_for(reading_ugm3: i32) -> String {
 
 fn digit_value(c: char) -> i32 {
     if c >= '0' && c <= '9' {
-        return c as i32 - '0' as i32;
+        return (c as u32 - '0' as u32) as i32;
     }
     if c >= 'a' && c <= 'z' {
-        return c as i32 - 'a' as i32 + 10;
+        return (c as u32 - 'a' as u32) as i32 + 10;
     }
     -1
 }
@@ -245,11 +247,13 @@ Expected: every line ends in `true`, and the codes match the Python run exactly.
 Confirm and write down the answer to each:
 
 1. **No negative operand reaches `%`.** With the precondition `reading_ugm3 >= 0`, every operand of `/` and `%` above is non-negative. Confirm by inspection and record the precondition.
-2. **Nothing above the week-8 ladder is used.** Check each construct against `src/content/docs/reference/language-ladder.mdx` row 8. `String::push` and `char` are listed. `b'0'` byte literals and `as` casts are not explicitly listed: **if `comms-window.mdx` does not already use them, stop and flag it**, because introducing a new idiom here is a ladder change, not an authoring choice.
+2. **Nothing above the week-8 ladder is used, and no new idiom is introduced.** Check each construct against `src/content/docs/reference/language-ladder.mdx` row 8. `String::push` and `char` are listed. The character-arithmetic casts must match `lectures/strings.mdx:62` exactly (`as u32` outbound, `as char` on a byte-sized value inbound). If the prototype needs any spelling that appears nowhere in `lectures/strings.mdx` or `activities/strings.mdx`, **stop and flag it**: introducing a character-arithmetic idiom is a ladder change, not an authoring choice.
+
+3. **The valid range has both ends.** A three-character base-36 code holds `0` through `46655`. One past the top (`46656`) silently produces a wrong two-plus-one-character result rather than failing, so the precondition is `0 <= reading_ugm3 <= 46655` and **both** bounds go in the spec. This interacts with A9's AURA claim sketch about clamping versus rejecting an over-range value, so record it rather than leaving it implicit.
 
 - [ ] **Step 7: Record the verified form in the spec**
 
-Update the A9 entry in `docs/superpowers/specs/2026-08-08-environmental-assignment-storyline-design.md`: replace "has not been run in either language" with the verified signatures, the fixed width of 3, the range `0` to `46655`, the `reading_ugm3 >= 0` precondition, and the five worked encode cases above.
+Update the A9 entry in `docs/superpowers/specs/2026-08-08-environmental-assignment-storyline-design.md`: replace "has not been run in either language" with the verified signatures, the fixed width of 3, the range `0` to `46655`, the `0 <= reading_ugm3 <= 46655` precondition (both bounds), and the five worked encode cases above.
 
 - [ ] **Step 8: Commit**
 
