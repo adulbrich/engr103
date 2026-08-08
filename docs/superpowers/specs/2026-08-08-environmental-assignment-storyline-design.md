@@ -385,14 +385,21 @@ block and are non-negotiable. Only the topic column changes.
   the per-character inverse primitive.
 - **Why this shape:** see section 6a. A9's window covers both strings and
   collections, but a chars-only design leaves half of it unused and pushes the
-  remainder onto the capstone. String **building** is the part of week 8 that is
+  remainder onto A10. String **building** is the part of week 8 that is
   reachable without references, so it belongs here.
 - **Why this and not a cipher:** a cipher motivates the wraparound narratively but
   not technically. Compact base-36 encoding on a power-budgeted logger is a real
   low-bandwidth telemetry technique, and the fixed width exists for a real reason.
-- **The escalation into A10:** A9 **writes** the code, A10 **reads it back**.
-  Parsing a code requires a string parameter, which is week 9, which is A10's
-  window. The A6 reading-line format threads straight through both.
+- **The two functions are not inverses of each other, by construction.**
+  `code_for` builds a multi-character code; `digit_value` decodes a single
+  character. **The round trip is therefore not closed inside A9**, because closing
+  it would need a function that consumes a string, which is week 9. Do not author a
+  round-trip acceptance test here and do not let the page imply one. The two
+  functions are two halves of one codec split along the ladder boundary, not two
+  independent outputs.
+- **The escalation into A10:** A9 **writes** the code, A10 **reads it back**, and
+  that is where the round trip closes. The A6 reading-line format threads straight
+  through both.
 - **Hard constraint on the contract: no negative operand may reach `%`.** Python and
   Rust disagree on the sign of the remainder for negative operands (`-5 % 36` is
   `31` in Python and `-5` in Rust). A9's contract is dual-language against **one
@@ -407,31 +414,40 @@ block and are non-negotiable. Only the topic column changes.
   least-significant-digit first and read the same way), or that a value too large for
   the fixed width can be clamped rather than rejected.
 
-### A10: the capstone
+### A10: memory model and sharing
 
-- **Ladder:** parse a raw text line character by character; validate it; conditionally
-  mutate the caller's list **in place**; return a formatted report line. A second
-  function returns a freshly built, **independent** copy. The grader inspects the
-  caller's list after the in-place call and proves the archive's independence by
-  mutating the original afterward. Strings and lists only, no dict or HashMap. Plus
-  the one-page accessibility and equity critique.
+**A10 is a regular assignment week, not a capstone.** It is the last assignment, and
+it carries the equity critique because it is last, but it is one problem at the
+ordinary size with the ordinary structure, and nothing about it caps or synthesizes
+the term. This also brings the slot into line with VISION section 6's own rule that
+week 10 must be "sized to the same weekly budget as any other week, never heavier."
+
+- **Ladder:** **one** entry-point function. It parses a raw text line character by
+  character, validates it, conditionally mutates the caller's list **in place**, and
+  returns a formatted report line. The grader inspects the caller's list after the
+  call. Strings and lists only, no dict or HashMap. Plus the one-page accessibility
+  and equity critique.
+- **The independent-copy function moves to the summit problem**, where extra load
+  belongs. Aliasing is fully exercised by the in-place mutation on its own: the
+  caller seeing your change *is* the concept. The defensive-copy contrast becomes the
+  stretch, so it is extra credit and never enters the required weekly budget.
 - **Topic:** **the annual emissions inventory.** Raw readings arrive from the field
   network as text lines in the format A6 introduced, carrying the base-36 codes A9
-  produced. Validate each one, fold the qualifying ones into the running station
-  manifest in place, emit the formatted report line, and snapshot an independent
-  archive copy.
-- **Concept load:** three new things, all genuinely from A10's own window
-  (consuming a string parameter, passing a collection to a function, and aliasing
-  versus an independent copy). See section 6a for why this slot stays the heaviest
-  and why that is now correct rather than accidental.
+  produced. Validate the line, fold it into the running station manifest in place
+  when it qualifies, and return the formatted report line.
+- **Concept load:** three new things, all from A10's own window (consuming a string
+  parameter, passing a collection to a function, and in-place mutation the caller
+  sees). See section 6a.
 - **The equity critique:** air quality monitor siting. Regulatory monitors are
   distributed unevenly, so the inventory the student just built reports confidently
   about the neighborhoods it watches and is silent about the ones it does not, and
   the silence reads as absence of a problem. The student critiques the tool they
   built: what it assumes, where it fails, and whom it fails. This is catalog outcome
   3 with a real referent.
-- **AURA claim sketch:** a claim about the archive copy being independent when it
-  is not, which is the aliasing trap the week teaches.
+- **AURA claim sketch:** a claim that a function cannot change the caller's manifest
+  unless it hands it back, so the return value is the only thing that matters. That
+  is the aliasing trap the week teaches, and a test that inspects the caller's list
+  after the call settles it.
 
 ---
 
@@ -453,7 +469,7 @@ rather than an authoring slip.
 | A7 | L10 | assert-based tests; judging provided code | 1 |
 | A8 | L11 to L12 | loops; accumulation over a data-dependent count | 1 |
 | A9 | L13 to L14 | `char` and character-code arithmetic; **string building** | 2 |
-| A10 | L15 to L16 | consuming a string parameter; passing a collection; aliasing vs copy | 3 |
+| A10 | L15 to L16 | consuming a string parameter; passing a collection; in-place mutation the caller sees | 3 |
 
 ### The constraint that shapes the back half
 
@@ -472,23 +488,33 @@ chosen.
 
 Before this audit, A9 used only L13 (characters) and left L14 (collections) unused,
 so A10 absorbed both string handling and list handling on top of its own two
-lectures. The escalation ran flat, flat, flat, then a cliff of four to five new
-concepts in the capstone week.
+lectures, while also carrying two entry-point functions and a capstone framing. The
+escalation ran flat, flat, flat, then a cliff of four to five new concepts in the
+final week.
 
-The available lever: **returning** an owned `String` or `Vec` needs no reference,
-even though **taking** one does. So A9 gains string building
-(`code_for(reading_ugm3) -> String`), which uses the second half of its window, and
-A10 keeps only string consuming, which genuinely needs week 9.
+Two changes fix it:
+
+1. **A9 gains string building.** The available lever is that **returning** an owned
+   `String` or `Vec` needs no reference, even though **taking** one does. So A9 adds
+   `code_for(reading_ugm3) -> String`, which uses the second half of its window, and
+   A10 keeps only string consuming, which genuinely needs week 9.
+2. **A10 becomes a regular week.** The capstone framing is dropped, it goes to one
+   entry-point function, and the independent-copy function moves to the summit
+   problem. VISION section 6 already required week 10 to be sized like any other
+   week; the capstone label was pulling against that rule.
 
 ### The limit, stated honestly
 
-**A10 remains the heaviest slot and cannot be made lighter.**
-Collections-as-parameters is inherently week-9 material and A10 is the only
-assignment in that window. A capstone being the heaviest week is correct; a capstone
-being heavy with *borrowed* content was the problem, and that is what the fix
-removes. If A10 still runs long in a pilot term, the lever is trimming the
-inventory's field count, never moving a concept, since there is nowhere earlier for
-it to go.
+**A10 is still the conceptually densest slot, because week 9 stacks references and
+sharing and A10 is the only assignment in that window.** Collections-as-parameters
+is inherently week-9 material and there is nowhere earlier for it to go. What the
+two changes remove is the load that did not belong there: borrowed week-8 content,
+a second entry point, and a framing that invited the problem to grow. One problem,
+three concepts, ordinary size.
+
+If A10 still runs long in a pilot term, the lever is trimming the inventory's field
+count, never moving a concept, since there is nowhere earlier for a week-9 concept
+to go.
 
 **A3 carries two** once console input lands there, making it the densest of the
 early slots. Both concepts come from its own two lectures, so this is within the
@@ -523,6 +549,19 @@ From `grep -ril "mission ares\|\bHAB\b"` across the repo, plus the derived artif
   section 8 (the family table's "Mission Ares face" column, the whole "Mission Ares
   (assignments)" subsection, and the red herring ladder's HAB bullet), section 11
   (the carry-over notes).
+- `VISION.md`'s **capstone framing goes away**, in four places: section 6's sizing
+  paragraph ("the Sol 100 capstone"), section 8's fil rouge paragraph ("the Sol 100
+  capstone assignment parses"), section 8's family-week paragraph ("the capstone is
+  list-based"), and section 10's week-10 row ("the list-based Sol 100 mission-status
+  capstone program"). A10 is the last assignment, not a capstone, and section 6
+  already requires week 10 to be sized like any other week.
+- `VISION.md` section 6's **contract sentence** needs one added clause. It currently
+  allows "a second [entry point] only when the family is genuinely two independent
+  outputs." A9's two functions are **not** two independent outputs; they are two
+  halves of one codec, split because the ladder forbids a string parameter before
+  week 9. Without the clause, the first person authoring A9 against VISION will read
+  two functions as a violation. Section 6 must also gain the console-input clause
+  described in the companion spec.
 
 **The authoring skill (do this early)**
 
