@@ -582,6 +582,22 @@ From `grep -ril "mission ares\|\bHAB\b"` across the repo, plus the derived artif
 - `src/content/docs/practicalities/finding-docs-and-helpers.mdx`
 - `src/content/docs/recitations/index.mdx` (references the assignment tier's costume
   when explaining the contrast; the RDR content itself is unchanged)
+- `src/content/docs/overview/schedule.mdx`, which carries all ten assignment links,
+  all ten titles, and the A10 "capstone" description. Found in the pre-flight scan,
+  missed by the original grep because it names the assignments by title rather than
+  by the phrase "Mission Ares".
+- `src/content/docs/recitations/gadget-panel-readouts.mdx` and
+  `bathtub-sensor-rules.mdx`, whose `ai-summary` blocks carry stale
+  `paired_assignment:` slugs. Comment fields, so they fail no build and go stale
+  silently. The RDR content itself is unchanged.
+
+**Components**
+
+- `src/components/LaunchWindowForm.svelte` and
+  `src/components/InjectionBurnForm.svelte` are the non-printable simulators VISION
+  section 6 requires for A3 and A4, and both are Mission Ares specific. They are
+  replaced by `EvPaybackForm.svelte` and `ConcreteMixForm.svelte`. This is Svelte
+  work, not content work, and it ships with its assignment's task.
 
 **Rubrics**
 

@@ -22,7 +22,7 @@ Every task's requirements implicitly include this section.
 - **Real cited constants, authored scenario values.** Every real-world figure needs a named primary source (agency, dataset, year) cited inline on the page. Scenario values in test cases are authored to land on the ladder.
 - **A10 is a regular assignment week, not a capstone.** One entry-point function, ordinary size, ordinary structure.
 - **No I/O-diff grading component.** The grader calls the student's function directly and reads only what it returns. `main` is never graded, in any assignment. If a task tempts you to test printed output from A4 on, the answer is no; see section 7 of the console input spec.
-- **Summit problems carry the majors the main problems miss.** The spec accepts that bioengineering and nuclear are reached less directly than under Mission Ares, and recovers them in extra credit rather than distorting a required problem. At least one summit problem must be bioengineering-flavored (stream dissolved oxygen, exposure dose) and at least one nuclear-flavored (spent-fuel decay inventory). Task 17's summit is the natural home for the decay problem, since it is the same loop over a compounding factor; Task 15's is the natural home for the water-quality one.
+- **Summit problems carry the majors the main problems miss.** The spec accepts that bioengineering and nuclear are reached less directly than under Mission Ares, and recovers them in extra credit rather than distorting a required problem. At least one summit problem must be bioengineering-flavored (stream dissolved oxygen, exposure dose) and at least one nuclear-flavored (spent-fuel decay inventory). Task 18's summit is the natural home for the decay problem, since it is the same loop over a compounding factor; Task 16's is the natural home for the water-quality one.
 - **Never reveal the verdict on AURA's claim.** Do not say it is wrong, name the flaw, hand a failing case, explain the fix, or attach a `<Reveal>` to it.
 
 ### Slug renames used throughout
@@ -42,7 +42,9 @@ Both the `.mdx` file and its `canvas/assignments/<slug>-rubrics.tsv` rename toge
 | A9 | `comms-window` | `field-logger-codes` |
 | A10 | `sol-100` | `emissions-inventory` |
 
-Renaming breaks inbound links. That is intentional and safe: the links validator fails the build, which turns every stale cross-reference into a compiler error rather than a silent 404.
+**Task 10 does every rename and every link fix in one commit**, before any content is rewritten. No other task renames anything. This keeps each task's build gate satisfiable: renaming one page at a time would break `introduction.mdx` and `overview/schedule.mdx` and fail the links validator mid-phase.
+
+The links validator is still the safety net. It fails the build on any broken internal link, which turns a missed cross-reference into a build error rather than a silent 404.
 
 ---
 
@@ -141,7 +143,7 @@ The spec names A9 as the slot most likely to need rework. Resolve it now, before
 
 **Interfaces:**
 - Consumes: nothing.
-- Produces: the exact verified signatures Task 18 (A9) implements. `code_for(reading_ugm3: i32) -> String` and `digit_value(c: char) -> i32`.
+- Produces: the exact verified signatures Task 19 (A9) implements. `code_for(reading_ugm3: i32) -> String` and `digit_value(c: char) -> i32`.
 
 - [ ] **Step 1: Read the existing A9 to reuse its character-arithmetic idiom**
 
@@ -364,7 +366,15 @@ Read `src/content/docs/recitations/index.mdx` and update only the sentences that
 
 - [ ] **Step 5: Update the assignments introduction**
 
-Rewrite `src/content/docs/assignments/introduction.mdx` for the WRO framing and AURA. Update any list of assignment titles to the new slugs from the Global Constraints table. Since Phase 3 has not run yet, links to renamed pages will not resolve; leave the old links in place in this task and fix them in Task 20, or the build fails here.
+Rewrite the **prose** of `src/content/docs/assignments/introduction.mdx` for the WRO framing and AURA.
+
+**Do not touch the numbered list of ten assignments at lines 41 to 50.** Ownership of that list is split deliberately, so three tasks never fight over it:
+
+- This task: the surrounding prose only.
+- Task 10: the ten URLs, when the files are renamed.
+- Task 21: the ten link texts and one-line descriptions, once the content tasks have settled the real titles.
+
+Renaming has not happened yet, so the old links still resolve and the build stays green.
 
 - [ ] **Step 6: Update finding-docs-and-helpers**
 
@@ -402,7 +412,7 @@ git commit -m "Re-skin the public story pages for the WRO and AURA"
 
 **Interfaces:**
 - Consumes: nothing.
-- Produces: the `read_i32()` / `read_f64()` helper names that Task 6, Task 9, and Task 12 (A3) all reference. The helper names are fixed here and must not be renamed later.
+- Produces: the `read_i32()` / `read_f64()` helper names that Task 6, Task 9, and Task 13 (A3) all reference. The helper names are fixed here and must not be renamed later.
 
 - [ ] **Step 1: Load the lecture notes skill and read both lectures**
 
@@ -663,7 +673,12 @@ git commit -m "Document the interactive main convention and the check-never-bloc
 
 # Phase 3: the ten assignments
 
-Tasks 10 through 19 share one shape. **Every one of them runs these steps**, and the per-task sections below give only what differs.
+Task 10 renames every file and fixes every link in one commit, so that the ten
+content tasks after it never touch a link and every task's build stays green.
+
+Tasks 11 through 20 share one shape. **Every one of them runs these steps**, and the
+per-task sections below give only what differs. They edit files that already carry
+their new names; no content task renames anything.
 
 **The shared step list, run for each assignment:**
 
@@ -671,7 +686,7 @@ Tasks 10 through 19 share one shape. **Every one of them runs these steps**, and
 2. Read the spec's slot entry in section 6 of `docs/superpowers/specs/2026-08-08-environmental-assignment-storyline-design.md`, and its row in section 6a.
 3. Read the assignment being replaced, for its structure and its ladder discipline, never for its framing.
 4. Check the ladder row for the assignment's week in `src/content/docs/reference/language-ladder.mdx`. Nothing above that row may appear.
-5. `git mv` the old `.mdx` to the new slug and `git mv` the old rubric TSV to `canvas/assignments/<new-slug>-rubrics.tsv`.
+5. Confirm the file already carries its new slug (Task 10 renamed it). If it does not, stop and report BLOCKED rather than renaming it here.
 6. Write the page: `ai-summary` block, opening narrative (2 to 4 sentences, no plot references), How This Assignment Works, What to Submit, The Problem, AURA's claim as its own `<Aside>`, one mild spec distractor planted and never defused, Step 1 acceptance tests, Step 2 pseudocode, Step 3 code, Summit Problem, Paper Practice with its `<Reveal>`, Reflection, Rubric.
 7. **Verify every code example runs**, in both languages, by pasting it into a scratch file and running it. Reading is not verification.
 8. **Run AURA's claim to ground**: implement the wrong approach the claim describes, confirm it produces a wrong result on a case in the visible tests, and confirm a correct approach passes. This verification goes in the work log, never on the page.
@@ -680,26 +695,125 @@ Tasks 10 through 19 share one shape. **Every one of them runs these steps**, and
 11. Run `npm run build`. Expected: PASS.
 12. Commit page and rubric together.
 
-## Task 10: A1, field-office-setup
+## Task 10: Rename all ten assignments and relink the site
+
+This task moves files and fixes links. **It rewrites no prose and no problem
+content.** Every page still wears its Mission Ares costume when this task ends; only
+its filename and the links pointing at it have changed. Doing all ten renames in one
+commit is what keeps every later task's build green: renaming one page at a time
+would break `introduction.mdx` and `schedule.mdx` and fail the build gate.
+
+**Files:**
+- Rename: all ten `src/content/docs/assignments/*.mdx` per the Global Constraints slug table
+- Rename: all ten `canvas/assignments/*-rubrics.tsv` to match
+- Modify: `src/content/docs/assignments/introduction.mdx` (10 links)
+- Modify: `src/content/docs/overview/schedule.mdx` (10 links and titles)
+- Modify: each renamed assignment's own `RubricTable src=` path
+- Modify: `src/content/docs/recitations/gadget-panel-readouts.mdx` and `bathtub-sensor-rules.mdx` (`paired_assignment:` slugs)
+
+**Interfaces:**
+- Consumes: nothing.
+- Produces: the new slugs every Phase 3 content task edits. After this task, no file in the repository refers to an old assignment slug.
+
+- [ ] **Step 1: Rename the ten pages and their rubrics**
+
+Use `git mv` for all twenty files so history follows. The mapping is the slug table in Global Constraints.
+
+```bash
+cd src/content/docs/assignments
+git mv systems-checkout.mdx field-office-setup.mdx
+git mv pre-flight-check.mdx household-energy-panel.mdx
+git mv launch-window.mdx ev-carbon-payback.mdx
+git mv injection-burn-math.mdx low-carbon-concrete.mdx
+git mv transit-checks.mdx burn-window-clearance.mdx
+git mv airlock-and-readings.mdx sensor-drift-check.mdx
+git mv flight-qualification.mdx dashboard-publication-tests.mdx
+git mv first-drive.mdx solar-array-lifetime.mdx
+git mv comms-window.mdx field-logger-codes.mdx
+git mv sol-100.mdx emissions-inventory.mdx
+cd ../../../../canvas/assignments
+git mv systems-checkout-rubrics.tsv field-office-setup-rubrics.tsv
+git mv pre-flight-check-rubrics.tsv household-energy-panel-rubrics.tsv
+git mv launch-window-rubrics.tsv ev-carbon-payback-rubrics.tsv
+git mv injection-burn-math-rubrics.tsv low-carbon-concrete-rubrics.tsv
+git mv transit-checks-rubrics.tsv burn-window-clearance-rubrics.tsv
+git mv airlock-and-readings-rubrics.tsv sensor-drift-check-rubrics.tsv
+git mv flight-qualification-rubrics.tsv dashboard-publication-tests-rubrics.tsv
+git mv first-drive-rubrics.tsv solar-array-lifetime-rubrics.tsv
+git mv comms-window-rubrics.tsv field-logger-codes-rubrics.tsv
+git mv sol-100-rubrics.tsv emissions-inventory-rubrics.tsv
+```
+
+- [ ] **Step 2: Fix each page's own RubricTable path and ai-summary slug**
+
+Every assignment page has a `<RubricTable src="canvas/assignments/<old>-rubrics.tsv" ...>` line and a `slug:` line inside its `ai-summary` comment. Update both in all ten files. Leave the `caption` text alone for now; it is prose and belongs to the content tasks.
+
+Several pages also carry `prereq_assignment:` in their `ai-summary`. Update those to the new slugs too.
+
+- [ ] **Step 3: Relink `introduction.mdx`**
+
+Ten numbered links at lines 41 to 50. Update the URL in each to the new slug. **Leave the link text and the descriptions alone.** They are Mission Ares prose, and Task 21 rewrites them once the content tasks have settled the new titles. This task owns the URLs and nothing else in that list.
+
+- [ ] **Step 4: Relink and retitle `overview/schedule.mdx`**
+
+Ten rows carry `**[Assignment N: <Title>](/assignments/<old-slug>/)**`. Update every URL. Here the titles **do** change, because the row is a one-line index rather than prose: use the new page titles the content tasks will set.
+
+Also fix the Assignment 10 row's description, which currently reads "The list-based Sol 100 mission-status capstone program with tests, plus the accessibility and equity critique and a paper trace (from week 9)". A10 is not a capstone; describe it as the week-9 memory-model and sharing assignment plus the accessibility and equity critique and a paper trace. The other nine descriptions are ladder-based and stay valid.
+
+- [ ] **Step 5: Fix the two recitation `paired_assignment:` slugs**
+
+`src/content/docs/recitations/gadget-panel-readouts.mdx` line 17 points at `pre-flight-check`; `src/content/docs/recitations/bathtub-sensor-rules.mdx` line 16 points at `airlock-and-readings`. These are `ai-summary` comment fields, not links, so they do not fail the build, but they go stale silently. Update both. Then grep the other recitations for the same field in case more carry it:
+
+```bash
+grep -rn "paired_assignment" src/content/docs/recitations/
+```
+
+Change nothing else in any recitation. Rubber Duck Robotics is untouched by this project.
+
+- [ ] **Step 6: Verify no old slug survives**
+
+```bash
+grep -rn "systems-checkout\|pre-flight-check\|launch-window\|injection-burn-math\|transit-checks\|airlock-and-readings\|flight-qualification\|first-drive\|comms-window\|sol-100" src canvas
+```
+
+Expected: no matches.
+
+- [ ] **Step 7: Verify**
+
+```bash
+npm run build
+```
+
+Expected: PASS, with the links validator reporting no broken links. If it fails, a link was missed; the validator names it.
+
+- [ ] **Step 8: Commit**
+
+```bash
+git add -A src canvas
+git commit -m "Rename the ten assignments to their environmental slugs and relink the site"
+```
+
+---
+
+## Task 11: A1, field-office-setup
 
 > **Run the twelve shared steps listed under "Phase 3: the ten assignments" above.
 > They are the task.** Everything below is only what differs for this assignment,
 > and is not a substitute for the shared list. Do not start without reading it.
 
 **Files:**
-- Rename: `src/content/docs/assignments/systems-checkout.mdx` to `field-office-setup.mdx`
-- Rename: `canvas/assignments/systems-checkout-rubrics.tsv` to `field-office-setup-rubrics.tsv`
+- Modify: `src/content/docs/assignments/field-office-setup.mdx` and `canvas/assignments/field-office-setup-rubrics.tsv` (already renamed by Task 10)
 
 Onboarding only. No AURA claim, no spec distractor, no summit problem, no paper practice. Toolchain, starter repository, the `check` harness, the `__main__` idiom, Gradescope submission. The re-skin is a text swap: the new crew member checking out a flight-software workstation becomes the new hire checking out the office workstation.
 
-## Task 11: A2, household-energy-panel
+## Task 12: A2, household-energy-panel
 
 > **Run the twelve shared steps listed under "Phase 3: the ten assignments" above.
 > They are the task.** Everything below is only what differs for this assignment,
 > and is not a substitute for the shared list. Do not start without reading it.
 
 **Files:**
-- Rename: `pre-flight-check.mdx` to `household-energy-panel.mdx`, and its rubric
+- Modify: `src/content/docs/assignments/household-energy-panel.mdx` and `canvas/assignments/household-energy-panel-rubrics.tsv` (already renamed by Task 10)
 
 **Ladder:** literals and precedence, **no variables, no functions**, graded by comparing printed output. Every division uses float operands so both languages agree. No mixing of whole numbers and floats in one expression. Must exercise whole numbers, floats, booleans, and a binary literal. **No console input** (there are no variables to bind it to).
 
@@ -707,16 +821,22 @@ Onboarding only. No AURA claim, no spec distractor, no summit problem, no paper 
 
 **Constants to cite:** grid carbon intensity in gCO2/kWh (EPA eGRID, named subregion and year).
 
-## Task 12: A3, ev-carbon-payback
+## Task 13: A3, ev-carbon-payback
 
 > **Run the twelve shared steps listed under "Phase 3: the ten assignments" above.
 > They are the task.** Everything below is only what differs for this assignment,
 > and is not a substitute for the shared list. Do not start without reading it.
 
 **Files:**
-- Rename: `launch-window.mdx` to `ev-carbon-payback.mdx`, and its rubric
+- Modify: `src/content/docs/assignments/ev-carbon-payback.mdx` and `canvas/assignments/ev-carbon-payback-rubrics.tsv` (already renamed by Task 10)
+- Create: `src/components/EvPaybackForm.svelte`
+- Delete: `src/components/LaunchWindowForm.svelte`
 
 This task carries **both** changes and is the densest slot in the plan. Read the console input spec as well as the story line spec.
+
+**The simulator.** VISION section 6 requires a small non-printable simulator whenever the computation is a straightforward calculation, and this one is. `LaunchWindowForm.svelte` is the Mission Ares version, imported at the top of the page; read it for the component's established shape (props, styling, how it marks itself non-printable) and write `EvPaybackForm.svelte` to the same shape with the new inputs. Fields: extra manufacturing emissions, the two per-km emission figures, and annual driving distance. Outputs: payback distance, whole years, leftover kilometres. Delete the old component and update the page's `import` line.
+
+Load the `svelte-code-writer` and `svelte-core-bestpractices` skills before writing the component. This repository is on Svelte 5.
 
 **Ladder:** variables, integer division and the remainder operator, **no functions**, graded by comparing printed output.
 
@@ -734,14 +854,18 @@ This task carries **both** changes and is the densest slot in the plan. Read the
 
 **AURA claim:** a claim that treats a rate as a total, or that averages two grid intensities that should be weighted by share.
 
-## Task 13: A4, low-carbon-concrete
+## Task 14: A4, low-carbon-concrete
 
 > **Run the twelve shared steps listed under "Phase 3: the ten assignments" above.
 > They are the task.** Everything below is only what differs for this assignment,
 > and is not a substitute for the shared list. Do not start without reading it.
 
 **Files:**
-- Rename: `injection-burn-math.mdx` to `low-carbon-concrete.mdx`, and its rubric
+- Modify: `src/content/docs/assignments/low-carbon-concrete.mdx` and `canvas/assignments/low-carbon-concrete-rubrics.tsv` (already renamed by Task 10)
+- Create: `src/components/ConcreteMixForm.svelte`
+- Delete: `src/components/InjectionBurnForm.svelte`
+
+**The simulator.** Same requirement and same procedure as Task 13. `InjectionBurnForm.svelte` is the Mission Ares version, imported at the top of the page; read it for the component's established shape and write `ConcreteMixForm.svelte` to match. Fields: the binder mass target, the embodied-CO2 target, and the two materials' CO2 intensities. Outputs: the two masses. Delete the old component and update the page's `import` line. Load the `svelte-code-writer` and `svelte-core-bestpractices` skills first; this repository is on Svelte 5.
 
 **Ladder:** functions. Two entry points. Solved equations given in LaTeX; the student never derives math.
 
@@ -755,14 +879,14 @@ Give both solved forms in `<Latex>` on the page.
 
 **Constants to cite:** Portland cement embodied CO2 per kg, fly ash and slag under byproduct allocation (industry EPD averages, named).
 
-## Task 14: A5, burn-window-clearance
+## Task 15: A5, burn-window-clearance
 
 > **Run the twelve shared steps listed under "Phase 3: the ten assignments" above.
 > They are the task.** Everything below is only what differs for this assignment,
 > and is not a substitute for the shared list. Do not start without reading it.
 
 **Files:**
-- Rename: `transit-checks.mdx` to `burn-window-clearance.mdx`, and its rubric
+- Modify: `src/content/docs/assignments/burn-window-clearance.mdx` and `canvas/assignments/burn-window-clearance-rubrics.tsv` (already renamed by Task 10)
 
 **Ladder:** comparisons joined by `and`, `or`, `not`. Four outcomes with a priority override. **No `elif` or `else if` chains.** No loops or collections. Scalar parameters only, never a string.
 
@@ -770,14 +894,14 @@ Give both solved forms in `<Latex>` on the page.
 
 **AURA claim:** about the override's precedence, or about joining three conditions with the wrong connective.
 
-## Task 15: A6, sensor-drift-check
+## Task 16: A6, sensor-drift-check
 
 > **Run the twelve shared steps listed under "Phase 3: the ten assignments" above.
 > They are the task.** Everything below is only what differs for this assignment,
 > and is not a substitute for the shared list. Do not start without reading it.
 
 **Files:**
-- Rename: `airlock-and-readings.mdx` to `sensor-drift-check.mdx`, and its rubric
+- Modify: `src/content/docs/assignments/sensor-drift-check.mdx` and `canvas/assignments/sensor-drift-check-rubrics.tsv` (already renamed by Task 10)
 
 **Ladder:** an `elif` / `else if` chain or Rust `match`, checked in a fixed priority order, over a physical range plus a float tolerance against a trusted fallback. The harness parses; the student's function receives a number. Scalar parameters only.
 
@@ -789,14 +913,14 @@ Give both solved forms in `<Latex>` on the page.
 
 **AURA claim:** the tolerance boundary claim (whether a gap exactly equal to the tolerance counts as agreement).
 
-## Task 16: A7, dashboard-publication-tests
+## Task 17: A7, dashboard-publication-tests
 
 > **Run the twelve shared steps listed under "Phase 3: the ten assignments" above.
 > They are the task.** Everything below is only what differs for this assignment,
 > and is not a substitute for the shared list. Do not start without reading it.
 
 **Files:**
-- Rename: `flight-qualification.mdx` to `dashboard-publication-tests.mdx`, and its rubric
+- Modify: `src/content/docs/assignments/dashboard-publication-tests.mdx` and `canvas/assignments/dashboard-publication-tests-rubrics.tsv` (already renamed by Task 10)
 
 **Ladder:** an assert-based test suite against a **provided** implementation carrying two rules: an inclusive band, and a freshness rule with an override. The grader runs the student's test function and reads which assertions raise. The suite must accept the correct implementation and reject every broken one.
 
@@ -806,14 +930,14 @@ Give both solved forms in `<Latex>` on the page.
 
 **Note:** you must author the broken implementations the suite has to reject, and verify that a correct suite rejects all of them and accepts the correct one. This is the task's real verification and it goes in the work log.
 
-## Task 17: A8, solar-array-lifetime
+## Task 18: A8, solar-array-lifetime
 
 > **Run the twelve shared steps listed under "Phase 3: the ten assignments" above.
 > They are the task.** Everything below is only what differs for this assignment,
 > and is not a substitute for the shared list. Do not start without reading it.
 
 **Files:**
-- Rename: `first-drive.mdx` to `solar-array-lifetime.mdx`, and its rubric
+- Modify: `src/content/docs/assignments/solar-array-lifetime.mdx` and `canvas/assignments/solar-array-lifetime-rubrics.tsv` (already renamed by Task 10)
 
 **Ladder:** loops. **No collections. No power operator.** A running value carried across a data-dependent number of passes.
 
@@ -825,14 +949,14 @@ Give both solved forms in `<Latex>` on the page.
 
 **AURA claim:** that the total is the first-year output times the number of years, or that the degradation applies once.
 
-## Task 18: A9, field-logger-codes
+## Task 19: A9, field-logger-codes
 
 > **Run the twelve shared steps listed under "Phase 3: the ten assignments" above.
 > They are the task.** Everything below is only what differs for this assignment,
 > and is not a substitute for the shared list. Do not start without reading it.
 
 **Files:**
-- Rename: `comms-window.mdx` to `field-logger-codes.mdx`, and its rubric
+- Modify: `src/content/docs/assignments/field-logger-codes.mdx` and `canvas/assignments/field-logger-codes-rubrics.tsv` (already renamed by Task 10)
 
 **Ladder:** window is week 8, which is **before references**, so **no `String`, `&str`, or `Vec` may be a parameter**. Returning an owned `String` is legal.
 
@@ -851,20 +975,20 @@ Give both solved forms in `<Latex>` on the page.
 
 **AURA claim:** about digit order (that the code can be built least-significant-digit first and read the same way), or that a value too large for the fixed width can be clamped rather than rejected.
 
-## Task 19: A10, emissions-inventory
+## Task 20: A10, emissions-inventory
 
 > **Run the twelve shared steps listed under "Phase 3: the ten assignments" above.
 > They are the task.** Everything below is only what differs for this assignment,
 > and is not a substitute for the shared list. Do not start without reading it.
 
 **Files:**
-- Rename: `sol-100.mdx` to `emissions-inventory.mdx`, and its rubric
+- Modify: `src/content/docs/assignments/emissions-inventory.mdx` and `canvas/assignments/emissions-inventory-rubrics.tsv` (already renamed by Task 10)
 
 **A10 is a regular assignment week.** No capstone framing, no "everything you have learned", one problem at ordinary size.
 
 **Ladder:** **one** entry-point function. It parses a raw text line character by character, validates it, conditionally mutates the caller's list **in place**, and returns a formatted report line. The grader inspects the caller's list after the call. Strings and lists only, no dict or HashMap.
 
-**Problem:** raw readings arrive from the field network as text lines in the format Task 15 fixed, carrying the base-36 codes Task 18 produced. Validate the line, fold it into the running station manifest in place when it qualifies, and return the formatted report line. This is where the A9 round trip closes: A10 reads back what A9 wrote.
+**Problem:** raw readings arrive from the field network as text lines in the format Task 16 fixed, carrying the base-36 codes Task 19 produced. Validate the line, fold it into the running station manifest in place when it qualifies, and return the formatted report line. This is where the A9 round trip closes: A10 reads back what A9 wrote.
 
 **The summit problem** is the independent-copy function: return a freshly built list independent of the one it was given, proven by the grader mutating the original afterward. Extra credit, so it never enters the required weekly budget.
 
@@ -874,7 +998,7 @@ Give both solved forms in `<Latex>` on the page.
 
 ---
 
-## Task 20: Final sweep
+## Task 21: Final sweep
 
 **Files:**
 - Modify: `src/content/docs/assignments/introduction.mdx` (fix the links deferred in Task 4)
