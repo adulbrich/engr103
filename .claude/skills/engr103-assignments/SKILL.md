@@ -102,9 +102,11 @@ Consequences the spec must respect:
 
 ### Up to Two Entry Points
 
-Fix a **second** named entry-point function only when the family is genuinely two independent outputs that a single function cannot naturally return together (for example two distinct predicates the recitation family treats as separate). This is the exception, not the default; most assignments fix one entry point. When you do fix two, they are two independent contracts, never a decomposition of one another: never name one function as a helper the other must call. If you find yourself wanting a third named function, you are decomposing the solution for the student. Stop, and fold the extra structure back inside the entry point as the student's choice.
+Fix a **second** named entry-point function only when the family is genuinely two independent outputs that a single function cannot naturally return together (for example two distinct predicates the recitation family treats as separate), **or when the ladder forces a codec to be split**. This is the exception, not the default; most assignments fix one entry point. When the two are independent outputs, they are **two independent contracts, never a decomposition of one another**: never name one function as a helper the other must call.
 
-One named entry-point function, and a second only when the family is genuinely two independent outputs **or when the ladder forces a codec to be split**. A9 is the second case: its window is week 8, which is before references, so no `String`, `&str`, or `Vec` may be a parameter. Its encoder returns an owned `String` and its decoder primitive takes a `char`, so the round trip does not close inside A9. A10 closes it. Do not author a round-trip acceptance test in A9.
+**A9 is the codec-split case, not the independent-outputs case.** Its window is week 8, which is before references, so no `String`, `&str`, or `Vec` may be a parameter. Its encoder returns an owned `String` and its decoder primitive takes a `char`, so the round trip does not close inside A9; A10 closes it. Do not author a round-trip acceptance test in A9. A9's pair is **two halves of one codec, not two independent contracts**: that split, forced by the ladder boundary, is the one case where a second entry point is allowed without being an independent output.
+
+If you find yourself wanting a third named function, you are decomposing the solution for the student. Stop, and fold the extra structure back inside the entry point as the student's choice.
 
 ### The Pre-Functions Contract (weeks 1 to 2)
 
@@ -324,7 +326,7 @@ This runs `astro check` and the link validator. Fix every error before consideri
 ## What Assignments Must NOT Contain
 
 - No pre-decomposition: never name a helper function, never sketch the solution's internal steps, never tell the student which construct or operator to use. Fix the contract only. (The rubric's implementation criterion is the one sanctioned exception: it may name the week's construct as a graded expectation, because its job is to block hardcoding, not to design the solution.)
-- No numbered problem *set*: one problem per assignment (rarely with a second entry point when the family is genuinely two independent outputs).
+- No numbered problem *set*: one problem per assignment (rarely with a second entry point when the family is genuinely two independent outputs, or when the ladder forces a codec split, as in A9).
 - No "modeling step / analysis step" labels on the page; that distinction is elicited in the reflection.
 - No tutorial walkthrough; requirements state what the program must produce, not how.
 - No assignment that *requires* a construct the course has not introduced by its due-date week; it must be solvable with the taught subset.
