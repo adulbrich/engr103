@@ -400,16 +400,32 @@ block and are non-negotiable. Only the topic column changes.
 - **The escalation into A10:** A9 **writes** the code, A10 **reads it back**, and
   that is where the round trip closes. The A6 reading-line format threads straight
   through both.
-- **Hard constraint on the contract: no negative operand may reach `%`.** Python and
-  Rust disagree on the sign of the remainder for negative operands (`-5 % 36` is
-  `31` in Python and `-5` in Rust). A9's contract is dual-language against **one
-  shared test suite**, so a divergence here does not make an interesting trap, it
-  breaks the slot. A fixed-width encoding of a non-negative reading satisfies this
-  naturally, since every operand is non-negative by construction. State the
-  precondition that the reading is zero or greater, and verify at draft time that no
-  reasonable implementation reaches `%` with a negative value.
-- **Risk:** this is still the slot most likely to need rework once drafted. It has
-  not been run in either language. Draft it second, right after the skill file.
+- **Hard constraint on the contract: no negative operand may reach `%`, and the
+  precondition has two bounds.** Python and Rust disagree on the sign of the
+  remainder for negative operands (`-5 % 36` is `31` in Python and `-5` in Rust).
+  A9's contract is dual-language against **one shared test suite**, so a divergence
+  here does not make an interesting trap, it breaks the slot. A fixed-width encoding
+  of a non-negative reading satisfies the no-negative-operand rule naturally, since
+  every operand is non-negative by construction. The full precondition is
+  `0 <= reading_ugm3 <= 46655`: the lower bound keeps every `/` and `%` operand
+  non-negative, and the upper bound is the largest value three base-36 digits can
+  hold (`36^3 - 1`). One past the top (`46656`) does not raise an error; it silently
+  produces a wrong result, because the high digit's value pushes past `z` into the
+  next ASCII character. State both bounds on the assignment page, not just the
+  lower one.
+- **Verified: prototyped and run to completion in both languages.** Signatures:
+  `code_for(reading_ugm3: i32) -> String` and `digit_value(c: char) -> i32`. Fixed
+  width: 3 characters. Valid range: `0` to `46655` inclusive, under the precondition
+  `0 <= reading_ugm3 <= 46655` above. Five worked encode cases, identical in Python
+  and Rust: `code_for(0) == "000"`, `code_for(35) == "00z"`, `code_for(36) == "010"`,
+  `code_for(1296) == "100"`, `code_for(46655) == "zzz"`; and the matching
+  `digit_value` cases: `digit_value('0') == 0`, `digit_value('9') == 9`,
+  `digit_value('a') == 10`, `digit_value('z') == 35`, `digit_value('!') == -1`. The
+  Rust prototype uses the course's one taught character-arithmetic idiom
+  (`lectures/strings.mdx:62`): a character to a number with `as u32`, and a
+  byte-sized number to a character with `as char`; no byte literals appear anywhere.
+  Both prototype files ran clean (`a9_proto.py`, `a9_proto.rs`), with every
+  comparison line reporting true and the codes matching each other exactly.
 - **AURA claim sketch:** a claim about the digit order (that the code can be built
   least-significant-digit first and read the same way), or that a value too large for
   the fixed width can be clamped rather than rejected.
