@@ -965,7 +965,7 @@ Give both solved forms in `<Latex>` on the page.
 **Ladder:** window is week 8, which is **before references**, so **no `String`, `&str`, or `Vec` may be a parameter**. Returning an owned `String` is legal.
 
 **Contract, verified in Task 2:**
-- `code_for(reading_ugm3: i32) -> String`, a fixed-width 3-character base-36 code, valid for `0` to `46655`, with the precondition `reading_ugm3 >= 0`.
+- `code_for(reading_ugm3: i32) -> String`, a fixed-width 3-character base-36 code, with the precondition `0 <= reading_ugm3 <= 46655` (both bounds; `46656` silently produces a wrong code rather than failing).
 - `digit_value(c: char) -> i32`, returning `0` to `35` for a valid base-36 digit character and `-1` otherwise.
 
 **Worked cases** (use these, they are verified): `code_for(0)` is `"000"`, `code_for(35)` is `"00z"`, `code_for(36)` is `"010"`, `code_for(1296)` is `"100"`, `code_for(46655)` is `"zzz"`. `digit_value('0')` is `0`, `digit_value('a')` is `10`, `digit_value('z')` is `35`, `digit_value('!')` is `-1`.
@@ -973,7 +973,7 @@ Give both solved forms in `<Latex>` on the page.
 **Two rules specific to this task:**
 
 1. **The two functions are not inverses of each other.** `code_for` builds a multi-character code; `digit_value` decodes one character. **Do not author a round-trip acceptance test**, and do not let the page imply one exists. A10 closes the round trip.
-2. **No negative operand may reach `%`.** State the `reading_ugm3 >= 0` precondition in the assumptions.
+2. **No negative operand may reach `%`.** State the `0 <= reading_ugm3 <= 46655` precondition in the assumptions, both bounds.
 
 **Problem framing:** remote stations transmit over a satellite or LoRa link where every byte costs battery, so each reading is packed into a compact fixed-width base-36 code.
 
