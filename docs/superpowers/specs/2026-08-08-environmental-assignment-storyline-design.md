@@ -1,7 +1,7 @@
 # Design: the environmental assignment story line (replacing Mission Ares)
 
 **Status:** approved design, not yet implemented
-**Date:** 2026-08-06
+**Date:** 2026-08-08
 **Scope:** the assignment tier only (A1 to A10) and the artifacts that describe it
 
 ---
@@ -15,6 +15,13 @@ This design swaps one costume. It does not touch the skeleton.
 **Changes:** the assignment tier's story line moves from Mission Ares (a crewed
 Mars habitat) to a regional environmental agency, and the tier's confidently-wrong
 AI character moves from HAB to AURA.
+
+Two adjustments ride along with the swap, both recorded here and both narrow:
+
+- **A9 and A10 are rebalanced** so A9 uses both of its lectures instead of one. See
+  section 6a.
+- **A3 gains student-authored console input**, specified separately in
+  [the console input design](./2026-08-08-console-input-and-program-wholeness-design.md).
 
 **Does not change:**
 
@@ -261,7 +268,11 @@ block and are non-negotiable. Only the topic column changes.
 
 - **Ladder:** variables, integer division and the remainder operator, **no
   functions**, graded by comparing printed output. The answer must be a whole
-  number reachable with `//` and `%`.
+  number reachable with `//` and `%`. Per
+  [the console input design](./2026-08-08-console-input-and-program-wholeness-design.md),
+  A3 is also **the one assignment where the student authors console input**: the
+  scenario values arrive from standard input rather than being set by the starter,
+  and the grader pipes them.
 - **Topic:** **EV carbon payback.** An electric vehicle carries higher manufacturing
   emissions (the battery) and lower per-km operating emissions than its combustion
   equivalent. Compute the payback distance, then express it as whole years of
@@ -361,39 +372,40 @@ block and are non-negotiable. Only the topic column changes.
 - **AURA claim sketch:** a claim that the total can be had by multiplying the
   first-year output by the number of years, or by applying the degradation once.
 
-### A9: per-character encode and decode
+### A9: character-code arithmetic and string building
 
-- **Ladder:** the hardest slot to re-skin. Only `char` and `i32` may cross a
-  function boundary, never a `String`, `&str`, or `Vec`. A forward function and its
-  inverse, using character-code arithmetic with a wraparound.
+- **Ladder:** the hardest slot to re-skin. Its window is week 8 (L13 strings, L14
+  collections), and week 8 is **before** references, so **no `String`, `&str`, or
+  `Vec` may be a parameter**. Only scalars go in. Returning an owned `String` or
+  `Vec` is legal, because building one needs no reference.
 - **Topic:** **a bandwidth-starved field logger.** Remote stations transmit over a
-  satellite or LoRa link where every byte costs battery, so each reading is sent as
-  a **base-36 delta** from the previous reading, wrapped modulo 36 so it always fits
-  in exactly one character. The student writes the encoder (`i32` delta plus a base
-  `char` to a `char`) and the decoder (`char` plus a base `char` back to an `i32`).
+  satellite or LoRa link where every byte costs battery, so each reading is packed
+  into a compact fixed-width **base-36 code**. The student writes `code_for(reading_ugm3) -> String`,
+  which builds the code one character at a time, and `digit_value(c: char) -> i32`,
+  the per-character inverse primitive.
+- **Why this shape:** see section 6a. A9's window covers both strings and
+  collections, but a chars-only design leaves half of it unused and pushes the
+  remainder onto the capstone. String **building** is the part of week 8 that is
+  reachable without references, so it belongs here.
 - **Why this and not a cipher:** a cipher motivates the wraparound narratively but
-  not technically. Delta encoding with a modular wrap is a real low-bandwidth
-  telemetry technique, the wraparound exists for a real reason (the value must stay
-  one character), and both functions still take and return only `char` and `i32`.
+  not technically. Compact base-36 encoding on a power-budgeted logger is a real
+  low-bandwidth telemetry technique, and the fixed width exists for a real reason.
+- **The escalation into A10:** A9 **writes** the code, A10 **reads it back**.
+  Parsing a code requires a string parameter, which is week 9, which is A10's
+  window. The A6 reading-line format threads straight through both.
 - **Hard constraint on the contract: no negative operand may reach `%`.** Python and
   Rust disagree on the sign of the remainder for negative operands (`-5 % 36` is
   `31` in Python and `-5` in Rust). A9's contract is dual-language against **one
   shared test suite**, so a divergence here does not make an interesting trap, it
-  breaks the slot. The contract must therefore be stated so the natural
-  implementation never takes the remainder of a negative number: either the delta is
-  biased into a non-negative range before the wrap, or the stated precondition puts
-  it there. Settle this at draft time and record the chosen form in the spec text.
-- **Risk and fallback:** this is the slot most likely to need rework once drafted. A
-  check character is **not** a usable fallback, because verifying one is
-  recompute-and-compare rather than decode, so it yields no inverse function and
-  fails the slot's two-function contract. The real fallback is a fixed-alphabet
-  ordinal map, `char_to_index(c) -> i32` and `index_to_char(i) -> char`, with the
-  index wrapped modulo the alphabet size. That is genuinely bidirectional, keeps the
-  wrap, and holds the `char`/`i32` boundary rule. Neither the primary nor the
-  fallback has been run yet.
-- **AURA claim sketch:** a claim about the wrap arithmetic, for example that a delta
-  larger than the alphabet can be clamped rather than wrapped, or that the inverse
-  is the forward operation with the sign flipped.
+  breaks the slot. A fixed-width encoding of a non-negative reading satisfies this
+  naturally, since every operand is non-negative by construction. State the
+  precondition that the reading is zero or greater, and verify at draft time that no
+  reasonable implementation reaches `%` with a negative value.
+- **Risk:** this is still the slot most likely to need rework once drafted. It has
+  not been run in either language. Draft it second, right after the skill file.
+- **AURA claim sketch:** a claim about the digit order (that the code can be built
+  least-significant-digit first and read the same way), or that a value too large for
+  the fixed width can be clamped rather than rejected.
 
 ### A10: the capstone
 
@@ -404,9 +416,14 @@ block and are non-negotiable. Only the topic column changes.
   mutating the original afterward. Strings and lists only, no dict or HashMap. Plus
   the one-page accessibility and equity critique.
 - **Topic:** **the annual emissions inventory.** Raw readings arrive from the field
-  network as text lines in the format A6 introduced. Validate each one, fold the
-  qualifying ones into the running station manifest in place, emit the formatted
-  report line, and snapshot an independent archive copy.
+  network as text lines in the format A6 introduced, carrying the base-36 codes A9
+  produced. Validate each one, fold the qualifying ones into the running station
+  manifest in place, emit the formatted report line, and snapshot an independent
+  archive copy.
+- **Concept load:** three new things, all genuinely from A10's own window
+  (consuming a string parameter, passing a collection to a function, and aliasing
+  versus an independent copy). See section 6a for why this slot stays the heaviest
+  and why that is now correct rather than accidental.
 - **The equity critique:** air quality monitor siting. Regulatory monitors are
   distributed unevenly, so the inventory the student just built reports confidently
   about the neighborhoods it watches and is silent about the ones it does not, and
@@ -415,6 +432,67 @@ block and are non-negotiable. Only the topic column changes.
   3 with a real referent.
 - **AURA claim sketch:** a claim about the archive copy being independent when it
   is not, which is the aliasing trap the week teaches.
+
+---
+
+## 6a. Concept load across the ten slots
+
+The escalation rule is that each assignment adds roughly **one** new advanced
+concept over the one before it. Auditing the current slate against that rule found
+one real imbalance, and it is worth recording why, because the cause is structural
+rather than an authoring slip.
+
+| Slot | Window | New concepts the student must actually use | Count |
+|---|---|---|---|
+| A1 | L1 | toolchain only | 0 |
+| A2 | L1 to L3 | literals, types, precedence; the printed-output contract | 1 |
+| A3 | L3 to L4 | variables; integer division and remainder; **console input** | 2 |
+| A4 | L5 | functions: define, call, return | 1 |
+| A5 | L6 to L7 | scope; booleans and `if`/`else` | 1 |
+| A6 | L8 to L9 | `elif` / `match` chain; float tolerance | 1 |
+| A7 | L10 | assert-based tests; judging provided code | 1 |
+| A8 | L11 to L12 | loops; accumulation over a data-dependent count | 1 |
+| A9 | L13 to L14 | `char` and character-code arithmetic; **string building** | 2 |
+| A10 | L15 to L16 | consuming a string parameter; passing a collection; aliasing vs copy | 3 |
+
+### The constraint that shapes the back half
+
+**Strings and lists cannot be function parameters until week 9.** The language
+ladder introduces strings, `char`, `Vec`, and their methods in week 8, and
+introduces `&` / `&mut` references and "passing lists to functions" in week 9. This
+is confirmed in the source: `lectures/strings.mdx` contains no function signatures
+at all and never mentions references. Every week-8 string example lives inside
+`main`.
+
+So A9, whose window is week 8, can only take scalars into its entry points. That is
+why its functions are typed over `char` and `i32`, and it was forced rather than
+chosen.
+
+### The imbalance, and the fix applied
+
+Before this audit, A9 used only L13 (characters) and left L14 (collections) unused,
+so A10 absorbed both string handling and list handling on top of its own two
+lectures. The escalation ran flat, flat, flat, then a cliff of four to five new
+concepts in the capstone week.
+
+The available lever: **returning** an owned `String` or `Vec` needs no reference,
+even though **taking** one does. So A9 gains string building
+(`code_for(reading_ugm3) -> String`), which uses the second half of its window, and
+A10 keeps only string consuming, which genuinely needs week 9.
+
+### The limit, stated honestly
+
+**A10 remains the heaviest slot and cannot be made lighter.**
+Collections-as-parameters is inherently week-9 material and A10 is the only
+assignment in that window. A capstone being the heaviest week is correct; a capstone
+being heavy with *borrowed* content was the problem, and that is what the fix
+removes. If A10 still runs long in a pilot term, the lever is trimming the
+inventory's field count, never moving a concept, since there is nowhere earlier for
+it to go.
+
+**A3 carries two** once console input lands there, making it the densest of the
+early slots. Both concepts come from its own two lectures, so this is within the
+rule, but it is the slot to watch first in a pilot term.
 
 ---
 
