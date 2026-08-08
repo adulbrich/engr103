@@ -1,19 +1,19 @@
 ---
 name: engr103-assignments
-description: Use when creating or editing assignment files (MDX in src/content/docs/assignments/). Enforces the take-home, dual-language, Mission Ares specification structure of the ENGR 103 assignments: one open problem whose contract is fixed and whose decomposition is the student's, HAB's wrong claim to judge, and alignment to the recitation the assignment prepares. Always load this skill before writing or editing any assignment file.
+description: Use when creating or editing assignment files (MDX in src/content/docs/assignments/). Enforces the take-home, dual-language, Willamette Resource Office specification structure of the ENGR 103 assignments: one open problem whose contract is fixed and whose decomposition is the student's, AURA's wrong claim to judge, and alignment to the recitation the assignment prepares. Always load this skill before writing or editing any assignment file.
 ---
 
 # Assignment Style Guide
 
 This skill governs how assignments are written and revised for the ENGR 103 course website (Astro/Starlight, MDX format). Assignments are the take-home **training set**: the tier where a student practices a problem family, with any tool including AI, before the proctored recitation tests a fresh variation of the same skeleton. VISION.md sections 6, 8, and 9 are the authority for this tier; this skill operationalizes them. When this skill and VISION.md disagree, VISION.md wins and this skill is the bug.
 
-An assignment is a **specification**, not a tutorial, and not a worksheet of pre-decomposed one-liners. It hands the student a mission situation and a goal, fixes only what the grader can observe, and leaves every decision about how to get there to the student. It does not walk the student through building the solution, and it does not pre-break the solution into named helpers for the student to fill in; the lecture explains, the activity gives a first guided rep, and the assignment makes the student work out how to use what they have learned.
+An assignment is a **specification**, not a tutorial, and not a worksheet of pre-decomposed one-liners. It hands the student a work situation and a goal, fixes only what the grader can observe, and leaves every decision about how to get there to the student. It does not walk the student through building the solution, and it does not pre-break the solution into named helpers for the student to fill in; the lecture explains, the activity gives a first guided rep, and the assignment makes the student work out how to use what they have learned.
 
 ## The Core Principle: Fix the Contract, Not the Solution
 
 The single most important rule of this tier, and the one the earlier assignments got wrong: **specify only the observable contract, and let the student own everything behind it.**
 
-The student must decide, themselves, what intermediate values to compute, whether to write helper functions and what to call them, which variables represent the situation, and which language construct is the right tool. Those decisions are the learning. An assignment that pre-names the helper functions, states "the modeling step is deciding to represent time as whole sols and leftover seconds," or tells the student "join these with `and`" has already done the thinking and left the student to transcribe. That is the failure this rewrite exists to end.
+The student must decide, themselves, what intermediate values to compute, whether to write helper functions and what to call them, which variables represent the situation, and which language construct is the right tool. Those decisions are the learning. An assignment that pre-names the helper functions, states "the modeling step is deciding to represent time as whole days and leftover hours," or tells the student "join these with `and`" has already done the thinking and left the student to transcribe. That is the failure this rewrite exists to end.
 
 What the page is allowed to pin down is exactly what the grader checks, and no more:
 
@@ -49,20 +49,26 @@ Total freedom over the solution creates one risk: if the page never tells the st
 
 The test: could a prepared student who ignored the week's lecture still hit the contract easily? If yes, the problem is wrong for the week; reshape the situation until the taught construct is the path of least resistance. The student still gets to discover that path; you guarantee the path exists and leads through this week's material.
 
-## The Story: Mission Ares
+## The Story: The Willamette Resource Office
 
-Assignments wear the **Mission Ares** story line. The student is a member of the flight software crew of a crewed Mars habitat, and the assignments follow a small plot, one episode per assignment, building from launch preparation through the surface phase to the Sol 100 status report as the capstone assignment. Each assignment's opening narrative is a mission beat that sets the scene and hands the student their task; the exact episode per week follows the family schedule.
+Assignments wear the **Willamette Resource Office (WRO)** setting. The student is a junior engineer on the software team of the WRO, a regional public sustainability agency in the Pacific Northwest.
 
-The recurring character is **HAB**, the habitat's onboard AI assistant: helpful, tireless, and confidently wrong at a convenient moment. HAB is how the judge-the-work skill arrives in story. In the new format HAB does not hand the student a code draft to fix, because handing over a draft is itself a pre-decomposition. Instead **HAB states a claim**: a confident assertion about how to approach the problem, or a fact about it, that is subtly wrong. The student has to catch that it is wrong before building on it. Placing HAB on the assignment tier is deliberate: it is the one tier where students may use AI, so a confidently wrong AI whose advice the student must judge is the right training partner here. See [HAB's Wrong Claim](#habs-wrong-claim).
+There is **no plot**. Each assignment is an independent piece of the office's work, not an episode in a running story. Do not write "last week you..." or "next week the office will..." into an opening narrative; a student who missed a week is behind in nothing.
 
-The story is a **spine, not a cage**. The requirement is testable and fully understandable with the plot skipped. The mission never obscures the technical ask, and a student who ignores the lore entirely can still earn full marks. The upcoming recitation assesses the same skeleton in fresh Rubber Duck Robotics costume, so a memorized or generated solution transfers only if the understanding did.
+What ties the assignments together is technical, not narrative: the reading-line format introduced in A6 and parsed in A10, the naming conventions `*_status`, `*_gco2`, `*_ugm3`, and `*_kwh`, and one units discipline honored everywhere (grams CO2e, kWh, µg/m³, km).
+
+Problem contexts rotate across domains, so every engineering major sees its own field somewhere in the term: buildings, transport, water, grid, waste, air, fire, ecology.
+
+The recurring character is **AURA**, the office's vendor-supplied AI analytics assistant: helpful, tireless, and confidently wrong at a convenient moment. Office rule: no AURA analysis is published unverified. AURA is how the judge-the-work skill arrives in story. In the new format AURA does not hand the student a code draft to fix, because handing over a draft is itself a pre-decomposition. Instead **AURA states a claim**: a confident assertion about how to approach the problem, or a fact about it, that is subtly wrong. The student has to catch that it is wrong before building on it. Placing AURA on the assignment tier is deliberate: it is the one tier where students may use AI, so a confidently wrong AI whose advice the student must judge is the right training partner here. See [AURA's Wrong Claim](#auras-wrong-claim).
+
+The story is a **spine, not a cage**. The requirement is testable and fully understandable with the setting skipped. The office framing never obscures the technical ask, and a student who ignores it entirely can still earn full marks. The upcoming recitation assesses the same skeleton in fresh Rubber Duck Robotics costume, so a memorized or generated solution transfers only if the understanding did.
 
 ## Trains the Recitation, Harder Than the Activity
 
 An assignment sits between the activity and the recitation on one problem family's escalator.
 
 - It is **harder than the paired activity.** The activity is a guided first rep at one lecture's concepts; the assignment is an independent, more complete program that combines the family's pieces into something worth 2.5 to 3.5 hours of work, with the decomposition left to the student. If a student who did the activity could finish the assignment without making any decisions of their own, the assignment is too thin.
-- It is the **same level as its recitation sibling.** The recitation problem is a fresh variation of the assignment's skeleton: new mission beat, new values, at most one small structural twist. It is never a harder problem, so the assignment must not be easier than the recitation either. Difficulty headroom belongs to the optional summit problem alone.
+- It is the **same level as its recitation sibling.** The recitation problem is a fresh variation of the assignment's skeleton: new work beat, new values, at most one small structural twist. It is never a harder problem, so the assignment must not be easier than the recitation either. Difficulty headroom belongs to the optional summit problem alone.
 
 The variable the recitation adds is the conditions (locked down, alone, docs only, time-boxed), not the difficulty, and not the amount of hand-holding removed. If the only thing that makes your assignment easier than its recitation sibling is that the assignment pre-decomposed the solution, you have written the assignment wrong: the decomposition is the student's work at both tiers.
 
@@ -91,12 +97,14 @@ From the functions lecture (week 3) onward, the assignment fixes **one named ent
 Consequences the spec must respect:
 
 - **Name only the entry point, in both languages.** Give the entry-point function's exact signature: name, parameter names and (for Rust) types, and the return type. Do **not** name, sketch, or imply any helper function; helpers are the student's decision. Python signatures carry no type annotations, matching the course style; Rust signatures carry explicit parameter types and an explicit `-> ReturnType`, with an explicit `return` in the body.
-- **Acceptance tests are call-to-value, not printed output.** Write each visible case as a call to the entry point and the value it must return (`whole_sols(200000) -> 2`), because that is what the grader checks. Show a printed run only to illustrate the harness, and when you do, show each language's real display faithfully (a Rust `f64` of `1150.0` prints as `1150`, Python's prints as `1150.0`).
+- **Acceptance tests are call-to-value, not printed output.** Write each visible case as a call to the entry point and the value it must return (`whole_years(200000) -> 2`), because that is what the grader checks. Show a printed run only to illustrate the harness, and when you do, show each language's real display faithfully (a Rust `f64` of `1150.0` prints as `1150`, Python's prints as `1150.0`).
 - **One contract, two languages.** The same acceptance tests bind both languages. The spec page shows the entry-point signature in a `<Tabs syncKey="lang">` pair; the full starter repository (twin scaffolds, visible tests, `check`/`pack`) is separate infrastructure and is not part of the MDX page.
 
 ### Up to Two Entry Points
 
 Fix a **second** named entry-point function only when the family is genuinely two independent outputs that a single function cannot naturally return together (for example two distinct predicates the recitation family treats as separate). This is the exception, not the default; most assignments fix one entry point. When you do fix two, they are two independent contracts, never a decomposition of one another: never name one function as a helper the other must call. If you find yourself wanting a third named function, you are decomposing the solution for the student. Stop, and fold the extra structure back inside the entry point as the student's choice.
+
+One named entry-point function, and a second only when the family is genuinely two independent outputs **or when the ladder forces a codec to be split**. A9 is the second case: its window is week 8, which is before references, so no `String`, `&str`, or `Vec` may be a parameter. Its encoder returns an owned `String` and its decoder primitive takes a `char`, so the round trip does not close inside A9. A10 closes it. Do not author a round-trip acceptance test in A9.
 
 ### The Pre-Functions Contract (weeks 1 to 2)
 
@@ -112,19 +120,25 @@ The one rule: **provided code never decomposes the student's own solution.** It 
 
 Provided code follows the same accuracy pass as everything else: it must run as shown, in both languages, and stay within the taught subset (or gloss, in one sentence, any construct it uses that the student only reads and never writes).
 
-## HAB's Wrong Claim
+## AURA's Wrong Claim
 
-HAB is the assignment tier's rung of the red herring ladder, reframed for the new format. HAB does not hand over a code draft; a draft pre-decomposes the solution, which is exactly what this tier no longer does. Instead **HAB makes a claim in prose**: a confident, plausible, and subtly wrong statement about how to approach the problem or a fact it turns on. For example, HAB might assert that a fifteen-percent margin is added by adding the percent straight onto the mass, that a ceiling can be gotten by plain division, that two floats can be compared for exact equality, or that a sol boundary case rounds a particular way. The student must judge the claim against the requirements, and a student who takes it on faith arrives at a wrong answer that a visible test catches.
+AURA is the assignment tier's rung of the red herring ladder, reframed for the new format. AURA does not hand over a code draft; a draft pre-decomposes the solution, which is exactly what this tier no longer does. Instead **AURA makes a claim in prose**: a confident, plausible, and subtly wrong statement about how to approach the problem or a fact it turns on. For example, AURA might assert that a fifteen-percent margin is added by adding the percent straight onto the mass, that a ceiling can be gotten by plain division, that two floats can be compared for exact equality, or that a tolerance boundary case rounds a particular way. The student must judge the claim against the requirements, and a student who takes it on faith arrives at a wrong answer that a visible test catches.
 
 The rules that keep this honest:
 
-- **A correct solution never depends on noticing the claim.** A student who ignores HAB entirely and reasons from the requirements gets the right answer. The claim punishes only uncritical trust; it never gates the right answer behind a catch.
-- **Never give away the verdict or the fix.** Judging the claim is the exercise. State the claim as HAB's, in story, and ask the student to decide whether to trust it. Do **not** say whether it is right or wrong, do **not** name the flaw, do **not** hand a case that exposes it, do **not** explain the correction, and do **not** attach a `<Reveal>` to it. The one thing the page may add is the neutral instruction to check it before relying on it. (The accuracy pass still verifies the claim really is wrong behind the scenes; that verification lives in your work log, never on the page.)
-- **The claim is prose, not code.** Present it as something HAB says (an `<Aside>` in HAB's voice), not as a function draft. If you catch yourself writing a `def` or `fn` for HAB, you are back in the old format.
+- **A correct solution never depends on noticing the claim.** A student who ignores AURA entirely and reasons from the requirements gets the right answer. The claim punishes only uncritical trust; it never gates the right answer behind a catch.
+- **Never give away the verdict or the fix.** Judging the claim is the exercise. State the claim as AURA's, in story, and ask the student to decide whether to trust it. Do **not** say whether it is right or wrong, do **not** name the flaw, do **not** hand a case that exposes it, do **not** explain the correction, and do **not** attach a `<Reveal>` to it. The one thing the page may add is the neutral instruction to check it before relying on it. (The accuracy pass still verifies the claim really is wrong behind the scenes; that verification lives in your work log, never on the page.)
+- **The claim is prose, not code.** Present it as something AURA says (an `<Aside>` in AURA's voice), not as a function draft. If you catch yourself writing a `def` or `fn` for AURA, you are back in the old format.
 
-Also plant **one mild spec distractor**: a quantity mentioned in the narrative that is never needed to hit the contract. It adds noise, never ambiguity. Plant it and then **stop talking about it**: never defuse it on the page ("though the panel never prints that rating", "a detail for the log and nothing your functions need"). A defused distractor trains no noise-filtering; the student's own reading of the requirements is what establishes the quantity is unused. Two calibrated distractors (HAB's claim and the spec distractor), and no more.
+**AURA is always wrong about the computation or the method, and never about contested policy.** The operational test, applied to every claim before it ships: can a test case the student writes falsify this claim? If not, it is not an AURA claim. "You can average the two grid intensities to get the blended figure" is a good claim, because it is arithmetically wrong whenever the shares differ. "Electric cars are not actually cleaner" is not, because it asks a first-year student to adjudicate a political fight for a grade. Real greenwashing and marketing claims may be quoted through AURA, but only where the flaw is a method flaw: a wrong baseline, a double count, an averaged rate that should be weighted, a per-unit figure multiplied by the wrong unit.
 
-One more fairness calibration: the requirements must make HAB's claim refutable, but **never phrase a requirement as a direct rebuttal of the claim**. State the governing rule once, in its own terms, where it naturally belongs; do not restate it beside HAB, do not quote HAB's boundary back at it ("still counts as agreeing, so it returns 0, not 3"), and do not state it twice. If judging the claim reduces to matching HAB's sentence against an adjacent spec sentence, the judgment is gone; the student should have to reason from the rule to the verdict.
+Also plant **one mild spec distractor**: a quantity mentioned in the narrative that is never needed to hit the contract. It adds noise, never ambiguity. Plant it and then **stop talking about it**: never defuse it on the page ("though the panel never prints that rating", "a detail for the log and nothing your functions need"). A defused distractor trains no noise-filtering; the student's own reading of the requirements is what establishes the quantity is unused. Two calibrated distractors (AURA's claim and the spec distractor), and no more.
+
+One more fairness calibration: the requirements must make AURA's claim refutable, but **never phrase a requirement as a direct rebuttal of the claim**. State the governing rule once, in its own terms, where it naturally belongs; do not restate it beside AURA, do not quote AURA's boundary back at it ("still counts as agreeing, so it returns 0, not 3"), and do not state it twice. If judging the claim reduces to matching AURA's sentence against an adjacent spec sentence, the judgment is gone; the student should have to reason from the rule to the verdict.
+
+## Real Constants, Authored Scenarios
+
+Headline physical and reference constants are real and cited inline on the page, with the source named (agency, dataset, year) so a student can look it up. Scenario values inside test cases are authored so they land cleanly on the ladder. Never ship an uncited real-world figure, and never present an authored scenario value as a published statistic.
 
 ## The Submission Split
 
@@ -154,9 +168,9 @@ A straightforward-calculation assignment also imports its own simulator, for exa
 
 - **`Tabs` / `TabItem`**: the dual-language pair, always `syncKey="lang"`, Python first and Rust second. Use it for the entry-point signature and any shown snippet that exists in both languages.
 - **`LanguageVersions`**: at the very top of the body, before the opening narrative.
-- **`Aside`**: a hint, a caution, or HAB's claim, always with a `title`. This is the assignment tier's scaffolding voice; use it for optional hints, not to smuggle in a decomposition or lecture exposition.
+- **`Aside`**: a hint, a caution, or AURA's claim, always with a `title`. This is the assignment tier's scaffolding voice; use it for optional hints, not to smuggle in a decomposition or lecture exposition.
 - **`Steps`**: for a *suggested* order of attack the student may ignore, when the scaffolding is genuinely an ordered list. Never a mandated build sequence, and never a decomposition of the solution into named pieces.
-- **`Reveal`**: for the paper practice's worked solution (always), and otherwise sparingly for an *optional* hint the student can choose to open, where the nudge points at a way in, never the answer and never the decomposition. **Never attach a `<Reveal>` to HAB's claim:** judging it carries no hint.
+- **`Reveal`**: for the paper practice's worked solution (always), and otherwise sparingly for an *optional* hint the student can choose to open, where the nudge points at a way in, never the answer and never the decomposition. **Never attach a `<Reveal>` to AURA's claim:** judging it carries no hint.
 - **`WhatDiffers`**: inside a shown dual-language snippet when a real Python/Rust difference needs naming, beyond the standard `fn main`/`println!` boilerplate.
 - **`Latex`**: for a formula or a system of equations the problem hands the student. When the math is complex enough that a student could not reasonably be expected to derive it, **give the solved equations in LaTeX** and let the student implement them; deriving the math is never the assignment's challenge. See [Give the Math to Match Its Complexity](#give-the-math-to-match-its-complexity).
 - **`RubricTable`**: required at the end of every assignment, in a `## Rubric` section, loading the assignment's Canvas rubric TSV. See [The Rubric](#the-rubric).
@@ -170,15 +184,15 @@ Do not import a lecture-only component (`MemoryStepper`, the visualizers). The a
 
 ```yaml
 ---
-title: "Short Mission-Flavored Name"
-description: "One sentence naming the mission task and what the student will build."
+title: "Short Descriptive Name"
+description: "One sentence naming the task and what the student will build."
 sidebar:
   order: <number, the assignment's position; keep distinct from lecture/activity orders>
 draft: true
 ---
 ```
 
-The `title` is the assignment's name only, with no `Assignment N:` prefix (for example `The Injection Burn`, not `Assignment 3: The Injection Burn`). The number lives in `sidebar.order` and in the schedule's label, not in the page title.
+The `title` is the assignment's name only, with no `Assignment N:` prefix (for example `The Concrete Mix`, not `Assignment 4: The Concrete Mix`). The number lives in `sidebar.order` and in the schedule's label, not in the page title.
 
 ### The `ai-summary` block
 
@@ -197,7 +211,7 @@ prereq_assignment: <previous assignment slug, or none>
 new_scope: <the new capability this assignment adds, one clause>
 target_construct: <the week's construct the problem is shaped to make the natural tool>
 persistent_requirements: <carried-forward requirements; semicolon-separated>
-story_beat: <the Mission Ares mission episode, one clause>
+story_beat: <the WRO work situation, one clause>
 output: <what the student submits: the code to Gradescope; the tests, pseudocode, paper trace, and reflection in a Canvas PDF>
 */}
 ````
@@ -213,7 +227,7 @@ Rules:
 Every assignment follows this order.
 
 1. **`<LanguageVersions />`** at the very top of the body.
-2. **Opening narrative** (no heading, 2 to 4 sentences): the Mission Ares mission beat. It names the situation, gives the student their crew role and constraint, and ends with what they are being asked to build in one sentence. It states no requirements and explains no concept.
+2. **Opening narrative** (no heading, 2 to 4 sentences): the WRO work beat. It names the situation, gives the student their role on the office's software team and constraint, and ends with what they are being asked to build in one sentence. It states no requirements and explains no concept.
 3. **How this assignment works** (a short `##` section): a sentence or two naming that the assignment is worked test first (design tests, then pseudocode, then code), the language choice, and that the grader checks the printed output (pre-functions) or calls the entry point directly (functions era). It does not restate submission mechanics; that is the next section's job.
 4. **What to submit** (a short `##` section): the submission split, as two bullets, the Canvas PDF (tests, pseudocode, paper trace, reflection) and the Gradescope code (functions, plus the summit function). Link the setup-and-submission how-to, and say each later section repeats its own ask.
 5. **The problem** (a `##` section, using the template below): the situation, the given equations, the contract, the signatures, and one worked example test case. It is the "read it" step; it does not contain the tests, pseudocode, or code, which are the steps that follow.
@@ -232,15 +246,15 @@ Every step and graded section carries a one-line reminder of what to submit for 
 
 The single problem is written with this structure. The order is fixed:
 
-- **The situation** (a short paragraph, plus given math): the mission beat and the goal, in plain language, and any formula or equations the student needs. Give complex math in LaTeX and leave only simple arithmetic for the student to work out (see [Give the Math to Match Its Complexity](#give-the-math-to-match-its-complexity)). It sets the scene, the target, and the given math; it does not decompose the implementation.
-- **What your program must do / What your function must return** (numbered, testable statements about the *contract only*): exactly what the printed output must be and in what format (pre-functions), or exactly what the entry-point function must return for its inputs (functions era). State units and the rounding or truncation behavior explicitly, because the family turns on it. Do **not** state intermediate steps, name helper values, or prescribe a construct. "Must return the number of whole sols elapsed" is a contract; "must use integer division after taking the remainder" is a decomposition and is banned.
+- **The situation** (a short paragraph, plus given math): the work beat and the goal, in plain language, and any formula or equations the student needs. Give complex math in LaTeX and leave only simple arithmetic for the student to work out (see [Give the Math to Match Its Complexity](#give-the-math-to-match-its-complexity)). It sets the scene, the target, and the given math; it does not decompose the implementation.
+- **What your program must do / What your function must return** (numbered, testable statements about the *contract only*): exactly what the printed output must be and in what format (pre-functions), or exactly what the entry-point function must return for its inputs (functions era). State units and the rounding or truncation behavior explicitly, because the family turns on it. Do **not** state intermediate steps, name helper values, or prescribe a construct. "Must return the number of whole years elapsed" is a contract; "must use integer division after taking the remainder" is a decomposition and is banned.
 - **Interface** (functions era only, a `<Tabs syncKey="lang">` pair): the exact entry-point signature in Python and Rust, with a title on each code block. One signature (rarely two). No helpers.
 - **One worked example** (a short table or a call-to-value pair): exactly one visible case, so the student knows the format and has a first check. The student designs the rest of the tests in Step 1; the remaining hidden cases run at grading time. Do not print a full table of acceptance cases here.
 - **Assumptions and edge cases**: what the input is guaranteed to be, and which cases the solution must handle.
-- **HAB's claim**: as its own `<Aside>` in HAB's voice (see below).
+- **AURA's claim**: as its own `<Aside>` in AURA's voice (see below).
 - **Optional scaffolding**: at most a short `<Aside>` hint or an optional `<Reveal>` nudge the student may ignore. Never a mandated build order, never a decomposition, never a construct directive. The tests, pseudocode, and code each have their own step section after the problem; do not fold them into the problem.
 
-The problem carries **HAB's claim** (the red-herring rung) as a prose `<Aside>` in HAB's voice: introduce it in story, state the confident wrong claim, and ask the student to judge it before relying on it. Give away nothing about the verdict or the fix, and attach no `<Reveal>`; see [HAB's Wrong Claim](#habs-wrong-claim).
+The problem carries **AURA's claim** (the red-herring rung) as a prose `<Aside>` in AURA's voice: introduce it in story, state the confident wrong claim, and ask the student to judge it before relying on it. Give away nothing about the verdict or the fix, and attach no `<Reveal>`; see [AURA's Wrong Claim](#auras-wrong-claim).
 
 Do **not** write a "modeling step / analysis step" paragraph on the page. Labeling those steps for the student is the spoonfeeding this rewrite removes; the distinction is now drawn out of the student in the reflection.
 
@@ -253,7 +267,7 @@ The problem works identically in both languages against one shared contract. Sho
 - **Sizing is by time, not word count.** The whole flow, designing the tests, writing the pseudocode, and writing the code, targets a 2.5 to 3.5 hour median for a prepared student. The upper half of that band is legitimate, not a stretch: recitations and exams ask for no extensive code, so the assignment is the one tier where all substantial programs get written, and a problem that lands at 3.5 hours of honest implementation work is doing its job. As a secondary diagnostic, a full assignment page runs roughly **2,000 to 4,000 words** including the step sections and the rubric; landing well under usually means the situation is under-specified or the problem is too thin to sit above the activity, and well over usually means either tutorial contamination or a decomposition creeping back in that belongs to the student. A page that is long because it lists many named functions to fill in is the specific failure to avoid.
 - **Solvable within what has been taught.** Every assignment must be fully solvable using only the constructs the course has introduced by its due date, so a student who followed the course is never blocked. The [language ladder](/reference/language-ladder/) is a recommendation for students (they may use anything they already know), but for you, the author, it is a hard requirement in this one direction: at least one intended solution, the provided starter code, and the fixed contract must all stay inside the taught subset. Raise difficulty by choosing a richer situation that demands more decisions, never by requiring a construct from a later week.
 - **Shape the problem to the week's construct.** See [Choosing the Problem](#choosing-the-problem-so-the-weeks-construct-is-the-natural-tool). The problem must be one where the week's target construct is the natural or necessary tool, so that a student solving it freely still practices exactly what the recitation assesses. Record the target construct in the `ai-summary` `target_construct` field.
-- **Mine the retired assignments for situations.** Before writing an assignment, look at the retired course's assignments (in `src/content/docs/assignments/`, the non-Ares drafts such as `linear-equations`, `financial-planner`, `calculator`, `dictionary`) for reusable *situations* that demand real implementation work: a linear system whose solved formulas the student implements, a compound-growth accumulation, an input-validation-and-dispatch loop, an expression evaluator. Reuse the situation and the coding decisions it forces, never the C++ and never the pre-decomposed program. The retired linear-equation solver is the archetype: give the equations in LaTeX and let the student write the code that computes them, breaking each formula into their own intermediate variables. Never make the student derive or solve the math. Reframe into a Mission Ares beat, fit it to the due week's ladder, and verify it in both languages.
+- **Mine the retired assignments for situations.** Before writing an assignment, look at the retired course's assignments (in `src/content/docs/assignments/`, the non-Ares drafts such as `linear-equations`, `financial-planner`, `calculator`, `dictionary`) for reusable *situations* that demand real implementation work: a linear system whose solved formulas the student implements, a compound-growth accumulation, an input-validation-and-dispatch loop, an expression evaluator. Reuse the situation and the coding decisions it forces, never the C++ and never the pre-decomposed program. The retired linear-equation solver is the archetype: give the equations in LaTeX and let the student write the code that computes them, breaking each formula into their own intermediate variables. Never make the student derive or solve the math. Reframe into a WRO work beat, fit it to the due week's ladder, and verify it in both languages. **The retired Mission Ares assignments are now also a retired source to mine** for situations, in exactly the same way: reuse the situation and the coding decisions it forces, never the Mars framing.
 
 ## The Rubric
 
@@ -292,7 +306,7 @@ Set `draft: true` while an assignment is in development. **Never flip it to `fal
 An assignment is not done until every piece of code and every claimed value on the page has actually been run and confirmed, in both languages.
 
 - Write at least one full intended solution in Python and in Rust, run every acceptance case through it, and confirm each printed output or returned value matches the page.
-- Run **HAB's claim** to ground: build the wrong approach the claim describes, confirm it really produces a wrong result on a case in the visible tests, and confirm a correct approach passes. This verification lives in your work log, never on the page.
+- Run **AURA's claim** to ground: build the wrong approach the claim describes, confirm it really produces a wrong result on a case in the visible tests, and confirm a correct approach passes. This verification lives in your work log, never on the page.
 - For any printed run shown to illustrate the harness, confirm each language's exact display, including the `f64` versus Python-float difference.
 - Confirm the problem is genuinely solvable within the taught subset, and that the week's target construct really is the natural tool for it.
 - Fix any mismatch before shipping. No claimed value ships unverified.
@@ -316,9 +330,9 @@ This runs `astro check` and the link validator. Fix every error before consideri
 - No assignment that *requires* a construct the course has not introduced by its due-date week; it must be solvable with the taught subset.
 - No entry-point signature, function skeleton, or `todo!()` in an assignment due before the functions lecture; those fix the printed output instead.
 - No acceptance test written as printed output when the grader checks a returned value (functions era), and none written as a return value when the grader checks printed output (pre-functions).
-- No HAB code draft: HAB states a wrong claim in prose, never a function to fix. No giveaway on it: never state that it is wrong, name the flaw, hand a failing case, explain the fix, or attach a `<Reveal>`.
+- No AURA code draft: AURA states a wrong claim in prose, never a function to fix. No giveaway on it: never state that it is wrong, name the flaw, hand a failing case, explain the fix, or attach a `<Reveal>`.
 - No requiring the student to derive or solve mathematics: when the math is complex (a system of equations, an involved formula), give the solved equations in LaTeX and let the coding be the challenge; leave only simple arithmetic for the student to work out.
-- No Rubber Duck Robotics or bare-exam framing: assignments are Mission Ares.
+- No Rubber Duck Robotics or bare-exam framing: assignments are Willamette Resource Office.
 - No paper practice whose worked solution is withheld from the page; it goes in a closed `<Reveal>` for self-checking.
 - No `Assignment N:` prefix in the page title; the number lives in `sidebar.order`.
 - No reduced exam-adjacent assignment and no exam-rehearsal material in an assignment.
@@ -329,4 +343,4 @@ This runs `astro check` and the link validator. Fix every error before consideri
 - No missing rubric: every assignment ends with a `RubricTable` loading `canvas/assignments/<slug>-rubrics.tsv`.
 - No printable simulator: when a simulator is present it is `print:hidden`, with the print-only note beside it.
 - No lecture-only or other-course component imports (`MemoryStepper`, the visualizers, `AssignmentRequirements`, `AssignmentAICritique`); the assignment tier uses `RubricTable` and its own Svelte simulator only.
-- No emdashes, and no pairing language; author for one individual crew member.
+- No emdashes, and no pairing language; author for one individual student.
