@@ -17,7 +17,7 @@ order: 4
 covers: variables and identifiers; assignment as evaluate-then-bind; rebinding; let vs let mut vs bare Python assignment; console input with input() and the provided read_i32/read_f64 helpers; initialization; reading an uninitialized variable; constants; tracing a variable table
 prereq_lectures: expressions-and-operators
 followup_lectures: functions
-glossary_terms: variable, assignment, mutability, initialization, constant, console input, parsing
+glossary_terms: variable, assignment, mutability, initialization, constant, console input
 */}
 
 <LanguageVersions />
@@ -176,21 +176,9 @@ Python reads one line of console input with a single built-in function call. `in
 
 A string of digits is not the same thing as a number: you cannot add `"25"` and `"3"` and get `28`, because addition on two strings does something else entirely, and a string cannot be compared with `<` the way a number can. **Parsing** is the step that turns text into the value it represents, here a whole number or a decimal number. Python parses with another plain function call: `int(age_text)` reads the string and returns the whole number it spells, and `float(age_text)` does the same job for a number with a decimal point. Both hand back an ordinary value that can be bound to a name the same way any other value can, so `age = int(age_text)` binds `age` to the number 25 itself, not to the string it came from.
 
-Rust does the same job with several more steps written out, because reading input is the first place in this course where a Rust program has to spell out, by hand, work that Python folds into a single call. Rather than write those steps every time a program needs a number from the keyboard, this course gives you two functions already written, in a file you can open and read: `read_i32()` reads one line and hands back a whole number, and `read_f64()` does the same for a decimal number. You already know how to call a function: that is exactly what you have been doing every time you write `print(...)`. `println!(...)` has the same familiar shape, a name followed by parentheses, and calling `read_i32()` works the same way too. Writing a function of your own, the shape `fn read_i32() -> i32 { ... }` below, is the subject of the lecture on functions that follows this one, so for now read the body only to see what it does, the same way you can already read someone else's `fn main() { ... }` without yet being able to explain every part of it.
+Rust needs more steps to do the same job, because reading input is the first place in this course where a Rust program has to do work that Python folds into a single call. Rather than write those steps every time a program needs a number from the keyboard, this course hands you two functions already written, in a file you can open and read: `read_i32()` reads one line and hands back a whole number, and `read_f64()` does the same for a decimal number. You call them exactly the way you already call `println!`, a name followed by parentheses; the lecture on errors, input, and validation explains what is written inside them once the pieces they use have all been introduced.
 
-```rust title="What read_i32 does"
-use std::io;
-
-fn read_i32() -> i32 {
-    let mut text = String::new();
-    io::stdin().read_line(&mut text).expect("failed to read line");
-    text.trim().parse().expect("not a whole number")
-}
-```
-
-Four pieces of this are worth naming, and none of them needs to make sense yet. One is plumbing you can simply copy and never have to unpack; the other three are each explained properly by a later lecture. Near the top of the file, `use std::io;` brings in the part of Rust's own standard library that talks to the keyboard and the screen, and the call `io::stdin()` asks it for a handle to the keyboard's input, the channel a typed line arrives on. A **module** is a named bundle of ready-made code a language ships with; this course never teaches modules beyond this one line, so treat `use std::io;` as the plumbing piece, copied exactly as written. Inside the function, `String::new()` creates an empty, changeable piece of text called a `String`; what a `String` actually is, and how it differs from the fixed text you have written in this course so far, is the subject of a later lecture on strings and characters. The call `.read_line(&mut text)` is written with a dot after the value it is called on, which makes it a **method**: a method is a function attached to a value, called by writing the value, a dot, and the function's name, and everything you already know about calling a function still applies. The `&mut` in front of `text` inside that call gives `read_line` permission to change `text` rather than only look at it; a later lecture on the memory model explains exactly what `&mut` means and why Rust requires it to be written out. And `read_line` reports back whether the read actually succeeded, a report Rust requires you to do something with; `.expect("failed to read line")` is the simplest way to handle it, meaning "if this failed, stop the program and print this message," and the lecture on errors, input, and validation explains exactly what kind of value `.expect()` is called on and what else can be done with it besides stopping.
-
-The last line, `text.trim().parse()`, finishes the job. Pressing Enter adds a newline character to whatever was typed, and unlike Python's `input`, `read_line` does not remove it, so `.trim()` strips that newline, along with any other leading or trailing whitespace, before `.parse()` reads what is left and turns it into a number. `parse` needs to know which kind of number to produce, and it gets that from `read_i32`'s own `-> i32`, written once where the function is defined, rather than from anything written on the call to `parse` itself. If the person types something that is not a number, both languages stop the program right there and print an error message: Python's `int(...)` raises one directly, and Rust's `.parse()` hands back a report of the failure that the same `.expect("not a whole number")` from before turns into a stop. What a program can do instead of simply stopping is the entire subject of the lecture on errors, input, and validation.
+If the person types something that is not a number, the program stops right there and prints an error message, in both languages, and what it can do instead of simply stopping is the subject of a later lecture on errors, input, and validation.
 
 With `read_i32` and `read_f64` written for you, using one from `main` is a single line, the same shape as Python's `int(input(...))`:
 
@@ -203,13 +191,10 @@ print(countdown_seconds)
 </TabItem>
 <TabItem label="Rust">
 ```rust title="Reading a number someone types"
-use std::io;
-
-fn read_i32() -> i32 {
-    let mut text = String::new();
-    io::stdin().read_line(&mut text).expect("failed to read line");
-    text.trim().parse().expect("not a whole number")
-}
+// Provided for you in the starter file:
+//     fn read_i32() -> i32
+// It reads one line that a person types and gives back the whole number they
+// typed. The errors lecture explains how it works.
 
 fn main() {
     println!("Countdown (s): ");
@@ -219,6 +204,8 @@ fn main() {
 ```
 </TabItem>
 </Tabs>
+
+This is the one Rust example in the course that does not run as pasted: `read_i32` is not shown here because writing a function with a typed return is not yet introduced at this point in the course, so the code above belongs in the starter file, where `read_i32` is already written for you.
 
 To see this run, pipe a line of text into each program so the run is reproducible without actually typing anything at a keyboard:
 
@@ -244,7 +231,7 @@ Both programs read the same `500` and bind it to `countdown_seconds` as the numb
 
 <WhatDiffers>
 <Fragment slot="differs">
-Python folds the whole job into one call that hands back the typed text with the newline already removed. Rust spells the same job out across several steps, so this course hands you `read_i32` and `read_f64` written for you; the text Rust reads still has the newline attached, which is why the helper calls `.trim()` before turning it into a number.
+Python folds the whole job into one call that hands back the typed text with the newline already removed. Rust spells the same job out across several steps, so this course hands you `read_i32` and `read_f64` already written; you call them the same way you have been calling `println!`, and the lecture on errors explains what is inside them.
 </Fragment>
 </WhatDiffers>
 
