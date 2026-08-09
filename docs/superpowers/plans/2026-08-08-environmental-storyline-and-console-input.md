@@ -429,7 +429,7 @@ Add a "Console Input" section **after** the existing assignment-and-rebinding ma
 - The definition: console input is text a program reads from the person running it while the program executes, rather than text already written into the source code.
 - Python's `input(prompt)`: prints the prompt, pauses, returns what was typed as a string with the trailing newline already removed.
 - The conversion to a number with `int(...)` or `float(...)`.
-- Rust's provided helper, shown in full so the reader can see what it does, with the four deferred pieces named and each pointed at the lecture that pays it off (`use std::io;` standard-library plumbing; `String::new()` lecture 13; `&mut` lecture 15; `.expect()` lecture 9).
+- Rust's provided helper, **named and used but never shown in full**. Lecture 4 teaches the call and nothing else. Do not put `fn read_i32() -> i32 { ... }` with a body on this page: the language ladder lists functions under "not yet introduced" for week 2, and a definition with a typed return is week-3 material. The body lives in the starter, is documented on the starter-repo practicalities page (Task 9), and is explained in lecture 9 (Task 6) where `Result` and `.expect()` are the subject. **Lecture 4 defers nothing.**
 - One sentence planting lecture 9: if the person types something that is not a number, the program stops with an error message, and week 5 is about what to do instead.
 
 - [ ] **Step 3: Write the tabbed example**
@@ -444,13 +444,10 @@ print(countdown_seconds)
 </TabItem>
 <TabItem label="Rust">
 ```rust title="Reading a number someone types"
-use std::io;
-
-fn read_i32() -> i32 {
-    let mut text = String::new();
-    io::stdin().read_line(&mut text).expect("failed to read line");
-    text.trim().parse().expect("not a whole number")
-}
+// Provided for you in the starter file:
+//     fn read_i32() -> i32
+// It reads one line that a person types and gives back the whole number they
+// typed. The errors lecture explains how it works.
 
 fn main() {
     println!("Countdown (s): ");
@@ -462,24 +459,35 @@ fn main() {
 </Tabs>
 ```
 
-Note the parse uses the **return type annotation** on `read_i32`, not a turbofish. Generics are never used in this course, so `.parse::<i32>()` is forbidden.
+**Accepted house-style exception, and it must be stated on the page.** This Rust tab is the one example in the course that is not runnable as pasted, because `read_i32` lives in the starter file rather than in the snippet. That is the deliberate cost of not showing a week-3 construct at week 2. Handle it by saying so plainly in one sentence: this code goes in the starter file, where `read_i32` is already written for you. Show the signature in a comment, as above, so the contract is visible; never show the body.
+
+No turbofish appears anywhere, here or in the starter's helper: the parse takes its target type from the function's return type. Generics are never used in this course, so `.parse::<i32>()` is forbidden.
 
 - [ ] **Step 4: Write the WhatDiffers call-out**
 
-Fill the `differs` slot with: Python folds the whole job into one call that hands back the typed text with the newline already removed. Rust spells the same job out across several steps, so this course hands you `read_i32` and `read_f64` written for you; the text Rust reads still has the newline attached, which is why the helper calls `.trim()` before turning it into a number.
+Fill the `differs` slot with: Python folds the whole job into one call that hands back the typed text with the newline already removed. Rust spells the same job out across several steps, so this course hands you `read_i32` and `read_f64` already written; you call them the same way you have been calling `println!`, and the lecture on errors explains what is inside them.
 
 - [ ] **Step 5: Verify both examples run**
 
+The Python tab must run exactly as pasted:
+
 ```bash
 echo "500" | python3 "$SCRATCH/l4.py"
+```
+
+Expected: prints `500`. If it does not run as pasted, fix it.
+
+The Rust tab cannot run as pasted, by design (see Step 3). Verify it a different way: paste the tab's `fn main` **together with** the starter's real helper body into one scratch file, compile, and run it.
+
+```bash
 rustc -o "$SCRATCH/l4" "$SCRATCH/l4.rs" && echo "500" | "$SCRATCH/l4"
 ```
 
-Expected: both print `500`. Paste the tab contents into those files exactly as they appear on the page; if a paste does not run, the example is not self-contained and must be fixed.
+Expected: prints `500`. This proves the call on the page is correct against the helper the starter actually ships, which is the property that matters. The helper body goes in the scratch file only, never on the page.
 
 - [ ] **Step 6: Update the ai-summary block**
 
-Add to `covers:` "console input with input() and the provided read_i32/read_f64 helpers". Add to `glossary_terms:` "console input, parsing".
+Add to `covers:` "console input with input() and the provided read_i32/read_f64 helpers". Add **only** `console input` to `glossary_terms:`, and give it a `## Console Input` heading so the term has a real anchor. **Do not add `parsing`**: lecture 9 owns that term and its `## Parsing` anchor, and a glossary term with no heading in its own page breaks the pattern every other lecture file follows.
 
 - [ ] **Step 7: Verify**
 
@@ -515,9 +523,23 @@ Delete the "Console Input" section (currently lines 28 to 93, including its tabb
 
 The current opening (lines 24 to 26) introduces input as a new idea. Rewrite it so input is **recalled**, not introduced: the reader already knows how to read a number someone types, from lecture 4. What they do not know is what happens when the text is not a number at all, or is a number that makes no sense. That is this lecture.
 
-- [ ] **Step 3: Pay off the deferred `.expect()`**
+- [ ] **Step 3: Explain the Rust input helper, in full, as this lecture's payoff**
 
-Task 5 promised lecture 9 would explain `.expect()`. Add a short passage in the `Result` material that closes that loop explicitly, naming `read_i32`'s `.expect()` calls as the thing being explained.
+This is new scope for lecture 9 and it is the reason the unbundling is not a pure deletion. Lecture 4 taught students to **call** `read_i32()` without ever showing what is inside it. Lecture 9 is where `Result` and `.expect()` are the actual subject, so it is where the body finally gets explained:
+
+```rust
+use std::io;
+
+fn read_i32() -> i32 {
+    let mut text = String::new();
+    io::stdin().read_line(&mut text).expect("failed to read line");
+    text.trim().parse().expect("not a whole number")
+}
+```
+
+Walk through it in prose: `use std::io;` brings in the standard library's input and output module; `String::new()` makes an empty piece of text for the read to fill; `&mut` hands `read_line` permission to change that text rather than only look at it (and name the memory-model lecture as where that is taught properly); `read_line` leaves the newline attached, which is why `.trim()` comes next; and `.expect()` is the thing this lecture just taught, a deliberate way of saying "stop the program with this message if the `Result` is an error."
+
+By this point in the course students have had functions since week 3, so `fn read_i32() -> i32` needs no apology here. That is precisely why the body waited for this lecture.
 
 - [ ] **Step 4: Update the ai-summary block**
 
@@ -654,9 +676,21 @@ State plainly, because this is the failure mode that would waste the most studen
 
 > Running `check` never asks you to type anything. The local tests call your function directly and do not go through `main`. In Python the input lives behind the `if __name__ == "__main__":` guard; in Rust the tests call your function without running `main`. If `check` ever sits waiting for you to type, that is a bug in the starter, not something you did.
 
-- [ ] **Step 4: Document the Rust helpers**
+- [ ] **Step 4: Document the Rust helpers, with their bodies**
 
-Name `read_i32()` and `read_f64()`, say they are provided in the starter, point at lecture 4 for what they do, and say Python needs no equivalent because `input()` already is one.
+This page is where the helper bodies live for a student who wants them before lecture 9. Show both `read_i32()` and `read_f64()` in full, say they are already in the starter and need no work from the student, and point at lecture 4 for how to call them and at lecture 9 for how they work inside.
+
+```rust
+use std::io;
+
+fn read_i32() -> i32 {
+    let mut text = String::new();
+    io::stdin().read_line(&mut text).expect("failed to read line");
+    text.trim().parse().expect("not a whole number")
+}
+```
+
+This is a how-to guide, so describe what the helpers do for the reader; do not teach `Result` here. Say plainly that Python needs no equivalent because `input()` already is one.
 
 - [ ] **Step 5: Verify**
 

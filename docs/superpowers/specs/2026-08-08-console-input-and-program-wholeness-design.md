@@ -33,8 +33,10 @@ These turn out to be two different problems with two different answers.
 2. **A3 is the only assignment where the student authors the input.** A3 is
    already graded by comparing printed output, so its six values arrive from
    standard input and the whole program is the student's.
-3. **Rust gets a provided `read_i32()` / `read_f64()` helper**, visible in the
-   starter and explained in lecture 4, rather than the full recipe inline.
+3. **Rust gets a provided `read_i32()` / `read_f64()` helper.** Lecture 4 teaches
+   only the call; the helper's body lives in the starter, is documented on the
+   starter-repo practicalities page, and is explained in lecture 9 where `Result`
+   and `.expect()` are taught. Lecture 4 therefore defers nothing.
 4. **Every assignment from A3 on ships an interactive `main`** in the starter:
    it prompts, reads, calls the student's function, and prints. This is a
    convention of the starter repositories, not a graded surface.
@@ -59,10 +61,12 @@ Lecture 9 currently bundles two distinct things: *getting a value in*, and
   something that is not a number, the program stops with an error message, and
   week 5 is about what to do instead. One sentence, and it plants L9.
 - **L9:** why that assumption fails, `try`/`except` versus `Result`, `match` on
-  `Ok`/`Err`, and validating a value against what is physically sensible.
+  `Ok`/`Err`, validating a value against what is physically sensible, and, as the
+  natural payoff, what the Rust `read_i32` helper's body has been doing all along.
 
-L9 gets shorter and gains a sharper subject. It loses nothing it actually taught,
-because plumbing was never its point.
+L9 gets a sharper subject and gains content rather than only losing it: it is now
+the lecture that explains the helper, at the point where `Result` and `.expect()`
+are its own material.
 
 ### Timing note
 
@@ -99,9 +103,53 @@ rules. Week-2 students have just met `let` with explicit types (`i32` and `f64`
 are on the ladder from week 1), so the annotated form is **better** aligned with
 what they just learned than lecture 9's current form is.
 
-### The helper, and the deferral debt
+### The helper, and why lecture 4 does not show its body
 
-The starter provides, in a file the student can open and read:
+**Lecture 4 teaches the call and nothing else.** The student writes:
+
+```rust
+let countdown_seconds = read_i32();
+```
+
+against Python's `countdown_seconds = int(input())`. Symmetric one-liners.
+
+The helper's body is **not shown in lecture 4**. It lives in the starter
+repository, is documented on the starter-repo practicalities page, and is
+explained properly in lecture 9, where `Result` and `.expect()` are taught
+anyway.
+
+This is a correction to an earlier version of this spec, and the reason matters.
+The earlier version showed the body in lecture 4 and argued the move was safe
+because it deferred four things while lecture 9's inline recipe deferred five.
+That argument was wrong on its own terms. Showing the body requires
+`fn read_i32() -> i32 { ... }`, and the language ladder puts function definitions
+in **week 3**, listing functions under "not yet introduced" for week 2. Counting
+that, lecture 4 would defer five, not four. Lecture 9 defers only four, because
+functions have been taught since week 3. Five versus five is not an argument for
+moving anything.
+
+Teaching only the call makes the real argument much stronger:
+
+| Where | What the week-2 reader must accept on faith |
+|---|---|
+| Python | nothing; `input()` and `int()` are calls, and calling is week-1 material |
+| Rust | nothing; `read_i32()` is a call, the same shape as `println!` |
+
+**Zero deferrals at week 2**, and no ladder violation at all. Calling something
+the course hands you is already what every student has done since `print` in
+lecture 1.
+
+The body is not lost, it is relocated to where it can be explained rather than
+excused:
+
+- **The starter repository** carries it, so a curious student can open it.
+- **The starter-repo practicalities page** documents it as part of the harness.
+- **Lecture 9** explains it, at the point where `Result` and `.expect()` are the
+  lecture's actual subject. This turns lecture 9's change from a pure deletion
+  into a genuine payoff: it stops being the lecture that lost console input and
+  becomes the lecture that finally explains how console input works in Rust.
+
+For reference, the body the starter ships:
 
 ```rust
 use std::io;
@@ -113,23 +161,8 @@ fn read_i32() -> i32 {
 }
 ```
 
-and `read_f64()` alongside it. The student writes `let countdown_seconds =
-read_i32();` against Python's `countdown_seconds = int(input())`. Symmetric
-one-liners, and the messy block exists once rather than six times.
-
-Lecture 4 shows the helper's body and names exactly four things the reader is
-asked to accept on faith for now, each with the lecture that pays it off:
-
-| Deferred piece | Paid off in |
-|---|---|
-| `use std::io;` (modules) | never formally; it is standard-library plumbing |
-| `String::new()` | lecture 13, strings |
-| `&mut` in `read_line(&mut text)` | lecture 15, the memory model |
-| `.expect()` on a `Result` | lecture 9, errors and validation |
-
-That is **four** deferrals. Lecture 9's current inline recipe has the same four
-plus the turbofish, so moving input earlier makes the deferral debt smaller, not
-larger. This is the central argument that the move is safe.
+and `read_f64()` alongside it. Note the parse takes its target type from the
+function's return type, so no turbofish appears.
 
 Python deliberately gets **no** helper. Hiding `input()` behind a wrapper would
 hide the one thing worth teaching on the Python side. The `WhatDiffers` call-out
@@ -216,7 +249,7 @@ the printed report lines; input genuinely stops being authored.
 
 | File | Work |
 |---|---|
-| `lectures/variables-and-state.mdx` | One new concept section in house style: what console input is, the Python call, the Rust helper and its four deferrals, a tabbed example, a `WhatDiffers`. Update `ai-summary` `covers:` and `glossary_terms:`. Largest single item. |
+| `lectures/variables-and-state.mdx` | One new concept section in house style: what console input is, the Python call, the Rust helper **call only** (never its body), a tabbed example, a `WhatDiffers`. Update `ai-summary` `covers:`. Largest single item. |
 | `lectures/errors-input-and-validation.mdx` | Remove the console-input section; rewrite the opening so input is recalled, not introduced; keep parsing and validation. Update `ai-summary`. Mostly deletion. |
 | `reference/language-ladder.mdx` | Move `input` / `read_line` from the week 5 row to week 2; adjust the "not yet introduced" column. Two rows. |
 | `reference/glossary.mdx` | Add `console input` and `parsing`. Neither exists today despite L9 listing them as glossary terms, so this closes a latent gap either way. |
@@ -225,7 +258,7 @@ the printed report lines; input genuinely stops being authored.
 | A3's assignment page | Reword "the starter program sets for you" to describe reading from the console. Requirements untouched. |
 | A3's rubric TSV | Optional single row for reading the six values. |
 | Starter scaffolds and Gradescope config | Write the stdin path and the `read_i32`/`read_f64` helpers. **Does not exist yet, so this is authoring, not rework.** |
-| `practicalities/starter-repo-and-check` | Document the interactive-`main` convention and the `main`-vs-`check` constraint. |
+| `practicalities/starter-repo-and-check` | Document the interactive-`main` convention, the `main`-vs-`check` constraint, and **the `read_i32` / `read_f64` helper bodies** as part of the harness. |
 | `VISION.md` | Section 10's L4 and L9 entries gain a clause each. Nothing structural. |
 
 No assignment other than A3 changes, and A2 does not change at all.
