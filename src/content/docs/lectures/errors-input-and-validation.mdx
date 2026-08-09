@@ -324,6 +324,8 @@ fn read_i32() -> i32 {
 }
 ```
 
+This function does not compile by itself if you paste it into an empty file: it lives inside the starter file alongside a `main` that calls it, the same starter file lecture 4 pointed you to.
+
 The first line, `use std::io;`, brings in `std::io`, the standard library's **module** for input and output. A module is a named bundle of related code a language's standard library ships ready to use, and the `use` line makes its contents callable by short names, like `stdin`, instead of a longer path.
 
 Inside the function, `String::new()` makes an empty, mutable piece of text named `text`, ready for the read to fill; it has to be declared `mut` because the very next line changes it. `io::stdin()` asks the operating system for a handle to the console's standard input stream, and calling `.read_line(&mut text)` on that handle reads one line of typed text and appends it onto `text`. The `&mut` in front of `text` hands `read_line` permission to change your string rather than only look at it; what `&mut` fully means is taught properly in the memory model lecture later in the course, so for now it is enough to know it grants that permission. `read_line` leaves the newline the Enter key added still attached to `text`, which is exactly why `.trim()` comes next, removing it before anything tries to read the text as a number.
