@@ -588,14 +588,37 @@ Line 19. Add `input`; `int()`/`float()` parsing to the Python column, and `read_
 
 Line 22. Remove `input` from the Python column and `read_line` from the Rust column. Keep `.parse()`, `Result`, `match`, `try`/`except`, `elif` chains, and float tolerance.
 
-- [ ] **Step 3: Add the glossary entries**
+- [ ] **Step 3: Narrow the ladder's generics rule**
+
+The "Not used in this course" section currently reads, for Rust: "traits, lifetimes,
+and generics; and borrowing before week 9." That is false as written. The course
+teaches `parse::<i32>()` **by name** in `lectures/errors-input-and-validation.mdx`
+("The `::<i32>` written after `parse` is called a turbofish"), uses it five times in
+that lecture, twice in `lectures/loop-patterns.mdx` (where it is framed as "part of
+the fixed input recipe, not new machinery to learn"), three times in
+`activities/errors-input-and-validation.mdx`, and twice in
+`assignments/airlock-and-readings.mdx`.
+
+A human ruled that the **ladder gives, not the lectures**. Rewrite the Rust bullet so
+it forbids what the course actually forbids: **writing** generic code (defining type
+parameters, traits, lifetimes), and borrowing before week 9. Then add one short
+sentence naming `parse::<T>` as a single taught spelling that students call but never
+write themselves, introduced in lecture 9.
+
+Keep it terse. This is a reference page: no prose paragraphs, no justification, just
+an accurate rule.
+
+Do **not** change any lecture, activity, or assignment in this task. The turbofish
+stays exactly where it is; only the ladder's description of it changes.
+
+- [ ] **Step 4: Add the glossary entries**
 
 `glossary.mdx` currently has no `console input` entry despite lecture 9 listing it as a glossary term, so this closes a pre-existing gap. Add, in the page's established format:
 
 - **console input**: text a program reads from the person running it while the program executes, rather than text already written into the source code.
 - **parsing**: turning text into a value of another type, such as turning the text `"25"` into the whole number `25`.
 
-- [ ] **Step 4: Verify**
+- [ ] **Step 5: Verify**
 
 ```bash
 npm run build
@@ -603,11 +626,11 @@ npm run build
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 6: Commit**
 
 ```bash
 git add src/content/docs/reference/language-ladder.mdx src/content/docs/reference/glossary.mdx
-git commit -m "Move console input to ladder week 2 and add the missing glossary entries"
+git commit -m "Move console input to ladder week 2, narrow the generics rule, add glossary entries"
 ```
 
 ---

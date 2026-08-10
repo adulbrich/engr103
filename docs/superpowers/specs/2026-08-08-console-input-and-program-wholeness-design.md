@@ -97,11 +97,20 @@ call:
 let countdown_seconds: i32 = text.trim().parse().expect("not a whole number");
 ```
 
-This is not a workaround. Generics are listed under "Not used in this course" on
-the language ladder, so `.parse::<i32>()` is off-limits by the course's own
-rules. Week-2 students have just met `let` with explicit types (`i32` and `f64`
-are on the ladder from week 1), so the annotated form is **better** aligned with
-what they just learned than lecture 9's current form is.
+The reason is pedagogical, not a rule. An earlier version of this spec argued that
+the ladder's "generics are not used in this course" line made `.parse::<i32>()`
+off-limits outright. That was wrong: the course teaches the turbofish by name in
+lecture 9 and uses it in lecture 12, the errors activity, and an assignment, and
+lecture 12 explicitly frames it as part of a fixed input recipe. The ladder line is
+what is imprecise, and it is being narrowed to say that students never *write*
+generic code, while `parse::<T>` stands as one taught spelling.
+
+What survives is the real argument for week 2: a turbofish is alien syntax to a
+reader two weeks into their first programming course, and it would need explaining
+on a page whose subject is variables. Week-2 students have just met `let` with
+explicit types (`i32` and `f64` are on the ladder from week 1), so the annotated
+form is aligned with what they just learned. Lecture 9 remains where the turbofish
+is introduced and explained.
 
 ### The helper, and why lecture 4 does not show its body
 
