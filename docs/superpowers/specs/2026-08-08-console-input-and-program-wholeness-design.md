@@ -260,7 +260,7 @@ the printed report lines; input genuinely stops being authored.
 |---|---|
 | `lectures/variables-and-state.mdx` | One new concept section in house style: what console input is, the Python call, the Rust helper **call only** (never its body), a tabbed example, a `WhatDiffers`. Update `ai-summary` `covers:`. Largest single item. |
 | `lectures/errors-input-and-validation.mdx` | Remove the console-input section; rewrite the opening so input is recalled, not introduced; keep parsing and validation. Update `ai-summary`. Mostly deletion. |
-| `reference/language-ladder.mdx` | Move `input` / `read_line` from the week 5 row to week 2; adjust the "not yet introduced" column. Two rows. |
+| `reference/language-ladder.mdx` | Move `input` to the week 2 Python row and add the provided `read_i32` / `read_f64` helpers to the week 2 Rust row; remove console input from the week 5 row. `read_line` itself does **not** move: it stays inside the helper body, which lecture 4 never shows and lecture 9 explains. Also narrow the "not used in this course" generics bullet so it forbids writing generic code rather than `parse::<T>`. |
 | `reference/glossary.mdx` | Add `console input` and `parsing`. Neither exists today despite L9 listing them as glossary terms, so this closes a latent gap either way. |
 | `activities/variables-and-state.mdx` | Add an input block, including a run-it-yourself step (see section 3's timing note). |
 | `activities/errors-input-and-validation.mdx` | Drop the input introduction; keep validation. |
