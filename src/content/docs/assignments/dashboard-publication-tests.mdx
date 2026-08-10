@@ -14,13 +14,13 @@ import RubricTable from '/src/components/RubricTable.astro';
 
 {/* ai-summary
 type: assignment
-slug: flight-qualification
+slug: dashboard-publication-tests
 order: 7
 family: testing (deriving and writing test cases from a specification)
 paired_recitation: R7
 prereq_lectures: errors-input-and-validation, testing
 prereq_activities: errors-input-and-validation, testing
-prereq_assignment: airlock-and-readings
+prereq_assignment: sensor-drift-check
 new_scope: writing one strong assert-based test suite against a provided two-rule clearance check (an inclusive band and a telemetry-freshness rule with a clock-fault override), covering typical, boundary, and invalid-input cases on both rules, strong enough to accept the correct implementation and reject every broken one; judging HAB's claim that two passing cases covering both outcomes qualify the check
 target_construct: writing assert-based test cases that pin down both rules' boundaries in a specification (testing week)
 persistent_requirements: dual-language, one shared contract; grader runs the test function and reads which assertions raise; no loops or collections on the ladder yet; the function under test takes only scalar parameters
@@ -231,4 +231,4 @@ Then add one more sentence: of the cases in your test suite, which one do you th
 
 ## Rubric
 
-<RubricTable src="canvas/assignments/flight-qualification-rubrics.tsv" caption="Flight Qualification Rubric" />
+<RubricTable src="canvas/assignments/dashboard-publication-tests-rubrics.tsv" caption="Flight Qualification Rubric" />

@@ -14,13 +14,13 @@ import RubricTable from '/src/components/RubricTable.astro';
 
 {/* ai-summary
 type: assignment
-slug: sol-100
+slug: emissions-inventory
 order: 10
 family: parsing and validating a raw text telemetry line into an in-place conditional update of the caller's manifest and a formatted report line, versus a defensive, independent archive copy of that manifest (aliasing versus a copy)
 paired_recitation: R10
 prereq_lectures: strings, collections-i, the-memory-model, sharing-and-mutation
 prereq_activities: the-memory-model, sharing-and-mutation
-prereq_assignment: comms-window
+prereq_assignment: field-logger-codes
 new_scope: one entry point that parses and validates a raw reading line character by character, mutates the caller's manifest in place only when the reading qualifies, and returns a formatted report line; a second that returns a freshly built, owned list independent of the one it was given; a one-page accessibility and equity critique (O8)
 target_construct: passing a list to a function and choosing between mutating it in place (aliasing) and building an independent copy of it, with general string parsing (searching, slicing, walking the characters) deciding whether the mutation happens
 persistent_requirements: dual-language, one shared contract; the grader reads the returned report line and inspects the caller's list after the in-place call, and proves the archive's independence by mutating the original afterward; strings and lists only, no dict/HashMap; no construct beyond the week-9 ladder
@@ -207,4 +207,4 @@ Then add one more sentence: which intermediate values did you choose to name ins
 
 ## Rubric
 
-<RubricTable src="canvas/assignments/sol-100-rubrics.tsv" caption="The Sol 100 Report Rubric" />
+<RubricTable src="canvas/assignments/emissions-inventory-rubrics.tsv" caption="The Sol 100 Report Rubric" />

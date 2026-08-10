@@ -14,13 +14,13 @@ import RubricTable from '/src/components/RubricTable.astro';
 
 {/* ai-summary
 type: assignment
-slug: airlock-and-readings
+slug: sensor-drift-check
 order: 6
 family: decision tables and interlocks, plus classifying and overriding a sensor reading
 paired_recitation: R6
 prereq_lectures: booleans-and-conditionals, decision-structures, errors-input-and-validation
 prereq_activities: decision-structures, errors-input-and-validation
-prereq_assignment: transit-checks
+prereq_assignment: burn-window-clearance
 new_scope: classifying a parsed sensor reading into fault categories against a plausible physical range and a float tolerance with a trusted fallback, using an elif/else-if (or match) chain checked in a fixed priority order
 target_construct: an else-if/elif chain (or Rust match on comparisons) shaped as a tiered classifier over a physical range and a float tolerance, so an ordered decision chain is the natural tool
 persistent_requirements: dual-language, one shared contract; grader reads return values only; no loops or collections on the ladder yet; student functions take only scalar parameters, never a string
@@ -214,4 +214,4 @@ Then add one more sentence: which intermediate values, if any, did you choose to
 
 ## Rubric
 
-<RubricTable src="canvas/assignments/airlock-and-readings-rubrics.tsv" caption="The Airlock and the Readings Rubric" />
+<RubricTable src="canvas/assignments/sensor-drift-check-rubrics.tsv" caption="The Airlock and the Readings Rubric" />
