@@ -62,13 +62,51 @@ fn main() {
 
 Read the Python line `if __name__ == "__main__":` as "if this file is the one being run directly, start at `main`." It lets a file act as a program when you run it, while still letting the grader import your code and call your pieces without running the whole program. You do not need to write this line or fully understand it; recognize it as the provided wrapper's entry point, the Python counterpart of Rust's `fn main`. Its full meaning arrives with the functions lecture.
 
+Starting with A3, this program is whole: something prompts you at the terminal, reads what you type, computes an answer, and prints it, so the finished thing runs like any program you have used, not just a fragment. On A3 you write that whole program yourself, and it is graded by comparing what it prints. From A4 on, once the functions lecture has introduced named functions, this `main` is provided for you: it prompts, reads, calls the function you write, and prints the result. It carries the same "do not edit" label as the rest of the provided program, and it is never graded itself, for the reason in the box below.
+
 <Aside type="caution" title="The grader reads what you return, not what you print">
 From the functions lecture on, the grader calls the pieces you wrote directly and checks the values they hand back. Printing an answer instead of returning it does not satisfy a check. Print only to help yourself see what is happening while you work.
 </Aside>
 
+## The Rust Input Helpers
+
+If you open a Rust starter file from A3 on, two functions sit above `main` that you did not write: `read_i32()` and `read_f64()`. They are already in the starter. You do not write them, edit them, or submit them.
+
+The variables lecture shows you how to call them:
+
+```rust
+let countdown_seconds = read_i32();
+```
+
+The errors and input lecture explains how they work inside, once `Result` and `.expect()` are its subject. Here, for reference, are their full bodies:
+
+```rust title="provided in every starter from A3 on, do not edit"
+use std::io;
+
+fn read_i32() -> i32 {
+    let mut text = String::new();
+    io::stdin().read_line(&mut text).expect("failed to read line");
+    text.trim().parse().expect("not a whole number")
+}
+
+fn read_f64() -> f64 {
+    let mut text = String::new();
+    io::stdin().read_line(&mut text).expect("failed to read line");
+    text.trim().parse().expect("not a number")
+}
+```
+
+Each one reads one line of text from the terminal and turns it into a number of the type its name promises. Call `read_i32()` where you need a whole number and `read_f64()` where you need one with a decimal point.
+
+Python needs no equivalent. `input()` already does this job in one call, so wrapping it in a helper would only hide the one Python line worth learning.
+
 ## Checking Your Work Locally
 
 The `check` command runs the visible tests on your machine and prints exactly what the grader will print. Run it from the assignment folder whenever you want to see where you stand:
+
+<Aside type="tip" title="check never asks you to type">
+Running `check` never asks you to type anything, even for assignments whose program prompts you when you run it directly. The local tests supply whatever input a case needs on their own and check the result; they never wait at the keyboard for you. From the functions lecture on, that means the tests call your function directly and never run `main`: in Python the input lives behind the `if __name__ == "__main__":` guard, so importing your file to test it never triggers those lines, and in Rust the tests call your function without running `main`. If `check` ever sits waiting for you to type, that is a bug in the starter, not something you did.
+</Aside>
 
 ```bash title="Run the visible tests"
 ./check
