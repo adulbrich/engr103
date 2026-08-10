@@ -16,10 +16,10 @@ What the ladder does guarantee runs the other way. **Every graded assessment is 
 | Week | Newly introduced in Python | Newly introduced in Rust | Not yet introduced |
 |---|---|---|---|
 | 1 | `print`; int, float, bool, str literals; binary literals; arithmetic operators (`+ - * /`) and precedence | `println!` with `{}` placeholders and the `fn main` wrapper; `i32`, `f64`, `bool`, `&str`; binary literals; arithmetic and precedence | variables, functions, conditionals, loops |
-| 2 | integer division `//` and truncation; `%`; implicit coercion; variables and assignment; `UPPER_CASE` constants | integer division and truncation; `%`; `let`, `let mut`, shadowing; `const` | functions, conditionals, loops |
+| 2 | integer division `//` and truncation; `%`; implicit coercion; variables and assignment; `UPPER_CASE` constants; `input`; `int()`/`float()` parsing | integer division and truncation; `%`; `let`, `let mut`, shadowing; `const`; `read_i32`/`read_f64` (provided) | functions, conditionals, loops |
 | 3 | `def` functions with parameters and return | `fn` functions with typed params and return; calling functions | conditionals, loops |
 | 4 | local and function scope; comparisons; `and`, `or`, `not`; `if`/`else` | scope, nested `{ }` blocks, the call stack; comparisons; `&&`, `\|\|`, `!`; `if`/`else` | `elif`/`else if` chains, loops, collections |
-| 5 | `elif` chains; `input`; `try`/`except`; `int()`/`float()` parsing; comparing floats with a tolerance | `else if` chains; `match`; `read_line`; `.parse()`; `Result`; comparing floats with a tolerance | loops, collections |
+| 5 | `elif` chains; `try`/`except`; comparing floats with a tolerance | `else if` chains; `match`; `.parse()`; `Result`; comparing floats with a tolerance | loops, collections |
 | 6 | `assert`; test functions | `assert!`; test functions | loops, collections |
 | 7 | `while`; `for` over `range`; `break`/`continue`; nested loops | `while`; `for` over ranges; `break`/`continue`; nested loops | collections |
 | 8 | strings (indexing, slicing, searching, building); characters; `list`; indexing; `len`; iteration; `append` | `String`/`&str` method subset; `char`; `Vec`; indexing; `.len()`; iteration; `push` | the memory model, references, dictionaries |
@@ -31,4 +31,4 @@ What the ladder does guarantee runs the other way. **Every graded assessment is 
 The course never teaches these constructs, so no lecture, activity, or assessment relies on them, and no graded problem will ever require one. You are still free to use any you already know; they simply are not part of what the course expects.
 
 - **Python:** comprehensions, lambdas, and f-string format specs beyond the basics.
-- **Rust:** traits, lifetimes, and generics; and borrowing before week 9.
+- **Rust:** writing your own generic code (defining type parameters, traits, lifetimes), and borrowing before week 9. `parse::<T>` is taught in week 5 as a fixed spelling you use as written, so using it is not writing generic code.
