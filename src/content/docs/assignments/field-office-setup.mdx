@@ -1,6 +1,6 @@
 ---
-title: "Systems Checkout"
-description: "Set up your toolchain, run your first program in Python and Rust, meet the starter repository and the check harness, and submit a checkout to Gradescope."
+title: "Field Office Setup"
+description: "Set up your toolchain, run your first program in Python and Rust, meet the starter repository and the check harness, and submit your completed checkout to Gradescope."
 sidebar:
   order: 1
 draft: false
@@ -20,14 +20,15 @@ prereq_lectures: how-programs-run
 prereq_activities:
 prereq_assignment: none
 new_scope: the toolchain, the starter repository, the check harness and the __main__ idiom, and Gradescope submission
+target_construct: none (toolchain only, no new construct this week)
 persistent_requirements: dual-language; submit to Gradescope from the starter repo
-story_beat: the new crew member checks out the flight-software workstation before touching mission code
+story_beat: the new hire checks out a workstation at the WRO field office before touching office code
 output: a working toolchain, a first hello run in both languages, and a submitted checkout
 */}
 
 <LanguageVersions />
 
-You have just joined the flight software crew of the Ares habitat. Before anyone touches mission code, they check out their workstation: power it on, confirm the tools respond, and run one trivial program end to end so that nothing on the real missions is the first time a tool is used. This assignment is that checkout. You will write almost no code; the point is that every tool works and you know how your later work will be run and graded.
+You have just joined the software team at the Willamette Resource Office (WRO). Before anyone touches the office's code, new hires check out their workstation: power it on, confirm the tools respond, and run one trial program end to end, so that nothing in real work is the first time a tool gets used. This assignment is that checkout. You will write almost no code; the point is that every tool works and you know how your later work will be run and graded.
 
 <Aside type="note" title="This one is a walkthrough">
 Unlike every later assignment, this page walks you through each step. Later assignments hand you a specification and let you decide how to reach it; this one makes sure the tools are ready first.
@@ -35,13 +36,13 @@ Unlike every later assignment, this page walks you through each step. Later assi
 
 ## How This Assignment Works
 
-Follow the steps below in order. You will set up your toolchain, run a first program in both Python and Rust, look at the parts of a starter repository that the automated grader uses, run the local check harness, and submit to Gradescope. Two how-to guides carry the details this page points to: [The Starter Repo and the Check Harness](/practicalities/starter-repo-and-check/) and [Finding Documentation and Helpers](/practicalities/finding-docs-and-helpers/).
+Follow the steps below in order. You will set up your toolchain, run a first program in both Python and Rust, look at the parts of a starter repository that the automated grader uses, run the local check harness, and submit to Gradescope. Two how-to guides carry the details this page points to: [Running and Submitting Your Code](/practicalities/starter-repo-and-check/) and [Finding Documentation and Helpers](/practicalities/finding-docs-and-helpers/).
 
 ## What to Submit
 
-This checkout submits in two places, the same two places every later assignment uses:
+This assignment submits in two places, the same two places every later assignment uses:
 
-- **Your packed checkout to Gradescope**, so the grader runs the same check you ran locally.
+- **Your packed submission to Gradescope**, so the grader runs the same check you ran locally.
 - **Your reflection on Canvas.**
 
 ## The Checkout
@@ -57,13 +58,13 @@ This checkout submits in two places, the same two places every later assignment 
    <Tabs syncKey="lang">
    <TabItem label="Python">
    ```python title="hello.py"
-   print("Hello from the flight deck.")
+   print("Hello from the field office.")
    ```
    </TabItem>
    <TabItem label="Rust">
    ```rust title="hello.rs"
    fn main() {
-       println!("Hello from the flight deck.");
+       println!("Hello from the field office.");
    }
    ```
    </TabItem>
@@ -81,7 +82,7 @@ This checkout submits in two places, the same two places every later assignment 
    Both print the same line:
 
    ```text frame="terminal" title="Output"
-   Hello from the flight deck.
+   Hello from the field office.
    ```
 
 4. **Look at how your code will be run.** In every assignment after this one, you write named pieces of code and a provided program runs them; you do not write the program that starts everything. That provided program has a fixed shape. In Rust you have already met it: `fn main() { ... }` is the single place a program begins. Python marks its starting point differently, with a line that reads "if this file is the one being run, start at `main`":
@@ -90,7 +91,7 @@ This checkout submits in two places, the same two places every later assignment 
    <TabItem label="Python">
    ```python title="run.py (provided, do not edit)"
    def main():
-       print("Hello from the flight deck.")
+       print("Hello from the field office.")
 
    if __name__ == "__main__":
        main()
@@ -99,13 +100,13 @@ This checkout submits in two places, the same two places every later assignment 
    <TabItem label="Rust">
    ```rust title="run.rs (provided, do not edit)"
    fn main() {
-       println!("Hello from the flight deck.");
+       println!("Hello from the field office.");
    }
    ```
    </TabItem>
    </Tabs>
 
-   Run `python3 run.py` and it prints the same `Hello from the flight deck.` line. You do not need to understand `def main()` or the `if __name__ == "__main__"` line yet; you will meet both when the course reaches functions in week 3. For now, know only that this is the provided wrapper the grader supplies, that it is marked "do not edit," and that your later work fills in named pieces it calls. The [check-harness how-to](/practicalities/starter-repo-and-check/) explains it in full.
+   Run `python3 run.py` and it prints the same `Hello from the field office.` line. You do not need to understand `def main()` or the `if __name__ == "__main__"` line yet; you will meet both when the course reaches functions in week 3. For now, know only that this is the provided wrapper the grader supplies, that it is marked "do not edit," and that your later work fills in named pieces it calls. [Running and Submitting Your Code](/practicalities/starter-repo-and-check/) explains it in full.
 
 5. **Run the check harness.** The starter includes a `check` command that runs the visible tests on your machine and prints exactly what the grader will print. Run it now on the unchanged starter; it should report that the checkout's single trivial test passes. Getting a green check locally before you submit is the habit every later assignment relies on.
 
@@ -119,4 +120,4 @@ In one or two sentences: state plainly whether you used an AI tool to get set up
 
 ## Rubric
 
-<RubricTable src="canvas/assignments/field-office-setup-rubrics.tsv" caption="Systems Checkout Rubric" />
+<RubricTable src="canvas/assignments/field-office-setup-rubrics.tsv" caption="Field Office Setup Rubric" />
