@@ -1073,10 +1073,15 @@ Update every link in `assignments/introduction.mdx` to the new slugs.
 - [ ] **Step 2: Sweep for stale story references**
 
 ```bash
-grep -rin "mission ares\|\bHAB\b\|sol 100\|airlock\|rover\|martian\|habitat" src canvas VISION.md .claude/skills
+grep -rin "mission ares\|\bHAB\b\|\bAres\b\|sol 100\|airlock\|rover\|martian\|habitat\|flight deck\|flight software\|flight rule\|crew\|mission control" src canvas VISION.md .claude/skills
 ```
 
 Expected: no matches, except where section 11 of VISION names Mission Ares as a retired framing.
+
+Two known hits are already recorded and must be fixed here if an earlier task has not:
+
+- `src/content/docs/practicalities/starter-repo-and-check.mdx` prints `"Hello from the flight deck."` in both its Python and Rust hello examples. Task 9 edited that page for other reasons and correctly left this alone as out of scope.
+- `src/content/docs/practicalities/finding-docs-and-helpers.mdx` uses `name = "Ares"` in its example and carries a paragraph about HAB drafting subtly wrong helpers. Task 4 owns that page; verify it landed.
 
 - [ ] **Step 3: Sweep for stale slugs**
 
