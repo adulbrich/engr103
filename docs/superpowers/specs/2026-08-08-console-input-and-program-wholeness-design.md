@@ -186,8 +186,23 @@ A3 (`launch-window` today) already takes six values that the starter "sets for
 you," and its page already says "the grader may replace the six input values."
 That is source substitution. It becomes standard input:
 
-- The student's program prompts for and reads the six values, then prints the
-  four required lines.
+- The student's program reads the scenario values from standard input, then prints
+  the required result lines.
+- **A3 prints no prompt**, and this is forced rather than chosen. The `read_i32()`
+  helper takes no prompt parameter, so a Rust prompt would need a bare `print!` plus
+  an explicit `.flush()`; Rust's stdout is block-buffered when piped, so without the
+  flush the prompt would not even appear in the right place. `print!` and `Write`
+  are both well above the week-2 ladder. Python's `input(prompt)` meanwhile writes
+  without a trailing newline while Rust's `println!` adds one, so any printed prompt
+  makes the two languages' stdout differ and breaks the byte-for-byte diff this
+  assignment is graded by. Symmetric silence is the only option that keeps both
+  languages identical without pulling week-3 material forward.
+- **This constraint applies to A3 and only A3.** It is the one assignment that is
+  both output-diffed and student-authored. From A4 on, `main` is provided and never
+  graded (section 7), so it prompts freely and the programs stay whole at a
+  terminal. The page must state the no-prompt rule as an explicit requirement and
+  the rubric must grade it, or a student will add a prompt and fail the grader for a
+  reason they cannot see.
 - The grader pipes the six values and compares the printed lines.
 - **The requirements, the worked example, the assumptions, and the rubric are
   unchanged.** Only the sentence describing where the values come from changes,
