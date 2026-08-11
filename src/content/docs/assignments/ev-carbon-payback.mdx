@@ -1,6 +1,6 @@
 ---
-title: "The Launch Window"
-description: "Plan the launch-window console readout test-first: design your test cases, write pseudocode, then complete a program that splits the countdown, adds the fuel margin, and solves the supply-run break-even to a whole number of runs."
+title: "EV Carbon Payback"
+description: "Read a vehicle's numbers from the console test-first: design your test cases, write pseudocode, then write a program that prints how many kilometres an EV must drive before its extra manufacturing footprint pays back, split into whole years and leftover kilometres."
 sidebar:
   order: 3
 draft: false
@@ -10,33 +10,32 @@ import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 import Reveal from '/src/components/Reveal.astro';
 import LanguageVersions from '/src/components/LanguageVersions.astro';
 import WhatDiffers from '/src/components/WhatDiffers.astro';
-import Latex from '/src/components/Latex.astro';
 import RubricTable from '/src/components/RubricTable.astro';
-import LaunchWindowForm from '/src/components/LaunchWindowForm.svelte';
+import EvPaybackForm from '/src/components/EvPaybackForm.svelte';
 
 {/* ai-summary
 type: assignment
 slug: ev-carbon-payback
 order: 3
-family: arithmetic with units and time
+family: variables, integer division, and the remainder operator
 paired_recitation: R3
 prereq_lectures: expressions-and-operators, variables-and-state
 prereq_activities: expressions-and-operators, variables-and-state
 prereq_assignment: household-energy-panel
-new_scope: designing test cases and pseudocode before completing a provided program that solves a break-even count to a whole number of runs, graded by output comparison
-target_construct: variables with integer division and the remainder operator (pre-functions)
-persistent_requirements: dual-language, one shared contract; graded by comparing printed output; no functions yet
-story_beat: the crew computes the launch-window console numbers (countdown, fuel, supply runs)
+new_scope: reading four scenario values from standard input, the one assignment where the student authors console input, then writing a program that computes and prints a payback distance split into whole years and leftover kilometres, graded by output comparison
+target_construct: variables with integer division and the remainder operator, applied to values read from the console (pre-functions)
+persistent_requirements: dual-language, one shared contract; graded by comparing printed output; no functions yet; nothing may print before the three result lines
+story_beat: a resident asks the WRO how many kilometres an EV must be driven before its extra manufacturing footprint pays back
 output: the completed program to Gradescope, and a Canvas PDF with acceptance tests, pseudocode, a hand trace, and a reflection
 */}
 
 <LanguageVersions />
 
-The launch window is the short span when the burn can begin, and Mission Control needs a small console readout before it opens. The readout carries three things: the countdown split into whole minutes and the leftover seconds, the fuel load once a safety margin is added on top of the base propellant, and the number of automated supply runs the station must fly to erase a fixed mass deficit before departure. The habitat carries a crew of four. Your job as flight software crew is to complete the program that prints these numbers for the console.
+The Willamette Resource Office helps residents compare vehicles before they buy one. An electric vehicle costs more carbon to manufacture than a gasoline vehicle, mostly from its battery, but it emits less carbon on every kilometre it drives afterward. Residents keep asking the office how far they would need to drive an EV before that lower running cost makes up for the higher manufacturing cost. Your job as a junior engineer on the office's software team is to write a program that reads one vehicle's numbers from the console and prints how that payback plays out.
 
 ## How This Assignment Works
 
-You work **test first**, the way flight software is really written: you read the problem, decide what correct behavior looks like by writing your own test cases, plan the program in pseudocode, and only then write the code. You have not learned to write your own functions yet, so the contract is the program's **printed output**: the automated grader runs your program and compares the lines it prints to the expected lines. The problem is solvable in Python or Rust, whichever you prefer, against the same expected output. The order is fixed: design your tests, write your pseudocode, then complete the program. After that comes an optional extra-credit stretch, a short paper trace, and a two-sentence reflection.
+You work **test first**: you read the problem, decide what correct output looks like by writing your own test cases, plan the program in pseudocode, and only then write the code. You have not learned to write your own functions yet, so the contract is the program's **printed output**: your program reads four values from standard input and the automated grader compares the lines it prints to the expected lines. The problem is solvable in Python or Rust, whichever you prefer, against the same expected output. The order is fixed: design your tests, write your pseudocode, then write the program. After that comes an optional extra-credit stretch, a short paper trace, and a two-sentence reflection.
 
 ## What to Submit
 
@@ -47,107 +46,107 @@ You submit in two places. Mechanics are in [Running and Submitting Your Code](/p
 
 ## The Problem
 
-The console readout is built from six input values the starter program sets for you: the countdown length in seconds, the base propellant mass, the margin percent, the mass deficit the station must erase, the usable mass one supply run delivers, and the mass one run spends to launch. A single supply run delivers its usable mass but spends some of its own mass to launch, so a run nets only the difference between the two.
+An electric vehicle's battery is the reason it costs more carbon to build. IVL's 2019 review of battery-production studies puts battery manufacturing at 61 to 106 kilograms of CO2 equivalent for every kilowatt-hour of battery capacity produced (IVL, *Lithium-Ion Vehicle Battery Production: Status 2019*). Once a vehicle is on the road, the EV usually wins the difference back, because it emits less carbon for every kilometre it drives than the gasoline vehicle it replaces. Burning gasoline releases about 2,348 grams of CO2 for every litre (EPA, calculated from the agency's cited figure of 8,887 grams of CO2 per gallon of gasoline burned). The EV's own operating emissions depend on the carbon intensity of the electricity grid it charges from, and two real grid figures give visibly different numbers: the Northwest Power Pool subregion, which covers most of Oregon and Washington, runs at 275 grams of CO2e per kilowatt-hour (EPA eGRID2022, released January 2024, rounded from 605.9 lb CO2e/MWh), while the United States' national average runs at 373 grams of CO2e per kilowatt-hour (EPA eGRID2022, rounded from 823.1 lb CO2/MWh). The office also keeps each vehicle's manufacturer-rated battery service life on file, typically 8 years or 160,000 kilometres, whichever comes first.
 
-The number of supply runs is a break-even calculation, and Mission Control has already solved the break-even relation for you. Writing `deficit` for the mass deficit, `delivered` for the mass one run delivers, and `cost` for the mass one run spends to launch, the exact break-even point is:
+For every vehicle it evaluates, a field analyst has already turned figures like these into four numbers and hands them to your program through the console: how much extra carbon the EV's manufacturing cost over the gasoline vehicle's, in grams of CO2e; how many grams of CO2e the gasoline vehicle emits for every kilometre it drives; how many grams of CO2e the EV emits for every kilometre it drives; and how many kilometres a typical driver covers in a year.
 
-<Latex formula="r = \dfrac{\text{deficit}}{\text{delivered} - \text{cost}}" inline={false} />
+**What your program must print.** Read the four values below from standard input, one whole number per line, in this order:
 
-Here <Latex formula="r" /> is the exact, possibly fractional, number of runs whose combined net mass would meet the deficit precisely, and `delivered - cost` is the net mass a single run adds. The console does not need this fractional <Latex formula="r" />; it needs the number of complete runs the crew must actually fly, because a partial run cannot be flown.
+1. The EV's extra manufacturing footprint, in grams of CO2e.
+2. The gasoline vehicle's operating emissions, in grams of CO2e per kilometre.
+3. The EV's operating emissions, in grams of CO2e per kilometre.
+4. The typical annual driving distance, in kilometres.
 
-**What your program must print.** Print exactly four lines, one whole number per line, in this order and nothing else on any line:
+Then print exactly three lines, one whole number per line, in this order and nothing else on any line:
 
-1. The whole minutes in the countdown, where there are `60` seconds in a minute.
-2. The leftover seconds after those whole minutes.
-3. The fueled mass: the base propellant plus a margin of the given percent of the base propellant. Every value here is a whole number.
-4. The number of complete supply runs needed to erase the deficit. A partial run cannot be flown and does not count toward the deficit.
+1. The payback distance: the whole number of kilometres the vehicle must be driven before the EV's lower running emissions have paid back its extra manufacturing footprint.
+2. The number of complete years of the typical annual driving distance that fit within that payback distance.
+3. The kilometres driven in the partial year left over once those complete years are accounted for.
 
-We give you **one** worked example to show the format. With `countdown_seconds = 500`, `base_fuel_kg = 1000`, `margin_percent = 15`, `deficit_kg = 1000`, `delivered_kg = 200`, and `cost_kg = 50`, the program prints:
+Your program must not print anything before those three lines, including a prompt. Python's `input()` and Rust's `println!` do not add a newline to the screen the same way, so the same prompt would leave the two languages printing different text for what must be identical output; read every value with a bare `input()` call in Python or `read_i32()` in Rust, with no prompt text.
+
+We give you **one** worked example to show the format. With an extra manufacturing footprint of `4800000`, a gasoline figure of `190`, an EV figure of `55`, and a typical annual distance of `15000`, the program prints:
 
 ```text frame="terminal" title="Output"
-8
-20
-1150
-7
+35555
+2
+5555
 ```
 
-**Assumptions and edge cases.** Every input is a whole number. `countdown_seconds` is zero or greater. `margin_percent` is zero or greater, and a margin of `0` must leave the base propellant unchanged. For every graded set of inputs, the margin itself, the given percent of the base propellant, works out to a whole number of kilograms. `delivered_kg` is greater than `cost_kg`, so the net a run adds is a positive whole number, and `deficit_kg` is a positive whole number. The grader may replace the six input values, so compute every printed number from the named variables and never hard-code a result such as `8` or `7`.
+**Assumptions and edge cases.** Every input value is a whole number. The extra manufacturing footprint is at least `0` and at most `20000000`. Each per-kilometre figure is at least `1` and at most `1000`, and the EV's figure is always strictly less than the gasoline vehicle's, so the EV genuinely saves carbon on every kilometre driven. The typical annual distance is at least `1` and at most `100000` kilometres. An extra manufacturing footprint of `0` must produce three lines of `0`. The grader may choose any input values within these limits, so compute every printed number from the values you read and never hard-code a result such as `35555` or `2`.
 
-<Aside type="danger" title="HAB drafted a rule for the supply runs. Sign off on it, or reject it.">
-HAB, the habitat's assistant, offers this: "The supply runs are just the deficit divided by the net a run adds. Whole-number division already throws away the fraction for you, so take `deficit_kg` divided by the net per run and read off that whole number. There is nothing left to round." Test HAB's rule against the requirement above before you rely on it, and let your test cases settle the question.
+<Aside type="danger" title="AURA drafted the payback formula. Sign off on it, or reject it.">
+AURA, the office's assistant, offers this: "The EV's own per-kilometre figure is the rate that matters here. Divide the extra manufacturing footprint by the EV's per-kilometre figure, and the result is your payback distance in kilometres. The gasoline vehicle's number is background information for the report, not part of the division." Test AURA's formula against the requirement above before you rely on it, and let your test cases settle the question.
 </Aside>
 
-<Reveal label="Optional hint for the supply-run count. Skip it if you already have a plan.">
-This hint is optional, and you may ignore it entirely. Work a case where the division does not come out even, and ask yourself what has to happen to the count when a remainder is left over. Then remember that you are free to do arithmetic before you divide: think about what adding something to the top of the division, before it runs, could do to absorb that leftover, without changing the answer in a case that divides evenly.
+<Reveal label="Optional hint for the payback distance. Skip it if you already have a plan.">
+This hint is optional, and you may ignore it entirely. Work out, in plain language, how many fewer grams of CO2e the EV produces than the gasoline vehicle for one kilometre of driving. That single number, not either input figure alone, is what the extra manufacturing footprint is being paid back against.
 </Reveal>
 
 ## Step 1: Write Your Acceptance Tests
 
-Before writing any code, decide what correct behavior looks like. Write a set of test cases as a plain table of rows: the six input values, and the four lines you expect the program to print. Do not use `assert` yet; a table of rows is what this step wants. For each row, work out the four printed numbers by hand from the requirements.
+Before writing any code, decide what correct behavior looks like. Write a set of test cases as a plain table of rows: the four input values, and the three lines you expect the program to print. Do not use `assert` yet; a table of rows is what this step wants. For each row, work out the three printed numbers by hand from the requirements.
 
 Your table must include, and label, at least these cases:
 
 - The worked example above, as a starting check.
-- One case where the net a run adds divides the deficit **evenly**, so the exact break-even point lands on a whole number.
-- One case where it does **not** divide evenly, so the exact break-even point falls between two whole numbers.
-- One more case of your own, whose four lines you compute fully by hand, including a `margin_percent` of `0`.
+- One case where the payback distance divides evenly into whole years, so the leftover kilometres are `0`.
+- One case where it does not divide evenly.
+- One more case of your own, whose three lines you compute fully by hand, including an extra manufacturing footprint of `0`.
 
-While you design these, think about what HAB claimed: a good set of tests would catch a rule that never adds the extra run when one is needed.
+Build your own payback-distance row from the requirements before you decide whether to trust AURA's formula.
 
 **Submit your test table in your PDF on Canvas.**
 
 ## Step 2: Write Your Pseudocode
 
-Now plan the program, still before writing it. In plain steps (not Python or Rust), describe how the six inputs turn into the four printed lines: which intermediate values you will compute, in what order, and how they combine into each printed number. Name the intermediate values you intend to create, such as the net mass a single run adds, so a reader could follow your plan and write the code from it.
+Now plan the program, still before writing it. In plain steps (not Python or Rust), describe how the four inputs turn into the three printed lines: which intermediate values you will compute, in what order, and how they combine into each printed number. Name the intermediate values you intend to create, such as the per-kilometre saving, so a reader could follow your plan and write the code from it.
 
 **Submit your pseudocode in your PDF on Canvas.**
 
 ## Step 3: Write Your Code
 
-Complete the provided program so it prints the four lines, in Python or Rust, following your own pseudocode. The starter sets the six input variables and prints the four result variables; you replace each `0` with the right computation. The automated grader runs your program with input values it chooses and compares the printed lines, so nothing is graded on how you get there, only on the printed output being right.
+Write the program so it reads the four values and prints the three lines, in Python or Rust, following your own pseudocode. The automated grader runs your program with input values it chooses and compares the printed lines, so nothing is graded on how you get there, only on the printed output being right.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python title="launch_window.py (provided)"
-countdown_seconds = 500
-base_fuel_kg = 1000
-margin_percent = 15
-deficit_kg = 1000
-delivered_kg = 200
-cost_kg = 50
+```python title="ev_payback.py (provided)"
+# TODO: read the four values below, one per line, with int(input())
+extra_manufacturing_gco2 = 0
+gasoline_per_km_gco2 = 0
+ev_per_km_gco2 = 0
+annual_km = 0
 
 # TODO: replace each 0 below with the right computation from the variables above.
-minutes = 0
-seconds = 0
-fueled_kg = 0
-runs = 0
+payback_km = 0
+whole_years = 0
+leftover_km = 0
 
-print(minutes)
-print(seconds)
-print(fueled_kg)
-print(runs)
+print(payback_km)
+print(whole_years)
+print(leftover_km)
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="launch_window.rs (provided)"
+```rust title="ev_payback.rs (provided)"
+// read_i32() is provided by the starter; it reads one line and hands back a
+// whole number. See the Variables and State lecture.
+
 fn main() {
-    let countdown_seconds = 500;
-    let base_fuel_kg = 1000;
-    let margin_percent = 15;
-    let deficit_kg = 1000;
-    let delivered_kg = 200;
-    let cost_kg = 50;
+    // TODO: read the four values below, one per line, with read_i32()
+    let extra_manufacturing_gco2 = 0;
+    let gasoline_per_km_gco2 = 0;
+    let ev_per_km_gco2 = 0;
+    let annual_km = 0;
 
     // TODO: replace each 0 below with the right computation from the variables above.
-    let minutes = 0;
-    let seconds = 0;
-    let fueled_kg = 0;
-    let runs = 0;
+    let payback_km = 0;
+    let whole_years = 0;
+    let leftover_km = 0;
 
-    println!("{}", minutes);
-    println!("{}", seconds);
-    println!("{}", fueled_kg);
-    println!("{}", runs);
+    println!("{}", payback_km);
+    println!("{}", whole_years);
+    println!("{}", leftover_km);
 }
 ```
 </TabItem>
@@ -155,7 +154,7 @@ fn main() {
 
 <WhatDiffers>
 <Fragment slot="differs">
-Python writes whole-number (integer) division as `//` and Rust writes it as `/` between two whole numbers; both discard the fraction. The remainder operator is `%` in both. Every value in this program is a whole number, so the four printed lines are identical in each language.
+Python reads each value with `int(input())`; Rust reads each with `read_i32()`, a function the starter provides for you (its body is explained in a later lecture). Python writes whole-number division as `//` and Rust writes it as `/` between two whole numbers; both discard the fraction. The remainder operator is `%` in both. Every value in this program is a whole number, so the three printed lines are identical in each language.
 </Fragment>
 </WhatDiffers>
 
@@ -165,63 +164,67 @@ Python writes whole-number (integer) division as `//` and Rust writes it as `/` 
 
 This one is a stretch, and it earns extra credit. It is also your practice for the graded stretch problem in the recitation room.
 
-After the crew flies the whole number of complete supply runs, their combined net mass usually overshoots the deficit, and Mission Control wants that surplus on the console too. Write a separate program that prints one line: the surplus, meaning the total net mass the complete runs deliver minus the deficit, using the same three supply values.
+The office also wants to know the vehicle's total carbon position over its whole expected lifetime, not just when it breaks even. Write a separate program that reads four whole numbers from standard input, one per line: the extra manufacturing footprint in grams of CO2e, the gasoline vehicle's per-kilometre figure, the EV's per-kilometre figure, and the vehicle's expected lifetime distance in kilometres (at most `500000`). Print one line: the net grams of CO2e the EV saves over that whole lifetime, using the same per-kilometre saving as the main problem, where a positive number means the EV comes out ahead by the end of its life and a negative number means it does not.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python title="surplus.py (provided)"
-deficit_kg = 1000
-delivered_kg = 200
-cost_kg = 50
+```python title="lifetime_saving.py (provided)"
+# TODO: read the four values below, one per line, with int(input())
+extra_manufacturing_gco2 = 0
+gasoline_per_km_gco2 = 0
+ev_per_km_gco2 = 0
+lifetime_km = 0
 
-# TODO: replace the 0 with the surplus net mass beyond the deficit.
-surplus_kg = 0
+# TODO: replace the 0 with the net grams of CO2e saved over the lifetime distance.
+lifetime_net_gco2 = 0
 
-print(surplus_kg)
+print(lifetime_net_gco2)
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="surplus.rs (provided)"
+```rust title="lifetime_saving.rs (provided)"
 fn main() {
-    let deficit_kg = 1000;
-    let delivered_kg = 200;
-    let cost_kg = 50;
+    // TODO: read the four values below, one per line, with read_i32()
+    let extra_manufacturing_gco2 = 0;
+    let gasoline_per_km_gco2 = 0;
+    let ev_per_km_gco2 = 0;
+    let lifetime_km = 0;
 
-    // TODO: replace the 0 with the surplus net mass beyond the deficit.
-    let surplus_kg = 0;
+    // TODO: replace the 0 with the net grams of CO2e saved over the lifetime distance.
+    let lifetime_net_gco2 = 0;
 
-    println!("{}", surplus_kg);
+    println!("{}", lifetime_net_gco2);
 }
 ```
 </TabItem>
 </Tabs>
 
-For the values above the program prints `50`, because seven complete runs net `1050` kilograms against a deficit of `1000`.
+For the worked example's vehicle, `4800000`, `190`, and `55`, over a `200000` kilometre lifetime, the program prints `22200000`.
 
-**Submit your surplus program to Gradescope** to earn the extra credit.
+**Submit your lifetime-saving program to Gradescope** to earn the extra credit.
 
 ## Paper Practice
 
-Trace this program by hand, on paper. It reassigns one variable in place, the pattern from the [Variables and State](/lectures/variables-and-state/) lecture. Build a variable table showing the value of `level` after each line runs, and write the two values the program prints.
+Trace this program by hand, on paper. It reassigns one variable in place, the pattern from the [Variables and State](/lectures/variables-and-state/) lecture. Build a variable table showing the value of `remaining_km` after each line runs, and write the two values the program prints.
 
-```python title="tank.py"
-level = 500
-level = level - 120
-print(level)
-level = level - 30
-print(level)
+```python title="progress.py"
+remaining_km = 500
+remaining_km = remaining_km - 120
+print(remaining_km)
+remaining_km = remaining_km - 30
+print(remaining_km)
 ```
 
 <Reveal label="Reveal the completed trace">
-| Line | `level` |
+| Line | `remaining_km` |
 |---|---|
-| `level = 500` | `500` |
-| `level = level - 120` | `380` |
-| `print(level)` | `380` (prints `380`) |
-| `level = level - 30` | `350` |
-| `print(level)` | `350` (prints `350`) |
+| `remaining_km = 500` | `500` |
+| `remaining_km = remaining_km - 120` | `380` |
+| `print(remaining_km)` | `380` (prints `380`) |
+| `remaining_km = remaining_km - 30` | `350` |
+| `print(remaining_km)` | `350` (prints `350`) |
 
-Each `level = level - ...` line reads the current value of `level`, subtracts, and stores the result back into the same variable. The program prints `380`, then `350`.
+Each `remaining_km = remaining_km - ...` line reads the current value of `remaining_km`, subtracts, and stores the result back into the same variable. The program prints `380`, then `350`.
 </Reveal>
 
 Photograph your trace and include it in your PDF on Canvas. This part is graded on completion (the attached photograph), not on whether every cell is right, so attempt it by hand first, then open the reveal to check yourself.
@@ -230,14 +233,14 @@ Photograph your trace and include it in your PDF on Canvas. This part is graded 
 
 Include a short reflection in your PDF on Canvas. In two sentences: first, state plainly whether you used an AI tool on this assignment and, if you did, what you used it for (if you did not use AI at all, say so explicitly); second, name any other help you used (a peer, the official docs, the lecture notes) and one thing you still could not do without that help.
 
-Then add one more sentence: which intermediate variables did you create to build the four printed numbers, and why those? This is graded on completion, not on what you say, and it is not shared with anyone but the instructor.
+Then add one more sentence: which intermediate variables did you create to build the three printed numbers, and why those? This is graded on completion, not on what you say, and it is not shared with anyone but the instructor.
 
 ## Simulators
 
-<LaunchWindowForm client:load />
+<EvPaybackForm client:load />
 
 <div class="print:block hidden italic">The simulator is not printed to PDF. Consult the online textbook to use it.</div>
 
 ## Rubric
 
-<RubricTable src="canvas/assignments/ev-carbon-payback-rubrics.tsv" caption="The Launch Window Rubric" />
+<RubricTable src="canvas/assignments/ev-carbon-payback-rubrics.tsv" caption="EV Carbon Payback Rubric" />
