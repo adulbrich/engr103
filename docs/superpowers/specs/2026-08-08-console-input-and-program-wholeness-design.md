@@ -37,9 +37,12 @@ These turn out to be two different problems with two different answers.
    only the call; the helper's body lives in the starter, is documented on the
    starter-repo practicalities page, and is explained in lecture 9 where `Result`
    and `.expect()` are taught. Lecture 4 therefore defers nothing.
-4. **Every assignment from A3 on ships an interactive `main`** in the starter:
+4. **Every assignment from A4 on ships an interactive `main`** in the starter:
    it prompts, reads, calls the student's function, and prints. This is a
-   convention of the starter repositories, not a graded surface.
+   convention of the starter repositories, not a graded surface, which is exactly
+   why it may prompt. **A3 is the exception and prints no prompt**, because it is
+   the one assignment that is both output-diffed and student-authored; see
+   section 5.
 5. **No I/O-diff grading component is added** to A4 through A10. See section 7.
 
 ---
@@ -214,8 +217,9 @@ A2 is unaffected: it has no variables at all, so input has nowhere to go.
 
 ## 6. The wholeness convention
 
-**Every assignment from A3 on ships a `main` that prompts, reads, calls the
-student's function, and prints.** From A4 on this `main` is provided code.
+**Every assignment from A4 on ships a `main` that prompts, reads, calls the
+student's function, and prints**, and that `main` is provided code. A3 reads and
+prints but does not prompt, for the reason given in section 5.
 
 This is the answer to "students should be able to run their program
 independently," and it is already the stated design in five assignment pages,
