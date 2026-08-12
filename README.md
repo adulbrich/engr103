@@ -25,7 +25,7 @@ need a human spot-check.
 - [ ] **A4 fly ash, 40 kg CO2e/tonne:** deliberately presented on the page as a WRO office figure, **not** as a citation, because no clean industry-average EPD was findable. Decide whether to source it properly or leave it as an authored figure.
 - [ ] **A6 sensor-drift-check:** EPA PM2.5 NAAQS figures (cited, agency/dataset/year present). The PMS5003 sensor range (0 to 500 µg/m3, manual v2.3, 2016) was cross-confirmed across several retailer mirrors because the sandbox blocks the primary Plantower PDF, so it is honest but not primary-sourced.
 - [ ] **A5 burn-window-clearance:** all three windows are authored WRO figures by design, explicitly labeled, not published. Decide whether to source a real state forestry prescription instead.
-- [ ] **A8:** constants not yet authored; check when that lands
+- [ ] **A8 solar-array-lifetime:** module degradation rate. Its summit (spent-fuel decay) deliberately carries **no** citation: radioactive decay is described generically because no isotope half-life could be verified in-session. Decide whether to source a real one.
 
 ### Decide on one cross-tier mismatch
 
