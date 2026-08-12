@@ -194,7 +194,8 @@ in week 1 and threaded all term, and is never hands-on-coded on paper.
 Recitations certify O1, O3, O4, O5, O7 (performance tier). Assignments train all
 outcomes and carry the O8 thread (reflection, critique); catalog outcome 6 lives
 in the separate professional development track. Lecture activities rehearse O1,
-O2, O4.
+O2, and O4, and give one guided rep at O3 in the write-it-yourself block every
+session carries.
 
 ---
 
@@ -835,7 +836,7 @@ tutorials), so the table is normative:
 | Lecture notes | Explanation | Wordy, paragraph-based prose; concept first; small self-contained tabbed Python/Rust examples |
 | Language ladder, archetype inventory, language field guide | Reference | Terse tables and lists, no prose |
 | Practicalities | How-to guides | Numbered steps, one goal per page: setup, editors, submitting to Gradescope, the recitation lab, the debugging workflow |
-| Activities | Prompt sheets | Minimal: a listing, a question, room to predict; worked resolution published after class |
+| Activities | Guided problem sets | A warm-up, then blocks of listing, question, and room to predict; every resolution ships on the page in a closed reveal |
 | Assignments | Requirements, scaffolded | Mission episode: one open problem, the contract fixed and the decomposition left to the student, plus optional hints |
 | Recitations | Problem sheets, bare | Gary's ticket: mixed archetype items on paper, scaffolding stripped |
 | Exams | Archetype items | Multiple-choice items, minimal wording, no story skin |
@@ -867,16 +868,40 @@ and names the problem family where the concept will be exercised. Notes never
 give step-by-step instructions; explaining is their job, instructing is the
 how-to guides' job.
 
-### Activities: prompt sheets, not tutorials
+### Activities: guided problem sets, not tutorials
 
-In a course where students may skip early lectures, activities must read like
-tutorials because they replace the lecture. Here the flipped notes carry the
-exposition and the instructor runs the activity live, so a tutorial-style
-document would compete with the session it supports. The activity artifact is
-deliberately thin: a code listing, a question, space to commit to a prediction.
-The worked resolution, published after class, is what serves absentees. The
-only true tutorials in the course are week 1's onboarding (R1, A1, and the
-setup how-tos they lean on).
+In a course where students may skip early lectures, activities would have to
+read like tutorials, because they would be standing in for the lecture. Here
+the flipped notes carry the exposition and the instructor runs the activity
+live, so a tutorial-style document would compete with the session it supports.
+What an activity is instead is a guided problem set: a warm-up that re-shows
+the lecture's simplest pieces, then three blocks, each posing a listing and a
+question the student commits to an answer for, and a closing block where the
+student writes a small solution from a blank page.
+
+The explanation is not absent from the page; it sits after the attempt rather
+than before it. Every block's resolution ships with the page from the day it is
+published, closed inside a reveal panel, and forced open when the page is
+printed. In class the panels stay shut while the instructor resolves the
+problem live; a student catching up alone attempts the problem first, then
+opens the panel and self-checks against the same resolution the room got. One
+artifact serves both audiences, and there is no second, after-class publication
+step.
+
+That placement is the whole design. The recitation and the exam ask the student
+to predict, trace, fix, choose, and produce with no support, so the activity
+rehearses exactly that modality at low stakes: attempt first, then read why. A
+tutorial would train following steps instead, which is a real skill but not one
+any assessment in this course samples. The only true tutorials in the course
+are week 1's onboarding (R1, A1, and the setup how-tos they lean on).
+
+The warm-up is the one place the page gives before it asks, and it stays a bare
+refresher: the lecture's simplest pieces shown in both languages with their
+output, and nothing worked through. The support a beginner needs before their
+first attempt is supposed to arrive from the pre-lecture reading and the
+misconception opener that starts the session, not from a worked example on the
+activity page, which would duplicate the notes and pull the artifact into the
+explanation genre.
 
 ### Assignments and recitations: shared skeletons, two formats
 
