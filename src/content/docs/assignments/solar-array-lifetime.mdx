@@ -30,7 +30,7 @@ output: one function submitted to the grader, an optional summit function, and a
 
 <LanguageVersions />
 
-WRO's field office put solar panels on its south-facing roof several years ago, 240 individual panels in all, and the budget office now wants one number before it signs off on next year's energy plan: the total energy the array will generate over its whole working life. Every panel keeps producing power for years, but a little less each year, until its output sinks below the level the manufacturer's warranty still stands behind. Your job as a junior engineer on the office's software team is to write the function that adds up the array's lifetime output, year by year, and to judge AURA's shortcut before you build anything on it.
+WRO's field office put solar panels on its south-facing roof several years ago, 240 individual panels in all, and the budget office now wants one number before it signs off on next year's energy plan: the total energy the array will generate over its whole working life. The array keeps producing power for years, giving up a little output each year, until the array's output sinks below the level the manufacturer's warranty still stands behind. Your job as a junior engineer on the office's software team is to write the function that adds up the array's lifetime output, year by year, and to judge AURA's shortcut before you build anything on it.
 
 ## How This Assignment Works
 
@@ -49,7 +49,7 @@ The array's data sheet gives a steeper degradation curve than most rooftop solar
 
 The array's output in its first year of operation is a known starting value. Every year after that, the output falls by a fixed percentage of the year before it, so a smaller number is what shrinks the year after that, and the shrinking compounds. The array keeps counting toward the office's budget only for as long as its output stays at or above the level the manufacturer's warranty still covers; the moment a year's projected output would fall below that floor, the array's useful life for budgeting purposes is over, and that year's output is left out.
 
-Write `lifetime_generation_kwh(start_output_kwh, degradation_percent, floor_kwh)`, returning the total energy the array generates over its life, in kilowatt-hours, as a float. There is no exponentiation operator on the language ladder yet, and the number of years that qualify depends on all three inputs, not on a fixed count, so you cannot raise a single factor to a fixed power and you cannot write the growth out by hand for a general case.
+Write `lifetime_generation_kwh(start_output_kwh, degradation_percent, floor_kwh)`, returning the total energy the array generates over its life, in kilowatt-hours, as a float. There is no exponentiation operator on the language ladder, and the number of years that qualify depends on all three inputs, not on a fixed count, so you cannot raise a single factor to a fixed power and you cannot write the growth out by hand for a general case.
 
 The function returns a float. How you track the array's output year to year, and what intermediate values you give names to along the way, is entirely your decision.
 
