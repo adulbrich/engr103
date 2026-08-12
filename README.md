@@ -25,6 +25,14 @@ need a human spot-check.
 - [ ] **A4 fly ash, 40 kg CO2e/tonne:** deliberately presented on the page as a WRO office figure, **not** as a citation, because no clean industry-average EPD was findable. Decide whether to source it properly or leave it as an authored figure.
 - [ ] **A6, A8:** constants not yet authored; check when those land
 
+### Decide on one cross-tier mismatch
+
+VISION requires an assignment and its recitation sibling to differ by at most one
+structural twist. Recitations are a stated non-goal of this project, so nothing in
+them has been touched, but rewriting A5 introduced a gap.
+
+- [ ] **A5 now takes three readings** (wind speed, relative humidity, fuel moisture) while its recitation sibling R5 (`src/content/docs/recitations/hot-tub-safety-checks.mdx`) still takes two. Either add a third reading to R5, or drop A5 to two. Watch for the same thing as A6 through A10 land.
+
 ### Look at the two new simulators
 
 Both were verified by `getBoundingClientRect()` measurement rather than visually,
