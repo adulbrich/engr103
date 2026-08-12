@@ -1,6 +1,6 @@
 ---
 title: "The Annual Emissions Inventory"
-description: "Write the one entry-point function that parses a raw field reading line character by character, decodes the base-36 code Field Logger Codes built, and folds a qualifying reading into the caller's station manifest in place test-first, then critique the coverage of the tool you built."
+description: "Write the one entry-point function that parses a raw field reading line character by character, decodes the base-36 code Field Logger Codes built, and folds a qualifying reading into the caller's station manifest, test-first, then critique the coverage of the tool you built."
 sidebar:
   order: 10
 draft: false
@@ -179,7 +179,7 @@ Photograph your trace and include it in your PDF on Canvas. This part is graded 
 
 This part is not code. Write about one page (roughly 300 to 500 words) critiquing the coverage of the tool you just built: the station manifest `log_reading` folds valid readings into.
 
-Regulatory air-quality monitors, the kind whose readings show up as a station's `reference_ugm3`, are not spread evenly across a region. A 2024 analysis of the EPA's own Air Quality System monitoring network found that under the tightened 2024 PM2.5 annual standard, coverage gaps leave roughly forty-four percent of urban areas that exceed the standard undetected, about 20 million people in all, and that the undetected hotspots have significantly higher shares of people of color and people of low socioeconomic status than the areas the network does cover (Wang, Marshall, and Apte, "U.S. Ambient Air Monitoring Network Has Inadequate Coverage under New PM2.5 Standard," *Environmental Science & Technology Letters*, 2024). A neighborhood with no station nearby never produces a line for `log_reading` to read at all, and it never appears in the manifest, `LOGGED` or `REJECTED`, either way.
+Regulatory air-quality monitors, the kind whose readings show up as a station's `reference_ugm3`, are not spread evenly across a region. A 2024 analysis of the EPA's own Air Quality System monitoring network found that under the tightened 2024 PM2.5 annual standard, coverage gaps leave roughly forty-four percent of urban areas that exceed the standard undetected, about 20 million people in all, and that the people living in those undetected hotspots are substantially more likely to be people of color or low-income than the U.S. population overall (Wang, Marshall, and Apte, "U.S. Ambient Air Monitoring Network Has Inadequate Coverage under New PM2.5 Standard," *Environmental Science & Technology Letters*, 2024). A neighborhood with no station nearby never produces a line for `log_reading` to read at all, and it never appears in the manifest, `LOGGED` or `REJECTED`, either way.
 
 Your one page must address all three of these:
 
