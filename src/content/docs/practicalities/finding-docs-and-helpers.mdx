@@ -24,15 +24,15 @@ Most documentation entries lead with a **signature**: the name of the function, 
 <Tabs syncKey="lang">
 <TabItem label="Python">
 ```python title="Using len"
-name = "Ares"
-print(len(name))   # 4
+name = "WRO-07"
+print(len(name))   # 6
 ```
 </TabItem>
 <TabItem label="Rust">
 ```rust title="Using .len()"
 fn main() {
-    let name = "Ares";
-    println!("{}", name.len());   // 4
+    let name = "WRO-07";
+    println!("{}", name.len());   // 6
 }
 ```
 </TabItem>
@@ -48,7 +48,7 @@ Documentation pages are long because they cover every case. For this course you 
 
 Some assignments hand you a **helper function** already written, so you can build on it instead of reinventing it. When an assignment provides a helper, its signature is given in the specification, exactly like a documentation entry: you call it by name and use what it returns, without rewriting it.
 
-One warning that recurs all term: not every provided helper is correct. HAB, the habitat's assistant, sometimes drafts a helper that looks convenient but is subtly wrong, and the assignment asks you to judge it before you trust it. A provided helper is a starting point to evaluate, never something to copy blindly. Reading a helper's signature and testing it on a known case is the same skill as reading the official docs.
+One habit that pays off all term: do not trust a provided helper on sight. Test it on a known case before you build on it, the same read-try-check loop you use for the official docs.
 
 ## Which Libraries You May Use
 
