@@ -647,7 +647,7 @@ git commit -m "Move console input to ladder week 2, narrow the generics rule, ad
 
 - [ ] **Step 1: Load the activities skill**
 
-Load `engr103-activities`. Activities are thin prompt sheets, not tutorials: a listing, a question, room to predict.
+Load `engr103-activities`. **Note that the activities design changed while this plan was running**, in VISION commit `4cd90ec`, and the skill was updated with it. Activities are no longer thin prompt sheets. They are **guided problem sets**: a warm-up that re-shows the lecture's simplest pieces, then blocks each posing a listing and a question the student commits to an answer for, then a closing block where the student writes a small solution from a blank page. Every block's resolution ships on the page from day one, **closed inside a reveal panel** and forced open when printed. Follow the skill, not this plan's older description.
 
 - [ ] **Step 2: Add an input block to the variables activity**
 
