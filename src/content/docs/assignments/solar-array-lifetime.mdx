@@ -1,6 +1,6 @@
 ---
-title: "The First Drive"
-description: "Write the function that projects the rover's compounding solar charge over the coming sols test-first: design your test cases, write pseudocode, then implement the accumulation, and judge HAB's claim before you trust it."
+title: "Solar Array Lifetime"
+description: "Write the function that projects a rooftop solar array's total lifetime output test-first: design your test cases, write pseudocode, then implement the accumulation, and judge AURA's claim about the shortcut before you trust it."
 sidebar:
   order: 8
 draft: false
@@ -16,99 +16,99 @@ import RubricTable from '/src/components/RubricTable.astro';
 type: assignment
 slug: solar-array-lifetime
 order: 8
-family: loops over state (accumulating a compounding total by repeated multiplication)
+family: loops over state (accumulating a running total across a data-dependent number of passes)
 paired_recitation: R8
 prereq_lectures: loops, loop-patterns
 prereq_activities: loops, loop-patterns
 prereq_assignment: dashboard-publication-tests
-new_scope: writing one entry-point function that accumulates a compounding total by repeated multiplication over a data-dependent number of sols, without a power operator and without collections
-target_construct: a loop that carries a running product across a data-dependent number of passes, so iteration is the natural tool
-persistent_requirements: dual-language, one shared contract; grader reads return values only; every function returns i32, f64, or bool; no construct beyond the loops week on the ladder
-story_beat: touchdown is confirmed and the crew projects the parked rover's banked solar charge before it drives down the ramp for its first traverse
+new_scope: writing one entry-point function that accumulates a running total across a data-dependent number of years by repeated multiplication, without a power operator and without collections
+target_construct: a while loop that carries a running total and a degrading value across a data-dependent number of passes, so iteration is the natural tool
+persistent_requirements: dual-language, one shared contract; grader reads return values only; no construct beyond the loops week on the ladder; no collections; no power operator
+story_beat: projecting a rooftop array's total lifetime output before the year's energy budget is finalized
 output: one function submitted to the grader, an optional summit function, and a PDF on Canvas with acceptance tests, pseudocode, a hand trace, and a reflection
 */}
 
 <LanguageVersions />
 
-Touchdown is confirmed, and the rover is cleared to drive down the ramp for its first traverse across the landing site. The ramp deployment itself took forty-three seconds. Before the wheels turn, the crew wants to know how much charge the parked rover's solar array will have banked over the coming sols, so they can decide whether to hold and let it gather more before committing to the drive. Your job as the flight-software crew member on shift is to write the function that projects that banked charge. HAB has already offered its own idea for how to compute it; do not trust that idea until you have checked it yourself.
+WRO's field office put solar panels on its south-facing roof several years ago, 240 individual panels in all, and the budget office now wants one number before it signs off on next year's energy plan: the total energy the array will generate over its whole working life. Every panel keeps producing power for years, but a little less each year, until its output sinks below the level the manufacturer's warranty still stands behind. Your job as a junior engineer on the office's software team is to write the function that adds up the array's lifetime output, year by year, and to judge AURA's shortcut before you build anything on it.
 
 ## How This Assignment Works
 
-You work **test first**, the way flight software is really written: you read the problem, decide what correct behavior looks like by writing your own test cases, plan the code in pseudocode, and only then write the code. The problem is solvable in Python or Rust, whichever you prefer. The program's `main`, its console input and output, and the local test runner are already written; you write the one function named below, and the automated grader calls it directly with values it chooses, reading only what you `return`. The order is fixed: design your tests, write your pseudocode, then write your function. After that comes an optional extra-credit stretch, a short paper trace, and a two-sentence reflection.
+You work **test first**: you read the problem, decide what correct behavior looks like by writing your own test cases, plan the code in pseudocode, and only then write the code. The problem is solvable in Python or Rust, whichever you prefer. The program's `main`, its console input and output, and the local test runner are already written; you write the one function named below, and the automated grader calls it directly with values it chooses, reading only what you `return`. The order is fixed: design your tests, write your pseudocode, then write your function. After that comes an optional extra-credit stretch, a short paper trace, and a two-sentence reflection.
 
 ## What to Submit
 
 You submit in two places. Mechanics are in [Running and Submitting Your Code](/practicalities/starter-repo-and-check/); each section below also repeats what it asks for.
 
 - **A single PDF on Canvas** holding everything that is not code: your **acceptance tests**, your **pseudocode**, your **paper trace**, and your **reflection**.
-- **Your code on Gradescope**: the function `solar_charge_after`, plus the extra-credit `count_clear_cells` if you attempt the summit.
+- **Your code on Gradescope**: the function `lifetime_generation_kwh`, plus the extra-credit `years_to_clearance` if you attempt the summit.
 
 ## The Problem
 
-While the rover sits parked in the sun, mission modeling treats its stored charge as growing by a fixed percentage of its current level each sol. Because the gain each sol is a percentage of the current charge, the charge compounds: a larger reserve gathers a larger gain the next sol. A `growth_percent` of `25` means the charge ends each sol `1.25` times as large as it started that sol, so `25` percent of the current level is added on. The crew hands you a starting charge, that growth percentage, and a number of whole sols the rover will sit parked, and wants back the charge it projects to have banked at the end.
+The array's data sheet gives a steeper degradation curve than most rooftop solar. Across the industry, the median crystalline-silicon panel loses only about 0.5 percent of its output per year (NREL, Jordan and Kurtz, *Compendium of Photovoltaic Degradation Rates*, 2016), but the office bought an older discount panel line for this roof, and its output falls off noticeably faster than that.
 
-Write `solar_charge_after(start_charge, growth_percent, sols)`, returning the projected stored charge in watt-hours after `sols` whole sols of this compounding growth, as a float. Each sol the charge grows by `growth_percent` percent of its current level. A `sols` of `0` means no sols have passed, so the charge is returned unchanged. There is no exponentiation operator on the language ladder, so you cannot raise a factor to the `sols` power; the number of sols also varies from call to call, so you cannot write the growth out by hand.
+The array's output in its first year of operation is a known starting value. Every year after that, the output falls by a fixed percentage of the year before it, so a smaller number is what shrinks the year after that, and the shrinking compounds. The array keeps counting toward the office's budget only for as long as its output stays at or above the level the manufacturer's warranty still covers; the moment a year's projected output would fall below that floor, the array's useful life for budgeting purposes is over, and that year's output is left out.
 
-The function returns a float. How you carry the charge across the sols, and what intermediate values you give names to along the way, is entirely your decision.
+Write `lifetime_generation_kwh(start_output_kwh, degradation_percent, floor_kwh)`, returning the total energy the array generates over its life, in kilowatt-hours, as a float. There is no exponentiation operator on the language ladder yet, and the number of years that qualify depends on all three inputs, not on a fixed count, so you cannot raise a single factor to a fixed power and you cannot write the growth out by hand for a general case.
+
+The function returns a float. How you track the array's output year to year, and what intermediate values you give names to along the way, is entirely your decision.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python title="solar_charge.py"
-def solar_charge_after(start_charge, growth_percent, sols):
+```python title="array_lifetime.py"
+def lifetime_generation_kwh(start_output_kwh, degradation_percent, floor_kwh):
     ...
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="solar_charge.rs"
-fn solar_charge_after(start_charge: f64, growth_percent: f64, sols: i32) -> f64 {
+```rust title="array_lifetime.rs"
+fn lifetime_generation_kwh(start_output_kwh: f64, degradation_percent: f64, floor_kwh: f64) -> f64 {
     todo!()
 }
 ```
 </TabItem>
 </Tabs>
 
-We give you **one** worked example to show the format. With a starting charge of `100.0` watt-hours growing `25.0` percent each sol for `3` sols, the charge reaches `125.0` after the first sol, `156.25` after the second, and `195.3125` after the third:
+We give you **one** worked example to show the format. An array starting at `20000.0` kilowatt-hours in its first year, degrading `10.0` percent each year, with a warranty floor of `12000.0` kilowatt-hours, produces `20000.0` in year one, `18000.0` in year two, `16200.0` in year three, `14580.0` in year four, and `13122.0` in year five, all of them at or above the floor; year six would produce `11809.8`, below the floor, so the array's life for budgeting purposes ends after year five:
 
 | Call | Returns |
 |---|---|
-| `solar_charge_after(100.0, 25.0, 3)` | `195.3125` |
+| `lifetime_generation_kwh(20000.0, 10.0, 12000.0)` | `81902.0` |
 
-**Assumptions and edge cases.** `start_charge` and `growth_percent` are floats, zero or greater. `sols` is a whole number, zero or greater. Handle a `sols` of `0`, where no growth applies and the charge is returned unchanged, and a `growth_percent` of `0.0`, where each sol leaves the charge exactly where it was and nothing is gained.
+**Assumptions and edge cases.** `start_output_kwh` is a float, greater than `0.0`. `degradation_percent` is a float, strictly greater than `0.0` and strictly less than `100.0`: the array always gives up a little output each year, never none and never all of it at once. `floor_kwh` is a float, greater than `0.0`, and it can sit below, exactly at, or above `start_output_kwh`. Handle a `floor_kwh` above `start_output_kwh`, where the very first year already fails to clear the floor and nothing is added to the total, and a `floor_kwh` exactly equal to `start_output_kwh`, where the first year clears it but the second does not.
 
-<Aside type="danger" title="HAB has a way to count the sols. Decide whether to trust it.">
-HAB, the habitat's assistant, offers this: "The charge only changes when a sol ticks over. The rover is already parked at the start of the first sol, so between the start and the end of `sols` sols there are `sols - 1` tick-overs. Apply the growth that many times, one fewer than `sols`, and you will have the banked charge."
+<Aside type="danger" title="AURA has a shortcut for the lifetime total. Decide whether to trust it.">
+AURA, the office's assistant, offers this: "You already have to step through the array's years one at a time to find where its output finally drops below the warranty floor, so once you know how many years qualify, the fastest route to the lifetime total is to multiply that count by the very first year's output. The output only drops a little each year, so tracking every single year's own value on top of the count is bookkeeping you do not need."
 
-Flight rule: no HAB advice is trusted unverified. Decide whether HAB's counting is right before you build anything on it, and let your test cases settle the question.
+Office rule: no AURA analysis is published unverified. Decide whether AURA's shortcut is right before you build anything on it, and let your own test cases settle the question.
 </Aside>
 
 ## Step 1: Write Your Acceptance Tests
 
-Before writing any code, decide what correct behavior looks like. Write a set of test cases for `solar_charge_after` as a plain table of rows: the three inputs (`start_charge`, `growth_percent`, `sols`) and the charge you expect back. Now that the testing lecture has been covered you may pin each case down with an `assert` if you prefer, but a plain table of rows is all this step asks for. For each row, work out the expected charge by hand from the growth rule, applying the per-sol multiplication once for each sol that passes.
+Before writing any code, decide what correct behavior looks like. Write a set of test cases for `lifetime_generation_kwh` as a plain table of rows: the three inputs (`start_output_kwh`, `degradation_percent`, `floor_kwh`) and the total you expect back. Now that the testing lecture has been covered you may pin each case down with an `assert` if you prefer, but a plain table of rows is all this step asks for. For each row, work out the expected total by hand, year by year, from the degradation rule.
 
 Your table must include, and label, at least these cases:
 
 - The worked example above, as a starting check.
-- The boundary case `sols` of `0`, where no sols have passed and the charge must come back unchanged.
-- A `growth_percent` of `0.0` over several sols, where the charge never changes and nothing is gained.
-- At least one more case whose expected charge you compute fully by hand.
-
-Think about what HAB claimed while you do this: a good set of tests would catch a rule that applied the growth the wrong number of times.
+- The boundary case where `floor_kwh` is above `start_output_kwh`, so no year ever qualifies and the total is `0.0`.
+- The boundary case where `floor_kwh` is exactly equal to `start_output_kwh`, so exactly one year qualifies.
+- At least one more case whose expected total you compute fully by hand, year by year.
 
 **Submit your test table in your PDF on Canvas.**
 
 ## Step 2: Write Your Pseudocode
 
-Now plan the code, still before writing it. In plain steps (not Python or Rust), describe how `solar_charge_after` turns its three inputs into the charge it returns, as a readable plan another student could implement. Name the intermediate values you intend to create, so a reader could follow your plan and write the code from it.
+Now plan the code, still before writing it. In plain steps (not Python or Rust), describe how `lifetime_generation_kwh` turns its three inputs into the total it returns, as a readable plan another student could implement. Name the intermediate values you intend to create, so a reader could follow your plan and write the code from it.
 
 **Submit your pseudocode in your PDF on Canvas.**
 
 ## Step 3: Write Your Code
 
-Implement `solar_charge_after` from the signature above, in Python or Rust, following your own pseudocode. The automated grader calls the function directly with values it chooses and checks what you `return`, so nothing is graded on how you get there, only on the answer being right. Because the result is a floating-point value, the grader accepts any answer within a small tolerance, so you never compare floats yourself.
+Implement `lifetime_generation_kwh` from the signature above, in Python or Rust, following your own pseudocode. The automated grader calls the function directly with values it chooses and checks what you `return`, so nothing is graded on how you get there, only on the answer being right. Because the result is a floating-point value, the grader accepts any answer within a small tolerance, so you never compare floats yourself.
 
 <WhatDiffers>
 <Fragment slot="differs">
-The returned value is the same f64 in both languages, and the grader checks that value, not printed text. When a result lands on a whole number, the display differs only if you print it to debug: Python shows `solar_charge_after(100.0, 25.0, 1)` as `125.0`, with its trailing zero, while Rust's f64 prints `125`. They are the same number, and the acceptance tests state that value, not either display.
+The grader reads the returned value, not printed text, and the value is the same float in both languages. If you print a whole-valued total to debug it, the display differs: Python shows `20000.0`, its trailing zero included, while Rust's f64 shows `20000`. The number itself is identical.
 </Fragment>
 </WhatDiffers>
 
@@ -118,51 +118,55 @@ The returned value is the same f64 in both languages, and the grader checks that
 
 This one is a real stretch, and it earns extra credit. It is also your practice for the graded stretch problem in the recitation room, where a harder problem is waiting.
 
-Before the rover crosses the ramp's shadow, the crew scans the ground the descent thrusters may have kicked dust onto. The scan covers a grid of `rows` rows and `cols` columns, numbered from `0`. A cell's dust reading, in instrument units, is `3 * row + 5 * col`, where `row` runs from `0` through `rows - 1` and `col` from `0` through `cols - 1`. A cell is safe to drive across without a re-scan only if its dust reading is strictly below a clearance threshold.
+WRO's radiological safety desk tracks a different kind of falling number: the activity of a shipment of low-level radioactive material staged at a regional holding site, reported in terabecquerels. Radioactive material loses a fixed percentage of whatever activity remains each year, the same kind of compounding falloff as the array's output above, and the shipment cannot be reclassified for standard handling until its activity settles at or below the site's clearance level.
 
-Write `count_clear_cells(rows, cols, threshold)`, returning how many of the `rows * cols` grid positions have a dust reading strictly less than `threshold`. Do not build or store the grid itself; only count the positions that qualify.
+Write `years_to_clearance(initial_activity_tbq, decay_percent, clearance_tbq)`, returning the whole number of years that must pass before the shipment's activity falls to or below `clearance_tbq`. `initial_activity_tbq` and `clearance_tbq` are floats, greater than `0.0`; `decay_percent` is a float, strictly greater than `0.0` and strictly less than `100.0`. Handle an `initial_activity_tbq` already at or below `clearance_tbq`, where no years need to pass at all.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python title="calibration_sweep.py"
-def count_clear_cells(rows, cols, threshold):
+```python title="clearance.py"
+def years_to_clearance(initial_activity_tbq, decay_percent, clearance_tbq):
     ...
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="calibration_sweep.rs"
-fn count_clear_cells(rows: i32, cols: i32, threshold: i32) -> i32 {
+```rust title="clearance.rs"
+fn years_to_clearance(initial_activity_tbq: f64, decay_percent: f64, clearance_tbq: f64) -> i32 {
     todo!()
 }
 ```
 </TabItem>
 </Tabs>
 
-As one worked example, `count_clear_cells(3, 3, 10)` returns `5`: of the nine cells, the five with readings `0`, `5`, `3`, `8`, and `6` fall below `10`, and the four with readings `10`, `13`, `11`, and `16` do not. Here `rows`, `cols`, and `threshold` are whole numbers, zero or greater, so handle a `threshold` of `0`, where no reading can be strictly less than it and the count is `0`.
+As one worked example, a shipment starting at `1000.0` terabecquerels, decaying `20.0` percent each year, reaches `800.0` after one year, `640.0` after two, `512.0` after three, `409.6` after four, `327.68` after five, and `262.144` after six, the first year at or below a clearance level of `300.0`:
 
-**Submit `count_clear_cells` to Gradescope** to earn the extra credit.
+| Call | Returns |
+|---|---|
+| `years_to_clearance(1000.0, 20.0, 300.0)` | `6` |
+
+**Submit `years_to_clearance` to Gradescope** to earn the extra credit.
 
 ## Paper Practice
 
-Trace this program by hand, on paper. It uses the running-product accumulator from the [Loop Patterns](/lectures/loop-patterns/) lecture. Build a variable table with a row for each pass of the `while` loop, tracking `n` at the start of the pass and `charge` after it. Write the exact value the program prints.
+Trace this program by hand, on paper. It uses the running-product accumulator from the [Loop Patterns](/lectures/loop-patterns/) lecture. Build a variable table with a row for each pass of the `while` loop, tracking `n` at the start of the pass and `value` after it. Write the exact value the program prints.
 
 ```python title="trace_me.py"
-charge = 64.0
-factor = 1.5
+value = 512.0
+factor = 0.75
 n = 1
 while n <= 3:
-    charge = charge * factor
+    value = value * factor
     n = n + 1
-print(charge)
+print(value)
 ```
 
 <Reveal label="Reveal the completed trace">
-Each pass multiplies `charge` by the fixed `factor`, compounding it, and then advances `n`.
+Each pass multiplies `value` by the fixed `factor`, and then advances `n`.
 
-| Pass | `n` at start of pass | `charge` after |
+| Pass | `n` at start of pass | `value` after |
 |---|---|---|
-| 1 | `1` | `96.0` |
-| 2 | `2` | `144.0` |
+| 1 | `1` | `384.0` |
+| 2 | `2` | `288.0` |
 | 3 | `3` | `216.0` |
 
 After the third pass, `n` becomes `4`, and the condition `n <= 3` is false, so the loop ends. The program prints `216.0`. The same program written in Rust prints its whole-valued `f64` without the trailing zero, `216`.
@@ -174,8 +178,8 @@ Photograph your trace and include it in your PDF on Canvas. This part is graded 
 
 Include a short reflection in your PDF on Canvas. In two sentences: first, state plainly whether you used an AI tool on this assignment and, if you did, what you used it for (if you did not use AI at all, say so explicitly); second, name any other help you used (a peer, the official docs, the lecture notes) and one thing you still could not do without that help.
 
-Then add one more sentence: which intermediate values did you choose to name inside `solar_charge_after`, and why those? This is graded on completion, not on what you say, and it is not shared with anyone but the instructor.
+Then add one more sentence: which intermediate values did you choose to name inside `lifetime_generation_kwh`, and why those? This is graded on completion, not on what you say, and it is not shared with anyone but the instructor.
 
 ## Rubric
 
-<RubricTable src="canvas/assignments/solar-array-lifetime-rubrics.tsv" caption="The First Drive Rubric" />
+<RubricTable src="canvas/assignments/solar-array-lifetime-rubrics.tsv" caption="Solar Array Lifetime Rubric" />
