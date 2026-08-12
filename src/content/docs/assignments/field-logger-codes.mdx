@@ -1,6 +1,6 @@
 ---
-title: "The Comms Window"
-description: "Write the two per-character cipher functions test-first: design your test cases, write pseudocode, then implement a forward shift with wraparound and its inverse, one character at a time, during solar conjunction."
+title: "Field Logger Codes"
+description: "Write the two functions that pack a bandwidth-starved field logger's reading into a fixed-width base-36 code test-first: design your test cases, write pseudocode, then implement the character-code arithmetic, and judge AURA's shortcut before you build on it."
 sidebar:
   order: 9
 draft: false
@@ -16,111 +16,114 @@ import RubricTable from '/src/components/RubricTable.astro';
 type: assignment
 slug: field-logger-codes
 order: 9
-family: encoding and decoding a character through a wraparound cipher, one character at a time (strings and character codes)
+family: packing a bounded integer reading into a fixed-width base-36 code, and decoding a single base-36 digit character back to its value, split across the week-8 reference boundary
 paired_recitation: R9
 prereq_lectures: strings, collections-i
 prereq_activities: strings, collections-i
 prereq_assignment: solar-array-lifetime
-new_scope: writing two entry-point functions over char and i32 scalars, a forward cipher shift with wraparound and its inverse, working out the character-code arithmetic and the wrap themselves, with no string or list ever passed to or returned from a function
-target_construct: per-character functions over char and i32 scalars that map a character through a wrapped alphabet position using character-code arithmetic
-persistent_requirements: dual-language, one shared contract; grader reads return values only; every function takes and returns only char or i32, never a String, &str, or Vec; no construct beyond the collections-I week on the ladder
-story_beat: a solar conjunction garbles the comms link with Earth, so the crew builds the per-character cipher that encodes and decodes every packet
+new_scope: writing two entry-point functions, code_for(reading_ugm3) -> String and digit_value(c) -> i32, over scalar parameters only, building a fixed-width string one character at a time with character-code arithmetic and decoding a single character back to its digit value
+target_construct: character-code arithmetic (ord/chr in Python, as u32 and as u8 as char in Rust) used to build a fixed-width string one character at a time and to decode a single character back to its digit value
+persistent_requirements: dual-language, one shared contract; grader reads return values only; no String, &str, or Vec may be a parameter; no negative operand may reach / or %; code_for and digit_value are two halves of one codec and are never tested as inverses of each other
+story_beat: packing a bandwidth-starved field logger's reading into a compact three-character code before transmission
 output: two functions to Gradescope, an optional extra-credit function, and a PDF on Canvas with acceptance tests, pseudocode, a hand trace, and a reflection
 */}
 
 <LanguageVersions />
 
-Earth and the habitat are drifting into solar conjunction, the weeks each Martian year when the sun sits almost directly between the two and chews every radio packet into static and dropped bits. Mission Control still has to reach the crew, so flight software leans on an old trick: a simple cipher shifts each letter of a message forward through the alphabet before it is sent and shifts it back on the other end, so a burst of noise cannot be mistaken for real words and a clean packet still decodes to exactly what was sent. The comms dish itself is being re-aimed 34 degrees to hold the signal as long as possible. Your job as the flight-software crew member on shift is to write the two one-character-at-a-time functions the cipher is built from: the one that encodes a character and the one that decodes it.
+WRO's field air-quality network transmits over a satellite or LoRa radio link at stations with no grid connection, and every byte a station sends costs battery power it may not get back until the next sunny day. To keep each report small, a station packs its air-quality reading into a compact three-character code instead of sending the whole number as plain text. Your job as a junior engineer on the office's software team is to write the piece of the pipeline that builds that code from a reading, and the small piece that turns one of its characters back into the value it stands for.
 
 ## How This Assignment Works
 
-You work **test first**, the way flight software is really written: you read the problem, decide what correct behavior looks like by writing your own test cases, plan the code in pseudocode, and only then write the code. The problem is solvable in Python or Rust, whichever you prefer. The program's `main`, its console input and output, and the local test runner are already written; `main` loops over a whole message and calls your functions once per character, so each function you write takes and returns a single `char` or whole number, never a whole string or list. The automated grader calls each function directly with values it chooses, reading only what you `return`. The order is fixed: design your tests, write your pseudocode, then write your functions. After that comes an optional extra-credit stretch, a short paper trace, and a two-sentence reflection.
+You work **test first**: you read the problem, decide what correct behavior looks like by writing your own test cases, plan the code in pseudocode, and only then write the code. The problem is solvable in Python or Rust, whichever you prefer. The program's `main`, its console input and output, and the local test runner are already written; you write the two functions named below, and the automated grader calls each directly with values it chooses, reading only what you `return`. The order is fixed: design your tests, write your pseudocode, then write your functions. After that comes an optional extra-credit stretch, a short paper trace, and a two-sentence reflection.
 
 ## What to Submit
 
 You submit in two places. Mechanics are in [Running and Submitting Your Code](/practicalities/starter-repo-and-check/); each section below also repeats what it asks for.
 
 - **A single PDF on Canvas** holding everything that is not code: your **acceptance tests**, your **pseudocode**, your **paper trace**, and your **reflection**.
-- **Your code on Gradescope**: the two functions `shift_char` and `unshift_char`, plus the extra-credit `keyed_shift` if you attempt the summit.
+- **Your code on Gradescope**: the two functions `code_for` and `digit_value`, plus the extra-credit `code_with_check` if you attempt the summit.
 
 ## The Problem
 
-The outbound cipher shifts every letter of a message forward through its own alphabet by a fixed number of positions, and the inbound decoder shifts each letter back by the same number, so a message that is encoded and then decoded comes out exactly as it started. The shift wraps: counting forward past the end of the alphabet continues from the start again, and counting backward past the start continues from the end. A lowercase letter always stays lowercase, an uppercase letter always stays uppercase, and a packet also carries noise that is not a letter at all, a digit, a space, or punctuation, which the cipher must leave completely untouched.
+The [Sensor Drift Check](/assignments/sensor-drift-check/) assignment defined the field archive's reading line: one line per reading, three fields in a fixed order, `station_id,code,reference_ugm3`. `station_id` is always exactly six characters, and `code` is always exactly three base-36 characters: the reading's whole number of micrograms per cubic meter, already rounded to the nearest unit before it ever reaches your function. You are building the piece of the pipeline that produces `code`, and the small primitive a later step will need to read one of its characters back.
 
-You will write two functions, one that encodes a single character and one that decodes it. What each must return:
+A base-36 digit is a single character that can stand for more values than an ordinary decimal digit. The ten characters `0` through `9` stand for the values zero through nine, exactly like a normal digit, and the lowercase letters `a` through `z` continue counting from there: `a` stands for ten, `b` for eleven, and so on up through `z`, which stands for thirty-five. Three of these characters in a row can therefore hold any whole number from `0` up to `zzz`, far more than three decimal digits could hold in the same three characters.
 
-1. `shift_char(c, n)` must return the character that lies `n` positions **forward** from `c`, staying inside `c`'s own alphabet and wrapping past the end back to the start. A lowercase letter shifts within `a` through `z`; an uppercase letter shifts within `A` through `Z` and keeps its case; a character that is not a letter must come back exactly as it was. Shifting past `z` wraps around to `a`, and shifting past `Z` wraps around to `A`, never to `a`.
-2. `unshift_char(c, n)` must return the character that lies `n` positions **backward** from `c`, staying inside `c`'s own alphabet and wrapping past the start back to the end, so that decoding undoes encoding: `unshift_char(shift_char(c, n), n)` is `c` for any character `c`, letter or not, and any shift `n`. A lowercase letter wraps past `a` back to `z`; an uppercase letter wraps past `A` back to `Z`; a character that is not a letter comes back unchanged.
+Each station's radio draws its transmissions from a small solar-charged battery that holds enough charge for about 40 transmissions before it needs a full day of sun to recover.
 
-Each function returns a single `char`. How you turn a character into the shifted one, and what intermediate values you give names to along the way, is entirely your decision.
+Write two functions:
+
+1. `code_for(reading_ugm3)` must return the reading's three-character base-36 code, most significant character first, so the code's leftmost character carries the largest share of the reading's value and its rightmost character the smallest.
+2. `digit_value(c)` must return the value a single base-36 digit character stands for: `0` through `9` for the characters `'0'` through `'9'`, and `10` through `35` for the lowercase letters `'a'` through `'z'`. Any other character, including an uppercase letter, must return `-1`.
+
+`code_for` and `digit_value` are two halves of one codec, not a matched pair to test against each other. `code_for` builds a whole three-character code in a single call; `digit_value` only ever looks at one character at a time. Turning a code you built back into the number it represents is a job for a later step in the pipeline, not something this assignment asks you to write or test.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python title="cipher.py"
-def shift_char(c, n):
+```python title="field_codes.py"
+def code_for(reading_ugm3):
     ...
 
-def unshift_char(c, n):
+def digit_value(c):
     ...
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="cipher.rs"
-fn shift_char(c: char, n: i32) -> char {
+```rust title="field_codes.rs"
+fn code_for(reading_ugm3: i32) -> String {
     todo!()
 }
 
-fn unshift_char(c: char, n: i32) -> char {
+fn digit_value(c: char) -> i32 {
     todo!()
 }
 ```
 </TabItem>
 </Tabs>
 
-We give you **one** worked example to show the format. Encoding `a` with a shift of `1` moves it forward one letter to `b`, and decoding that `b` with the same shift of `1` moves it back to `a`:
+We give you **one** worked example for each function, to show the format.
 
 | Call | Returns |
 |---|---|
-| `shift_char('a', 1)` | `'b'` |
-| `unshift_char('b', 1)` | `'a'` |
+| `code_for(35)` | `"00z"` |
+| `digit_value('a')` | `10` |
 
-**Assumptions and edge cases.** `c` can be a lowercase letter, an uppercase letter, or any other single character: a digit, punctuation, or a space. `n` is a whole number from `0` through `25`. A shift of `0` must return `c` unchanged. The cipher must wrap correctly in each letter case, both the lowercase wrap past `z` and the uppercase wrap past `Z`, and it must leave a non-letter exactly as it was no matter how large the shift.
+**Assumptions and edge cases.** `reading_ugm3` is a whole number, guaranteed `0 <= reading_ugm3 <= 46655`: the lower bound keeps every division and remainder your function computes working on a non-negative value, and the upper bound is the largest whole number three base-36 digits can hold. `code_for` is never called outside that range. `c` can be any single character: a digit, a lowercase letter, an uppercase letter, punctuation, or a space; only the ten digit characters and the twenty-six lowercase letters are valid base-36 digits, and every other character, uppercase letters included, must return `-1` from `digit_value`.
 
-<Aside type="danger" title="HAB has a rule for the cipher shift. Decide whether to trust it.">
-HAB, the habitat's assistant, offers this: "Shifting a letter is just arithmetic on its character code. Every letter sits at a consecutive code, so to shift a character forward by `n` you read its code, add `n`, and turn the result back into a character. There is nothing special to do at the end of the alphabet: the codes keep counting, so adding `n` always lands you `n` letters further along."
+<Aside type="danger" title="AURA has a shortcut for building the code. Decide whether to trust it.">
+AURA, the office's assistant, offers this: "You already have to peel a digit off the reading with the remainder operator and divide the rest of the value down for the next pass, one digit at a time, until three digits are done. Since that peel-and-divide step is the only extraction the fixed width needs, just add each digit's character onto the end of the code you are building as you produce it, and three passes finish the whole thing."
 
-Flight rule: no HAB advice is trusted unverified. Decide whether HAB's claim is right before you build anything on it, and let your test cases settle the question.
+Office rule: no AURA analysis is published unverified. Decide whether AURA's shortcut is right before you build anything on it, and let your own test cases settle the question.
 </Aside>
 
 ## Step 1: Write Your Acceptance Tests
 
-Before writing any code, decide what correct behavior looks like. Write a set of test cases for your two functions as a plain table of rows: the call (the character and the shift) and the character you expect back. Do not use `assert` yet; a table of rows is what this step wants. For each row, work out the expected character by hand from the rules above, counting forward or backward through the alphabet and wrapping when you run off the end.
+Before writing any code, decide what correct behavior looks like. Write a set of test cases for `code_for` and `digit_value` as a plain table of rows: the call and the value you expect back. Now that the testing lecture has been covered you may pin each case down with an `assert` if you prefer, but a plain table of rows is all this step asks for. For each row, work out the expected value by hand from the rules above.
 
 Your table must include, and label, at least these cases:
 
-- The worked example above, as a starting check.
-- A **wraparound** case for `shift_char`: a letter near the end of its alphabet shifted far enough to wrap past the end (for example a shift applied to `z` or to `Z`), to prove the forward wrap works and that an uppercase wrap stays uppercase.
-- A **wraparound** case for `unshift_char`: a letter near the start of its alphabet decoded far enough to wrap past the start back to the end.
-- A non-letter case for each function, to prove noise comes back unchanged.
-- At least one more case of your own, whose expected character you count out fully by hand.
-
-Think about what HAB claimed while you do this: a good set of tests would catch a shift that forgot to wrap at the end of the alphabet.
+- The worked examples above, as starting checks.
+- Both ends of `code_for`'s valid range: `reading_ugm3` equal to `0` and equal to `46655`.
+- A `code_for` case whose three digits are all different from each other, computed fully by hand.
+- `digit_value` at the boundary between the digit characters and the letter characters (`'9'` and `'a'`), and at the far end of the letter range (`'z'`).
+- A `digit_value` case with a character that is not a valid base-36 digit at all, including one uppercase letter.
+- At least one more case of your own, whose expected value you work out fully by hand.
 
 **Submit your test table in your PDF on Canvas.**
 
 ## Step 2: Write Your Pseudocode
 
-Now plan the code, still before writing it. In plain steps (not Python or Rust), describe how each function turns its character `c` and shift `n` into the character it returns: how you tell which alphabet `c` belongs to, how you move it forward or backward by `n`, how you make the wrap happen, and how you leave a non-letter untouched. Name the intermediate values you intend to create so a reader could follow your plan and write the code from it.
+Now plan the code, still before writing it. In plain steps (not Python or Rust), describe how `code_for` turns its reading into the three characters it returns, and how `digit_value` turns a single character into the value it returns. Name the intermediate values you intend to create, so a reader could follow your plan and write the code from it.
 
 **Submit your pseudocode in your PDF on Canvas.**
 
 ## Step 3: Write Your Code
 
-Implement `shift_char` and `unshift_char` from the signatures above, in Python or Rust, following your own pseudocode. The automated grader calls each function directly with values it chooses and checks the character you `return`, so nothing is graded on how you get there, only on the returned character being right for every input. You may work each function in a different language if you like; both are checked against the same acceptance cases.
+Implement `code_for` and `digit_value` from the signatures above, in Python or Rust, following your own pseudocode. The automated grader calls each function directly with values it chooses and checks what you `return`, so nothing is graded on how you get there, only on the returned value being right for every input.
 
 <WhatDiffers>
 <Fragment slot="differs">
-Decoding shifts a character backward, and moving backward can drive the working position you compute below zero before you wrap it. The two languages disagree on the remainder operator here: Python's `%` always returns a result with the sign of the divisor, so a negative left-hand value still comes back in `0` through `25`, while Rust's `%` keeps the sign of the dividend, so the same expression can hand Rust a negative number and a wrong character. Because the languages genuinely differ, decide for yourself how your function keeps the backward position in range, in each language you use, rather than assuming one language's behavior carries to the other.
+Python has no separate character type: `ord(c)` gives a character's code and `chr(n)` turns a code back into a one-character string. Rust's `char` is its own type; you get a character's code with `c as u32`, and to turn a code back into a character you cast the byte-sized value with `as u8` first, then `as char`.
 </Fragment>
 </WhatDiffers>
 
@@ -130,56 +133,56 @@ Decoding shifts a character backward, and moving backward can drive the working 
 
 This one is a real stretch, and it earns extra credit. It is also your practice for the graded stretch problem in the recitation room, where a harder problem is waiting.
 
-Some links do not fix the shift at all: they send along a **key letter**, and the amount to shift by is that key letter's own position in the alphabet, `a` meaning shift by `0`, `b` meaning shift by `1`, and so on up to `z` meaning shift by `25`. Write `keyed_shift(c, k)`, which shifts the character `c` forward by the position of the lowercase key letter `k`, wrapping in whichever alphabet `c` belongs to exactly as `shift_char` does, and leaving a non-letter `c` unchanged. Work out the shift amount from `k` first, then apply the same wraparound idea `shift_char` uses rather than starting over.
+Some of WRO's stations attach a lightweight self-check character to their transmission, so a receiver can catch a single corrupted character without decoding the whole message. The self-check character is one more base-36 character, computed straight from the reading's own three digit values, the same three values `code_for` already works out from `reading_ugm3`: add the three digit values together and wrap the sum into the `0` through `35` range, the same way any base-36 digit's value is chosen. Write `code_with_check(reading_ugm3)`, returning the reading's code together with this check character, four characters in all.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python title="keyed.py"
-def keyed_shift(c, k):
+```python title="code_with_check.py"
+def code_with_check(reading_ugm3):
     ...
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="keyed.rs"
-fn keyed_shift(c: char, k: char) -> char {
+```rust title="code_with_check.rs"
+fn code_with_check(reading_ugm3: i32) -> String {
     todo!()
 }
 ```
 </TabItem>
 </Tabs>
 
-As one worked example, `keyed_shift('a', 'c')` returns `'c'`: the key letter `c` sits at position `2`, so `a` shifts forward by two to `c`. The key letter `k` is always a lowercase letter, and `c` can be a letter of either case or a non-letter, which comes back unchanged.
+As one worked example, `code_with_check(1296)` returns `"1001"`: the reading's code is `"100"`, its three digit values add to `1`, and `1` wrapped into `0` through `35` is still `1`, so `"1"` is appended.
 
-**Submit `keyed_shift` to Gradescope** to earn the extra credit.
+**Submit `code_with_check` to Gradescope** to earn the extra credit.
 
 ## Paper Practice
 
-Trace this program by hand, on paper. It folds a run of character codes into a single running total that never leaves one byte's range, `0` through `255`, using the remainder operator from the [Expressions and Operators](/lectures/expressions-and-operators/) lecture, the same wrap-with-a-remainder idea your cipher uses in a different place. Build a variable table with a row for each call to `fold_code`, tracking the value of `running` before and after the call. Write the exact value the program prints.
+Trace this program by hand, on paper. It uses the same character-to-number arithmetic your two functions above are built from, applied to a short run of individual characters rather than a fixed-width code. Build a variable table with a row for each call to `digit_or_flag`, tracking the character passed in, the value returned, and `total` after each call. Write the exact value the program prints.
 
 ```python title="trace_me.py"
-def fold_code(running, code):
-    return (running + code) % 256
+def digit_or_flag(c):
+    if c >= '0' and c <= '9':
+        return ord(c) - ord('0')
+    else:
+        return -1
 
-running = 0
-c1 = 97
-c2 = 98
-c3 = 250
-running = fold_code(running, c1)
-running = fold_code(running, c2)
-running = fold_code(running, c3)
-print(running)
+total = 0
+total = total + digit_or_flag('7')
+total = total + digit_or_flag('#')
+total = total + digit_or_flag('2')
+print(total)
 ```
 
 <Reveal label="Reveal the completed trace">
-Each call adds one more character's code into `running` and wraps the result back into `0` through `255`.
+Each call checks whether its character is one of the ten digit characters. `'7'` and `'2'` are; `'#'` is punctuation, not a digit character, so it falls through to the `-1` sentinel.
 
-| Call | `running` before | `code` | `running` after |
+| Call | `c` | returns | `total` after |
 |---|---|---|---|
-| `fold_code(running, c1)` | `0` | `97` | `97` |
-| `fold_code(running, c2)` | `97` | `98` | `195` |
-| `fold_code(running, c3)` | `195` | `250` | `189` |
+| `digit_or_flag('7')` | `'7'` | `7` | `7` |
+| `digit_or_flag('#')` | `'#'` | `-1` | `6` |
+| `digit_or_flag('2')` | `'2'` | `2` | `8` |
 
-The third call adds `195 + 250 = 445`, and `445 % 256` is `189`, the wraparound taking effect for the first time. The program prints `189`. The same program written in Rust prints the same whole number, `189`, with no display difference here since every value is a whole `i32`, never a float.
+The program prints `8`. The same program written in Rust prints the same whole number, `8`, since every value here is a whole `i32`, never a float.
 </Reveal>
 
 Photograph your trace and include it in your PDF on Canvas. This part is graded on completion (the attached photograph), not on whether every cell is right, so attempt it by hand first, then open the reveal to check yourself.
@@ -188,8 +191,8 @@ Photograph your trace and include it in your PDF on Canvas. This part is graded 
 
 Include a short reflection in your PDF on Canvas. In two sentences: first, state plainly whether you used an AI tool on this assignment and, if you did, what you used it for (if you did not use AI at all, say so explicitly); second, name any other help you used (a peer, the official docs, the lecture notes) and one thing you still could not do without that help.
 
-Then add one more sentence: which intermediate values did you choose to name inside `shift_char` and `unshift_char`, and why those? This is graded on completion, not on what you say, and it is not shared with anyone but the instructor.
+Then add one more sentence: which intermediate values did you choose to name inside `code_for` and `digit_value`, and why those? This is graded on completion, not on what you say, and it is not shared with anyone but the instructor.
 
 ## Rubric
 
-<RubricTable src="canvas/assignments/field-logger-codes-rubrics.tsv" caption="The Comms Window Rubric" />
+<RubricTable src="canvas/assignments/field-logger-codes-rubrics.tsv" caption="Field Logger Codes Rubric" />
