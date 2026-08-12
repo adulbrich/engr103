@@ -1,6 +1,6 @@
 ---
 title: "Variables and State"
-description: "Predict a variable's value after a chain of self-referential reassignments, hand-trace a two-variable swap through a temporary, and diagnose an immutable-binding compile error among several variables in Python and Rust."
+description: "Run a program that reads a typed number and computes with it, then run it again with a value that is not a number, hand-trace a two-variable swap through a temporary, and diagnose an immutable-binding compile error among several variables in Python and Rust."
 sidebar:
   order: 4
 draft: true
@@ -15,15 +15,15 @@ type: activity
 slug: variables-and-state
 order: 4
 paired_lecture: variables-and-state
-practices: predicts a variable's value after a chain of reassignments that each rebuild it from its own current value, including a self-multiplying step; hand-traces a two-variable swap through a temporary, filling a variable table row by row for three names; diagnoses an immutable Rust `let` binding from its E0384 compile error by distinguishing, among several variables, which are mutable and reassigned and which are not
+practices: reads a typed number with input()/read_i32() and computes with it using // and %, then runs the same program with a non-numeric value and records the error it produces; hand-traces a two-variable swap through a temporary, filling a variable table row by row for three names; diagnoses an immutable Rust `let` binding from its E0384 compile error by distinguishing, among several variables, which are mutable and reassigned and which are not
 prereq_activities:
 block_types: predict-then-run, paper-tracing, live-debugging
-output: a reconciled prediction for a compounding chain, a completed swap trace, and a corrected mutable binding
+output: a program run twice with a recorded prediction and a recorded parse failure, a completed swap trace, and a corrected mutable binding
 */}
 
 <LanguageVersions />
 
-This activity puts into practice the [Variables and State](/lectures/variables-and-state/) lecture. You will predict the final value of a variable after a chain of reassignments that each rebuild it from its own current value, hand-trace a two-variable swap through a temporary, and hunt down a compile error caused by trying to change a variable Rust will not let you change. By the end, you will be able to walk assignment's evaluate-then-bind steps across many lines by hand and predict a variable's stored value at any point in a program.
+This activity puts into practice the [Variables and State](/lectures/variables-and-state/) lecture. You will run a program that reads a number you type and computes with it, then run it again with a value that is not a number and record what happens, hand-trace a two-variable swap through a temporary, and hunt down a compile error caused by trying to change a variable Rust will not let you change. By the end, you will be able to read a typed value into a program, walk assignment's evaluate-then-bind steps across many lines by hand, and predict a variable's stored value at any point in a program.
 
 ## Warm-up
 
@@ -59,49 +59,73 @@ python3 warmup.py
 4
 ```
 
-Rust prints the same two values. The one visible difference is that Rust needs the keyword `let` to create each name, where Python needs nothing but the name, an `=`, and a value. With those pieces fresh, the three problems below chain and rearrange assignments in ways a single line never shows.
+Rust prints the same two values. The one visible difference is that Rust needs the keyword `let` to create each name, where Python needs nothing but the name, an `=`, and a value. With those pieces fresh, the three problems below read a value in, rearrange values between variables, and catch a reassignment Rust refuses to allow.
 
-## Predict the Final Value
+## Run a Program That Reads a Number
 
-Assignment is not equality: `total = total + 5` does not claim a number equals itself plus five, it evaluates the right side from the variable's current value and then rebinds the name. When the same variable is reassigned line after line, each step builds on the value the step before it left behind. The value you print at the end is easy to mispredict if you read `=` as a claim rather than an action, or if you reach back for a value an earlier line already overwrote. You commit to an answer first, then run the program to check it.
+Every program so far in this course has computed only with values already sitting in its source code. The lecture showed you the call that lets a program take a number from the person running it, while the program runs. Here you make that call yourself, and you run the result twice.
 
-Read the program below and write down, on paper or in a comment, the exact value you expect the `print` to show. Do not run it yet. Walk each assignment in order: evaluate its right side from the current value of `total`, then rebind `total` to that result before moving to the next line. Watch the third line especially, where `total` appears twice on the right.
+The program below asks for a number of seconds, then prints how many whole minutes that many seconds makes and how many seconds are left over, using the `//` and `%` operators from the [Expressions and Operators](/lectures/expressions-and-operators/) lecture. Read it, then write down, on paper or in a comment, the two numbers you expect it to print for the input `500`.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python title="predict.py"
-total = 3
-total = total + 5
-total = total * total
-total = total - 40
-total = total * 2
-print(total)
+```python title="countdown_split.py"
+seconds = int(input("Seconds: "))
+print(seconds // 60)
+print(seconds % 60)
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="predict.rs"
+```rust title="countdown_split.rs"
+// read_i32 is provided for you, the same as in the lecture.
 fn main() {
-    let mut total = 3;
-    total = total + 5;
-    total = total * total;
-    total = total - 40;
-    total = total * 2;
-    println!("{}", total);
+    println!("Seconds: ");
+    let seconds = read_i32();
+    println!("{}", seconds / 60);
+    println!("{}", seconds % 60);
 }
 ```
 </TabItem>
 </Tabs>
 
-<Reveal label="Reveal the real output and reconcile it with your prediction">
+Now run the program yourself. Run the Python file, and when it asks for `Seconds:`, type `500` and press Enter. If you have a copy of `read_i32`, the same helper the lecture called, compile and run the Rust version the same way and type `500`. Check the two printed numbers against what you predicted.
+
+Then run the program a second time. This time, when it asks for `Seconds:`, type a word instead of a number, for example `banana`, and press Enter. Write down exactly what the program does.
+
+<Reveal label="Reveal the real output for both runs">
 ```bash title="Run the Python program"
-python3 predict.py
+python3 countdown_split.py
 ```
 
-```text frame="terminal" title="Output"
-48
+```text frame="terminal" title="Output (you typed 500)"
+Seconds: 8
+20
 ```
 
-Rust prints the same `48`. Take the lines in order. Line 1 binds `total` to `3`. Line 2 evaluates `total + 5` from the current `3`, giving `8`, and rebinds `total` to `8`, so the starting `3` is gone. Line 3 is the step that trips people: `total * total` evaluates *both* copies of `total` from the same current value `8`, so it is `8 * 8`, which is `64`, not `8` times the old `3`. `total` is rebound to `64`. Line 4 evaluates `total - 40` from the current `64`, giving `24`. Line 5 evaluates `total * 2` from the current `24`, giving `48`, and that is what the `print` reads at the end. If you predicted `24` you likely stopped one line early; if you predicted a value near `40` you probably read `total * total` as leaving `total` unchanged instead of squaring it. Each line uses only the value the line before it produced, never a value an earlier line already discarded.
+`500 // 60` is `8`: `500` seconds is `8` full minutes. `500 % 60` is `20`: the `20` seconds left over after those `8` minutes. Rust prints the same `8` and `20`, though its own line for `Seconds:` ends before either number, because `println!` always ends with a newline while Python's `input` does not:
+
+```text frame="terminal" title="Rust output (you typed 500)"
+Seconds: 
+8
+20
+```
+
+Now the second run, with a word instead of a number:
+
+```bash title="Run the Python program again"
+python3 countdown_split.py
+```
+
+```text frame="terminal" title="Output (you typed banana)"
+Seconds: Traceback (most recent call last):
+  File "countdown_split.py", line 1, in <module>
+    seconds = int(input("Seconds: "))
+ValueError: invalid literal for int() with base 10: 'banana'
+```
+
+Python's `int()` cannot turn `"banana"` into a whole number, so it raises a `ValueError` and the program stops right there: neither `print` line ever runs. Rust's `read_i32` stops the program the same way. It prints the prompt, then crashes with a message that ends `not a whole number: ParseIntError { kind: InvalidDigit }`; the exact line the message names depends on where your copy of `read_i32` lives, but that message text is always the same one.
+
+Both programs stop the instant the typed text cannot become a number. Neither one tries again or recovers; what a program can do instead of just stopping is the subject of the [Errors, Input, and Validation](/lectures/errors-input-and-validation/) lecture in week 5.
 </Reveal>
 
 ---
@@ -273,4 +297,4 @@ Rust prints the same `350`. `level` starts at `500`, drops to `380` after the fi
 
 ## Bridge
 
-These three reps feed the arithmetic-with-units-and-time family in recitation, where a value is stored, updated across several steps, and read back later, and one assignment taken out of order or one wrong current value quietly throws off the final answer. The evaluate-then-bind tracing you just did by hand is the guided first rung of that ladder.
+These three reps feed the arithmetic-with-units-and-time family in recitation, where a value arrives, is stored and updated across several steps, and is read back later, and one assignment taken out of order, one wrong current value, or an unhandled bad reading quietly throws off the final answer. Reading a value in and computing with it, and the evaluate-then-bind tracing you did by hand, are the guided first rungs of that ladder.

@@ -28,50 +28,45 @@ This activity puts into practice the [Errors, Input, and Validation](/lectures/e
 
 ## Warm-up
 
-A quick refresher before the harder work. The smallest piece this lecture rests on is reading one line of console input and getting it back into a variable. Each program below reads a word and prints it. Because a real keystroke stream is not reproducible, the run pipes the text in with `printf`, exactly as if you had typed it and pressed Enter.
+A quick refresher before the harder work. You have read a typed number since week 2: `int(input(...))` in Python, `read_i32()` in Rust. What this lecture opens up is what happens to the text in between the two: **parsing** turns the text into the number it spells. Each program below starts from a string already sitting in the source code, so the parsing step stands on its own, apart from the reading you already know.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python title="echo.py"
-word_text = input("Enter a word: ")
-print(word_text)
+```python title="parse_warmup.py"
+age_text = "25"
+age = int(age_text)
+print(age)
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="echo.rs"
-use std::io;
-
+```rust title="parse_warmup.rs"
 fn main() {
-    println!("Enter a word: ");
-    let mut word_text = String::new();
-    io::stdin()
-        .read_line(&mut word_text)
-        .expect("failed to read line");
-    println!("{}", word_text.trim());
+    let age_text = "25";
+    let age: i32 = age_text.parse().expect("not a whole number");
+    println!("{}", age);
 }
 ```
 </TabItem>
 </Tabs>
 
 ```bash title="Run the Python program"
-printf 'duck\n' | python3 echo.py
+python3 parse_warmup.py
 ```
 
 ```text frame="terminal" title="Output"
-Enter a word: duck
+25
 ```
 
 ```bash title="Compile and run the Rust program"
-rustc echo.rs
-printf 'duck\n' | ./echo
+rustc parse_warmup.rs
+./parse_warmup
 ```
 
 ```text frame="terminal" title="Output"
-Enter a word: 
-duck
+25
 ```
 
-Piped input is not echoed to the screen, so the typed `duck` shows up only where the program prints it. Python's `input` writes its prompt with no trailing newline, so `duck` lands on the same line; Rust's `println!` ends the prompt with a newline, so `duck` lands below it. Rust also calls `.trim()` to drop the newline `read_line` leaves attached. With those pieces fresh, the sections below read, parse, and check typed values.
+Both programs turn the string `"25"` into the whole number `25`, the same conversion `int(input(...))` and `read_i32()` already do for you every time you call them. Here it is written out on its own, apart from the reading step, so the sections below can put it to work on text that does not always cooperate.
 
 ## Predict the Printed Line
 
