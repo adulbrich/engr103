@@ -1,6 +1,6 @@
 ---
-title: "Transit Checks"
-description: "Write the habitat status check test-first: design your test cases, write pseudocode, then implement a multi-outcome status code with an emergency override that outranks every reading, and judge HAB's claim before it clears something that is not safe."
+title: "Burn Window Clearance"
+description: "Write the burn-day status check test-first: design your test cases, write pseudocode, then implement a four-outcome clearance code with a county burn-ban override, and judge AURA's claim before it clears a day that is not safe."
 sidebar:
   order: 5
 draft: false
@@ -20,98 +20,99 @@ paired_recitation: R5
 prereq_lectures: functions, scope-and-the-call-stack, booleans-and-conditionals
 prereq_activities: functions, scope-and-the-call-stack, booleans-and-conditionals
 prereq_assignment: low-carbon-concrete
-new_scope: turning a four-outcome status spec with a priority override into one entry-point function, using comparisons joined by and, or, and not
+new_scope: turning a four-outcome status spec with a priority override into one entry-point function, using comparisons on three weather readings joined by and, or, and not
 target_construct: booleans and conditionals shaped as a multi-outcome decision with a priority override, so a branching decision is the natural tool
-persistent_requirements: dual-language, one shared contract; grader reads return values only; no elif/else-if chains, loops, or collections on the ladder yet; no function returns a string slice
-story_beat: mid-transit to Mars, the crew writes the status check that keeps the habitat safe before Mars orbit insertion
+persistent_requirements: dual-language, one shared contract; grader reads return values only; no elif/else-if chains, loops, or collections on the ladder yet
+story_beat: the fire-weather status check a WRO crew reads before lighting a prescribed burn unit
 output: one function submitted to the grader, an optional summit function, and a PDF on Canvas with acceptance tests, pseudocode, a hand trace, and a reflection
 */}
 
 <LanguageVersions />
 
-Six weeks into the cruise to Mars, the crew keeps the habitat's daily safety checks running exactly the way they will once nobody on Earth can talk you through a bad call. The command module has one number that matters most: a single status code that condenses the whole habitat's health into nominal, advisory, critical, or an emergency override when a crew member has taken manual control. HAB, the habitat's assistant, has already offered its own rule for part of that check. Your job as the flight-software crew member is to write the status function the command display depends on, and to catch HAB's mistake before it clears something that is not actually safe.
+The Willamette Resource Office coordinates prescribed burns for oak savanna and prairie restoration across the valley. Before a crew lights a unit, the day's fire weather has to clear WRO's own operating prescription, and a county can also declare a burn ban that holds every unit in that county no matter what the weather looks like. Your job as a junior engineer on the office's software team is to write the status check the burn crew reads before first light.
 
 ## How This Assignment Works
 
-You work **test first**, the way flight software is really written: you read the problem, decide what correct behavior looks like by writing your own test cases, plan the code in pseudocode, and only then write the code. The problem is solvable in Python or Rust, whichever you prefer. The program's `main`, its console input and output, and the local test runner are already written; you write the one function named below, and the automated grader calls it directly with values it chooses, reading only what you `return`. The order is fixed: design your tests, write your pseudocode, then write your function. After that comes an optional extra-credit stretch, a short paper trace, and a two-sentence reflection.
+You work **test first**: you read the problem, decide what correct behavior looks like by writing your own test cases, plan the code in pseudocode, and only then write the code. The problem is solvable in Python or Rust, whichever you prefer. The program's `main`, its console input and output, and the local test runner are already written; you write the one function named below, and the automated grader calls it directly with values it chooses, reading only what you `return`. The order is fixed: design your tests, write your pseudocode, then write your function. After that comes an optional extra-credit stretch, a short paper trace, and a two-sentence reflection.
 
 ## What to Submit
 
 You submit in two places. Mechanics are in [Running and Submitting Your Code](/practicalities/starter-repo-and-check/); each section below also repeats what it asks for.
 
 - **A single PDF on Canvas** holding everything that is not code: your **acceptance tests**, your **pseudocode**, your **paper trace**, and your **reflection**.
-- **Your code on Gradescope**: the function `system_status`, plus the extra-credit `approach_clearance` if you attempt the summit.
+- **Your code on Gradescope**: the function `burn_clearance_status`, plus the extra-credit `ignition_clearance` if you attempt the summit.
 
 ## The Problem
 
-The crew display in the command module condenses the habitat's health into a single status code: `0` for nominal, `1` for advisory, `2` for critical, and `3` for an emergency override, when a crew member has thrown the manual switch and taken control by hand. The code drives a colored ring on the display that refreshes twice a second. Two live readings feed the decision, the cabin pressure and the cabin oxygen level, but the manual switch outranks both: when it is thrown, the code is `3` no matter what the readings say.
+Each morning before a burn, the crew logs four numbers at the unit: the wind speed, the relative humidity, the fuel moisture, and a visibility index for that day's regional air-quality report.
 
-Write `system_status(cabin_pressure_kpa, oxygen_percent, emergency_override)`, returning the status code. What it must return, in this priority order:
+WRO's field app condenses the day into a single status code: `0` when the unit is cleared to burn, `1` when conditions are marginal, `2` when conditions are unsafe, and `3` when a county burn ban is in effect. Three live readings feed the decision, the wind speed, the relative humidity, and the fuel moisture, but the burn ban outranks all three.
 
-1. Return `3` whenever `emergency_override` is `true`, no matter what the two readings say. The override outranks every other check.
-2. Otherwise, return `2` when the cabin pressure is below `95.0` kilopascals or the oxygen level is below `18` percent. Either reading on its own breaching its hard floor is critical.
-3. Otherwise, return `1` when the two readings are not both comfortably in range. Comfortably in range means the cabin pressure is at least `99.0` kilopascals and the oxygen level is at least `20` percent, both at once. A reading that clears its hard floor but has not reached that comfortable range is an advisory.
+Write `burn_clearance_status(wind_speed_mph, relative_humidity_percent, fuel_moisture_percent, burn_ban_declared)`, returning the status code. What it must return, in this priority order:
+
+1. Return `3` whenever `burn_ban_declared` is `true`. A county burn ban outranks every other check.
+2. Otherwise, return `2` when the wind speed is above `20.0` miles per hour, or the relative humidity is below `25.0` percent, or the fuel moisture is below `10.0` percent.
+3. Otherwise, return `1` when the three readings are not all inside the ideal window: the wind speed at or below `12.0` miles per hour, the relative humidity at or above `40.0` percent, and the fuel moisture at or above `15.0` percent, all three at once.
 4. Otherwise, return `0`.
 
 The function returns a whole-number status code (`0`, `1`, `2`, or `3`). How you arrange the comparisons, which of `and`, `or`, and `not` each outcome needs, and what intermediate values you give names to along the way, is entirely your decision.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python title="status.py"
-def system_status(cabin_pressure_kpa, oxygen_percent, emergency_override):
+```python title="burn.py"
+def burn_clearance_status(wind_speed_mph, relative_humidity_percent, fuel_moisture_percent, burn_ban_declared):
     ...
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="status.rs"
-fn system_status(cabin_pressure_kpa: f64, oxygen_percent: i32, emergency_override: bool) -> i32 {
+```rust title="burn.rs"
+fn burn_clearance_status(wind_speed_mph: f64, relative_humidity_percent: f64, fuel_moisture_percent: f64, burn_ban_declared: bool) -> i32 {
     todo!()
 }
 ```
 </TabItem>
 </Tabs>
 
-We give you **one** worked example to show the format. With both readings comfortably in range and no override thrown, the habitat is nominal:
+We give you **one** worked example to show the format. Every worked-example call on this page writes its boolean arguments in Rust's spelling (`true`/`false`); write `True`/`False` if you are working in Python. With all three readings inside the ideal window and no ban declared, the unit is cleared:
 
 | Call | Returns |
 |---|---|
-| `system_status(101.3, 21, false)` | `0` |
+| `burn_clearance_status(8.0, 45.0, 18.0, false)` | `0` |
 
-**Assumptions and edge cases.** `cabin_pressure_kpa` is a float and `oxygen_percent` is a whole percent; `emergency_override` is a boolean read from the manual switch. The boundaries are exact: `95.0` and `18` are the hard floors, and a reading exactly at a hard floor is not below it, so it is not critical. Comfortably in range needs `99.0` and `20` exactly met, so a habitat sitting exactly on a hard floor is an advisory, not critical and not nominal. A thrown override always returns `3`, even when both readings would otherwise be nominal.
+**Assumptions and edge cases.** All four readings come from the site's automated weather station and fuel moisture probe, except `burn_ban_declared`, which the county fire marshal's office sets by mid-morning. The three numeric windows above are WRO's own operating prescription for this burn type, not a published statewide standard; real agency prescriptions vary by fuel type, unit, and region. The boundaries are exact: `20.0` miles per hour, `25.0` percent, and `10.0` percent are the safety thresholds, and a reading sitting exactly at one of them does not breach it. The ideal window needs `12.0`, `40.0`, and `15.0` exactly met, so a day sitting exactly on a safety threshold is marginal, not unsafe and not cleared. A declared burn ban always returns `3`, even when all three readings would otherwise be inside the ideal window.
 
-<Aside type="danger" title="HAB has a rule for the critical check. Decide whether to trust it.">
-HAB, the habitat's assistant, offers this: "The habitat only goes critical when it is genuinely in trouble, so the critical code means both life-support readings have failed at once: return `2` only when the cabin pressure is below its floor and the oxygen is below its floor together. A single reading dipping low on its own is just an advisory, not a critical."
+<Aside type="danger" title="AURA has a rule for the unsafe check. Decide whether to trust it.">
+AURA, the office's assistant, offers this: "A burn day only turns unsafe when it is bad in every way at once, so the unsafe code should fire only when the wind speed is past its ceiling, the humidity is past its floor, and the fuel moisture is past its floor, all together. One reading drifting past its own limit on its own is still just a marginal day, worth a note, not a stop."
 
-Flight rule: no HAB advice is trusted unverified. Decide whether HAB's rule is right before you build anything on it, and let your test cases settle the question.
+Office rule: no AURA analysis is published unverified. Test AURA's rule against the requirements above before you rely on it, and let your test cases settle the question.
 </Aside>
 
 ## Step 1: Write Your Acceptance Tests
 
-Before writing any code, decide what correct behavior looks like. Write a set of test cases for `system_status` as a plain table of rows: the three inputs (`cabin_pressure_kpa`, `oxygen_percent`, `emergency_override`) and the status code you expect back. Do not use `assert` yet; a table of rows is what this step wants. For each row, work out the expected code by hand from the priority order, paying attention to which readings sit exactly on a hard floor or on the comfortable-range floor.
+Before writing any code, decide what correct behavior looks like. Write a set of test cases for `burn_clearance_status` as a plain table of rows: the four inputs (`wind_speed_mph`, `relative_humidity_percent`, `fuel_moisture_percent`, `burn_ban_declared`) and the status code you expect back. Do not use `assert` yet; a table of rows is what this step wants. For each row, work out the expected code by hand from the priority order, paying attention to which readings sit exactly on a safety threshold or on an ideal-window threshold.
 
 Your table must include, and label, at least these cases:
 
-- An override case that returns `3` while the readings themselves would be critical, to prove the override really outranks the readings.
-- A critical case driven by low pressure.
-- A critical case driven by low oxygen.
-- An advisory case.
-- A nominal case.
-- One case that lands exactly on a boundary: a reading exactly at `95.0`, `99.0`, `18`, or `20`.
+- An override case that returns `3` while the readings themselves would otherwise be unsafe, to prove the burn ban really outranks the readings.
+- An unsafe case driven by wind speed alone.
+- An unsafe case driven by relative humidity alone.
+- An unsafe case driven by fuel moisture alone.
+- A marginal case.
+- A cleared case.
+- One case that lands exactly on a boundary: a reading exactly at `20.0`, `25.0`, `10.0`, `12.0`, `40.0`, or `15.0`.
 - At least one more case whose expected code you compute fully by hand.
-
-Think about what HAB claimed while you do this: a good set of tests would catch a rule that treated the critical check the wrong way.
 
 **Submit your test table in your PDF on Canvas.**
 
 ## Step 2: Write Your Pseudocode
 
-Now plan the code, still before writing it. In plain steps (not Python or Rust), describe how `system_status` turns its three inputs into the code it returns: in what order you check the outcomes, which comparisons each outcome rests on, and which intermediate values, if any, you will give names to along the way. Write it so a reader could follow your plan and produce the function from it.
+Now plan the code, still before writing it. In plain steps (not Python or Rust), describe how `burn_clearance_status` turns its four inputs into the code it returns: in what order you check the outcomes, which comparisons each outcome rests on, and which intermediate values, if any, you will give names to along the way. Write it so a reader could follow your plan and produce the function from it.
 
 **Submit your pseudocode in your PDF on Canvas.**
 
 ## Step 3: Write Your Code
 
-Implement `system_status` from the signature above, in Python or Rust, following your own pseudocode. The automated grader calls the function directly with values it chooses and checks what you `return`, so nothing is graded on how you get there, only on the code being right for every input. The returned status code is a whole number and reads the same in both languages, so there is nothing to compare with a tolerance and nothing to print.
+Implement `burn_clearance_status` from the signature above, in Python or Rust, following your own pseudocode. The automated grader calls the function directly with values it chooses and checks what you `return`, so nothing is graded on how you get there, only on the code being right for every input. The returned status code is a whole number and reads the same in both languages, so there is nothing to compare with a tolerance and nothing to print.
 
 **Submit your function to Gradescope.**
 
@@ -119,66 +120,68 @@ Implement `system_status` from the signature above, in Python or Rust, following
 
 This one is a real stretch, and it earns extra credit. It is also your practice for the graded stretch problem in the recitation room, where a harder problem is waiting.
 
-On final approach to the docking port before Mars orbit insertion, the flight software clears the automated approach in five levels, and two of them are overrides that outrank the readings. Write `approach_clearance(range_m, closing_speed_mps, abort_commanded, lock_confirmed)`, returning the clearance code in this priority order:
+WRO's field app also tracks a second, five-level clearance code for the exact moment of ignition. Two entirely different things can each hold ignition regardless of everything else: a county burn ban, and a smoke management advisory from the regional air-quality authority. Below those two, two more conditions matter for how the smoke behaves once the fire is lit: the mixing height, how far up the smoke can rise before it stops climbing, and the transport wind, how fast the air near the ground carries the smoke away.
 
-1. Return `4` whenever `abort_commanded` is `true`, no matter anything else: a commanded abort outranks every other check.
-2. Otherwise, return `3` when the capture lock is not confirmed (`lock_confirmed` is `false`): the approach holds until the lock is made.
-3. Otherwise, return `2` when the ship is closing faster than `2.0` metres per second and is nearer than `50.0` metres: too hot, too close, wave off.
-4. Otherwise, return `1` when the range is still greater than `200.0` metres: too far out to commit, keep holding.
-5. Otherwise, return `0`: cleared to dock.
+Write `ignition_clearance(mixing_height_m, transport_wind_mph, air_quality_advisory, burn_ban_declared)`, returning the clearance code in this priority order:
+
+1. Return `4` whenever `burn_ban_declared` is `true`, no matter anything else: a county burn ban outranks every other check.
+2. Otherwise, return `3` when `air_quality_advisory` is `true`: a regional smoke advisory holds every unit until it lifts.
+3. Otherwise, return `2` when the mixing height is below `300.0` meters: the smoke has nowhere to go, so the crew holds ignition.
+4. Otherwise, return `1` when the transport wind is below `5.0` miles per hour: too calm to carry the smoke clear of the unit.
+5. Otherwise, return `0`: cleared to ignite.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
-```python title="approach.py"
-def approach_clearance(range_m, closing_speed_mps, abort_commanded, lock_confirmed):
+```python title="ignition.py"
+def ignition_clearance(mixing_height_m, transport_wind_mph, air_quality_advisory, burn_ban_declared):
     ...
 ```
 </TabItem>
 <TabItem label="Rust">
-```rust title="approach.rs"
-fn approach_clearance(range_m: f64, closing_speed_mps: f64, abort_commanded: bool, lock_confirmed: bool) -> i32 {
+```rust title="ignition.rs"
+fn ignition_clearance(mixing_height_m: f64, transport_wind_mph: f64, air_quality_advisory: bool, burn_ban_declared: bool) -> i32 {
     todo!()
 }
 ```
 </TabItem>
 </Tabs>
 
-As one worked example, `approach_clearance(30.0, 3.0, true, true)` returns `4`: the commanded abort wins even though the lock is confirmed and the ship is close and fast. The five clearance levels never overlap once you honor the priority order, and every input is a clean reading from the approach sensors.
+As one worked example, `ignition_clearance(150.0, 2.0, false, true)` returns `4`: the burn ban wins even though the mixing height and the transport wind would also have held ignition on their own. The five clearance levels never overlap once you honor the priority order, and every input is a clean reading from the unit's own sensors. The two thresholds above, like the numbers in the main problem, are WRO's own operating prescription, not a published standard.
 
-**Submit `approach_clearance` to Gradescope** to earn the extra credit.
+**Submit `ignition_clearance` to Gradescope** to earn the extra credit.
 
 ## Paper Practice
 
-Trace this program by hand, on paper. It uses nested function calls and a boolean condition, the patterns from the [Scope and the Call Stack](/lectures/scope-and-the-call-stack/) and [Booleans and Conditionals](/lectures/booleans-and-conditionals/) lectures. Build a variable table: for the call to `is_low_power`, write the value its `battery_percent` parameter holds and what it returns; then, for `check_drill_status`, write the values bound to its two parameters, to `low_power`, and to `result`. Write the exact value the program prints.
+Trace this program by hand, on paper. It uses nested function calls and a boolean condition, the patterns from the [Scope and the Call Stack](/lectures/scope-and-the-call-stack/) and [Booleans and Conditionals](/lectures/booleans-and-conditionals/) lectures. Build a variable table: for the call to `is_dry_fuel`, write the value its `fuel_moisture_percent` parameter holds and what it returns; then, for `check_burn_readiness`, write the values bound to its two parameters, to `dry_fuel`, and to `result`. Write the exact value the program prints.
 
 ```python title="trace_me.py"
-def is_low_power(battery_percent):
-    return battery_percent < 25
+def is_dry_fuel(fuel_moisture_percent):
+    return fuel_moisture_percent < 10
 
-def check_drill_status(oxygen_percent, battery_percent):
-    low_power = is_low_power(battery_percent)
-    if oxygen_percent >= 20 and not low_power:
+def check_burn_readiness(wind_speed_mph, fuel_moisture_percent):
+    dry_fuel = is_dry_fuel(fuel_moisture_percent)
+    if wind_speed_mph <= 12 and not dry_fuel:
         result = 1
     else:
         result = 0
     return result
 
-status = check_drill_status(22, 18)
+status = check_burn_readiness(9, 14)
 print(status)
 ```
 
 <Reveal label="Reveal the completed trace">
-The call `check_drill_status(22, 18)` pushes a frame with `oxygen_percent = 22` and `battery_percent = 18`. Inside it, `is_low_power(18)` pushes a second frame with `battery_percent = 18`, computes `18 < 25`, and returns `true`; that frame is popped, and `true` is bound to `low_power` in `check_drill_status`'s own frame.
+The call `check_burn_readiness(9, 14)` pushes a frame with `wind_speed_mph = 9` and `fuel_moisture_percent = 14`. Inside it, `is_dry_fuel(14)` pushes a second frame with `fuel_moisture_percent = 14`, computes `14 < 10`, and returns `False`; that frame is popped, and `False` is bound to `dry_fuel` in `check_burn_readiness`'s own frame.
 
-| Line | frame | `oxygen_percent` | `battery_percent` | `low_power` | `result` |
+| Line | frame | `wind_speed_mph` | `fuel_moisture_percent` | `dry_fuel` | `result` |
 |---|---|---|---|---|---|
-| `is_low_power(18)` called | `is_low_power` | | `18` | | |
-| `return battery_percent < 25` | `is_low_power` | | `18` | | (returns `true`) |
-| `low_power = is_low_power(battery_percent)` | `check_drill_status` | `22` | `18` | `true` | |
-| `if oxygen_percent >= 20 and not low_power:` | `check_drill_status` | `22` | `18` | `true` | |
-| `result = 0` | `check_drill_status` | `22` | `18` | `true` | `0` |
+| `is_dry_fuel(14)` called | `is_dry_fuel` | | `14` | | |
+| `return fuel_moisture_percent < 10` | `is_dry_fuel` | | `14` | | (returns `False`) |
+| `dry_fuel = is_dry_fuel(fuel_moisture_percent)` | `check_burn_readiness` | `9` | `14` | `False` | |
+| `if wind_speed_mph <= 12 and not dry_fuel:` | `check_burn_readiness` | `9` | `14` | `False` | |
+| `result = 1` | `check_burn_readiness` | `9` | `14` | `False` | `1` |
 
-The condition checks `22 >= 20`, which is `true`, `and`ed with `not low_power`, which is `not true`, or `false`. `true and false` is `false`, so the `if` block is skipped and the `else` block runs, binding `result` to `0`. The program prints `0`.
+The condition checks `9 <= 12`, which is `True`, `and`ed with `not dry_fuel`, which is `not False`, or `True`. `True and True` is `True`, so the `if` block runs, binding `result` to `1`. The program prints `1`.
 </Reveal>
 
 Photograph your trace and include it in your PDF on Canvas. This part is graded on completion (the attached photograph), not on whether every cell is right, so attempt it by hand first, then open the reveal to check yourself.
@@ -187,8 +190,8 @@ Photograph your trace and include it in your PDF on Canvas. This part is graded 
 
 Include a short reflection in your PDF on Canvas. In two sentences: first, state plainly whether you used an AI tool on this assignment and, if you did, what you used it for (if you did not use AI at all, say so explicitly); second, name any other help you used (a peer, the official docs, the lecture notes) and one thing you still could not do without that help.
 
-Then add one more sentence: which intermediate values, if any, did you choose to name inside `system_status`, and why those? This is graded on completion, not on what you say, and it is not shared with anyone but the instructor.
+Then add one more sentence: which intermediate values, if any, did you choose to name inside `burn_clearance_status`, and why those? This is graded on completion, not on what you say, and it is not shared with anyone but the instructor.
 
 ## Rubric
 
-<RubricTable src="canvas/assignments/burn-window-clearance-rubrics.tsv" caption="Transit Checks Rubric" />
+<RubricTable src="canvas/assignments/burn-window-clearance-rubrics.tsv" caption="Burn Window Clearance Rubric" />
