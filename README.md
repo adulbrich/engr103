@@ -2,6 +2,55 @@
 
 This repository contains the source code for the ENGR103 website.
 
+## Needs Your Attention: Environmental Story Line Redesign
+
+The assignment tier is being re-skinned from Mission Ares to the Willamette
+Resource Office. Design specs are in `docs/superpowers/specs/`, the plan is in
+`docs/superpowers/plans/2026-08-08-environmental-storyline-and-console-input.md`,
+and per-task progress is in
+`.superpowers/sdd/2026-08-08-environmental-storyline-and-console-input/progress.md`.
+
+These items are the ones a person has to settle. Everything else is being handled
+in the plan.
+
+### Verify the real-world constants before publication
+
+Every assignment cites real figures inline. Only A3's were fetched from primary
+sources during authoring; the rest were reused or cited from the authoring pass and
+need a human spot-check.
+
+- [ ] **A2 household-energy-panel:** grid intensity 275 gCO2e/kWh (EPA eGRID2022, NWPP subregion)
+- [ ] **A3 ev-carbon-payback:** gasoline 8,887 g CO2/gal (EPA); eGRID2022 NWPP 275 g/kWh; eGRID2022 US average 823.1 lb/MWh; battery 61 to 106 kgCO2e/kWh (IVL 2019). These four were fetched and matched during authoring, so this is a confirmation rather than a first check.
+- [ ] **A4 low-carbon-concrete:** Portland cement 919 kg CO2e/tonne (PCA industry-average EPD, ASTM-certified, 2021); slag 147 kg CO2e/tonne (Slag Cement Association EPD-011, 2015)
+- [ ] **A4 fly ash, 40 kg CO2e/tonne:** deliberately presented on the page as a WRO office figure, **not** as a citation, because no clean industry-average EPD was findable. Decide whether to source it properly or leave it as an authored figure.
+- [ ] **A6, A8:** constants not yet authored; check when those land
+
+### Look at the two new simulators
+
+Both were verified by `getBoundingClientRect()` measurement rather than visually,
+because the screenshot tool returned black during authoring. The pixel geometry is
+exact, but nobody has actually looked at them.
+
+- [ ] `src/components/EvPaybackForm.svelte` (on the A3 page)
+- [ ] `src/components/ConcreteMixForm.svelte` (on the A4 page)
+
+### Unblock three tasks
+
+A second agent has been holding files this work also needs.
+
+- [ ] **Commit or release `VISION.md`.** Tasks 3 (VISION rewrite) and 4 (the three public story pages, which must match VISION word for word) cannot run until it is free.
+- [ ] **Say which activity files the other agent is editing.** Task 8 touches `src/content/docs/activities/variables-and-state.mdx` and `errors-input-and-validation.mdx`. If those two are clear, it can run immediately.
+
+### Accepted costs, recorded so they are not a surprise later
+
+No action needed unless you disagree with the call.
+
+- **Two Rust examples do not run as pasted.** Lecture 4 shows a call with no body; lecture 9 shows a body with no `main`. Both say so explicitly on the page. This is a deliberate break with the house rule that examples be self-contained, and it follows from teaching the console-input call in week 2 while the body waits for week 5.
+- **A3 prints no prompt.** Forced, not chosen: a printed prompt makes Python and Rust stdout differ and breaks A3's output-diff grading. Applies to A3 alone; from A4 on the provided `main` prompts freely because it is never graded.
+- **The language ladder's generics rule was narrowed** rather than removing `parse::<T>` from the course. Students never write generic code; they call one generic method with a taught spelling.
+- **A10 is a regular assignment week, not a capstone.** One entry-point function, ordinary size; the independent-copy function moved to its summit problem.
+- **Bioengineering and nuclear are reached through summit problems** (extra credit) rather than required problems, which is narrower than Mission Ares managed.
+
 ## Instructor Checklist
 
 This coming term:
