@@ -23,7 +23,9 @@ need a human spot-check.
 - [ ] **A3 ev-carbon-payback:** gasoline 8,887 g CO2/gal (EPA); eGRID2022 NWPP 275 g/kWh; eGRID2022 US average 823.1 lb/MWh; battery 61 to 106 kgCO2e/kWh (IVL 2019). These four were fetched and matched during authoring, so this is a confirmation rather than a first check.
 - [ ] **A4 low-carbon-concrete:** Portland cement 919 kg CO2e/tonne (PCA industry-average EPD, ASTM-certified, 2021); slag 147 kg CO2e/tonne (Slag Cement Association EPD-011, 2015)
 - [ ] **A4 fly ash, 40 kg CO2e/tonne:** deliberately presented on the page as a WRO office figure, **not** as a citation, because no clean industry-average EPD was findable. Decide whether to source it properly or leave it as an authored figure.
-- [ ] **A6, A8:** constants not yet authored; check when those land
+- [ ] **A6 sensor-drift-check:** EPA PM2.5 NAAQS figures (cited, agency/dataset/year present). The PMS5003 sensor range (0 to 500 µg/m3, manual v2.3, 2016) was cross-confirmed across several retailer mirrors because the sandbox blocks the primary Plantower PDF, so it is honest but not primary-sourced.
+- [ ] **A5 burn-window-clearance:** all three windows are authored WRO figures by design, explicitly labeled, not published. Decide whether to source a real state forestry prescription instead.
+- [ ] **A8:** constants not yet authored; check when that lands
 
 ### Decide on one cross-tier mismatch
 
