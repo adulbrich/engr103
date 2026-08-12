@@ -49,7 +49,7 @@ assignment, then holds), wearing a different story line at each tier:
 | Altitude | Venue | Stakes | Support | Story line |
 |---|---|---|---|---|
 | 1. Activity | Lecture, guided, in pairs | Completion (submit .py/.rs on Canvas) | Instructor, peers | None, bare concept |
-| 2. Assignment | Take-home, independent | Low (completion + auto-graded correctness) | Anything, including GenAI | Mission Ares |
+| 2. Assignment | Take-home, independent | Low (completion + auto-graded correctness) | Anything, including GenAI | Willamette Resource Office |
 | 3. Recitation | In person, on paper | High (graded like exams) | None (printed handout only) | Rubber Duck Robotics |
 | 4. Exam | In person, on paper, multiple choice, no notes | High | None | None, bare concept |
 
@@ -519,11 +519,13 @@ without AI. If you
 did the practice yourself, the recitation will hold no surprises. Skipping the
 practice only shows up in the 85% of the grade you earn in the room."
 
-Assignments wear the Mission Ares story line (section 8): each assignment
-arrives as a mission episode and includes a confident but subtly wrong claim
-from HAB for the student to judge, the take-home rung of the red herring ladder.
-The upcoming recitation assesses the same skeletons in Rubber Duck Robotics
-costume.
+Assignments wear the Willamette Resource Office (WRO) story line (section 8):
+each assignment arrives as an independent piece of the office's work, not an
+episode in a plot, and carries a confident but subtly wrong claim from AURA for
+the student to judge, the take-home rung of the red herring ladder. There is no
+plot; the thread that carries from week to week is technical (one reading-line
+format, shared naming conventions, one units discipline). The upcoming
+recitation assesses the same skeletons in Rubber Duck Robotics costume.
 
 ### Structure (weekly, always due before the recitation it prepares)
 
@@ -543,7 +545,7 @@ paper trace, and the reflection), and the code goes to **Gradescope**. Its parts
 1. **The problem (auto-graded).** One substantial problem in the same family
    as the upcoming recitation and at the same difficulty: the recitation sibling
    differs in costume, values, and at most one small twist, not in level. The
-   assignment hands the student a mission situation and a goal and fixes only the
+   assignment hands the student a work situation and a goal and fixes only the
    **observable contract**; how to reach it, which intermediate values to
    compute, whether to add helper functions, and which constructs to reach for is
    the student's decision. That freedom is the point: the student must work out
@@ -555,11 +557,29 @@ paper trace, and the reflection), and the code goes to **Gradescope**. Its parts
    LaTeX) and the student's work is turning them into clean, correct code. Before
    the functions lecture, the contract is the program's
    printed output in an exact stated format, and grading compares that output.
+   This covers A3, the one assignment where the student authors the program's
+   own console input: the scenario values arrive from standard input instead of
+   being set by the starter, and the program prints no prompt, because a
+   printed prompt would make the two languages' output differ and break the
+   exact-format diff A3 is graded by.
    From the functions lecture (week 3) on, the contract is one named entry-point
-   function (a second only when the family is genuinely two independent outputs)
-   with an exact signature and return; the grader calls it directly with values it
+   function (a second only when the family is genuinely two independent outputs,
+   or when the ladder itself forces a split: two halves of one codec, one
+   building a multi-character code and the other decoding a single character,
+   kept apart because a string cannot legally be a parameter on one side of the
+   ladder boundary yet) with an exact signature and return. A split forced by
+   the ladder like that is not a second independent output: the two functions
+   are never tested as inverses of each other, and the round trip they form
+   does not close until the next assignment reads the code back. This is never
+   license for an arbitrary second entry point. The grader calls
+   the entry point directly with values it
    chooses and reads only what it returns, so every helper written inside is the
-   student's to choose. Starter code is distributed as self-contained git
+   student's to choose. From A4 on, every assignment still ships a whole,
+   runnable program: the starter's `main` prompts, reads the values, calls the
+   student's function, and prints the result, but that `main` is provided code
+   and is never graded. Console input is therefore authored once, by the
+   student, in A3; from A4 on it exists only as provided code the student
+   reads. Starter code is distributed as self-contained git
    repositories on OSU GitLab, each carrying the spec (as its README), the twin
    scaffolds, the visible tests, and the `check`/`pack` tools; submission and
    autograding run on Gradescope, whose Docker-based autograder is language
@@ -636,8 +656,8 @@ to fit inside that budget, not to fill it:
   read primarily in the student's chosen language while skimming the other;
   the "what differs" call-out is the part read in full.
 
-Exam-adjacent weeks (week 6 around the midterm, week 10 around the Sol 100
-capstone) are the pinch points, so keep those assignments sized to the same
+Exam-adjacent weeks (week 6 around the midterm, week 10 around the final
+assignment) are the pinch points, so keep those assignments sized to the same
 weekly budget as any other week, never heavier. Exam rehearsal itself lives
 outside the assignment track, in separately provided practice materials, rather
 than in a bulked-up assignment.
@@ -696,76 +716,98 @@ A **problem family is a concept skeleton**: accumulate over a stream, apply a
 decision table, walk a grid, encode and decode a sequence, validate against
 tolerance, look up and count by key. A **story line is a costume** worn at one
 assessment tier, and each tier dresses differently: activities and exams have no
-story (bare concept, fastest possible read), assignments live at Mission Ares,
-and recitations wear Rubber Duck Robotics. Every problem must be
-solvable while ignoring the plot entirely; the story is a spine, not a cage.
+story (bare concept, fastest possible read), assignments live at the
+Willamette Resource Office, and recitations wear Rubber Duck Robotics. Every
+problem must be solvable while ignoring the story entirely; the story is a
+spine, not a cage.
 
-Each story line is its tier's common thread (fil rouge), and the thread is
-technical as much as narrative: within a tier, data formats, function names,
-and provided helpers recur across the term. The telemetry line format
-introduced in the week 8 assignment is the same one the Sol 100 capstone
-assignment parses; the recitations' Rubber Duck tickets all follow the same RDR
-firmware conventions. Later weeks should feel
-like returning to a familiar codebase rather than starting from zero. One
-limit keeps grading fair: every week remains independently solvable, and no
-problem ever requires last week's solution. A student who missed a recitation
-is behind in the plot, never in the prerequisites.
+Each story line is its tier's common thread (fil rouge). For recitations the
+thread is technical as much as narrative: Gary's tickets all follow the same
+RDR firmware conventions, and later weeks should feel like returning to a
+familiar codebase rather than starting from zero. Assignments carry no plot at
+all, so their thread is entirely technical: one reading-line format
+(`station_id,code,reference_ugm3`), introduced in the week 6 assignment and
+parsed for real in the week 10 assignment; one naming convention (`*_status`
+for a classifier's return code, `*_gco2`, `*_ugm3`, and `*_kwh` for a value
+measured in that unit); and one units discipline, grams CO2e, kWh, µg/m³, and
+km, held constant everywhere. One limit keeps grading fair either way: every
+week remains independently solvable, and no problem ever requires last week's
+solution. A student who missed a week is behind in nothing.
 
 The six skeletons and their two faces:
 
-| Family (skeleton) | Rubber Duck face (recitations) | Mission Ares face (assignments) | Core topics | Weeks |
+| Family (skeleton) | Rubber Duck face (recitations) | Willamette Resource Office face (assignments) | Core topics | Weeks |
 |---|---|---|---|---|
-| **Arithmetic with units and time** | Duck-race countdown timers, novelty-mug fill volumes | Sols vs Earth days, fuel mass fractions, delta-v budgets | Expressions, types, variables, functions | 1 to 3 |
-| **Decision tables and interlocks** | Hot-tub controller: temperature, occupancy, and timer cutoff rules | Never both doors open, pressure thresholds, suit checks | Booleans, conditionals, decision tables | 3 to 4 |
-| **Loops over state and grids** | Warehouse duckbot fetching parts, ASCII duck-parade rendering | Drive commands, battery budget, terrain rendering | Loops, loop patterns, nested loops, functions | 4 to 6 |
-| **Encode, decode, clean a sequence** | Garbled customer order codes, novelty-pager messages | Ciphers, checksums, packet buffers | Strings, lists/vectors, memory model, sharing | 6 to 8 |
-| **Validate and summarize a noisy stream** | The smart bathtub's water-level sensor returns nonsense | Dust-storm sensor streams, tolerance alarms | Errors, input validation, floating point, RNG noise | 8 to 9 |
-| **Key-value lookup and counting** | Duck SKU inventory after a warehouse mix-up | Cargo inventory, resupply planning (the Rust pun is intended) | Dictionaries/hashmaps, choosing structures | 9 to 10 |
+| **Arithmetic with units and time** | Duck-race countdown timers, novelty-mug fill volumes | Vehicle lifecycle payback, appliance energy, concrete mix targets | Expressions, types, variables, functions | 1 to 3 |
+| **Decision tables and interlocks** | Hot-tub controller: temperature, occupancy, and timer cutoff rules | Burn-window clearance, discharge permits, dashboard publication gates | Booleans, conditionals, decision tables | 3 to 4 |
+| **Loops over state and grids** | Warehouse duckbot fetching parts, ASCII duck-parade rendering | Solar array degradation, multi-year inventory accumulation | Loops, loop patterns, nested loops, functions | 4 to 6 |
+| **Encode, decode, clean a sequence** | Garbled customer order codes, novelty-pager messages | Compact field-logger telemetry codes, station identifiers | Strings, lists/vectors, memory model, sharing | 6 to 8 |
+| **Validate and summarize a noisy stream** | The smart bathtub's water-level sensor returns nonsense | Low-cost sensor drift against a reference monitor, tolerance alarms | Errors, input validation, floating point, RNG noise | 8 to 9 |
+| **Key-value lookup and counting** | Duck SKU inventory after a warehouse mix-up | Station manifests, waste stream categories (week-10 extra) | Dictionaries/hashmaps, choosing structures | 9 to 10 |
 
 The **Weeks** column above reflects the pre-reorder plan. Section 10's schedule
 now teaches errors and testing before the midterm and loops after it, so the
 family week-ranges are re-derived to follow that lecture order when the
-recitations are authored: the loops-over-state-and-grids family moves to the second half, the key-value-lookup-and-counting family becomes a week-10 extra, and the capstone is
-list-based. The prerequisite rule is unchanged: each family's recitation follows
-the lecture that teaches its concept.
+recitations are authored: the loops-over-state-and-grids family moves to the second half, the key-value-lookup-and-counting family becomes a week-10 extra, and the final
+assignment is list-based. The prerequisite rule is unchanged: each family's
+recitation follows the lecture that teaches its concept.
 
 Why these instead of the current course's calculator, financial planner,
 dictionary, and linear-equation solver: same concepts, but every problem has a
-visible consequence. A rover renders its path, an airlock refuses to kill the
-crew, a garbled message decodes into words. Fun in an intro course is mostly
-fast, visible feedback plus a reason to care, and these families are chosen so
-that plain terminal output is the payoff, no graphics stack required.
+visible consequence. A concrete mix comes in under its CO2 budget, a
+burn-window check refuses to greenlight an unsafe day, a garbled field code
+decodes into a real reading. Fun in an intro course is mostly fast, visible
+feedback plus a reason to care, and these families are chosen so that plain
+terminal output is the payoff, no graphics stack required.
 
-### Mission Ares (assignments)
+### Willamette Resource Office (assignments)
 
-The student is a member of the flight software crew of a crewed Mars habitat,
-and the assignments follow a small plot, one episode per assignment: launch
-preparation, transit and its interlocks, landing and the first drive, then the
-surface phase (a comms window with Earth, a solar conjunction that garbles
-packets, a dust storm that stresses the sensors), building to the **Sol 100**
-status report as the capstone assignment: parse a telemetry line, validate it,
-update the manifest, decide whether to raise an alarm, format the report. The
-exact episode-to-week mapping is derived when the assignments are authored,
-following the reordered family weeks (section 10). The habitat setting covers
-every engineering major in the room: life support and water recycling are
-chemical, environmental, and ecological engineering; the rover is mechanical;
-power, comms, and protection interlocks are electrical and energy systems;
-habitat structures and build-out sequencing are civil, architectural, and
-construction engineering; crew biosensors are bioengineering; radiation dose
-monitoring is nuclear; inventory and operations are industrial. Assignment
-problem contexts deliberately rotate across these subsystems so every major
-sees its own field in the mission more than once a term.
+The student is a junior engineer on the software team of the **Willamette
+Resource Office (WRO)**, a fictional regional public sustainability agency in
+the Pacific Northwest. There is no plot: each assignment arrives as an
+independent piece of the office's work rather than an episode in a story, so a
+student who misses a week is behind in nothing, not even a subplot. A public
+agency reaches every domain the majors need (buildings, transport, water,
+grid, waste, air, fire, ecology), and its outputs are public-facing, which
+makes the final assignment's equity critique (section 6) a consequence of the
+student's own work rather than a bolted-on essay.
 
-The recurring character is **HAB**, the habitat's onboard AI assistant, which
-is helpful, tireless, and confidently wrong at narratively convenient moments.
-Flight rule: no HAB advice is trusted unverified. HAB is how judge-this-claim
-problems arrive in story ("HAB says you can size the margin by adding the percent
-straight to the mass; decide whether to trust it"), which makes outcome O8 a
-weekly reflex instead of a week 10 lecture topic. Placing HAB in the assignment tier is deliberate: it is
-the one tier where students may use AI freely, so a confidently wrong AI whose
-code they must judge is exactly the right training partner there, and the heroic
-tone gives the take-home work a reason to pull the student through practice they
-might otherwise skip or outsource.
+Assignment problem contexts deliberately rotate across domains so every major
+sees its own field more than once a term:
+
+| Major | Reached by |
+|---|---|
+| Civil, construction, architectural | Concrete mix design; monitor siting and the built environment |
+| Chemical, environmental | Concrete mix blending; air quality validation; data quality |
+| Mechanical, transportation | Vehicle lifecycle payback; appliance energy |
+| Electrical, energy systems | Solar array degradation; field logger telemetry; metering |
+| Industrial, manufacturing | Quality certification; inventory |
+| Forest, ecological | Prescribed burn clearance; field network |
+| Bioengineering | Summit problems only (stream dissolved oxygen, exposure dose) |
+| Nuclear | Summit problems only (spent-fuel decay inventory); vehicle lifecycle as a generation source |
+
+Bioengineering and nuclear are the two majors this theme reaches less directly
+than the retired Mars-habitat setting did. They are recovered in summit
+problems rather than by distorting a main problem, because summit problems are
+extra credit and never enter the required weekly budget; this is an accepted
+trade-off, not an oversight.
+
+The recurring character is **AURA**, the office's AI analytics assistant,
+procured from a vendor: helpful, tireless, and confidently wrong at
+narratively convenient moments. Office rule: no AURA analysis is published
+unverified. AURA is how judge-this-claim problems arrive in story ("AURA says
+you can average the two grid intensities to get the blended figure; decide
+whether to trust it"), which makes outcome O8 a weekly reflex instead of a
+week 10 lecture topic. AURA is always wrong about the computation or the
+method, and never about contested policy: the assignments compute, the
+student interprets, and the test applied when authoring every claim is
+whether a test case the student writes can falsify it. If it cannot, it is not
+an AURA claim. Placing AURA in the assignment tier is deliberate: it is the
+one tier where students may use AI freely, so a confidently wrong AI whose
+reasoning they must judge is exactly the right training partner there. The
+setting is deliberately less heroic than the retired Mars habitat; what pulls
+the student through the practice instead is that the questions are real and
+the numbers are checkable.
 
 ### Rubber Duck Robotics (recitations)
 
@@ -774,12 +816,12 @@ lovable novelty-gadget company (self-stirring mugs, motivational bathtub ducks,
 the occasional smart hot tub). In the room the student is the new firmware
 intern; each recitation arrives as a ticket from **Gary**, the senior engineer,
 who is enthusiastic and overcommitted and hands the intern the week's gadget
-work. The tone is comic
-where the take-home mission is heroic, and that is deliberate: the comedy
-lightens the test anxiety a high-stakes proctored room otherwise breeds (a
-novelty-mug problem worth points is still worth points), and the company name is
-a planted joke that pays off when rubber-duck debugging is introduced. Stakes
-come from proctoring and grade weight, not from tone.
+work. The tone is comic, a deliberate contrast to the grounded, real-stakes
+tone of the take-home assignments: the comedy lightens the test anxiety a
+high-stakes proctored room otherwise breeds (a novelty-mug problem worth
+points is still worth points), and the company name is a planted joke that
+pays off when rubber-duck debugging is introduced. Stakes come from
+proctoring and grade weight, not from tone.
 
 ### The red herring ladder
 
@@ -788,7 +830,7 @@ distractors that scale with the tier:
 
 - **Activities:** none; bare concept.
 - **Assignments:** one mild spec distractor (a quantity that is never needed),
-  plus **HAB's claim**: a confident assertion about how to approach the problem,
+  plus **AURA's claim**: a confident assertion about how to approach the problem,
   or a fact about it, that is subtly wrong. Following it uncritically leads to a
   wrong answer that a visible test catches.
 - **Recitations:** none. The recitation is a straight test of practiced work;
@@ -805,7 +847,7 @@ spec) and O8 (judge code you did not write).
 - Every family must work identically in both languages with one shared test
   suite.
 - Every family must have at least one paper-friendly sibling per exam archetype
-  it touches (a rover trace works as well on paper as in a terminal).
+  it touches (a manifest trace works as well on paper as in a terminal).
 - Same skeleton, different surface: an assignment problem and its recitation
   sibling must differ in story, values, and at most one structural twist (an
   extra edge case, one more parameter), never in underlying concept and never
@@ -837,7 +879,7 @@ tutorials), so the table is normative:
 | Language ladder, archetype inventory, language field guide | Reference | Terse tables and lists, no prose |
 | Practicalities | How-to guides | Numbered steps, one goal per page: setup, editors, submitting to Gradescope, the recitation lab, the debugging workflow |
 | Activities | Guided problem sets | A warm-up, then blocks of listing, question, and room to predict; every resolution ships on the page in a closed reveal |
-| Assignments | Requirements, scaffolded | Mission episode: one open problem, the contract fixed and the decomposition left to the student, plus optional hints |
+| Assignments | Requirements, scaffolded | A piece of the office's work: one open problem, the contract fixed and the decomposition left to the student, plus optional hints |
 | Recitations | Problem sheets, bare | Gary's ticket: mixed archetype items on paper, scaffolding stripped |
 | Exams | Archetype items | Multiple-choice items, minimal wording, no story skin |
 
@@ -909,7 +951,7 @@ Assignments read as requirements under one template: **Context** (the story
 beat, skippable), **Requirements** (numbered, testable statements),
 **Interface** (provided signatures and types), **Acceptance tests** (the
 visible cases), **Assumptions and edge cases**, plus scaffolding inside it:
-optional hints, mission commentary, a suggested order of attack. The Interface
+optional hints, story commentary, a suggested order of attack. The Interface
 names only the entry point the grader calls; the student owns every decision
 inside it, which is the training the take-home tier exists for.
 
@@ -1000,12 +1042,12 @@ teaches its concept).
 | 1 | 1 | **How programs run.** Computation and algorithms; source code, interpreters (Python) and compilers (Rust); running a program; printing results; errors as messages, not verdicts; the systematic debugging method and the modeling-versus-analysis distinction, both introduced here and threaded all term; the two-language philosophy and the language ladder. (This lecture, and perhaps lecture 2, get a full in-class walkthrough; the rest are read before class.) | R1 (ungraded): environment, terminal, editor, the `check` harness, hello in both languages. | A1: setup, toolchains, hello in both languages. |
 | 1 | 2 | **Data representation and memory.** Values (integers, floats, booleans, strings) and their types; static vs dynamic typing; binary and decimal; bits and bytes; memory as addressable boxes; type sizes; Python's arbitrary-precision `int` vs Rust's fixed `i32`/`f64`, and what the numbers in `i32`/`f64` mean. Taught with the interactive binary/bits visualizer and a memory-box diagram, before any type name is used to mean a bit-width. Character encoding and ASCII are deferred to lecture 13, where characters are taught. | | |
 | 2 | 3 | **Expressions and operators.** Arithmetic operators and precedence; integer vs float division and truncation (grounded in lecture 2's types and sizes); implicit coercion; mixed-type expressions; evaluating expressions by hand. | R2: expressions and types. | A2: Arithmetic families + paper trace. |
-| 2 | 4 | **Variables and state.** Names vs values; assignment and rebinding; `let` and `let mut`, shadowing; initialization and uninitialized reads (Rust forbids, C++ undefined behavior); constants; tracing with a variable table. Uses the memory stepper. | | |
+| 2 | 4 | **Variables and state.** Names vs values; assignment and rebinding; `let` and `let mut`, shadowing; initialization and uninitialized reads (Rust forbids, C++ undefined behavior); constants; tracing with a variable table; console input: reading a line and turning it into a number. Uses the memory stepper. | | |
 | 3 | 5 | **Functions I.** Defining and calling; parameters, arguments, return values; signatures and types; arguments and parameters are separate memory and the value is copied; how the autograder calls your functions. Uses the memory stepper. (Week 3 Monday is the MLK holiday, so this is the only week-3 lecture.) | R3: functions and variables. | A3: Function families + paper trace. |
 | 4 | 6 | **Scope and the call stack.** Local and nested scope; shadowing; lifetimes of names; the global-variable antipattern; the call stack drawn by hand; decomposing a program into functions. Uses the memory stepper. Taught before control flow because scope governs the blocks inside conditionals and loops. | R4: functions and scope synthesis. | A4: Scope and call-stack practice. |
 | 4 | 7 | **Booleans and conditionals.** Comparisons, logical operators, short-circuit; `if`/`else`; building conditions from specifications; the floating-point equality trap and comparison with tolerance, grounded in lecture 2. | | |
 | 5 | 8 | **Decision structures.** `elif`/`else if` chains and `match`; nesting vs chaining; decision tables; guard clauses; common boundary bugs. | R5: conditionals and decision tables. | A5: Decision-table rule families + paper trace. |
-| 5 | 9 | **Errors, input, and validation.** Kinds of errors (syntax, run-time, logic); console input and parsing; exceptions vs `Result`; validating a value and failing loudly. (The loop-based validate-until-correct pattern is deferred to lecture 12.) | | |
+| 5 | 9 | **Errors, input, and validation.** Kinds of errors (syntax, run-time, logic); parsing and why it fails; exceptions vs `Result`; validating a value and failing loudly. (The loop-based validate-until-correct pattern is deferred to lecture 12.) | | |
 | 6 | 10 | **Testing.** Test cases from a specification; boundary and error cases; assertions and test functions in both languages; consolidates the spec-to-tests skill practiced since week 3. | R6: decision tables and errors (from week 5). | A6: decision-table and validation families + paper trace. |
 | 6 | | **Midterm**, multiple choice on paper during the second lecture slot, covering everything taught so far (lectures 1 to 10; no loops). | | |
 | 7 | 11 | **Loops.** `while` for unknown counts, counted loops; loop variables; termination; `do-while` as a C++-only "what differs"; tracing loops. | R7: loops. | A7: Loop families + paper trace. |
@@ -1014,7 +1056,7 @@ teaches its concept).
 | 8 | 14 | **Collections I: lists and vectors.** Indexing, length, iteration; growing and mutating; out-of-bounds as Python's `IndexError` vs Rust's panic (and the C++ buffer-overflow danger that motivates both). | | |
 | 9 | 15 | **The memory model: aliasing and ownership.** Names point at values; aliasing in Python (two names, one list) and ownership/moves/borrows-lite in Rust; the C++ dangling/buffer-overflow danger as why memory safety matters; drawing memory diagrams. Uses the memory stepper. (Late because aliasing needs lists to exist first; the foundation and the stepper are early.) | R9: memory model and sharing (packet buffers). | A9: memory/sharing families + memory-diagram paper practice. |
 | 9 | 16 | **Sharing and mutation.** Passing collections to functions; when the caller sees your changes; defensive copying; Rust `&`/`&mut` and why Rust makes you declare intent. Uses the memory stepper. | | |
-| 10 | 17 | **Collections II: dictionaries and maps** (advanced extra, not required for the outcomes). Dictionaries and hashmaps; key-value thinking; choosing between list and map; frequency counting and lookup. | R10: memory model and sharing (from week 9). | A10: the list-based Sol 100 mission-status capstone program with tests; accessibility/equity critique; paper trace. |
+| 10 | 17 | **Collections II: dictionaries and maps** (advanced extra, not required for the outcomes). Dictionaries and hashmaps; key-value thinking; choosing between list and map; frequency counting and lookup. | R10: memory model and sharing (from week 9). | A10: the final assignment, list-based, parsing a reading line into the station manifest with tests; accessibility/equity critique; paper trace. |
 | 10 | 18 | **Computing with judgment** (advanced extra, not required for the outcomes). Evaluating code you did not write (a peer's, a library's, an AI's); limitations and failure modes; who is excluded by our tools; course synthesis and final-exam concept map. | | |
 
 Alignment checks built into the table:
@@ -1062,9 +1104,13 @@ Alignment checks built into the table:
 - **Studios** become the assignment problem sets (their current difficulty is
   the take-home tier); recitation problems are authored new as same-level
   variations of the assignment problems.
-- **Assignments** (calculator, financial planner, dictionary, linear equations)
-  are retired as framings, but their mechanics survive inside the mission
-  families: the financial planner's accumulation loops become loops-over-state-and-grids problems, the dictionary becomes the key-value lookup and counting family, and the linear-equation and calculator arithmetic becomes arithmetic-with-units-and-time computations.
+- **Assignments** (calculator, financial planner, dictionary, linear
+  equations) are retired as framings, and the Mission Ares framing that
+  briefly replaced them is retired too, but their mechanics survive inside the
+  Willamette Resource Office families: the financial planner's accumulation
+  loops become loops-over-state-and-grids problems, the dictionary becomes the
+  key-value lookup and counting family, and the linear-equation and calculator
+  arithmetic becomes arithmetic-with-units-and-time computations.
 - **Practicalities** (Polya, debugging, style, gen-ai) survive intact; the
   gen-ai page is rewritten around the training-set/test-set framing.
 - **One-on-one assignment demos are retired** (section 5): supervised
