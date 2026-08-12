@@ -47,7 +47,7 @@ You submit in two places. Mechanics are in [Running and Submitting Your Code](/p
 
 A reading nobody has checked cannot tell WRO anything useful. The office uses this network to watch how close a neighborhood sits to the EPA's PM2.5 National Ambient Air Quality Standard, revised in 2024 to an annual mean of 9.0 micrograms per cubic meter, with the 24-hour standard unchanged at 35 micrograms per cubic meter (EPA National Ambient Air Quality Standards, 2024 revision). Before any of that matters, each live reading has to clear a basic sanity check.
 
-WRO's field loggers also keep a compact archive of every reading, for reporting later: one line per reading, three fields separated by commas, always in this fixed order: `station_id,code,reference_ugm3`. `station_id` is the station's short ID (for example `WRO-07`). `code` packs the sensor's own reading into a fixed three-character base-36 code, most significant character first, encoding the reading as a whole number of micrograms per cubic meter, rounded to the nearest whole unit. `reference_ugm3` is the co-located reference monitor's reading in the same units, written as a decimal, or the letters `NA`, the archive's only sentinel, when a station has no reference monitor installed. A deployment's agreement tolerance does not travel with each reading; it is set once when a station goes in and stays fixed after that.
+WRO's field loggers also keep a compact archive of every reading, for reporting later: one line per reading, three fields separated by commas, always in this fixed order: `station_id,code,reference_ugm3`. `station_id` is always exactly six characters, the station's short ID (for example `WRO-07`). `code` packs the sensor's own reading into a fixed three-character base-36 code, most significant character first, encoding the reading as a whole number of micrograms per cubic meter, rounded to the nearest whole unit; a shorted line has nothing valid to encode, so it is logged elsewhere and never written to this archive as a `code`. `reference_ugm3` is the co-located reference monitor's reading in the same units, written as a decimal, or the letters `NA`, the archive's only sentinel, when a station has no reference monitor installed. A deployment's agreement tolerance does not travel with each reading; it is set once when a station goes in and stays fixed after that.
 
 For this exercise, the low-cost sensor is read live from the console, as text, the way the [Errors, Input, and Validation](/lectures/errors-input-and-validation/) lecture describes, rather than from an archive line. The provided harness already reads that live text and parses it, using exactly the `try`/`except` or `parse`-and-`match` idiom from the lecture, so text that does not parse at all (a blank line, a stray word) never reaches your function: the harness reports it as `unreadable` on its own. What does reach your function is a number, and a number can still be untrustworthy in more than one way, so the check sorts each parsed reading into a status code before anyone acts on it. `REFERENCE_UGM3` and `TOLERANCE_UGM3` are constants the harness already sets for this station, read from that station's own archive and configuration.
 
@@ -129,7 +129,7 @@ Your table must include, and label, at least these cases:
 
 - A trusted case, in range and agreeing with the reference, that returns `0`.
 - A low-end hardware fault, a reading below `0.0`, that returns `1`.
-- A high-railed fault whose reading also sits far from the reference reading, that returns `2`. This is the case that proves the range check outranks the disagreement check.
+- A high-railed fault whose reading also sits far from the reference reading, that returns `2`.
 - A disagreement case, in range but too far from the reference, that returns `3`.
 - A case that lands exactly on a boundary: either the physical range (a reading of exactly `0.0` or exactly `500.0`) or the agreement check (the gap between the reading and the reference exactly equal to `tolerance_ugm3`).
 - At least one more case whose expected code you compute fully by hand.
@@ -183,11 +183,11 @@ As one worked example, `stream_do_status(9.0, 15.0, 8.5, 1.0)` returns `0`: the 
 
 ## Paper Practice
 
-Trace this program by hand, on paper. Build a variable table: for each call to `range_flag`, write the values held by its `value_ugm3` and `override_engaged` parameters and the value it returns, then the values bound to `a`, `b`, and `total`. Write the exact value the program prints.
+Trace this program by hand, on paper. Build a variable table: for each call to `range_flag`, write the values held by its `value_ugm3` and `calibration_flagged` parameters and the value it returns, then the values bound to `a`, `b`, and `total`. Write the exact value the program prints.
 
 ```python title="trace_me.py"
-def range_flag(value_ugm3, override_engaged):
-    if override_engaged:
+def range_flag(value_ugm3, calibration_flagged):
+    if calibration_flagged:
         return 1
     elif value_ugm3 > 500.0:
         return 2
@@ -201,15 +201,15 @@ print(total)
 ```
 
 <Reveal label="Reveal the completed trace">
-The first call, `range_flag(650.0, False)`, binds `value_ugm3` to `650.0` and `override_engaged` to `False`. The chain checks `override_engaged` first: it is `False`, so that branch is skipped, not entered. The next condition, `value_ugm3 > 500.0`, is `True`, since `650.0` is greater than `500.0`, so the function returns `2` and the final `else` is never even looked at. That `2` is bound to `a`.
+The first call, `range_flag(650.0, False)`, binds `value_ugm3` to `650.0` and `calibration_flagged` to `False`. The chain checks `calibration_flagged` first: it is `False`, so that branch is skipped, not entered. The next condition, `value_ugm3 > 500.0`, is `True`, since `650.0` is greater than `500.0`, so the function returns `2` and the final `else` is never even looked at. That `2` is bound to `a`.
 
-| Line | `value_ugm3` | `override_engaged` | returns | `a` | `b` | `total` |
+| Line | `value_ugm3` | `calibration_flagged` | returns | `a` | `b` | `total` |
 |---|---|---|---|---|---|---|
 | `a = range_flag(650.0, False)` | `650.0` | `False` | `2` | `2` | | |
 | `b = range_flag(650.0, True)` | `650.0` | `True` | `1` | `2` | `1` | |
 | `total = a + b` | | | | `2` | `1` | `3` |
 
-The second call, `range_flag(650.0, True)`, checks `override_engaged` first again, and this time it is `True`, so the function returns `1` immediately; the `value_ugm3 > 500.0` condition is never evaluated at all, because the chain stops at the first branch that matches. That `1` is bound to `b`. Finally `total = a + b` computes `2 + 1`, and the program prints `3`.
+The second call, `range_flag(650.0, True)`, checks `calibration_flagged` first again, and this time it is `True`, so the function returns `1` immediately; the `value_ugm3 > 500.0` condition is never evaluated at all, because the chain stops at the first branch that matches. That `1` is bound to `b`. Finally `total = a + b` computes `2 + 1`, and the program prints `3`.
 </Reveal>
 
 Photograph your trace and include it in your PDF on Canvas. This part is graded on completion (the attached photograph), not on whether every cell is right, so attempt it by hand first, then open the reveal to check yourself.
