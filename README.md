@@ -109,14 +109,20 @@ the built site but not from this public repository. They have been readable at
 readable right now. A proctored assessment whose questions are published is not
 proctored in any useful sense.
 
-Treat the current handouts as compromised regardless of what happens next.
-Content that has been pushed to a public repository cannot be un-published:
-clones, forks, and code-search indexes may retain it, so making the repository
-private later stops future exposure without undoing past exposure.
+The handouts have been moved to the private `engr103-assessments` repository and
+stripped from this repository's history, including two older filenames
+(`environment-setup.mdx`, `recitation-4.mdx`) and an orphaned rubric TSV. After
+the force-push, a fresh clone contains no trace of them.
 
-- [ ] **Decide where recitations live** (private repository, private submodule, or outside git entirely) and stop the ongoing exposure.
-- [ ] **Rewrite the nine graded handouts** as fresh variations, wherever they end up.
-- [ ] **Correct VISION section 5**, which claims recitations are "kept private" and "never published on the course site." The second half is true; the first is not, and the section reads as though the draft flag delivers the privacy.
+Removing them from GitHub's servers takes three more steps, all of which are
+available and routine. Only the last category on this list is beyond recall.
+
+- [ ] **Force-push the rewritten branch** so the published history no longer contains the files.
+- [ ] **Check for forks.** GitHub's fork network shares an object store, so a commit stays reachable through any fork. Delete any that exist, or ask Support to handle the network.
+- [ ] **Delete or close pull requests** that reference the old commits; `refs/pull/N/head` survives a force-push.
+- [ ] **Ask GitHub Support to garbage-collect the repository** and purge cached commit views. Until they do, the old commits stay reachable at their direct SHA URLs.
+- [ ] **Rewrite the nine graded handouts** anyway. Anything already cloned, mirrored, or indexed by a third party cannot be recalled, and the handouts were written against the retired Mission Ares assignments, so they need rewriting to match their new siblings regardless.
+- [ ] **Correct VISION section 5**, which claims recitations are "kept private" and "never published on the course site." Both are true now, but the section reads as though the `draft` flag delivers the privacy, and it does not.
 
 ### Known gaps nobody owns yet
 
