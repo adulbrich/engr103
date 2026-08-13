@@ -680,7 +680,19 @@ track.
 Lecture notes are read **before** class. A three-question pre-lecture check
 (auto-graded, due an hour before lecture, counts toward the 5% preparation
 grade) verifies the reading and, more importantly, tells the instructor which
-misconception to open with. Lecture time itself is spent almost entirely on
+misconception to open with. Every lecture with assigned notes carries one, so
+the check is the standing reminder that the reading is not optional.
+
+The questions are **multiple choice, drawn from the published archetype
+inventory** (section 4), which makes them do a second job at no extra cost. A
+student who meets an evaluate, a trace, or a predict-output item before lecture
+in week 2 meets the same shape on the midterm in week 6, so the low-stakes
+reading check is also the earliest and most frequent exam rehearsal in the
+course. The stakes stay low deliberately: these are worth part of 5% and are
+graded by machine, so they cost a student nothing but the reading they were
+supposed to do. Distractors are mined the same way the exams' are, from the
+wrong answers students actually produce, which is why the most-missed question
+makes a good opener. Lecture time itself is spent almost entirely on
 examples, activities, and problems; the notes carry the exposition. Only lecture
 1, and perhaps lecture 2, receive a full in-class walkthrough (the onboarding
 week); from then on the notes are the exposition and class time is activities.
