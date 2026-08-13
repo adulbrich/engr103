@@ -5,16 +5,29 @@ sidebar:
   order: 10
 ---
 
+{/* ai-summary
+type: recitation-coverage
+slug: inventory-sync
+order: 10
+family: lists, aliasing, and independent copies
+paired_assignment: emissions-inventory
+assesses_lectures: the-memory-model, sharing-and-mutation
+graded: true
+handout_location: the private engr103-assessments repo. This session is graded, proctored, and worked on paper, so its problems are never published here; this page is a coverage page only.
+*/}
+
 Recitation 10 covers **the memory model, sharing, and mutation**, the material from the lectures of the
 week before. It follows [The Annual Emissions Inventory](/assignments/emissions-inventory/), and the problems are
 fresh variations of the same skeletons that assignment had you practice.
 
+The warehouse tracks how many units of each duck sit on the shelves as one running list of counts. Shipments arrive all day, the floor auditor keeps a name of their own for that same list, and at close of day somebody wants an archive of the counts that tomorrow cannot disturb. Gary hands you the ticket.
+
 ## What this session covers
 
-- Names, values, and what a name really points at
-- Two names for one list, and what that means
-- Passing a list to a function, and when the caller sees the change
-- Making an independent copy on purpose
+- Drawing a memory diagram showing which names refer to which values after a program runs
+- Saying when a change made through one name is visible through another
+- Making a copy that later changes cannot reach
+- Passing a list to a function and predicting whether the caller sees the change
 
 ## How the session runs
 

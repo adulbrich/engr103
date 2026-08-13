@@ -1,38 +1,241 @@
 ---
 title: "Intern Orientation"
-description: "What recitation 1 covers and how the session runs. The handout itself is given out in the room."
+description: "The week-1 session, in full: open a terminal, get Python and Rust answering, write and run your first program in both languages, and learn to read what a tool says when something is wrong. Everything is explained as you go."
 sidebar:
   order: 1
 ---
 
-Recitation 1 covers **the development environment**, the material from the lectures of the
-week before. It follows [Field Office Setup](/assignments/field-office-setup/), and the problems are
-fresh variations of the same skeletons that assignment had you practice.
+import { Steps, Aside } from '@astrojs/starlight/components';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
 
-## What this session covers
+{/* ai-summary
+type: recitation
+slug: intern-orientation
+order: 1
+family: none (week-1 onboarding)
+paired_assignment: field-office-setup (this session comes BEFORE it and hands off to it)
+assesses_lectures: none (assesses nothing; it is a tutorial)
+core_archetypes: none
+new_twist: none
+story_beat: Gary gives the new intern a bench and tells them to make the machine work before anything real depends on it
+graded: false
+genre: tutorial. R1 is deliberately NOT written like R2-R10. It assumes only lecture 1 (programs run, programs print), explains every tool and term it uses at first use, and is followed step by step rather than solved. Do not apply the recitation handout rules to it.
+handout_location: this repo, in full. R1 is ungraded and low-stakes, so there is nothing to pre-solve and nothing to protect. Only graded, proctored, on-paper sessions (R2 to R10) keep their problems in the private engr103-assessments repo, where this repo carries a coverage page only.
+*/}
 
-- Getting the toolchain running: Python, the Rust toolchain, and an editor
-- The terminal commands you will use every week
-- The starter repository and the `check` harness
-- Running a first program in both languages
+<LanguageVersions />
 
-## How the session runs
+Gary points at an empty bench. "That is yours. Before you touch anything that matters, make the machine work, and make sure you can read what it tells you when it does not."
 
-The session runs for 110 minutes, in person, on paper. You get a printed handout
-when you arrive and you write your answers on it; there is no machine, no
-network, and nothing to submit online. You may answer in Python or in Rust, and a
-correct answer in either earns full marks.
+That is this session. You will open a terminal, confirm your tools answer, write the same small program in Python and in Rust, and then break one on purpose so you find out what each language does about it. Everything you need is explained here as you reach it; nothing assumes you have done any of this before.
 
-The handout is **not published here or anywhere else**. That is deliberate: the
-problems are a ungraded assessment, and one you could read in advance would not
-measure anything. What is published is this page, so you know what to prepare.
+By the end you will have done, with help in the room, exactly what [Field Office Setup](/assignments/field-office-setup/) asks you to do on your own. Finish early and you can start that assignment right here, with a TA two steps away.
 
-This session is **ungraded**. It exists so nobody spends a graded session fighting their laptop.
+<Aside type="note" title="Nothing here is graded">
+This session earns no points and there is nothing to hand in. It exists so that nobody spends a graded session fighting their laptop. Ask for help early and often; that is what the room is for.
+</Aside>
 
-## How to prepare
+<Steps>
 
-Do the assignment above honestly, by yourself. The recitation asks the same kind
-of question at the same level of difficulty, with different values and a
-different story, and the only support removed is the scaffolding: no hints, no
-worked sub-steps, and no tools. A student who did the practice should walk in
-expecting to succeed.
+1. ### Open a terminal
+
+   A **terminal** is a program that lets you control your computer by typing commands instead of clicking. You type one line, press Enter, and the computer does that one thing and prints its answer. It is how you will run every program you write this term.
+
+   - **Windows**: open the Start menu, type `powershell`, and open **Windows PowerShell**.
+   - **macOS**: press `Command` and `Space`, type `terminal`, and press Enter.
+   - **Linux**: open whichever terminal your system provides.
+
+   You get a window with a line of text ending in a cursor. That line is the **prompt**: the terminal telling you it is ready for a command. Everything you type goes at the prompt, and you press Enter to run it.
+
+2. ### Check that Python and Rust answer
+
+   Two tools run your code this term: **Python 3** and **rustc**, the Rust compiler. Before writing anything, confirm both are installed and reachable. Type each command and press Enter.
+
+   ```bash title="Ask each tool for its version"
+   python3 --version
+   rustc --version
+   ```
+
+   Each should print a version number, something like `Python 3.14.6` and `rustc 1.88.0`. A version number means the tool is installed and the terminal can find it.
+
+   If either prints something like `command not found` instead, that tool is not set up yet. Follow the install instructions in the [Development Environment](/practicalities/development-environment/) guide, or ask a TA now. Nothing else in the course works until both answer, so do not move on until they do.
+
+3. ### Make a folder for your work
+
+   Your files need somewhere to live. `mkdir` **m**a**k**es a **dir**ectory (a folder), and `cd` **c**hanges **d**irectory, meaning it moves you into one so that later commands act there.
+
+   ```bash title="Make a folder and move into it"
+   mkdir engr103
+   cd engr103
+   ```
+
+   Nothing prints, which is normal: most commands that succeed say nothing at all. The prompt changing to show `engr103` is your confirmation that you are inside it. The [Development Environment](/practicalities/development-environment/) guide covers the rest of the everyday commands when you want them.
+
+4. ### Write and run your first Python program
+
+   Open your editor, create a file called `hello.py`, and type this one line. Save it into the `engr103` folder you just made.
+
+   ```python title="hello.py"
+   print("Hello from the duck pond.")
+   ```
+
+   `print` is an instruction that displays something on the screen. The text inside the quotation marks is what gets displayed, and the quotation marks tell Python where that text starts and ends; they are not printed themselves.
+
+   Back in the terminal, run it:
+
+   ```bash title="Run the Python program"
+   python3 hello.py
+   ```
+
+   ```text frame="terminal" title="Output"
+   Hello from the duck pond.
+   ```
+
+   One command did everything. Python read your file and carried out its instructions immediately.
+
+5. ### Write and run the same program in Rust
+
+   Create a second file, `hello.rs`, in the same folder:
+
+   ```rust title="hello.rs"
+   fn main() {
+       println!("Hello from the duck pond.");
+   }
+   ```
+
+   Three things differ from the Python version, and all three are Rust's normal shape. Every Rust program starts inside `fn main() { ... }`, which marks where the program begins; the curly braces hold everything that belongs to it. `println!` is Rust's display instruction, and the `ln` on the end means it finishes the line after printing. The semicolon ends the instruction, the way a period ends a sentence.
+
+   Running it takes two commands rather than one:
+
+   ```bash title="Compile, then run"
+   rustc hello.rs
+   ./hello
+   ```
+
+   `rustc hello.rs` **compiles** your file: it translates your source code into a complete program the machine can execute, and saves that program as a new file called `hello`. Nothing runs yet. `./hello` then runs that new file. The `./` means "the one right here in this folder," which the terminal needs so it does not go looking elsewhere for a command by that name.
+
+   ```text frame="terminal" title="Output"
+   Hello from the duck pond.
+   ```
+
+   Same line, two different routes. Python read the source and acted on it. Rust turned the source into a program first, and only then did you run the result.
+
+   <Aside type="caution" title="Rust needs recompiling after every edit">
+   Editing `hello.rs` does not change `hello`. They are separate files, and `hello` was built from your source at the moment you ran `rustc`. Change the source, run `rustc` again, then run the program. Editing, rerunning, and wondering why nothing changed is the most common first-week frustration in Rust, and now it will not be yours.
+   </Aside>
+
+6. ### Add a comment and a blank line
+
+   Change `hello.py` to match the version below, then run it again with `python3 hello.py`. Before you do, guess what it prints.
+
+   ```python title="hello.py"
+   print("Duck 1 ready.")
+   # print("Duck 2 ready.")
+   print()
+   print("All ducks reporting.")
+   ```
+
+   ```text frame="terminal" title="Output"
+   Duck 1 ready.
+
+   All ducks reporting.
+   ```
+
+   The second duck never reports because that line is a **comment**. A `#` in Python, and `//` in Rust, means "ignore the rest of this line": it is a note for whoever reads the code, and the language skips it entirely. Putting a `#` in front of a line to switch it off without deleting it is called commenting out, and you will do it constantly while hunting a bug.
+
+   The blank line in the middle is real output. `print()` with nothing inside still prints a line; that line just happens to be empty.
+
+   The same program in Rust, if you want to try both. `println!()` with nothing inside is Rust's empty line.
+
+   ```rust title="hello.rs"
+   fn main() {
+       println!("Duck 1 ready.");
+       // println!("Duck 2 ready.");
+       println!();
+       println!("All ducks reporting.");
+   }
+   ```
+
+7. ### Break it on purpose
+
+   Everything so far worked. Most of your term will be spent on code that does not, so meet that case now, while it is harmless and deliberate.
+
+   Create `broken.py` with these three lines. `status` here is a name that was never given a value, which is the mistake.
+
+   ```python title="broken.py"
+   print("Checking the mug warmer.")
+   print(status)
+   print("Done.")
+   ```
+
+   Before you run it, decide what you expect: does it print the first line? Does it print `Done.`?
+
+   ```bash title="Run it"
+   python3 broken.py
+   ```
+
+   ```text frame="terminal" title="Output"
+   Checking the mug warmer.
+   Traceback (most recent call last):
+     File "broken.py", line 2, in <module>
+       print(status)
+             ^^^^^^
+   NameError: name 'status' is not defined
+   ```
+
+   The first line printed, then everything stopped. Python works through your file one instruction at a time, so line 1 had already displayed its text before line 2 was even looked at. When line 2 failed, the program ended there and `Done.` never ran.
+
+8. ### Watch Rust refuse the same program
+
+   Now the identical mistake in Rust. Create `broken.rs`:
+
+   ```rust title="broken.rs"
+   fn main() {
+       println!("Checking the mug warmer.");
+       println!("{}", status);
+       println!("Done.");
+   }
+   ```
+
+   ```bash title="Compile it"
+   rustc broken.rs
+   ```
+
+   ```text frame="terminal" title="Output"
+   error[E0425]: cannot find value `status` in this scope
+    --> broken.rs:3:20
+     |
+   3 |     println!("{}", status);
+     |                    ^^^^^^ not found in this scope
+
+   error: aborting due to 1 previous error
+
+   For more information about this error, try `rustc --explain E0425`.
+   ```
+
+   Nothing printed, not even the first line, and no `broken` program was created for you to run. Rust checks the whole file before building anything, found the problem, and refused to produce a program at all. There was never a moment when half of it could run.
+
+   That is the difference between the two languages, in one experiment: Python finds the problem when it reaches it, and Rust finds it before you can start.
+
+9. ### Read what the messages actually told you
+
+   Both messages are worth a second look, because every error you meet this term is built the same way. Each one told you three things.
+
+   **What is wrong**: a name that has no value (`NameError: name 'status' is not defined`, and `cannot find value 'status' in this scope`). **Where it is**: the file and the line number, with the exact spot marked underneath by `^^^^^^`. **What to do next**: Rust even hands you a command, `rustc --explain E0425`, that prints a longer explanation of that specific error. Try it.
+
+   Read all three parts before you change anything. An error message is a tool reporting a fact it has found, not a judgment on you, and the fastest programmers are not the ones who avoid errors but the ones who read them properly.
+
+10. ### Keep going into the assignment
+
+    You now have the whole loop: write a file, run it, read what came back, fix it, run it again. That loop is the entire job.
+
+    Start [Field Office Setup](/assignments/field-office-setup/) with the time you have left. It walks the same ground on your own machine and then takes it two steps further, into the starter files and your first submission, and this is the best possible room to be in while you do it: a TA is right there when something does not work.
+
+</Steps>
+
+## Two Things Worth an Hour
+
+Neither is required to pass this course, and neither appears on any exam. Both are worth learning, and this is the session where someone is standing right there if you get stuck.
+
+- **Working on the ENGR servers.** Every tool this course uses is already installed there, and you reach them with `ssh`, which is the door to every remote machine, cluster, and cloud instance you will ever use. It is a second setup rather than a shortcut past the first one, and it is a real backup plan when your own toolchain breaks the week something is due. [Connecting to the ENGR Servers](/practicalities/connecting-to-the-engr-servers/) covers the account, `ssh`, moving files with `scp`, and a key so Duo stops asking every time.
+- **Version control with git.** This course hands you starter files and takes submissions on Gradescope, so you never have to touch git. Every software team does touch it, and job postings name it directly. [Version Control](/practicalities/version-control/) walks through the everyday cycle, and a standalone extra-credit activity later in the term gives you a reason to practice it.
