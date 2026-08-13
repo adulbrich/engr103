@@ -104,7 +104,7 @@ Once a function is defined, calling it means writing its name followed by parent
 
 A call looks like one small step, `area(2.0)`, but underneath it is four steps that always happen in the same order, and seeing them is what turns a function call from magic into mechanism. Trace the call `area(2.0)` from the program above, one step at a time.
 
-First, each argument expression is evaluated to a single value, using the reduction from the [Expressions and Operators](/lectures/expressions-and-operators) lecture. Here the argument is the literal `2.0`, which already is a single value, so this step is immediate; had you written `area(1.0 + 1.0)`, this is the step where `1.0 + 1.0` would reduce to `2.0` before anything else happened. Arguments are ordinary expressions, and they are fully evaluated before the function is entered.
+First, each argument expression is evaluated to a single value, using the reduction from the [Values, Types, and Expressions](/lectures/values-types-and-expressions) lecture. Here the argument is the literal `2.0`, which already is a single value, so this step is immediate; had you written `area(1.0 + 1.0)`, this is the step where `1.0 + 1.0` would reduce to `2.0` before anything else happened. Arguments are ordinary expressions, and they are fully evaluated before the function is entered.
 
 Second, each argument value is copied into its matching parameter, by position, left to right. The first argument value goes into the first parameter, the second into the second, and so on, no matter what either one is named. For `area(2.0)` there is one argument and one parameter, so the value `2.0` is copied into `radius`. From this instant, `radius` is a variable holding `2.0`, living inside the function.
 

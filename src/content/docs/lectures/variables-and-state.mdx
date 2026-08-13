@@ -15,7 +15,7 @@ type: lecture
 slug: variables-and-state
 order: 4
 covers: variables and identifiers; assignment as evaluate-then-bind; rebinding; let vs let mut vs bare Python assignment; console input with input() and the provided read_i32/read_f64 helpers; initialization; reading an uninitialized variable; constants; tracing a variable table
-prereq_lectures: expressions-and-operators
+prereq_lectures: values-types-and-expressions
 followup_lectures: functions
 glossary_terms: variable, assignment, mutability, initialization, constant, console input
 */}
@@ -26,7 +26,7 @@ Every expression in the last lecture produced a value and printed it in the very
 
 ## Variables
 
-A **variable** is a name that refers to a value a program has stored, so that later code can use that name instead of the value itself. The [Data Representation and Memory](/lectures/data-representation) lecture showed that every value a program holds lives as bits in memory, in a numbered location. A variable puts a readable name on one of those locations, so you never have to know or track the number: you write the name, and the language looks up whatever value that name currently refers to.
+A **variable** is a name that refers to a value a program has stored, so that later code can use that name instead of the value itself. The [How Values Are Stored](/lectures/data-representation) lecture showed that every value a program holds lives as bits in memory, in a numbered location. A variable puts a readable name on one of those locations, so you never have to know or track the number: you write the name, and the language looks up whatever value that name currently refers to.
 
 Creating a variable means picking a name and attaching it, for the first time, to a value. After that, using the name anywhere in your code has the same effect as writing the value itself. If `num_students` refers to 10, then writing `num_students` in an expression or a `print` works exactly as if you had written `10` there directly, except that the computer looks up whatever value the name currently refers to. This connects straight back to the previous lecture: a variable is one more kind of expression, and evaluating it reduces it, in a single step, to the value it currently names, the same way evaluating `7` produces `7`.
 
@@ -82,7 +82,7 @@ The link between a name and the value it refers to is called a **binding**, and 
 
 ## Assignment and Mutability
 
-Giving a variable its value is called **assignment**, and it is performed with the `=` operator. Assignment is a definite two-step process, and seeing both steps is what keeps it from being mysterious. First, the expression on the right side of the `=` is evaluated, using the reduction from the [Expressions and Operators](/lectures/expressions-and-operators) lecture, until it becomes a single value. Second, the name on the left is bound to that value: the name is made to refer to the value the right side produced. Evaluate the right, then bind the left. Always in that order.
+Giving a variable its value is called **assignment**, and it is performed with the `=` operator. Assignment is a definite two-step process, and seeing both steps is what keeps it from being mysterious. First, the expression on the right side of the `=` is evaluated, using the reduction from the [Values, Types, and Expressions](/lectures/values-types-and-expressions) lecture, until it becomes a single value. Second, the name on the left is bound to that value: the name is made to refer to the value the right side produced. Evaluate the right, then bind the left. Always in that order.
 
 That order is the whole reason assignment is not the same as mathematical equality, even though it borrows the `=` sign. Equality is a claim that two things are already the same; assignment is an action that changes what a name refers to. The difference is easiest to see when the same variable appears on both sides. A statement like `count = count + 1` reads as nonsense if you treat `=` as equality, because no number equals itself plus one. As assignment it is perfectly ordinary. Suppose `count` currently refers to 5. Step one evaluates the right side, `count + 1`: the name `count` reduces to its current value 5, giving `5 + 1`, which reduces to the single value 6. Step two binds `count` to that 6. The name that referred to 5 an instant ago now refers to 6, and the old 5 is gone. The right side was computed from the *old* value before the name was rebound, which is why using a variable on both sides of its own assignment works and does something useful: it builds the new value out of the current one.
 

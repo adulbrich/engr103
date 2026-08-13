@@ -1,8 +1,8 @@
 ---
-title: "Expressions and Operators"
+title: "Values, Types, and Expressions"
 description: "Predict, compare, and debug short arithmetic expressions in Python and Rust to lock in precedence, integer versus float division, the modulo operator, and the systematic method."
 sidebar:
-  order: 3
+  order: 2
 draft: true
 ---
 
@@ -13,9 +13,9 @@ import WhatDiffers from '/src/components/WhatDiffers.astro';
 
 {/* ai-summary
 type: activity
-slug: expressions-and-operators
-order: 3
-paired_lecture: expressions-and-operators
+slug: values-types-and-expressions
+order: 2
+paired_lecture: values-types-and-expressions
 practices: reduces a mixed-operator expression by hand step by step, combining precedence, modulo, and integer-versus-float division to reach a value that differs between Python and Rust; names what changes and what stays fixed on the negative division case where Python's // floors and Rust's / truncates, including the sign of the modulo remainder; diagnoses a silent precedence bug in a temperature-conversion formula from a wrong result using the systematic method
 prereq_activities:
 block_types: predict-then-run, same-program-two-languages, live-debugging
@@ -24,7 +24,7 @@ output: a reconciled step-by-step prediction, a named cross-language difference 
 
 <LanguageVersions />
 
-This activity puts into practice the [Expressions and Operators](/lectures/expressions-and-operators/) lecture. You will predict the value of a long mixed-operator expression before running it, compare how Python and Rust handle a division case where their rules may not agree, and hunt down a silent bug in a temperature conversion. By the end, you will be able to reduce an expression by hand using precedence, modulo, and each language's division rule, and to catch a wrong answer that never raised an error.
+This activity puts into practice the [Values, Types, and Expressions](/lectures/values-types-and-expressions/) lecture. You will predict the value of a long mixed-operator expression before running it, compare how Python and Rust handle a division case where their rules may not agree, and hunt down a silent bug in a temperature conversion. By the end, you will be able to reduce an expression by hand using precedence, modulo, and each language's division rule, and to catch a wrong answer that never raised an error.
 
 ## Warm-up
 
@@ -246,7 +246,7 @@ The parentheses reduce `212 - 32` to `180` before anything else, so `180 * 5 / 9
 
 ## Write a Seconds Splitter
 
-A stopwatch has logged a run lasting `200` seconds total. Write a program that prints, on two separate lines, the whole number of minutes contained in `200` seconds and then the leftover seconds, using integer division and the remainder operator.
+A stopwatch has logged a run lasting `200` seconds total. Write a program that prints three lines: the whole number of minutes contained in `200` seconds, then the leftover seconds, then the exact decimal number of minutes those `200` seconds make.
 
 <Reveal label="Reveal a sample solution">
 More than one correct program can produce this result; the one below is a sample solution, not the only path to it.
@@ -254,21 +254,17 @@ More than one correct program can produce this result; the one below is a sample
 <Tabs syncKey="lang">
 <TabItem label="Python">
 ```python title="split.py"
-total_seconds = 200
-minutes = total_seconds // 60
-leftover_seconds = total_seconds % 60
-print(minutes)
-print(leftover_seconds)
+print(200 // 60)
+print(200 % 60)
+print(200 / 60)
 ```
 </TabItem>
 <TabItem label="Rust">
 ```rust title="split.rs"
 fn main() {
-    let total_seconds = 200;
-    let minutes = total_seconds / 60;
-    let leftover_seconds = total_seconds % 60;
-    println!("{}", minutes);
-    println!("{}", leftover_seconds);
+    println!("{}", 200 / 60);
+    println!("{}", 200 % 60);
+    println!("{}", 200.0 / 60.0);
 }
 ```
 </TabItem>
@@ -281,6 +277,7 @@ python3 split.py
 ```text frame="terminal" title="Output"
 3
 20
+3.3333333333333335
 ```
 
 ```bash title="Compile and run the Rust program"
@@ -291,9 +288,10 @@ rustc split.rs
 ```text frame="terminal" title="Output"
 3
 20
+3.3333333333333335
 ```
 
-`200 // 60` (Python) and `200 / 60` (Rust, on whole numbers) both floor to `3` whole minutes, and `200 % 60` leaves a remainder of `20` seconds in both languages, since the numerator here is positive and the two rules agree.
+`200 // 60` (Python) and `200 / 60` (Rust, on whole numbers) both give `3` whole minutes, and `200 % 60` leaves a remainder of `20` seconds in both, since the numerator is positive and the two rules agree there. The third line is where the languages part: Python's plain `/` already produces the exact float, while Rust's `/` would repeat the integer division, so both operands have to be written as floats, `200.0 / 60.0`, to get the same answer.
 </Reveal>
 
 ---

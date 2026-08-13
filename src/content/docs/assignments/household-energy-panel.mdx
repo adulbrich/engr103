@@ -18,7 +18,7 @@ slug: household-energy-panel
 order: 2
 family: literals, arithmetic, and precedence (foundations ramp)
 paired_recitation: R2
-prereq_lectures: how-programs-run, data-representation, expressions-and-operators
+prereq_lectures: how-programs-run, values-types-and-expressions, data-representation
 prereq_activities:
 prereq_assignment: field-office-setup
 new_scope: completing one provided program that prints the week-one literal types and precedence-sensitive arithmetic, graded by comparing printed output
@@ -36,7 +36,7 @@ The Willamette Resource Office runs free home energy audits for residents who re
 
 You work **test first**, the way the office's tools are really built: you read the problem, decide what correct output looks like by writing your own test rows, plan the program in pseudocode, and only then finish the code. You have not learned variables or functions yet, so the panel program comes as a **complete, runnable file with marked `TODO` lines**; you replace each placeholder with the literal or arithmetic expression that produces the reading described. The automated grader runs your program and compares its printed output, line by line, against the expected output. Solve it in Python or Rust, whichever you prefer; both are checked against the same panel.
 
-Two rules hold for every reading here, and both come straight from the [Data Representation and Memory](/lectures/data-representation/) lecture. First, an expression may not mix a whole number with a decimal number: Rust refuses to compile `3 + 2.5`, so any reading that needs a fraction must be written with **every** number as a float (for example `100.0`, not `100`). Second, to get a real fraction from division you must divide floats, because dividing two whole numbers is a separate rule you have not met yet.
+Two rules hold for every reading here, and both come straight from the [Values, Types, and Expressions](/lectures/values-types-and-expressions/) lecture. First, an expression may not mix a whole number with a decimal number: Rust refuses to compile `3 + 2.5`, so any reading that needs a fraction must be written with **every** number as a float (for example `100.0`, not `100`). Second, every division here divides floats, so both languages produce the same exact fraction: dividing two whole numbers instead would floor in Python and truncate in Rust, and the two panels would stop agreeing.
 
 ## What to Submit
 
