@@ -307,10 +307,10 @@ Rules:
 {/* ai-summary
 type: lecture
 slug: variables-and-state
-order: 3
+order: 4
 covers: names vs values; assignment and rebinding; let and let mut; shadowing; constants; tracing a variable table
-prereq_lectures: values-types-expressions
-followup_lectures: functions-i
+prereq_lectures: expressions-and-operators
+followup_lectures: functions
 glossary_terms: variable, assignment, shadowing, constant
 */}
 ````
@@ -342,6 +342,9 @@ Do not import any assignment, activity, or recitation component. None exist for 
 ## Writing Style
 
 - **No emdashes.** Never use the emdash character or the double-hyphen convention in place of one. Use a colon, a semicolon, a comma, a period, or parentheses instead.
+- **Lead with the point.** The first sentence of a paragraph states the claim; the rest supports it. Never build to the point over three sentences of throat-clearing.
+- **Specific nouns and verbs.** "The compiler rejects the line" beats "there can be issues with this approach." Name the thing that acts and what it does to what.
+- **State recommendations as opinions.** When a section tells the reader what to do, say it flatly: "Use `//` when you want a whole number." Not "some programmers prefer," not "you may wish to consider." A hedge on a recommendation reads as uncertainty about the language, which is not what you mean.
 - **Active voice.** "The loop repeats the block" rather than "the block is repeated by the loop."
 - **Second person.** Address the reader directly: "you will see," "you can check," "your next step is."
 - **Present tense for always-true concepts.** "A variable stores a value" rather than "a variable will store a value." Use future tense only for what the reader will be able to do: "by the end of this lecture, you will be able to trace a variable's value by hand."
@@ -354,11 +357,28 @@ Do not import any assignment, activity, or recitation component. None exist for 
 
 **Too casual:** "Python variables are pretty chill about types, they just kind of go with whatever you give them."
 
+## Cut Every Sentence That Does Not Teach
+
+**The test: delete the sentence. If a reader who has not seen it would understand the concept, or do the next thing, exactly as well, it stays deleted.** Apply this to every sentence of a lecture before it ships.
+
+This rule does not shorten explanation. Explanation is what changes what the reader understands, so it always passes the test; a mechanism paragraph, a traced example, or a named failure mode is never a cut candidate. What the rule removes is text that carries no information: announcements, restatements, hedges, and padding. Depth and brevity are not in tension here because they operate on different sentences.
+
+The recurring offenders, all banned:
+
+- **Announcements.** "In this section we look at...", "This part covers...", "Now that we have seen X, let us turn to Y." The heading already said it. See Section Structure and Flow, above.
+- **"It is worth noting that", "it is important to remember that", "note that".** If it were not worth noting you would not have written it. Delete the frame and keep the fact.
+- **Rule-of-three padding.** Three adjectives where one is true, or a third list item invented to round out a pair. Two real items beat three when the third is filler.
+- **Vague intensifiers and softeners.** "very", "really", "quite", "fairly", "somewhat", "a bit", "generally speaking", "in some sense". Either the claim is true, in which case state it, or it needs a precise qualifier, in which case give the precise one ("in Python 3.14", "for any `i32`", "unless the list is empty").
+- **Restating what the code already shows.** A tabbed example that prints `5.5` does not need a following sentence reading "as you can see, this prints 5.5." Prose after an example explains *why* the output is what it is, or it is deleted.
+- **Summary sentences inside a section.** The `## Takeaways` section is the one place synthesis belongs. A section that ends by summarizing itself pays twice for one idea.
+
+A lecture that passes this test reads as shorter than its word count suggests, because every sentence is doing work.
+
 ## Length Calibration
 
-Length is an output of teaching a concept properly, never a target to hit. Teach the mechanism, walk one example through step by step, show how to run it and what it prints, and name the failure mode (see "Depth" above); the length is then whatever that takes. Do not pad to reach a number, and never cut mechanism to stay under one.
+Length is an output of teaching a concept properly, never a target to hit. Teach the mechanism, walk one example through step by step, show how to run it and what it prints, and name the failure mode (see "Depth" above); the length is then whatever that takes. Then cut every sentence that does not teach (see above). Do not pad to reach a number, and never cut mechanism to stay under one.
 
-As a rough sanity check only, a flipped ENGR 103 note tends to land around **2,500 to 4,500 words** including code. Landing well under that is the warning sign to watch for: it almost always means a concept was flattened, its mechanism skipped, or an example left un-traced, and the fix is to deepen it, not to stretch it with filler. Landing well over usually means genuine tutorial hand-holding or problem-family story material has crept in and should move out. Run `wc -w src/content/docs/lectures/<file>.mdx` after a substantial edit to catch the thin case, not to enforce a ceiling.
+A flipped ENGR 103 note tends to land around **2,500 to 4,500 words** including code, but that band is an observation, not a floor and not a ceiling. **Never add a sentence because a note came in short.** A short note is a prompt to ask one question: was a mechanism skipped, an example left un-traced, or a failure mode unnamed? If the answer is yes, deepen it. If the answer is no, the note is done at whatever length it reached. Run `wc -w src/content/docs/lectures/<file>.mdx` after a substantial edit to trigger that question, never to satisfy a number.
 
 ## The Authoritative Accuracy Pass
 
@@ -379,7 +399,14 @@ After writing or editing a lecture, run:
 npm run build
 ```
 
-This runs `astro check` and the link validator, catching MDX syntax errors, bad imports, malformed component usage, and broken links. Fix every error before considering the lecture done. This site does not exclude drafts from the build: there is no `draft: true` flag to reach for, so a new lecture is simply added, built cleanly, and reviewed like any other page.
+This runs `astro check` and the link validator, catching MDX syntax errors, bad imports, malformed component usage, and broken links. Fix every error before considering the lecture done.
+
+Two things the build does not catch, both verified:
+
+- **A draft page's component references.** `draft: true` excludes a page from the built routes, so the build compiles its MDX (a syntax error still fails) but never renders it. A missing import throws only at render time. Render-check a draft by running `npm run dev` and requesting the page.
+- **Links into a draft page.** A link from a published page to a `draft: true` page fails the build as an invalid link, because the draft is not in the built routes. A draft page's own outbound links are not validated at all.
+
+`draft: true` is set by whoever authors a page. Only the instructor flips it to false. Never remove or unset it yourself.
 
 ## What Lecture Notes Must NOT Contain
 
