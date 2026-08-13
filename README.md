@@ -4,14 +4,15 @@ This repository contains the source code for the ENGR103 website.
 
 ## Needs Your Attention: Environmental Story Line Redesign
 
-The assignment tier is being re-skinned from Mission Ares to the Willamette
-Resource Office. Design specs are in `docs/superpowers/specs/`, the plan is in
+The assignment tier has been re-skinned from Mission Ares to the Willamette
+Resource Office, and console input moved from lecture 9 to lecture 4. All 21
+planned tasks are done and reviewed. Design specs are in
+`docs/superpowers/specs/`, the plan is in
 `docs/superpowers/plans/2026-08-08-environmental-storyline-and-console-input.md`,
-and per-task progress is in
+and per-task detail including every deferred minor is in
 `.superpowers/sdd/2026-08-08-environmental-storyline-and-console-input/progress.md`.
 
-These items are the ones a person has to settle. Everything else is being handled
-in the plan.
+These items are the ones a person has to settle.
 
 ### Verify the real-world constants before publication
 
@@ -23,17 +24,14 @@ need a human spot-check.
 - [ ] **A3 ev-carbon-payback:** gasoline 8,887 g CO2/gal (EPA); eGRID2022 NWPP 275 g/kWh; eGRID2022 US average 823.1 lb/MWh; battery 61 to 106 kgCO2e/kWh (IVL 2019). These four were fetched and matched during authoring, so this is a confirmation rather than a first check.
 - [ ] **A4 low-carbon-concrete:** Portland cement 919 kg CO2e/tonne (PCA industry-average EPD, ASTM-certified, 2021); slag 147 kg CO2e/tonne (Slag Cement Association EPD-011, 2015)
 - [ ] **A4 fly ash, 40 kg CO2e/tonne:** deliberately presented on the page as a WRO office figure, **not** as a citation, because no clean industry-average EPD was findable. Decide whether to source it properly or leave it as an authored figure.
-- [ ] **A6 sensor-drift-check:** EPA PM2.5 NAAQS figures (cited, agency/dataset/year present). The PMS5003 sensor range (0 to 500 µg/m3, manual v2.3, 2016) was cross-confirmed across several retailer mirrors because the sandbox blocks the primary Plantower PDF, so it is honest but not primary-sourced.
 - [ ] **A5 burn-window-clearance:** all three windows are authored WRO figures by design, explicitly labeled, not published. Decide whether to source a real state forestry prescription instead.
+- [ ] **A6 sensor-drift-check:** EPA PM2.5 NAAQS figures are cited with agency, dataset, and year. The PMS5003 sensor range (0 to 500 µg/m3, manual v2.3, 2016) was cross-confirmed across several retailer mirrors because the sandbox blocks the primary Plantower PDF, so it is honest but not primary-sourced.
 - [ ] **A8 solar-array-lifetime:** module degradation rate. Its summit (spent-fuel decay) deliberately carries **no** citation: radioactive decay is described generically because no isotope half-life could be verified in-session. Decide whether to source a real one.
+- [ ] **A10 emissions-inventory:** the monitor-siting equity source was fetched and its comparison group corrected during authoring (the paper compares against the overall U.S. population). Worth one confirmation read.
 
-### Decide on one cross-tier mismatch
+### Classroom logistics that the pages now depend on
 
-VISION requires an assignment and its recitation sibling to differ by at most one
-structural twist. Recitations are a stated non-goal of this project, so nothing in
-them has been touched, but rewriting A5 introduced a gap.
-
-- [ ] **A5 now takes three readings** (wind speed, relative humidity, fuel moisture) while its recitation sibling R5 (`src/content/docs/recitations/hot-tub-safety-checks.mdx`) still takes two. Either add a third reading to R5, or drop A5 to two. Watch for the same thing as A6 through A10 land.
+- [ ] **Week 2's activity needs `read_i32` and `read_f64` in the room.** The new input block has students run a Rust program that calls them, but the starter repositories do not begin until A3. Either release the A3 starter before week 2's Wednesday lecture, or hand out the two helpers in that session. The page now states this dependency, but stating it does not solve it.
 
 ### Look at the two new simulators
 
@@ -44,12 +42,19 @@ exact, but nobody has actually looked at them.
 - [ ] `src/components/EvPaybackForm.svelte` (on the A3 page)
 - [ ] `src/components/ConcreteMixForm.svelte` (on the A4 page)
 
-### Unblock three tasks
+### Cross-tier alignment, deliberately out of this project's scope
 
-A second agent has been holding files this work also needs.
+VISION requires an assignment and its recitation sibling to differ by at most one
+structural twist. Recitations were a stated non-goal, so nothing in them was
+touched, but rewriting the assignments exposed drift.
 
-- [ ] **Commit or release `VISION.md`.** Tasks 3 (VISION rewrite) and 4 (the three public story pages, which must match VISION word for word) cannot run until it is free.
-- [ ] **Say which activity files the other agent is editing.** Task 8 touches `src/content/docs/activities/variables-and-state.mdx` and `errors-input-and-validation.mdx`. If those two are clear, it can run immediately.
+- [ ] **A5 takes three readings** (wind speed, relative humidity, fuel moisture) while its sibling R5 (`recitations/hot-tub-safety-checks.mdx`) still takes two. Either add a third to R5 or drop A5 to two.
+- [ ] **Re-derive the whole recitation slate against the new assignments.** The ten recitations still wear Rubber Duck Robotics, which is correct and deliberate, but their problems were written against the Mars assignments. Each one should be checked as a same-level sibling of its new assignment.
+
+### Known gaps nobody owns yet
+
+- [ ] **`engr103-assignments/SKILL.md` line 278 points at `linear-equations-rubrics.tsv`**, deleted before this project began. Pre-existing, out of scope for the sweep, still broken.
+- [ ] **The `total = total * total` double-reference case is gone.** It lived in the week-2 activity block that the input block replaced. The general evaluate-then-bind idea survives in two other examples, but that specific harder case has no home now.
 
 ### Accepted costs, recorded so they are not a surprise later
 
