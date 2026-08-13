@@ -96,9 +96,12 @@ Why Rust rather than C++ as the second language:
 - Every concept on the exam inventory (section 4) is expressible in a small,
   stable subset of Rust with no lifetimes and no generics.
 
-C++ is not abandoned: a short **"C++ bridge" appendix** in the lecture notes maps
-the course subset of Rust onto C++ syntax for students continuing into
-C++-based courses. Teaching all three languages as co-equal tracks is explicitly
+C++ is not abandoned, but it is confined to exactly one page: the **C++ bridge**
+reference page (`reference/cpp-bridge`), which maps the course subset of Rust
+onto C++ syntax for students continuing into C++-based courses. No lecture, and
+no other page of the site, names C++ at all: the lectures argue memory safety
+and run-time checking from what Python and Rust guarantee, never from what a
+third language fails to. Teaching all three languages as co-equal tracks is explicitly
 out of scope; two is the pedagogical sweet spot, three is a logistics tax on
 every lab machine, autograder, rubric, and TA.
 
@@ -109,13 +112,13 @@ students would later have to unlearn, and it hides exactly what the exams test
 (types, memory, function contracts). The bet is the opposite: certify
 language-independent concepts here so that MATLAB, which most majors meet in
 their second year, becomes a week of syntax rather than a course. Outcome O7
-names this transfer explicitly, and a short **MATLAB bridge** appendix joins
+names this transfer explicitly, and a short **MATLAB bridge** reference page joins
 the C++ bridge, mapping the course subset onto MATLAB for students heading
 into MATLAB-based major courses. Licensing seals it: Python and Rust run free
 on the lab image and in the Gradescope container; MATLAB does not.
 
 The same logic scales down for the longer tail of languages students will
-meet. Full bridge appendices exist only where the audience is large and the
+meet. Full bridge reference pages exist only where the audience is large and the
 need immediate: C++ and MATLAB. The rest live in a single **language field
 guide**, a reference page of one-page concept maps (Fortran for the nuclear
 and HPC-bound, R for the statistics-bound in bio, environmental, ecological,
@@ -579,12 +582,19 @@ paper trace, and the reflection), and the code goes to **Gradescope**. Its parts
    student's function, and prints the result, but that `main` is provided code
    and is never graded. Console input is therefore authored once, by the
    student, in A3; from A4 on it exists only as provided code the student
-   reads. Starter code is distributed as self-contained git
-   repositories on OSU GitLab, each carrying the spec (as its README), the twin
+   reads. Starter code is distributed as a **zip download on
+   Canvas**, each carrying a README repeating the contract, the twin
    scaffolds, the visible tests, and the `check`/`pack` tools; submission and
    autograding run on Gradescope, whose Docker-based autograder is language
    agnostic, so a single custom container image carries both the Python test
-   runner and the Rust toolchain. Passing the visible tests earns the credit. Twin
+   runner and the Rust toolchain. **No version control and no server access is
+   required to pass this course** (instructor decision, August 2026): no
+   operational outcome touches either, catalog outcome 6's code repository is
+   administered outside this course, and Gradescope's submission history serves
+   as the students' safety net. Git remains optional enrichment (the standalone
+   extra-credit activity), and the ENGR servers remain a fully supported
+   optional route for students who cannot or prefer not to install a toolchain
+   locally. Passing the visible tests earns the credit. Twin
    scaffolds in both languages; through week 3 students must submit in each
    language at least once (to force an informed choice of their main language),
    free choice afterwards. Because the recitations and exams ask for no
@@ -1022,7 +1032,7 @@ linked from week 1 and from every stretch problem.
 
 Sixteen outcome-bearing lectures across weeks 1 to 9, plus two advanced-extra
 lectures in week 10, with the midterm in week 6. The Winter-term calendar gives
-twenty Monday/Wednesday slots, minus the MLK holiday (week 3 Monday, no class)
+twenty Monday/Friday slots, minus the MLK holiday (week 3 Monday, no class)
 and the midterm slot, leaving eighteen teaching sessions. **All learning
 outcomes are met by the end of week 9; week 10 introduces only advanced material
 not required for the outcomes.** The term is correctness-first: the first half
@@ -1032,7 +1042,7 @@ errors, and testing without iteration; loops and data come after the midterm.
 Notes are concept-first and dual-language throughout: every concept section ends
 with a tabbed Python/Rust example pair and a "what differs"
 call-out. **The notes are read before class (the flipped model, section 7):
-class time is spent on activities, and only lecture 1 (and perhaps lecture 2)
+class time is spent on activities, and only lecture 1
 receives a full in-class walkthrough; every other lecture's exposition lives in
 its notes.** The reusable memory stepper and the binary/bits visualizer are
 embedded wherever the representation or memory picture helps (variable
@@ -1051,22 +1061,22 @@ teaches its concept).
 
 | Wk | Lecture | Notes content (read in advance) | Recitation that week | Assignment due before that recitation |
 |---|---|---|---|---|
-| 1 | 1 | **How programs run.** Computation and algorithms; source code, interpreters (Python) and compilers (Rust); running a program; printing results; errors as messages, not verdicts; the systematic debugging method and the modeling-versus-analysis distinction, both introduced here and threaded all term; the two-language philosophy and the language ladder. (This lecture, and perhaps lecture 2, get a full in-class walkthrough; the rest are read before class.) | R1 (ungraded): environment, terminal, editor, the `check` harness, hello in both languages. | A1: setup, toolchains, hello in both languages. |
-| 1 | 2 | **Data representation and memory.** Values (integers, floats, booleans, strings) and their types; static vs dynamic typing; binary and decimal; bits and bytes; memory as addressable boxes; type sizes; Python's arbitrary-precision `int` vs Rust's fixed `i32`/`f64`, and what the numbers in `i32`/`f64` mean. Taught with the interactive binary/bits visualizer and a memory-box diagram, before any type name is used to mean a bit-width. Character encoding and ASCII are deferred to lecture 13, where characters are taught. | | |
-| 2 | 3 | **Expressions and operators.** Arithmetic operators and precedence; integer vs float division and truncation (grounded in lecture 2's types and sizes); implicit coercion; mixed-type expressions; evaluating expressions by hand. | R2: how programs run and data representation. | A2: Types-and-representation families + paper trace. |
-| 2 | 4 | **Variables and state.** Names vs values; assignment and rebinding; `let` and `let mut`, shadowing; initialization and uninitialized reads (Rust forbids, C++ undefined behavior); constants; tracing with a variable table; console input: reading a line and turning it into a number. Uses the memory stepper. | | |
-| 3 | 5 | **Functions I.** Defining and calling; parameters, arguments, return values; signatures and types; arguments and parameters are separate memory and the value is copied; how the autograder calls your functions. Uses the memory stepper. (Week 3 Monday is the MLK holiday, so this is the only week-3 lecture.) | R3: expressions and variables. | A3: Arithmetic-with-units families + paper trace. |
+| 1 | 1 | **How programs run.** Computation and algorithms; source code, interpreters (Python) and compilers (Rust); running a program; printing results; errors as messages, not verdicts; the systematic debugging method and the modeling-versus-analysis distinction, both introduced here and threaded all term; the two-language philosophy and the language ladder. (This lecture gets a full in-class walkthrough; the rest are read before class.) | R1 (ungraded): environment, terminal, editor, the `check` harness, hello in both languages. | A1: setup, toolchains, hello in both languages. |
+| 1 | 2 | **Values, types, and expressions.** Values (integers, floats, booleans, strings) and their types; static vs dynamic typing; arithmetic operators and precedence; integer vs float division and truncation; implicit coercion; mixed-type expressions; evaluating expressions by hand. Type names such as `i32` and `f64` appear here as plain labels only; what the numbers in them mean is lecture 3's job, so no type name is used to mean a bit-width before bits are taught. | | |
+| 2 | 3 | **How values are stored.** Binary and decimal; bits and bytes; memory as addressable boxes and hexadecimal; type sizes and what the numbers in `i32`/`f64` mean; the `i32` range and the out-of-range literal; Python's arbitrary-precision `int` vs Rust's fixed `i32`/`f64`; floats as approximations. Opens by answering the rules lecture 2 stated without reasons (no mixing of whole and decimal numbers, the discarded remainder, the largest `i32`). Taught with the interactive binary/bits visualizer and a memory-box diagram. Character encoding and ASCII are deferred to lecture 13, where characters are taught. | R2: how programs run, values, types, and expressions. | A2: Values-types-and-expressions families + paper trace. |
+| 2 | 4 | **Variables and state.** Names vs values; assignment and rebinding; `let` and `let mut`, shadowing; initialization and uninitialized reads (Rust forbids them at compile time); constants; tracing with a variable table; console input: reading a line and turning it into a number. Uses the memory stepper. | | |
+| 3 | 5 | **Functions I.** Defining and calling; parameters, arguments, return values; signatures and types; arguments and parameters are separate memory and the value is copied; how the autograder calls your functions. Uses the memory stepper. (Week 3 Monday is the MLK holiday, so this is the only week-3 lecture.) | R3: how values are stored, and variables. | A3: Arithmetic-with-units families + paper trace. |
 | 4 | 6 | **Scope and the call stack.** Local and nested scope; shadowing; lifetimes of names; the global-variable antipattern; the call stack drawn by hand; decomposing a program into functions. Uses the memory stepper. Taught before control flow because scope governs the blocks inside conditionals and loops. | R4: functions. | A4: Function families + paper trace. |
-| 4 | 7 | **Booleans and conditionals.** Comparisons, logical operators, short-circuit; `if`/`else`; building conditions from specifications; the floating-point equality trap and comparison with tolerance, grounded in lecture 2. | | |
+| 4 | 7 | **Booleans and conditionals.** Comparisons, logical operators, short-circuit; `if`/`else`; building conditions from specifications; the floating-point equality trap and comparison with tolerance, grounded in lecture 3. | | |
 | 5 | 8 | **Decision structures.** `elif`/`else if` chains and `match`; nesting vs chaining; decision tables; guard clauses; common boundary bugs. | R5: scope and conditionals. | A5: Scope-and-conditionals families + paper trace. |
 | 5 | 9 | **Errors, input, and validation.** Kinds of errors (syntax, run-time, logic); parsing and why it fails; exceptions vs `Result`; validating a value and failing loudly. (The loop-based validate-until-correct pattern is deferred to lecture 12.) | | |
 | 6 | 10 | **Testing.** Test cases from a specification; boundary and error cases; assertions and test functions in both languages; consolidates the spec-to-tests skill practiced since week 3. | R6: decision tables and errors (from week 5). | A6: decision-table and validation families + paper trace. |
 | 6 | | **Midterm**, multiple choice on paper during the second lecture slot, covering everything taught so far (lectures 1 to 10; no loops). | | |
-| 7 | 11 | **Loops.** `while` for unknown counts, counted loops; loop variables; termination; `do-while` as a C++-only "what differs"; tracing loops. | R7: testing. | A7: Testing families + paper trace. |
+| 7 | 11 | **Loops.** `while` for unknown counts, counted loops; loop variables; termination; the deliberate forever loop (`while True:` and `loop`) with `break` as its only exit; tracing loops. | R7: testing. | A7: Testing families + paper trace. |
 | 7 | 12 | **Loop patterns.** Accumulate, count, search, sentinel, validate-until-correct; nested loops (ASCII rendering); choosing the pattern from the problem statement. | | |
-| 8 | 13 | **Strings and characters.** Strings as sequences; characters and character encoding (ASCII, introduced here and grounded in lecture 2's bits and bytes); slicing, searching, building strings. | R8: loops and loop patterns (duckbot run-planning loops). | A8: Loop families + paper trace. |
-| 8 | 14 | **Collections I: lists and vectors.** Indexing, length, iteration; growing and mutating; out-of-bounds as Python's `IndexError` vs Rust's panic (and the C++ buffer-overflow danger that motivates both). | | |
-| 9 | 15 | **The memory model: aliasing and ownership.** Names point at values; aliasing in Python (two names, one list) and ownership/moves/borrows-lite in Rust; the C++ dangling/buffer-overflow danger as why memory safety matters; drawing memory diagrams. Uses the memory stepper. (Late because aliasing needs lists to exist first; the foundation and the stepper are early.) | R9: strings and lists (order-code tallies and letter-by-letter decoding). | A9: Encode/decode families + paper trace. |
+| 8 | 13 | **Strings and characters.** Strings as sequences; characters and character encoding (ASCII, introduced here and grounded in lecture 3's bits and bytes); slicing, searching, building strings. | R8: loops and loop patterns (duckbot run-planning loops). | A8: Loop families + paper trace. |
+| 8 | 14 | **Collections I: lists and vectors.** Indexing, length, iteration; growing and mutating; out-of-bounds as Python's `IndexError` vs Rust's panic (and the buffer overflow an unchecked language leaves open, which motivates both). | | |
+| 9 | 15 | **The memory model: aliasing and ownership.** Names point at values; aliasing in Python (two names, one list) and ownership/moves/borrows-lite in Rust; the dangling reference and the buffer overflow as why memory safety matters; drawing memory diagrams. Uses the memory stepper. (Late because aliasing needs lists to exist first; the foundation and the stepper are early.) | R9: strings and lists (order-code tallies and letter-by-letter decoding). | A9: Encode/decode families + paper trace. |
 | 9 | 16 | **Sharing and mutation.** Passing collections to functions; when the caller sees your changes; defensive copying; Rust `&`/`&mut` and why Rust makes you declare intent. Uses the memory stepper. | | |
 | 10 | 17 | **Collections II: dictionaries and maps** (advanced extra, not required for the outcomes). Dictionaries and hashmaps; key-value thinking; choosing between list and map; frequency counting and lookup. | R10: memory model and sharing (from week 9). | A10: the final assignment, list-based, parsing a reading line into the station manifest with tests; accessibility/equity critique; paper trace. |
 | 10 | 18 | **Computing with judgment** (advanced extra, not required for the outcomes). Evaluating code you did not write (a peer's, a library's, an AI's); limitations and failure modes; who is excluded by our tools; course synthesis and final-exam concept map. | | |
@@ -1084,7 +1094,7 @@ Alignment checks built into the table:
 - **Errors and testing are taught before the midterm** (lectures 9 and 10),
   reinforcing the test-and-debug discipline threaded from week 1; loops come
   after the midterm.
-- **The light memory foundation is early** (lecture 2, with the interactive
+- **The light memory foundation is early** (lecture 3, with the interactive
   binary/bits visualizer and memory-box diagram); the deep memory model is late
   (lecture 15) only because aliasing needs lists to exist first. The reusable
   memory stepper is used wherever the memory picture helps (lectures 4, 5, 6, 15,
@@ -1096,8 +1106,11 @@ Alignment checks built into the table:
   10.
 - Tooling (git, shell, editor, file I/O) lives in activities and assignments
   only, never on exams; git in particular is a standalone extra-credit activity.
-- No lecture carries two major topics; lecture 2 is "values and their
-  representation" as one topic.
+- No lecture carries two major topics; lecture 2 is "values and the expressions
+  built from them" as one topic, and lecture 3 is "how those values are stored"
+  as one topic. Lecture 2 comes first because its rules can be stated and used
+  before the storage that explains them, while the reverse order would make
+  lecture 2 depend on the lecture after it.
 
 ---
 
@@ -1107,12 +1120,10 @@ Alignment checks built into the table:
   booleans, if-statements, loops, functions, scope, strings, arrays, references,
   error handling) map directly onto the new schedule; the work is converting
   C++ examples to tabbed Python/Rust pairs and adding the "what differs" call-outs.
-  `cpp-basics.mdx` becomes the C++ bridge appendix. The `CppMemoryStepper`
-  component is ported to a dual-language memory stepper (Python aliasing vs Rust
-  ownership) and used as a reusable tool wherever the memory picture helps
-  (lectures 4, 5, 6, 15, 16, and archetype 6 practice); a new binary/bits
-  visualizer and memory-box diagram support the week-1 data-representation
-  lecture.
+  The prose `cpp-basics.mdx` appendix was folded into `reference/cpp-bridge` and
+  deleted, so C++ survives on that one reference page only. The `CppMemoryStepper`
+  component and its engine were deleted unported; the binary/bits visualizer and
+  the memory-box diagram support the week-2 representation material.
 - **Studios** become the assignment problem sets (their current difficulty is
   the take-home tier); recitation problems are authored new as same-level
   variations of the assignment problems.
