@@ -23,9 +23,9 @@ Recitations are **not harder than the assignment that prepares them.** The only 
 
 ## The Story: Rubber Duck Robotics
 
-Recitations wear the **Rubber Duck Robotics** story line: a mediocre but lovable novelty-gadget company (self-stirring mugs, motivational bathtub ducks, duck-race timers, the occasional smart hot tub). In the room the student is the new firmware intern, and each recitation is a **ticket from Gary**, the senior engineer: he hands the intern the gadget work for the week. The tone is comic where the assignment's Mission Ares is heroic, which lightens the test-day nerves. The company name is a planted joke that pays off when rubber-duck debugging is introduced.
+Recitations wear the **Rubber Duck Robotics** story line: a mediocre but lovable novelty-gadget company (self-stirring mugs, motivational bathtub ducks, duck-race timers, the occasional smart hot tub). In the room the student is the new firmware intern, and each recitation is a **ticket from Gary**, the senior engineer: he hands the intern the gadget work for the week. The tone is comic where the assignment tier's WRO setting is deliberately less heroic, which lightens the test-day nerves. The company name is a planted joke that pays off when rubber-duck debugging is introduced.
 
-Recitations carry **no distractors, no red herrings, and no trick helpers.** They are straightforward problem sheets: the intern reads each ticket and solves it. Do not plant a subtly wrong helper to catch, an unused quantity to notice, or any other misdirection. The judging-provided-code skill lives on the assignment tier (HAB); the recitation is an honest test of whether the practiced work transferred.
+Recitations carry **no distractors, no red herrings, and no trick helpers.** They are straightforward problem sheets: the intern reads each ticket and solves it. Do not plant a subtly wrong helper to catch, an unused quantity to notice, or any other misdirection. The judging-provided-code skill lives on the assignment tier (AURA); the recitation is an honest test of whether the practiced work transferred.
 
 The story is a spine, not a cage: every problem is fully understandable with the Rubber Duck plot skipped.
 
@@ -154,6 +154,6 @@ After writing or editing a recitation, run `npm run build` (this runs `astro che
 - No `Recitation N:` prefix in the title; the number lives in `sidebar.order`.
 - No core problem harder than the paired assignment; extra difficulty belongs only in the extra-credit problem.
 - No construct beyond the recitation's week on the language ladder.
-- No Mission Ares or HAB; recitations are Rubber Duck Robotics and Gary.
+- No WRO or AURA; recitations are Rubber Duck Robotics and Gary.
 - No distractors, red herrings, or trick helpers (no Gary's-wrong-helper, no unused quantities); recitations are straightforward problem sheets.
 - No emdashes, and no pairing language; author for one individual intern.

@@ -18,7 +18,7 @@ An activity is the guided, hands-on companion to one lecture, built to fill a 50
 
 The authored page opens with a brief **warm-up** before the three blocks: a quick refresher of the lecture's simplest building blocks, so a student who read the notes days ago, or is catching up alone after missing class, has the pieces fresh before the guided thinking starts.
 
-An activity carries no story. Assignments dress their problems in the Mission Ares story line and recitations in Rubber Duck Robotics, but an activity, like an exam, states the bare concept as fast as it can be read: no costume, no narrative thread, no plot to track. Like a lecture, an activity is dual-language: every example that can show both Python and Rust does so.
+An activity carries no story. Assignments dress their problems in the Willamette Resource Office story line and recitations in Rubber Duck Robotics, but an activity, like an exam, states the bare concept as fast as it can be read: no costume, no narrative thread, no plot to track. Like a lecture, an activity is dual-language: every example that can show both Python and Rust does so.
 
 Every activity is paired with exactly one lecture, named in its `ai-summary` block as `paired_lecture`. The activity does not re-teach that lecture's concepts; it gives the student a first guided rep at applying them.
 
