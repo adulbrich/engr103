@@ -36,8 +36,10 @@ Two invariants worth knowing before you edit anything:
 - **The language ladder** (`reference/language-ladder.mdx`) is binding. Every
   graded item must be solvable with the constructs listed for its week, and
   nothing above that row may appear.
-- **Recitations are never published.** They stay `draft: true` so a proctored
-  assessment cannot be found and pre-solved.
+- **`draft: true` on the recitations keeps them off the built site and nothing
+  more.** This repository is public, so the handout sources are readable on
+  GitHub by anyone who looks. VISION describes recitations as private handouts;
+  that is currently not true in practice. See the open item below.
 
 `VISION.md` holds the design rationale behind all of it, and `ARCHITECTURE.md`
 covers the proposed recitation-lab hardware.
@@ -98,6 +100,23 @@ touched, but rewriting the assignments exposed drift.
 
 - [ ] **A5 takes three readings** (wind speed, relative humidity, fuel moisture) while its sibling R5 (`recitations/hot-tub-safety-checks.mdx`) still takes two. Either add a third to R5 or drop A5 to two.
 - [ ] **Re-derive the whole recitation slate against the new assignments.** The ten recitations still wear Rubber Duck Robotics, which is correct and deliberate, but their problems were written against the Mars assignments. Each one should be checked as a same-level sibling of its new assignment.
+
+### Recitation handouts are publicly readable
+
+The nine graded recitation handouts are `draft: true`, which excludes them from
+the built site but not from this public repository. They have been readable at
+`github.com/adulbrich/engr103` since they were authored and pushed, and they are
+readable right now. A proctored assessment whose questions are published is not
+proctored in any useful sense.
+
+Treat the current handouts as compromised regardless of what happens next.
+Content that has been pushed to a public repository cannot be un-published:
+clones, forks, and code-search indexes may retain it, so making the repository
+private later stops future exposure without undoing past exposure.
+
+- [ ] **Decide where recitations live** (private repository, private submodule, or outside git entirely) and stop the ongoing exposure.
+- [ ] **Rewrite the nine graded handouts** as fresh variations, wherever they end up.
+- [ ] **Correct VISION section 5**, which claims recitations are "kept private" and "never published on the course site." The second half is true; the first is not, and the section reads as though the draft flag delivers the privacy.
 
 ### Known gaps nobody owns yet
 
