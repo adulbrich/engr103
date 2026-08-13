@@ -1,6 +1,6 @@
 ---
 title: "Running and Submitting Your Code"
-description: "How the starter repository is laid out, what the provided program does, how to run the check harness locally, and how to submit to Gradescope."
+description: "How an assignment's starter files are laid out, what the provided program does, how to run the check harness locally, and how to submit to Gradescope."
 draft: false
 ---
 
@@ -9,11 +9,11 @@ import LanguageVersions from '/src/components/LanguageVersions.astro';
 
 <LanguageVersions />
 
-Every assignment and every recitation in this course is delivered as a **starter repository** and graded the same way. This guide explains the parts you touch, the parts you do not, how to check your work on your own machine before submitting, and how to submit. Learn it once here in week 1 and every later assignment works the same way.
+Every assignment in this course arrives as a **folder of starter files** you download from Canvas, and every assignment is graded the same way. This guide explains the parts you touch, the parts you do not, how to check your work on your own machine before submitting, and how to submit. Learn it once here in week 1 and every later assignment works the same way.
 
 ## The Tools You Need
 
-You need four things, all free and all already installed on the recitation lab machines:
+You need four things, all free, and all installed on your own laptop by the end of week 1 (they are also already installed on the ENGR servers, which you reach with `ssh`):
 
 - **Python 3** (run `python3 --version` to confirm it responds).
 - **The Rust compiler** (run `rustc --version`).
@@ -22,11 +22,11 @@ You need four things, all free and all already installed on the recitation lab m
 
 If any command above prints an error instead of a version number, that tool is not set up yet. Fix that before going further; nothing else will work until all four respond.
 
-## What Is In a Starter Repository
+## What Is In a Starter Folder
 
-When you clone an assignment's starter repository, it already contains everything except your answers:
+Download the assignment's zip file from Canvas and unzip it. The folder contains everything except your answers:
 
-- **The specification**, as the repository's `README`. This is the assignment: what to build and the cases it will be checked against.
+- **A `README`** repeating the assignment's contract, so you have it beside the code. The full specification is the assignment page on this site: what to build and the cases it will be checked against.
 - **Two starter files, one per language**, in a `py/` folder and an `rs/` folder. You may work in either; both are checked against the same cases.
 - **The visible tests**, the cases you can see and run yourself.
 - **The `check` and `pack` commands**, described below.
@@ -135,6 +135,6 @@ A green local check is the habit every assignment relies on: get the visible tes
 
 2. **Upload to Gradescope.** Open the assignment on Gradescope (the link is on Canvas) and upload `submission.zip`. The autograder runs the same tests as `check`, plus the hidden ones.
 
-3. **Submit as often as you like.** The last submission before the deadline is the one that counts, so there is no penalty for uploading early and often. The recitation uses this exact same workflow, so submitting in the room is never new.
+3. **Submit as often as you like.** The last submission before the deadline is the one that counts, so there is no penalty for uploading early and often. Gradescope keeps every upload, so submitting early is also how you keep a copy of work that was running before you broke it.
 
 </Steps>
