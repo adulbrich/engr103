@@ -1,6 +1,54 @@
 # ENGR 103: Engineering Computation and Algorithmic Thinking
 
-This repository contains the source code for the ENGR103 website.
+Source for the ENGR 103 course website at Oregon State: an Astro + Starlight
+site holding every lecture note, activity, assignment, recitation, and reference
+page, plus the Canvas rubrics and the PDF and slide tooling that ship alongside
+them.
+
+The course is taught in **Python and Rust simultaneously**. Every concept
+appears in both languages, and students may answer in either.
+
+```bash
+npm install
+npm run dev      # localhost:4321
+npm run build    # astro check + astro build + link validation
+```
+
+`npm run build` is the gate for any content change. It runs `astro check`, builds
+the site, and fails on any broken internal link.
+
+## How the course is put together
+
+Five kinds of page live in `src/content/docs/`, and they are deliberately
+different genres. Mixing them is the most common authoring mistake, which is why
+each has its own authoring skill in `.claude/skills/`.
+
+| Directory | What it is | Genre | Story line |
+|---|---|---|---|
+| `lectures/` | Read before class, flipped | Explanation, prose | none |
+| `activities/` | Run live in lecture | Guided problem sets with closed reveals | none |
+| `assignments/` | Take-home, AI allowed | Requirements with one open problem | Willamette Resource Office |
+| `recitations/` | Proctored, on paper, **kept as drafts** | Bare problem sheets | Rubber Duck Robotics |
+| `reference/`, `practicalities/` | Language ladder, glossary, archetypes, how-tos | Terse reference and numbered how-to | none |
+
+Two invariants worth knowing before you edit anything:
+
+- **The language ladder** (`reference/language-ladder.mdx`) is binding. Every
+  graded item must be solvable with the constructs listed for its week, and
+  nothing above that row may appear.
+- **Recitations are never published.** They stay `draft: true` so a proctored
+  assessment cannot be found and pre-solved.
+
+`VISION.md` holds the design rationale behind all of it, and `ARCHITECTURE.md`
+covers the proposed recitation-lab hardware.
+
+## Authoring conventions
+
+Load the matching skill in `.claude/skills/` before editing a content file:
+`engr103-lecture-notes`, `engr103-activities`, `engr103-assignments`, or
+`engr103-recitations`. They encode the genre rules, the dual-language pattern,
+and the plain-language rule the whole site is written to (first year, never
+programmed, may not be a first-language English speaker).
 
 ## Needs Your Attention: Environmental Story Line Redesign
 
@@ -68,30 +116,18 @@ No action needed unless you disagree with the call.
 
 ## Instructor Checklist
 
-This coming term:
-
-- [ ] Add the Canvas assignments + rubrics to GitHub (OK for assignments 2, 3, 4, 5)
-
 Every term:
 
-- [x] Update professional development assignments, resources, and end-of-term survey
-- [x] Update **Due Dates** in Canvas
-- [x] Update **Due Times** for quizzes and exams
-- [x] Update **Course Schedule** in Canvas
-- [x] Update **Syllabus** in Canvas
-- [x] Update the version of this repository if making changes (`package.json`)
-- [x] Add TAs to Canvas
-- [x] Create team **Bookings** page for assignment demo and set up slots
-- [x] Update sections in Canvas
-- [x] Update **TA Names** in Canvas
-- [x] Update **Office Hours** in Canvas
-- [x] Update **Booking Links** in Canvas
-- [x] Create **GitHub Classroom** class
-- [x] Add TAs to GitHub Organization and send Classroom invite link
-- [x] Add assignments to GitHub Classroom
-- [x] Update GitHub Classroom **links** in Canvas (assignments)
-- [ ] Test all studios and assignments on the ENGR servers
-- [ ] Add DAS accommodations for midterm and final exams
+- [ ] Update **Due Dates**, **Due Times**, **Course Schedule**, and **Syllabus** in Canvas
+- [ ] Update sections, **TA Names**, **Office Hours** in Canvas
+- [ ] Add TAs to Canvas
+- [ ] Update professional development assignments, resources, and end-of-term survey
+- [ ] Bump the repository version in `package.json` if content changed
+- [ ] Set up the Gradescope course, upload the autograder image, and link it from Canvas
+- [ ] Publish the starter repositories on OSU GitLab and link them from Canvas
+- [ ] Print the recitation handouts and arrange secure storage between sections
+- [ ] Add DAS accommodations for the midterm, the final, and the recitations
+- [ ] Dry-run every assignment end to end on a clean machine
 
 ## Canvas
 
@@ -103,7 +139,7 @@ Assignments are stored in HTML format. When editing a Canvas assignment, click t
 
 ## PDFs
 
-The `scripts/generate-pdfs.sh` helper will retrieve and generate individual PDFs for all lectures, studios, assignments, and practicalities from the live deployment. It will then generate a combined version of all files. To run it, use:
+The `scripts/generate-pdfs.sh` helper will retrieve and generate individual PDFs for all lectures, activities, assignments, and practicalities from the live deployment. Recitations are excluded because they are never published. It will then generate a combined version of all files. To run it, use:
 
 ```bash
 cd scripts
@@ -122,43 +158,25 @@ npx @marp-team/marp-cli@latest web-graphics.md --pdf --allow-local-files
 
 Change `web-graphics.md` to the desired slide deck.
 
-## To Dos
+## Backlog
 
-### Course Design
+### Course design
 
-- [ ] Add more content on proper design (including testing and coming up with good test cases)
-- [ ] Completely re-evalute assessment in this class, assuming that everyone has access to strong GenAI tools (i.e., tools that can reason, write code, and explain code -- basically tackle any of the fundamental concepts they should be learning). Here are some ideas:
-  - How do we define the goal underlying engineering studies? Here's a possible answer: reliably judge under uncertainty in safety-critical, economically consequential systems.
-  - Could we do more in-person live oral (vivas) assessments in addition to the written exams? We already do live demos but many students still use GenAI to write their code.
-  - Could we have vivas where students have to think through a problem on a whiteboard? They would not know the problem in advance, and this would be similar to "live" coding interviews that are common in industry. Instead of 70+ unique problems, we could have afew with variations in values. we don't have to grade everyone every week or every assignment, but at least grade students twice every term in a viva format. This would require coming up with good rubric items to make it easy for TAs to conduct these sessions and give consistent feedback.
-  - Studios/recitations have very simple problems to help students practice fundamentals. If they use GenAI or other resources to "give" them the answers, they are not learning those fundamentals. Is that a problem? Will it be a problem? How can we make those studios useful? SHould we re-design the problems or the format/assessment?
-  - Add constraints to entry-level assignments, forbidding the use of advanced features of the language (no references, pointers, arrays, strings, or new libraries in early assignments, for example).
-  - Separate an "auto-graded" outcome part from the "process" and "understanding" part of the grade. Provide a function that accepts required inputs and outputs for the auto-graded part, for each assignment.
-  - Force process through mutli-commits in their repository history. Require a certain number of commits, and require that they include messages that indicate their process (e.g., "initial commit", "added function to calculate factorial", "added test cases for edge cases", etc.). This would make it easier for TAs to grade the process and understanding part of the grade, even if the code itself is generated by GenAI.
-  - Ask students to submit a hand-drawn explanation of the memory before/after lines are executed, or the call stack for a function, or the flow of data through their program.
-  - The design part should have a hand-drawn workflow diagram, or a hand-drawn sketch of the program structure, or a hand-drawn sketch of the memory layout, etc.
-  - Midterm/final => 50% of the grade
-  - Viva component => 25% of the grade
-  - Studios/assignments/participation => 25% of the grade
-  - Randomize in-person instructor interview on larger assignments -- could this reduce incentive to use GenAI for the entire assignment, since they won't know which part will be discussed in the interview?
-  - Reward understanding over output (output could be lower grade, auto-graded, and understanding would count for much more). Need to have TAs trained to handle this grading, including adequate rubrics and training sessions to ensure consistency across TAs.
-  - Rubrics should include submitting all AI prompts and responses as part of the assignment, and grading the quality of the prompts and the understanding of the responses. This would encourage students to use GenAI as a learning tool rather than a shortcut to get answers.
-  - Don't ban AI tools, but focus on process and verification?
-- [ ] Itemize rubrics for "subjective" demo grading
-- [ ] Add learning objectives to each lecture, optionally studios and assignments as well
-- [ ] Improve the "secondary" learning outcomes for the class (to be more programming specific)
+- [ ] Add learning objectives to each lecture, and optionally to activities and assignments
+- [ ] Author the pre-lecture checks: three archetype-drawn multiple-choice questions per lecture, with distractors mined from real student mistakes
+- [ ] Build the exam bank against the archetype inventory
+- [ ] Write the recitation handouts as same-level siblings of the rewritten assignments
 
 ### Contents
 
-- [ ] Consider additional explanations about static vs dynamic array allocations, the STL (resizable and dynamic) and automatic vs dynamic storage duration (bonus)
-- [ ] Consider additional object-oriented programming contents, including examples of class declaration and usage, and the design of classes (bonus)
-- [ ] Illustrate base address and references (when discussing arrays and references) - done for references, not for arrays yet
-- [ ] Provide larger code examples/programs the students can play with
+- [ ] Provide larger code examples and programs students can play with
+- [ ] Illustrate base addresses for arrays (done for references already)
+- [ ] Fill out the C++ and MATLAB bridge appendices and the language field guide
 
 ### Housekeeping
 
-- [ ] Create a Question? component that uses details/summary for better UX (ie in studio to challenge students)
-- [ ] Update Svelte components to Svelte 5.
+- [ ] Create a Question? component using details/summary for better UX
+- [ ] Update the remaining Svelte components to Svelte 5 (`EvPaybackForm` and `ConcreteMixForm` already are)
 
 ## 🚀 Project Structure
 
@@ -188,7 +206,7 @@ Important directories and files include:
 - `canvas/`: assets for Canvas LMS (TSV rubrics, HTML assignments)
 - `scripts/`: helper scripts for generating PDFs, etc.
 - `slides/`: slide decks for lectures in Marp Markdown format
-- `src/content/docs/`: all lecture notes, studios, assignments, practicalities, and other documentation, in `mdx` format
+- `src/content/docs/`: all lecture notes, activities, assignments, recitations, references, and practicalities, in `mdx` format
 - `src/components/`: reusable components for assignments and lectures, inlcuding a Latex component, and reactive Svelte components for assignments
 - `astro.config.mjs`: Astro configuration file, update sidebar entries here
 
@@ -225,32 +243,6 @@ This project uses `npm`. Feel free to use `pnpm`, `yarn`, or `bun` if you prefer
 I tried Quarto + Reveal.js to generate slides instead of Marp but it was difficult to automate the PDF generation. Marp seems to work well enough for now. Reveal.js is very feature-rich, tough, and would be a good option if we wanted to make more complex slides in the future.
 
 A better option seem to be [Slidev](https://sli.dev/), which is also Markdown-based, is feature-rich, flexible, AND can export to PDF easily. To be tested in the future, maybe in a separate repository.
-
-### Multi-Code Version (C++, Python, etc.)
-
-One option is to use [Internationalization](https://starlight.astro.build/guides/i18n/) to have multiple version of the course for different terms or different languages. We would need to change the icon for the language dropdown (code instead of translation) so that it is clear what the purpose is.
-
-Here's an example of the change to be made to `astro.config.mjs` to enable different versions:
-
-```js
-defaultLocale: 'root',
-locales: {
-  root: {
-    label: 'C++',
-    lang: 'cpp', 
-  },
-  'py': {
-    label: 'Python',
-    lang: 'py',
-  },
-},
-```
-
-I don't think this will be necessary. When I change the programming language to Rust or Python, I might:
-
-- Fork or cretae a new repository for the new language, or
-- Replace the content in this repository entirely, or
-- Keep the C++ contents in the repository but in another directory.
 
 ### VS Code
 
