@@ -5,7 +5,25 @@ sidebar:
   order: 4
 ---
 
-This page maps the course subset of Rust onto C++ syntax, for students who continue into C++-based courses. It covers only the constructs on the [language ladder](/reference/language-ladder), in ladder order, so what you learned here has a direct C++ form. Cells hold short fragments, not full programs. For a prose walkthrough of the same material, with runnable examples and the `g++` compile-and-run loop, read [The C++ Bridge](/lectures/cpp-basics/) appendix.
+This page maps the course subset of Rust onto C++ syntax, for students who continue into C++-based courses. It covers only the constructs on the [language ladder](/reference/language-ladder), in ladder order, so what you learned here has a direct C++ form. Cells hold short fragments, not full programs. Nothing on this page is examinable, and no other page depends on it.
+
+## Compile and run
+
+```cpp title="hello.cpp"
+#include <iostream>
+
+int main() {
+    std::cout << "Hello, world!" << std::endl;
+    return 0;
+}
+```
+
+```bash title="Compile, then run"
+g++ -o hello hello.cpp
+./hello
+```
+
+Every capability needs its header at the top: `<iostream>` for streams, `<string>` for strings, `<vector>` for vectors. A missing header is a compile error about an undeclared name.
 
 ## Construct map
 
@@ -45,7 +63,9 @@ This page maps the course subset of Rust onto C++ syntax, for students who conti
 
 ## What will surprise you
 
-- **Uninitialized variables and undefined behavior.** C++ lets you read a variable before you give it a value, and it lets you read past the end of a vector or array. Rust rejects both at compile time; C++ often accepts them and the program does something unpredictable instead of stopping.
+- **Uninitialized variables and undefined behavior.** C++ lets you read a variable before you give it a value, and it lets you read past the end of a vector or array. Rust rejects both at compile time; C++ compiles them without complaint. The result is **undefined behavior**: the language makes no promise about what the running program does. `readings[5]` on a two-element vector may print a stray number, crash, or corrupt another value while appearing to work, and the answer can differ per run, per machine, and per compiler.
+- **`std::cin >>` parses by the variable's type, and fails quietly.** `std::cin >> age` on an `int` reads one whitespace-separated word and converts it in one step, with no separate `int(...)` or `.parse()`. On input that is not a number it does not stop the program: it sets the value to zero and refuses every later read until the error state is cleared, so check the stream's state after each read.
+- **No indentation rule.** Semicolons end nearly every statement and braces wrap every block, as in Rust. Python's indentation-as-structure does not carry over.
 - **Manual headers and build steps.** In C++ you write `#include` lines for the standard library features you use (such as `<iostream>`, `<vector>`, `<string>`), and you compile with `g++` before you can run. There is no single `cargo run` step.
 - **`std::vector` and `std::string` versus `Vec` and `String`.** The C++ names and methods differ: `push_back` not `push`, `size` not `len`. They do the same jobs, but you look them up under different names.
 - **No move checker.** C++ does not track ownership or borrowing for you. It will let you keep using a value after it has been moved or freed, so you must reason about lifetimes yourself instead of relying on the compiler to catch the mistake.

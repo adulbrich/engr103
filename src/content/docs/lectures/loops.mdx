@@ -141,16 +141,10 @@ Now imagine deleting the line `n = n - 1` from either version. The body would pr
 If you ever run a program that is stuck in an infinite loop, printing forever or simply hanging, you can stop it from the terminal by pressing `Ctrl` and `C` together. That sends the running program a signal to quit, handing control back to you so you can find and fix the loop. It is a normal part of writing loops to trip an infinite one occasionally; knowing how to interrupt it means a mistake costs you a keystroke, not a frozen machine.
 :::
 
-:::note[There is no do-while here, but there is a deliberate forever loop]
-C++ offers a loop that always runs its body once before checking any condition, written `do`/`while`:
+:::note[The deliberate forever loop]
+A `while` loop in both languages checks its condition before the first pass, so a body can run zero times if the condition starts out false. That is sometimes the wrong shape: you may want the body to run once and only then decide whether to go around again, which is what asking a person for input looks like.
 
-```cpp title="C++'s do-while shape (not in Python or Rust)"
-do {
-    // the body runs once before the condition is ever checked
-} while (condition);
-```
-
-Neither Python nor Rust has that form; a `while` loop in both always checks the condition first, so a body can run zero times if the condition starts out false. When you genuinely want a loop that repeats on purpose until something inside it decides to stop, Python spells that `while True:` and Rust offers a dedicated `loop { ... }` keyword. Both rely on a `break`, described later in this lecture, to escape, and both are easy to turn into an accidental infinite loop if that escape is never reached.
+Both languages reach that shape the same way, with a loop whose condition is never false and a `break` inside the body to escape. Python writes it `while True:`, and Rust has a dedicated `loop { ... }` keyword for it. The `break` is described later in this lecture. Both forms turn into an accidental infinite loop the moment that escape is unreachable, so write the `break` before you write the body around it.
 :::
 
 ## Counting with a for loop

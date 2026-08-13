@@ -1,6 +1,6 @@
 ---
 title: "Collections I: Lists and Vectors"
-description: "Learn how a list, or vector, holds an ordered sequence of values you can index, measure, iterate, grow, and change, and why reaching past its end is caught at run time in Python and Rust but silently corrupts memory in C and C++."
+description: "Learn how a list, or vector, holds an ordered sequence of values you can index, measure, iterate, grow, and change, and why reaching past its end is caught at run time in Python and in Rust."
 sidebar:
   order: 14
 ---
@@ -349,7 +349,7 @@ index out of bounds: the len is 3 but the index is 5
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
-That both languages check at run time is the whole point, and it is easier to appreciate against a language that does not. In C and in C++, a raw array's indexing does no such check. Ask a C++ array for a position past its end and the program does not stop; it quietly reads or writes the memory that happens to sit just beyond the array, memory that belongs to some other value entirely. This is called a **buffer overflow**, and it is one of the oldest and most dangerous mistakes in programming: the program keeps running with corrupted data, or worse, a value crafted by an attacker overwrites memory the program relies on, turning a stray index into a way to seize control of the machine. Python's `IndexError` and Rust's panic exist precisely to make that impossible: they trade a program that stops loudly for one that might continue silently doing the wrong thing. The next lecture goes underneath this, into how memory is laid out and why writing past the end of one value lands you inside another, which is the foundation both languages build their safety on.
+That both languages check at run time is the whole point, and it is easier to appreciate against a language that does not. Not every language checks. In several widely used older languages, indexing a raw block of memory costs nothing extra precisely because nothing verifies the position first. Ask for a position past the end there and the program does not stop; it quietly reads or writes the memory that happens to sit just beyond the block, memory that belongs to some other value entirely. This is called a **buffer overflow**, and it is one of the oldest and most dangerous mistakes in programming: the program keeps running with corrupted data, or worse, a value crafted by an attacker overwrites memory the program relies on, turning a stray index into a way to seize control of the machine. Python's `IndexError` and Rust's panic exist precisely to make that impossible: they trade a program that stops loudly for one that might continue silently doing the wrong thing. The next lecture goes underneath this, into how memory is laid out and why writing past the end of one value lands you inside another, which is the foundation both languages build their safety on.
 
 <WhatDiffers>
 <Fragment slot="differs">
@@ -442,7 +442,7 @@ From there the operations echo the string lecture almost exactly. You reach an e
 
 What a list adds beyond a string is change: you append an element to the end with `nums.append(4)` or `nums.push(4)`, growing it by one, and overwrite an element with `nums[0] = 9`, and Rust requires a vector you change to be declared `let mut`.
 
-Reaching past the end is the canonical error, and both languages catch it at run time, Python with an `IndexError` and Rust with a panic. That is a deliberate contrast to C and C++, whose raw arrays silently read or write past their end and open the buffer overflow that the next lecture's look at memory explains and that memory safety exists to close.
+Reaching past the end is the canonical error, and both languages catch it at run time, Python with an `IndexError` and Rust with a panic. A language that skips that check instead reads or writes past the end in silence, which opens the buffer overflow that the next lecture's look at memory explains and that memory safety exists to close.
 
 Finally, the accumulate and search patterns from the loop-patterns lecture apply to a list without change, since a list is just a sequence to walk. The next lecture turns from what a list does to where its elements actually live in memory, which is what makes the `&` on `for x in &nums` and the danger of a buffer overflow finally make sense.
 
