@@ -1,6 +1,6 @@
 ---
 title: "Household Energy Panel"
-description: "Complete one household energy audit panel that prints an appliance's annual energy use and emissions, a typical-use comparison, and a smart meter's status as a binary literal, work test first, judge one of AURA's claims, and reduce an expression by hand."
+description: "Complete one household energy audit panel that prints an appliance's annual energy use and emissions, a typical-use comparison, and a smart meter's status code, work test first, judge one of AURA's claims, and reduce an expression by hand."
 sidebar:
   order: 2
 draft: false
@@ -18,11 +18,11 @@ slug: household-energy-panel
 order: 2
 family: literals, arithmetic, and precedence (foundations ramp)
 paired_recitation: R2
-prereq_lectures: how-programs-run, values-types-and-expressions, data-representation
+prereq_lectures: how-programs-run, values-types-and-expressions
 prereq_activities:
 prereq_assignment: field-office-setup
 new_scope: completing one provided program that prints the week-one literal types and precedence-sensitive arithmetic, graded by comparing printed output
-target_construct: arithmetic expressions with correct operator precedence over literal types (whole numbers, floats, booleans, binary literals)
+target_construct: arithmetic expressions with correct operator precedence over literal types (whole numbers, floats, booleans)
 persistent_requirements: dual-language; graded by comparing printed output; no variables or functions yet; every division uses float operands so both languages agree; no mixing of whole numbers and floats in one expression
 story_beat: a junior engineer at the WRO finishes a household energy audit panel before it goes into the office's report queue
 output: one completed energy-panel program to Gradescope; one hand reduction, acceptance tests, pseudocode, and a reflection in a Canvas PDF
@@ -57,7 +57,7 @@ Your finished program must print exactly five lines, in this order:
 2. The water heater's annual energy use in kilowatt-hours: its rated power, `4500` watts, running for `2.0` hours a day, scaled up over a full year. This is a decimal number, so write every number in the expression as a float.
 3. The water heater's annual emissions in kilograms of CO2e: the annual energy use from the line above, at the grid's carbon intensity of `275` grams of CO2e per kilowatt-hour. The intensity is given in grams; the panel reports kilograms. This is also a decimal number.
 4. Whether this water heater's annual energy use, the value from line 2, sits above the office's typical-use figure given above. This is a boolean.
-5. The smart meter's status bitfield: a connectivity flag worth `0b100` (the meter's last radio check-in succeeded), plus a two-bit retry-count field worth `0b10` per retry, with `3` retries logged this billing period, minus a diagnostic-clear flag worth `0b1` for the meter's one passed self-test. Write the three codes as binary literals and combine them with arithmetic.
+5. The smart meter's status code: a connectivity flag worth `4` (the meter's last radio check-in succeeded), plus a retry code worth `2` for each retry, with `3` retries logged this billing period, minus a diagnostic-clear code worth `1` for the meter's one passed self-test. This is a whole number.
 
 Do not type the final numbers directly. Every numeric reading must be written as the arithmetic expression that produces it, not as the number it comes out to. The boolean reading is the one exception: comparing two numbers with `>` is not something you have learned yet, so once you have worked out the annual energy use, you compare it by hand against the office's typical-use figure and write the boolean literal that comparison produces.
 
@@ -73,7 +73,7 @@ print(0)
 print(0)
 # TODO: whether the annual energy use from the line above sits above the 3,150 kWh typical-use figure
 print(0)
-# TODO: meter status bitfield: 0b100, plus 0b10 for each of 3 retries, minus 0b1
+# TODO: meter status code: 4, plus 2 for each of 3 retries, minus 1
 print(0)
 ```
 </TabItem>
@@ -87,7 +87,7 @@ fn main() {
     println!("{}", 0);
     // TODO: whether the annual energy use from the line above sits above the 3,150 kWh typical-use figure
     println!("{}", 0);
-    // TODO: meter status bitfield: 0b100, plus 0b10 for each of 3 retries, minus 0b1
+    // TODO: meter status code: 4, plus 2 for each of 3 retries, minus 1
     println!("{}", 0);
 }
 ```
@@ -98,11 +98,11 @@ We give you **one** worked reading to show the format. The meter status bitfield
 
 | Panel field | Prints |
 |---|---|
-| Meter status: `0b100 + 0b10 * 3 - 0b1` | `9` |
+| Meter status: `4 + 2 * 3 - 1` | `9` |
 
 You work out the other three readings yourself in Step 1.
 
-**Assumptions and edge cases.** The annual energy use and the annual emissions are both decimal numbers; the typical-use comparison is a boolean, and it depends on the annual energy use you compute on the line above it, not on a number handed to you separately; the meter status bitfield is a whole number built entirely from binary literals, with no floats in it. Keep whole numbers and decimals apart within a single expression. The meter status line mixes addition, subtraction, and multiplication, so the order those operators run in decides its answer.
+**Assumptions and edge cases.** The annual energy use and the annual emissions are both decimal numbers; the typical-use comparison is a boolean, and it depends on the annual energy use you compute on the line above it, not on a number handed to you separately; the meter status code is a whole number, with no floats in it. Keep whole numbers and decimals apart within a single expression. The meter status line mixes addition, subtraction, and multiplication, so the order those operators run in decides its answer.
 
 <Aside type="danger" title="AURA drafted the annual-use reading. Decide whether to trust it.">
 AURA, the office's assistant, offers this for the annual energy use: "The field technician's number is a daily reading, and the office's standard shortcut for turning any recurring reading into an annual figure is to multiply by twelve, the same way a monthly total rolls up to a year. Multiply the daily energy by twelve and the annual figure is ready for the report."
@@ -137,7 +137,7 @@ Replace each `TODO` placeholder in the provided program with the literal or expr
 
 <WhatDiffers>
 <Fragment slot="differs">
-Two lines print differently between the languages. Whichever way your typical-use comparison lands, Python spells its boolean with a capital letter (`True`) and Rust spells it in lowercase (`true`); both are the same value, printed the way each language writes it. The annual-energy-use line lands on a whole-numbered float: Python's `print` shows the trailing `.0` on a whole-numbered float, while Rust's `println!` drops it. The annual-emissions line has a real fraction, so it prints identically in both languages, and the meter status line, a whole number built only from binary literals, also prints identically.
+Two lines print differently between the languages. Whichever way your typical-use comparison lands, Python spells its boolean with a capital letter (`True`) and Rust spells it in lowercase (`true`); both are the same value, printed the way each language writes it. The annual-energy-use line lands on a whole-numbered float: Python's `print` shows the trailing `.0` on a whole-numbered float, while Rust's `println!` drops it. The annual-emissions line has a real fraction, so it prints identically in both languages, and the meter status line, a whole number, also prints identically.
 </Fragment>
 </WhatDiffers>
 
@@ -153,16 +153,15 @@ Two backup meter readings come in as the whole numbers `13` and `18`, in kWh, an
 
 ## Paper Practice
 
-Reduce this expression by hand, on paper, one operator at a time, and write the single value it comes out to. It is all whole numbers, and it includes a binary literal and a set of parentheses, the same precedence and literal rules the panel readings turn on.
+Reduce this expression by hand, on paper, one operator at a time, and write the single value it comes out to. It is all whole numbers, and it includes a set of parentheses, the same precedence rules the panel readings turn on.
 
 ```text title="Reduce this expression"
-5 * 6 - 3 * (0b111 - 2) + 8
+5 * 6 - 3 * (7 - 2) + 8
 ```
 
 <Reveal label="Reveal the reduction">
-```text title="Reducing 5 * 6 - 3 * (0b111 - 2) + 8"
-5 * 6 - 3 * (0b111 - 2) + 8
-5 * 6 - 3 * (7 - 2) + 8      (0b111 is the whole number 7)
+```text title="Reducing 5 * 6 - 3 * (7 - 2) + 8"
+5 * 6 - 3 * (7 - 2) + 8
 5 * 6 - 3 * 5 + 8            (the parentheses reduce first: 7 - 2 is 5)
 30 - 15 + 8                  (both products form before the + and -: 5 * 6 is 30, 3 * 5 is 15)
 23                           (left to right: 30 - 15 is 15, then 15 + 8 is 23)

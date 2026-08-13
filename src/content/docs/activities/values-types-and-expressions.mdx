@@ -1,6 +1,6 @@
 ---
 title: "Values, Types, and Expressions"
-description: "Predict, compare, and debug short arithmetic expressions in Python and Rust to lock in precedence, integer versus float division, the modulo operator, and the systematic method."
+description: "Predict, compare, and reason about short expressions in Python and Rust to lock in precedence, integer versus float division, the modulo operator, and why one language settles types before running and the other settles them as it runs."
 sidebar:
   order: 2
 draft: true
@@ -16,15 +16,15 @@ type: activity
 slug: values-types-and-expressions
 order: 2
 paired_lecture: values-types-and-expressions
-practices: reduces a mixed-operator expression by hand step by step, combining precedence, modulo, and integer-versus-float division to reach a value that differs between Python and Rust; names what changes and what stays fixed on the negative division case where Python's // floors and Rust's / truncates, including the sign of the modulo remainder; diagnoses a silent precedence bug in a temperature-conversion formula from a wrong result using the systematic method
+practices: reduces a mixed-operator expression by hand step by step, combining precedence, modulo, and integer-versus-float division to reach a value that differs between Python and Rust; names what changes and what stays fixed on the negative division case where Python's // floors and Rust's / truncates, including the sign of the modulo remainder; chooses the correct account of why Rust rejects a mixed whole-number and float expression that Python coerces, separating when a type is settled from what a value is worth
 prereq_activities:
-block_types: predict-then-run, same-program-two-languages, live-debugging
-output: a reconciled step-by-step prediction, a named cross-language difference on negatives, and a corrected conversion expression for each of the three sections
+block_types: predict-then-run, same-program-two-languages, peer-instruction
+output: a reconciled step-by-step prediction, a named cross-language difference on negatives, and a committed choice with a reason for the static-versus-dynamic typing question
 */}
 
 <LanguageVersions />
 
-This activity puts into practice the [Values, Types, and Expressions](/lectures/values-types-and-expressions/) lecture. You will predict the value of a long mixed-operator expression before running it, compare how Python and Rust handle a division case where their rules may not agree, and hunt down a silent bug in a temperature conversion. By the end, you will be able to reduce an expression by hand using precedence, modulo, and each language's division rule, and to catch a wrong answer that never raised an error.
+This activity puts into practice the [Values, Types, and Expressions](/lectures/values-types-and-expressions/) lecture. You will predict the value of a long mixed-operator expression before running it, compare how Python and Rust handle a division case where their rules may not agree, and decide why one of them refuses a line the other accepts. By the end, you will be able to reduce an expression by hand using precedence, modulo, and each language's division rule, and to say what a language checks before it runs your program and what it works out while running it.
 
 ## Warm-up
 
@@ -195,51 +195,56 @@ Had the numerator been positive, all of this would have stayed hidden: `7 // 2` 
 
 ---
 
-## Find the Silent Bug
+## Choose the Reason Rust Refuses
 
-Not every bug crashes. The program below runs, prints a number, and lies: the number is simply wrong. It is meant to convert `212` degrees Fahrenheit to Celsius using the formula that subtracts `32`, then scales by `5/9`. Boiling water is `212` Fahrenheit, which is `100` Celsius, so the correct answer is `100.0`. It prints something else. You find the bug with the systematic method: read the symptom, form a hypothesis, test it.
+Python prints a value for `3 + 2.5`. Rust will not build the same line at all. Below is the question and four accounts of why; exactly one is right. Commit to one before you open the reveal.
 
-Run the program, see what it actually prints, then work out why the value is wrong and how one change fixes it.
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="mix.py"
+print(3 + 2.5)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="mix.rs (will not compile)"
+fn main() {
+    println!("{}", 3 + 2.5); // error: cannot add a float to an integer (Rust will not compile this)
+}
+```
+</TabItem>
+</Tabs>
 
-```python title="convert.py"
-print(212 - 32 * 5 / 9)
+Which statement explains the difference?
+
+- **(a)** Rust has no type that can hold `5.5`, so the sum has no value there.
+- **(b)** Rust settles the type of every expression before the program runs, and `3` and `2.5` are different types, so it refuses; Python settles types as the line runs, and turns the `3` into a float on the spot.
+- **(c)** The two languages disagree about the value: Python gives `5.5` and Rust would give `5`.
+- **(d)** The languages agree about the value, and the Rust line fails only because `println!` needs a different placeholder for a decimal number.
+
+<Reveal label="Reveal the answer and why each other option is wrong">
+
+**(b) is correct.** The difference is *when* the types are settled, not what the numbers are worth. Rust works out the type of every expression at compile time, finds a whole-number type on the left of `+` and a float on the right, and refuses to build the program:
+
+```text frame="terminal" title="rustc mix.rs"
+error[E0277]: cannot add a float to an integer
+ --> mix.rs:2:22
+  |
+2 |     println!("{}", 3 + 2.5);
+  |                      ^ no implementation for `{integer} + {float}`
 ```
 
-<Reveal label="Reveal the diagnosis and the fix">
-```bash title="Run the buggy program"
-python3 convert.py
+Python settles types while the line runs, and when it meets a whole number and a float in one `+`, it converts the whole number to a float first and adds two floats. That silent conversion is called implicit coercion, and it is why the same line is fine there:
+
+```text frame="terminal" title="python3 mix.py"
+5.5
 ```
 
-```text frame="terminal" title="Output"
-194.22222222222223
-```
+**(a) is wrong.** Rust holds `5.5` perfectly well. Writing `3.0 + 2.5`, with both operands floats, compiles and prints `5.5`. Nothing about the value is the problem; the mismatch between the two operand types is.
 
-**Symptom.** There is no error message; the program runs and prints `194.22222222222223`, but converting `212` Fahrenheit should give `100.0`. The wrong output is the only signal you get.
+**(c) is wrong.** Rust does not produce `5`, or any other number, because it never produces a program at all. There is no truncation happening here and no value to disagree about. Truncation is what whole-number division does, which is a different rule you met in the sections above.
 
-**Hypothesis.** The formula is `(F - 32) * 5 / 9`, and it depends on subtracting `32` before scaling. But `*` and `/` outrank `-`, so without parentheses the reduction runs `32 * 5 / 9` first, about `17.78`, and only then subtracts that from `212`. The `212 - 32` that was supposed to happen first never happens at all:
+**(d) is wrong.** The compiler names the trait `Add`, not the formatting: it is complaining about the addition, before printing is ever considered. `println!("{}", ...)` displays a float without any change.
 
-```text title="Reducing 212 - 32 * 5 / 9 (buggy order)"
-212 - 32 * 5 / 9
-212 - 160 / 9           (32 * 5 is 160, because * and / outrank -)
-212 - 17.77...          (160 / 9 is about 17.78, a float in Python)
-194.22222222222223      (212 minus that)
-```
-
-**Test.** Force the subtraction to happen first by wrapping it in parentheses, so the whole difference is scaled by `5/9`:
-
-```python title="convert.py (fixed)"
-print((212 - 32) * 5 / 9)
-```
-
-```bash title="Run the fixed program"
-python3 convert.py
-```
-
-```text frame="terminal" title="Output"
-100.0
-```
-
-The parentheses reduce `212 - 32` to `180` before anything else, so `180 * 5 / 9` is `900 / 9`, which is the intended `100.0`. The fix is a single pair of parentheses. The lesson is that a precedence mistake produces a plausible number, `194.22222222222223` looks like a real temperature, not a crash, so hand-evaluation and a known expected value are what catch it.
 </Reveal>
 
 ---
