@@ -7,6 +7,24 @@ import { Aside } from '@astrojs/starlight/components';
 
 Imagine you have spent two weeks on a program. It works. You make one last change, and suddenly everything breaks, the deadline is tonight, and you have no working version to hand in. **Version control** exists to make sure that never happens. This guide explains it from the beginning; you do not need any prior experience.
 
+## Why This Is Worth Your Time
+
+Version control is the one tool software teams agree on. Languages, editors, and frameworks vary from company to company; Git does not. Learning it buys you four things.
+
+**You stop losing work.** Every snapshot you take is a point you can return to, so a change that breaks everything costs you one command instead of an evening. You can also see exactly what changed between the working version and the broken one, which is usually the fastest way to find the bug.
+
+**You can work with other people without overwriting them.** Two engineers editing the same project is the normal case in industry, and Git is what makes it survivable: it merges separate work automatically and tells you plainly when two people changed the same lines, instead of silently keeping whichever file was saved last.
+
+**It is on the job description.** Look at almost any software, controls, data, or embedded engineering posting and you will find Git or GitHub named directly, usually alongside "collaborative development" or "code review," both of which are Git workflows. Internship interviewers ask what your workflow looks like. Having an answer separates you from a candidate who has only ever emailed themselves a zip file.
+
+**It is how your work becomes visible.** A public repository is a portfolio you did not have to build: it shows what you have made, how you work, and that you finish things. This course's own catalog outcomes name a code repository alongside a resume for exactly that reason.
+
+The cost is one afternoon. Learn the six commands in this guide and you have the 90% of Git that daily work actually uses.
+
+<Aside type="note" title="Optional in this course, standard everywhere else">
+Nothing in ENGR 103 requires Git. Starter files arrive as a download, and submissions go to Gradescope, which keeps every upload you make, so submitting early and often is the safety net this course relies on. Learn Git anyway: one extra-credit activity this term gives you a reason to practice it, and the next course that expects it will not stop to teach it.
+</Aside>
+
 ## What Version Control Is
 
 A **version control system** records **snapshots** of your files as you work. Each snapshot is a saved point you can return to, so you can:

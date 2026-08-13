@@ -9,14 +9,14 @@ Your **development environment** is the set of tools you use to write and run pr
 
 You have two ways to work, and either is fine:
 
-- **On the OSU ENGR servers.** You connect to them from your own computer, and Python and Rust are already installed there. Setting up that connection is walked through in the first recitation.
-- **On your own computer.** You install Python and Rust yourself (see [Installing Python and Rust](#installing-python-and-rust) below) and work locally.
+- **On your own laptop.** You install Python and Rust yourself (see [Installing Python and Rust](#installing-python-and-rust) below) and work locally. Start here: it is the fastest setup and it works with no network.
+- **On the OSU ENGR servers.** You connect from your laptop with `ssh`, and every tool is already installed and maintained there. This is a second setup rather than a shortcut past the first one, and `ssh` is worth knowing on its own. [Connecting to the ENGR Servers](/practicalities/connecting-to-the-engr-servers/) walks you through it, and the first recitation is where you can get help.
 
 The terminal, the files and folders, the shell commands, and the editors in this guide work the same way in both.
 
 ## The Terminal
 
-A **terminal** (also called the **command line**) is a program where you control the computer by **typing commands and pressing Enter**, instead of clicking with a mouse. Each command is a short instruction. When you press Enter, the computer runs it and usually prints a line or two in response. It looks bare at first, but for the work you will do it is faster and more precise than clicking, and it is how you will control the ENGR servers.
+A **terminal** (also called the **command line**) is a program where you control the computer by **typing commands and pressing Enter**, instead of clicking with a mouse. Each command is a short instruction. When you press Enter, the computer runs it and usually prints a line or two in response. It looks bare at first, but for the work you will do it is faster and more precise than clicking, and it is the only way to control a machine you have connected to over the network.
 
 Every computer already has a terminal. Open yours:
 
@@ -158,12 +158,12 @@ command [options] [arguments]
 
 To write a program you need a **text editor**: a tool for typing and changing the text of your code files (not a word processor like Microsoft Word, which adds hidden formatting). You have a few good choices.
 
-- **vim** runs *inside the terminal*, with no separate window. Because of that, it works even when you are connected to the ENGR servers over the network, which is why this course expects you to know the basics of it. vim has an unusual way of switching between moving around and typing; the [Vim Cheat Sheet](/practicalities/vim/) walks you through opening a file, editing it, and saving and quitting. Learn just enough vim to edit a file on the servers.
+- **vim** runs *inside the terminal*, with no separate window. Because of that, it works when you are connected to a server over the network, where a graphical editor has no window to open. vim has an unusual way of switching between moving around and typing; the [Vim Cheat Sheet](/practicalities/vim/) walks you through opening a file, editing it, and saving and quitting. Learn a little vim if you work on the servers, or if you want an editor that is on every machine you will ever log into.
 - **VS Code** is a popular graphical editor you install on your own computer. It can also connect to the ENGR servers and edit files there through its "Remote - SSH" feature, so you get a full editor window while your files stay on the server.
 - **Zed** is a newer, very fast graphical editor, a good alternative to VS Code if you prefer it.
 
 <Aside type="tip" title="A workable setup">
-Learn enough vim to make quick edits directly on the servers, and use VS Code or Zed on your own computer (connecting to the servers when needed) for longer work. Any of the three is fine; what matters is that you can open, change, and save a file.
+Use VS Code or Zed on your own computer. If you work on the servers, learn enough vim to make quick edits there, or connect VS Code to the server so you keep a full editor window. Any of the three is fine; what matters is that you can open, change, and save a file.
 </Aside>
 
 ## Installing Python and Rust
