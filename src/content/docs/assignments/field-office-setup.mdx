@@ -7,6 +7,7 @@ draft: false
 ---
 
 import { Tabs, TabItem, Steps, Aside } from '@astrojs/starlight/components';
+import Reveal from '/src/components/Reveal.astro';
 import LanguageVersions from '/src/components/LanguageVersions.astro';
 import RubricTable from '/src/components/RubricTable.astro';
 
@@ -43,7 +44,7 @@ Follow the steps below in order. You will set up your toolchain, run a first pro
 This assignment submits in two places, the same two places every later assignment uses:
 
 - **Your packed submission to Gradescope**, so the grader runs the same check you ran locally.
-- **Your reflection on Canvas.**
+- **A single PDF on Canvas** holding your **paper practice** and your **reflection**. Every later assignment uses this same two-place split, so this is where you get used to it.
 
 ## The Checkout
 
@@ -108,15 +109,67 @@ This assignment submits in two places, the same two places every later assignmen
 
    Run `python3 run.py` and it prints the same `Hello from the field office.` line. You do not need to understand `def main()` or the `if __name__ == "__main__"` line yet; you will meet both when the course reaches functions in week 3. For now, know only that this is the provided wrapper the grader supplies, that it is marked "do not edit," and that your later work fills in named pieces it calls. [Running and Submitting Your Code](/practicalities/starter-repo-and-check/) explains it in full.
 
-5. **Run the check harness.** The starter includes a `check` command that runs the visible tests on your machine and prints exactly what the grader will print. Run it now on the unchanged starter; it should report that the checkout's single trivial test passes. Getting a green check locally before you submit is the habit every later assignment relies on.
+5. **Run the check harness.** The starter includes a `check` command that runs the visible tests on your machine and prints exactly what the grader will print. Run it now on the unchanged starter with `./check`, or `python3 check` on Windows; this week's checkout is already complete, so it should report one passing test for each language you have set up. Every later assignment starts red instead, and getting it green before you submit is the habit they all rely on.
 
 6. **Submit to Gradescope.** Package your work with the provided `pack` command and upload the result to the Gradescope assignment (the link is on Canvas). You may submit as many times as you like; the last submission before the deadline counts. Confirm Gradescope shows the same passing check you saw locally.
 
 </Steps>
 
+## Paper Practice
+
+Do this one on paper, by hand, with nothing running. Every assignment this term ends with an exercise like it, because the exams are on paper and your hands need the reps.
+
+Below is the same three-line program in each language. Its middle line tries to add a whole number to a piece of text, which neither language allows. **Write down, for each language separately, exactly which lines appear on the screen and in what order**, then write one sentence saying why the two answers are not the same.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="startup.py"
+print("Field office online.")
+print(3 + "sensors")
+print("Ready.")
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="startup.rs"
+fn main() {
+    println!("Field office online.");
+    println!("{}", 3 + "sensors");
+    println!("Ready.");
+}
+```
+</TabItem>
+</Tabs>
+
+<Reveal label="Reveal what each language really does">
+**Python prints its first line, then stops.** The interpreter reads and runs one line at a time, so line 1 has already displayed its text before line 2 is even looked at. Line 2 then fails as it runs, and `Ready.` never happens:
+
+```text frame="terminal" title="Output"
+Field office online.
+Traceback (most recent call last):
+  File "startup.py", line 2, in <module>
+    print(3 + "sensors")
+          ~~^~~~~~~~~~~
+TypeError: unsupported operand type(s) for +: 'int' and 'str'
+```
+
+**Rust prints nothing at all.** The compiler reads the whole file before building anything, finds the same faulty addition, and refuses to produce a program. There is no `startup` executable to run, so not even the perfectly good first line gets a chance:
+
+```text frame="terminal" title="Output"
+error[E0277]: cannot add `&str` to `{integer}`
+ --> startup.rs:3:22
+  |
+3 |     println!("{}", 3 + "sensors");
+  |                      ^ no implementation for `{integer} + &str`
+```
+
+The one sentence: the mistake is identical in both files, and the difference is entirely about *when* each language looks for it. Python finds it at the moment execution reaches that line, after earlier lines have already produced real output; Rust finds it before the program starts, so nothing runs and nothing prints.
+</Reveal>
+
+Photograph your written answer and include it in your PDF on Canvas. This is graded on completion (the attached page), not on whether you got both answers right, so attempt it yourself first and then open the reveal to check.
+
 ## Reflection
 
-In one or two sentences: state plainly whether you used an AI tool to get set up and, if so, for what (if you did not, say so explicitly), and name one tool or step that is still unclear. Submit it on Canvas. This is graded on completion and is seen only by the instructor.
+Include a short reflection in your PDF on Canvas. In one or two sentences: state plainly whether you used an AI tool to get set up and, if so, for what (if you did not, say so explicitly), and name one tool or step that is still unclear. This is graded on completion and is seen only by the instructor.
 
 ## Rubric
 

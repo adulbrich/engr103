@@ -91,7 +91,7 @@ We give you **one** worked example for each function, to show the format.
 **Assumptions and edge cases.** `reading_ugm3` is a whole number, guaranteed `0 <= reading_ugm3 <= 46655`: the lower bound keeps every division and remainder your function computes working on a non-negative value, and the upper bound is the largest whole number three base-36 digits can hold. `code_for` is never called outside that range. `c` can be any single character: a digit, a lowercase letter, an uppercase letter, punctuation, or a space; only the ten digit characters and the twenty-six lowercase letters are valid base-36 digits, and every other character, uppercase letters included, must return `-1` from `digit_value`.
 
 <Aside type="danger" title="AURA has a shortcut for building the code. Decide whether to trust it.">
-AURA, the office's assistant, offers this: "You already have to peel a digit off the reading with the remainder operator and divide the rest of the value down for the next pass, one digit at a time, until three digits are done. Since that peel-and-divide step is the only extraction the fixed width needs, just add each digit's character onto the end of the code you are building as you produce it, and three passes finish the whole thing."
+AURA, the office's assistant, offers this: "However you work the three digits out, they come out one at a time, so build the code the same way: take each digit's character as you produce it and add it onto the end of the code so far. Three digits, three additions, and the string is finished in the order it was computed."
 
 Office rule: no AURA analysis is published unverified. Decide whether AURA's shortcut is right before you build anything on it, and let your own test cases settle the question.
 </Aside>

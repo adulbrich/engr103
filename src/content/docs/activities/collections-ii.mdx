@@ -199,7 +199,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 **Hypothesis.** The line reads the old count with `counts[vote]` and stores one more. That read assumes `vote` is already a key. On the first pass `counts` is still empty, so the very first vote, `"yes"`, is a key that was never stored, and the read for it stops the program before the store on the left can run. The bug is not a missing key at the end; it is the first-seen key being read before it has ever been counted.
 
-**Fix.** Give a first-seen key a count of zero to build on, so the read always has an answer. Python's `.get(vote, 0)` returns `0` for a key it has not stored yet, so `counts.get(vote, 0) + 1` starts a new key at `1` and bumps an existing one. Rust's `.entry(vote).or_insert(0)` inserts a `0` the first time it meets a key and hands back a place to add into, so `*counts.entry(vote).or_insert(0) += 1` does the same in one line.
+**Fix.** Never read a key you have not stored yet. Python has a one-line way to say that: `.get(vote, 0)` returns `0` for a key it has not stored, so `counts.get(vote, 0) + 1` starts a new key at `1` and bumps an existing one. Rust has no `.get` with a fallback that fits here, so you write the choice out with the `contains_key` check from the lecture: if the key is already there, store its count plus one; if it is not, store `1`. That is the same written-out form the lecture's `banana` count uses, and it is the version to use in this course.
 
 <Tabs syncKey="lang">
 <TabItem label="Python">
@@ -218,9 +218,13 @@ use std::collections::HashMap;
 
 fn main() {
     let votes = ["yes", "no", "yes", "yes", "no"];
-    let mut counts: HashMap<&str, i32> = HashMap::new();
+    let mut counts = HashMap::new();
     for vote in votes {
-        *counts.entry(vote).or_insert(0) += 1;
+        if counts.contains_key(vote) {
+            counts.insert(vote, counts[vote] + 1);
+        } else {
+            counts.insert(vote, 1);
+        }
     }
     println!("{}", counts["yes"]);
     println!("{}", counts["no"]);
@@ -250,7 +254,7 @@ rustc tally.rs
 
 <WhatDiffers>
 <Fragment slot="differs">
-Python's square-bracket read raises a `KeyError` on a first-seen key, and `.get(vote, 0)` instead returns the fallback `0`, so the tally starts each new key at zero. Rust's square-bracket read panics with `no entry found for key`, and `.entry(vote).or_insert(0)` both inserts the starting `0` and returns a spot to add into. Rust also needs the value type spelled out as `HashMap<&str, i32>` in the buggy version, because no line ever inserts a plain count for it to infer from; without that annotation the buggy program would not even compile, and you would never reach the missing-key panic that is the real lesson here.
+Python's square-bracket read raises a `KeyError` on a first-seen key, and `.get(vote, 0)` returns the fallback `0` instead, so one line both starts a new key at zero and bumps an existing one. Rust's square-bracket read panics with `no entry found for key`, and it has no `.get` with a fallback that fits here, so the choice is written out with `contains_key`: one branch bumps a key that is already there, the other starts a new one at `1`. That is the same shape the lecture's `banana` count uses. One more detail: the buggy version needs its value type spelled out as `HashMap<&str, i32>`, because every line that inserts reads the count back out of the map, so there is no plain number anywhere for Rust to infer the type from. The fixed version needs no annotation, because its `else` branch inserts a literal `1`.
 </Fragment>
 </WhatDiffers>
 </Reveal>

@@ -17,18 +17,45 @@ What the ladder does guarantee runs the other way. **Every graded assessment is 
 |---|---|---|---|
 | 1 | `print`; int, float, bool, str literals; arithmetic operators (`+ - * /`) and precedence; integer division `//` and flooring; `%`; implicit coercion | `println!` with `{}` placeholders and the `fn main` wrapper; `i32`, `f64`, `bool`, `&str`; arithmetic and precedence; integer division and truncation; `%` | variables, functions, conditionals, loops |
 | 2 | binary literals; variables and assignment; `UPPER_CASE` constants; `input`; `int()`/`float()` parsing | binary literals; `let`, `let mut`, shadowing; `const`; `read_i32`/`read_f64` (provided) | functions, conditionals, loops |
-| 3 | `def` functions with parameters and return | `fn` functions with typed params and return; calling functions | conditionals, loops |
-| 4 | local and function scope; comparisons; `and`, `or`, `not`; `if`/`else` | scope, nested `{ }` blocks, the call stack; comparisons; `&&`, `\|\|`, `!`; `if`/`else` | `elif`/`else if` chains, loops, collections |
-| 5 | `elif` chains; `try`/`except`; comparing floats with a tolerance | `else if` chains; `match`; `.parse()`; `Result`; comparing floats with a tolerance | loops, collections |
-| 6 | `assert`; test functions | `assert!`; test functions | loops, collections |
-| 7 | `while`; `for` over `range`; `break`/`continue`; nested loops | `while`; `for` over ranges; `break`/`continue`; nested loops | collections |
-| 8 | strings (indexing, slicing, searching, building); characters; `list`; indexing; `len`; iteration; `append` | `String`/`&str` method subset; `char`; `Vec`; indexing; `.len()`; iteration; `push` | the memory model, references, dictionaries |
-| 9 | aliasing (two names, one list); passing lists to functions | `&`/`&mut` references; moves; borrowing-lite; passing `Vec` to functions | dictionaries and maps |
-| 10 | `dict` (advanced extra) | `HashMap` (advanced extra) | nothing new required |
+| 3 | `def` functions with parameters and return | `fn` functions with typed params and return; calling functions; the `todo!()` stub a starter file leaves for you to replace | conditionals, loops |
+| 4 | local and function scope; comparisons; `and`, `or`, `not`; `if`/`else`; `abs()` | scope, nested `{ }` blocks, the call stack; comparisons; `&&`, `\|\|`, `!`; `if`/`else`; `.abs()` | `elif`/`else if` chains, loops, collections |
+| 5 | `elif` chains; `try`/`except`; comparing floats with a tolerance | `else if` chains; `match`; `.parse()` and `parse::<i32>()`; `Result` with `Ok`/`Err`; `.expect()`; `{:?}`; and the fixed input recipe `use std::io`, `String::new()`, `io::stdin().read_line(&mut text)`, `.trim()` | loops, collections |
+| 6 | `assert`; test functions | `assert!`; `assert_eq!`; test functions | loops, collections |
+| 7 | `while`; `for` over `range`; `break`/`continue`; nested loops; `print(..., end="...")` | `while`; `for` over ranges; `break`/`continue`; nested loops; `print!` | collections |
+| 8 | strings (indexing, slicing, searching, building); f-strings; characters; `list`; indexing; `len`; iteration; `append` | `String`/`&str` method subset including `.chars()` and `.push_str()`; `format!`; `char`; `Option` with `Some`/`None`; `Vec`; indexing; `.len()`; iteration with `for x in &v`; `push` | the memory model, references, dictionaries |
+| 9 | aliasing (two names, one list); passing lists to functions | `&`/`&mut` references; moves; borrowing-lite; `.clone()`; passing `Vec` to functions; `line.chars().collect()` into a `Vec<char>` | dictionaries and maps |
+| 10 | `dict` (advanced extra); augmented assignment `+=` | `HashMap` (advanced extra); augmented assignment `+=` | nothing new required |
+
+## When the two languages print the same value differently
+
+Most values print identically in Python and Rust, but three do not, and they
+account for nearly every surprise when an assignment is graded by comparing
+printed output. Keep this list somewhere you can find it.
+
+| Value | Python prints | Rust prints |
+|---|---|---|
+| A boolean | `True` / `False` | `true` / `false` |
+| A float that happens to be whole, such as 3285 | `3285.0` | `3285` |
+| A list or vector of strings | `['a', 'b']` | `["a", "b"]` |
+
+A float with a real fractional part, such as `1129.21875`, prints the same
+characters in both, because Python's `float` and Rust's `f64` are the same
+64-bit format and both show the shortest digits that identify the stored value.
+Whole numbers, and the text inside a plain `print`, are identical too.
+
+This matters in exactly one place: an assignment graded by comparing what your
+program printed, line for line, against one expected output shared by both
+languages. Such an assignment is written so that none of the three rows above
+can arise, which is why you will see its readings land on real fractions and its
+flags reported as `1` and `0` rather than as booleans. From the functions week
+onward the grader reads what you `return` instead, and the question stops
+arising at all.
 
 ## Not used in this course
 
 The course never teaches these constructs, so no lecture, activity, or assessment relies on them, and no graded problem will ever require one. You are still free to use any you already know; they simply are not part of what the course expects.
 
 - **Python:** comprehensions, lambdas, and f-string format specs beyond the basics.
-- **Rust:** writing your own generic code (defining type parameters, traits, lifetimes), and borrowing before week 9. `parse::<T>` is taught in week 5 as a fixed spelling you use as written, so using it is not writing generic code.
+- **Rust:** writing your own generic code (defining type parameters, traits, lifetimes), and designing your own borrowed signatures before week 9.
+
+Two Rust spellings are worth calling out, because they look like exceptions and are not. `parse::<i32>()` is taught in week 5, and `&mut text` appears from week 5 inside the input recipe, `&v` from week 8 in `for x in &v`. In every one of those places the spelling is **given to you and used as written**: you are not defining a type parameter and you are not designing a borrow. What week 9 adds is the understanding of *why* those `&` marks are there, and the first time you choose one yourself.

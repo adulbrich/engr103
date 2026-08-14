@@ -170,7 +170,7 @@ The line `backup = daily` does not copy the list; it makes `backup` a second nam
 | `backup = daily` | `["calibration ok"]` | `["calibration ok"]` (same list, second name) |
 | `log_note(daily, "sensor swapped")` | `["calibration ok", "sensor swapped"]` | `["calibration ok", "sensor swapped"]` |
 
-`log_note` appends `"sensor swapped"` to the one shared list, so the change shows through both names even though `log_note` returns nothing at all. The program prints `['calibration ok', 'sensor swapped']`, then the exact same list again. Rust prints a `Vec<String>` the same way, `["calibration ok", "sensor swapped"]`, with no display difference here since every value is a string, never a float.
+`log_note` appends `"sensor swapped"` to the one shared list, so the change shows through both names even though `log_note` returns nothing at all. The program prints `['calibration ok', 'sensor swapped']`, then the exact same list again. Rust reaches the same two entries in the same order, and prints them with `{:?}` as `["calibration ok", "sensor swapped"]`; only the quotation marks differ, since Python's display of a list uses single quotes around its strings and Rust's uses double.
 </Reveal>
 
 Photograph your trace and include it in your PDF on Canvas. This part is graded on completion (the attached photograph), not on whether every cell is right, so attempt it by hand first, then open the reveal to check yourself.

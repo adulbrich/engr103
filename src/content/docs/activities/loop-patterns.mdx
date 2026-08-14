@@ -121,7 +121,7 @@ The range `range(1, 9)` is half-open, so `n` walks `1, 2, 3, 4, 5, 6, 7, 8` and 
 
 After the last pass `total` holds `36`, the sum of `1` through `8`, and `count` holds `4`, the number of passes on which the running total had already cleared `10`.
 
-The count is where the two common misses live. The pass at `n` of `4` is the trap: `total` is exactly `10` there, and `10 > 10` is false, so that pass does not count. If you predicted `count` of `5`, you almost certainly counted that pass, reading `total > 10` as "ten or more." If you predicted `count` of `2`, you probably counted `n > 10` instead of `total > 10`; but no single `n` in this range exceeds `10`, so that reading would give `count` of `0`, not `2`. The Rust version walks the same range and tests the same running total, so it prints `36 4` as well.
+The count is where the two common misses live. The pass at `n` of `4` is the trap: `total` is exactly `10` there, and `10 > 10` is false, so that pass does not count. If you predicted `count` of `5`, you almost certainly counted that pass, reading `total > 10` as "ten or more." If you predicted `count` of `0`, you probably tested `n > 10` instead of `total > 10`; no single `n` in this range exceeds `10`, so nothing would ever be counted at all. The Rust version walks the same range and tests the same running total, so it prints `36 4` as well.
 </Reveal>
 
 ---

@@ -182,9 +182,9 @@ In the Rust version, the `&` is what makes this possible. Written as `total(read
 The promise in `&Vec<i32>` is not just a convenience; the compiler holds the function to it. A function that borrowed the vector to read it is not allowed to change it, and if it tries, the program does not build.
 
 :::caution[The read-only promise is enforced]
-Give `total` a shared reference and then try to push through it, and Rust refuses to compile the function at all:
+Give `total` a shared reference and then try to push through it, and Rust refuses to compile the function at all. The fragment below is just the function, so a real file would need a `main` around it; the error that matters is the one on the `push`:
 
-```rust title="read_only_push.rs (will not compile)"
+```rust title="read_only_push.rs (a fragment; will not compile)"
 fn add_reading(samples: &Vec<i32>, value: i32) {
     samples.push(value); // error: cannot borrow `*samples` as mutable (will not compile)
 }

@@ -21,20 +21,20 @@ paired_recitation: R2
 prereq_lectures: how-programs-run, values-types-and-expressions
 prereq_activities:
 prereq_assignment: field-office-setup
-new_scope: completing one provided program that prints the week-one literal types and precedence-sensitive arithmetic, graded by comparing printed output
-target_construct: arithmetic expressions with correct operator precedence over literal types (whole numbers, floats, booleans)
-persistent_requirements: dual-language; graded by comparing printed output; no variables or functions yet; every division uses float operands so both languages agree; no mixing of whole numbers and floats in one expression
+new_scope: completing one provided program that prints week-one literal types and precedence-sensitive arithmetic, graded by comparing printed output
+target_construct: arithmetic expressions with correct operator precedence over literal types (whole numbers and floats)
+persistent_requirements: dual-language, one shared expected output; graded by comparing printed output; no variables or functions yet; every division uses float operands so both languages agree; no mixing of whole numbers and floats in one expression; every printed line must read identically in Python and Rust, which is why no line prints a bare boolean and no line lands on a whole-valued float
 story_beat: a junior engineer at the WRO finishes a household energy audit panel before it goes into the office's report queue
 output: one completed energy-panel program to Gradescope; one hand reduction, acceptance tests, pseudocode, and a reflection in a Canvas PDF
 */}
 
 <LanguageVersions />
 
-The Willamette Resource Office runs free home energy audits for residents who request one. Today's audit covers one appliance: an electric water heater, a 4500 watt heating element with a 50 gallon tank, that a field technician timed running an average of 2 hours a day. The office's report template needs those numbers turned into a panel of readings before the audit goes out. You have only just learned how a program stores and combines values, so the panel program is handed to you nearly complete: your job is to fill in the four missing readings. AURA has offered its own shortcut for one of them, so check that before it goes on the report.
+The Willamette Resource Office runs free home energy audits for residents who request one. Today's audit covers one appliance: an electric water heater, a 4500 watt heating element with a 50 gallon tank, that a field technician timed running an average of 2.5 hours a day. The office's report template needs those numbers turned into a panel of readings before the audit goes out. You have only just learned how a program stores and combines values, so the panel program is handed to you nearly complete: your job is to fill in the four missing readings. AURA has offered its own shortcut for one of them, so check that before it goes on the report.
 
 ## How This Assignment Works
 
-You work **test first**, the way the office's tools are really built: you read the problem, decide what correct output looks like by writing your own test rows, plan the program in pseudocode, and only then finish the code. You have not learned variables or functions yet, so the panel program comes as a **complete, runnable file with marked `TODO` lines**; you replace each placeholder with the literal or arithmetic expression that produces the reading described. The automated grader runs your program and compares its printed output, line by line, against the expected output. Solve it in Python or Rust, whichever you prefer; both are checked against the same panel.
+You work **test first**, the way the office's tools are really built: you read the problem, decide what correct output looks like by writing your own test rows, plan the program in pseudocode, and only then finish the code. You have not learned variables or functions yet, so the panel program comes as a **complete, runnable file with marked `TODO` lines**; you replace each placeholder with the literal or arithmetic expression that produces the reading described. The automated grader runs your program and compares its printed output, line by line, against one expected output that is the same for both languages. Solve it in Python or Rust, whichever you prefer; a correct panel prints exactly the same five lines either way.
 
 Two rules hold for every reading here, and both come straight from the [Values, Types, and Expressions](/lectures/values-types-and-expressions/) lecture. First, an expression may not mix a whole number with a decimal number: Rust refuses to compile `3 + 2.5`, so any reading that needs a fraction must be written with **every** number as a float (for example `100.0`, not `100`). Second, every division here divides floats, so both languages produce the same exact fraction: dividing two whole numbers instead would floor in Python and truncate in Rust, and the two panels would stop agreeing.
 
@@ -54,12 +54,12 @@ The grid's carbon intensity is a real, cited figure: **275 grams of CO2e per kil
 Your finished program must print exactly five lines, in this order:
 
 1. The panel label, the text `ENERGY AUDIT` (already written).
-2. The water heater's annual energy use in kilowatt-hours: its rated power, `4500` watts, running for `2.0` hours a day, scaled up over a full year. This is a decimal number, so write every number in the expression as a float.
+2. The water heater's annual energy use in kilowatt-hours: its rated power, `4500` watts, running for `2.5` hours a day, scaled up over a full year. This is a decimal number, so write every number in the expression as a float.
 3. The water heater's annual emissions in kilograms of CO2e: the annual energy use from the line above, at the grid's carbon intensity of `275` grams of CO2e per kilowatt-hour. The intensity is given in grams; the panel reports kilograms. This is also a decimal number.
-4. Whether this water heater's annual energy use, the value from line 2, sits above the office's typical-use figure given above. This is a boolean.
+4. The typical-use flag: `1` if this water heater's annual energy use, the value from line 2, sits above the office's typical-use figure given above, and `0` if it does not. This is a whole number, the way a meter's own flag fields are.
 5. The smart meter's status code: a connectivity flag worth `4` (the meter's last radio check-in succeeded), plus a retry code worth `2` for each retry, with `3` retries logged this billing period, minus a diagnostic-clear code worth `1` for the meter's one passed self-test. This is a whole number.
 
-Do not type the final numbers directly. Every numeric reading must be written as the arithmetic expression that produces it, not as the number it comes out to. The boolean reading is the one exception: comparing two numbers with `>` is not something you have learned yet, so once you have worked out the annual energy use, you compare it by hand against the office's typical-use figure and write the boolean literal that comparison produces.
+Do not type the final numbers directly. Every computed reading must be written as the arithmetic expression that produces it, not as the number it comes out to. The typical-use flag is the one exception: comparing two numbers with `>` is not something you have learned yet, so once you have worked out the annual energy use, you compare it by hand against the office's typical-use figure and write the `1` or the `0` that comparison produces.
 
 **The program.**
 
@@ -67,11 +67,11 @@ Do not type the final numbers directly. Every numeric reading must be written as
 <TabItem label="Python">
 ```python title="energy_panel.py (provided)"
 print("ENERGY AUDIT")          # panel label (already written)
-# TODO: annual energy use in kWh, 4500 W running 2.0 hours a day, over a full year
+# TODO: annual energy use in kWh, 4500 W running 2.5 hours a day, over a full year
 print(0)
 # TODO: annual emissions in kg CO2e, at 275 g CO2e per kWh
 print(0)
-# TODO: whether the annual energy use from the line above sits above the 3,150 kWh typical-use figure
+# TODO: typical-use flag: 1 if the annual energy use above sits above the 3,150 kWh figure, else 0
 print(0)
 # TODO: meter status code: 4, plus 2 for each of 3 retries, minus 1
 print(0)
@@ -81,11 +81,11 @@ print(0)
 ```rust title="energy_panel.rs (provided)"
 fn main() {
     println!("ENERGY AUDIT");        // panel label (already written)
-    // TODO: annual energy use in kWh, 4500 W running 2.0 hours a day, over a full year
+    // TODO: annual energy use in kWh, 4500 W running 2.5 hours a day, over a full year
     println!("{}", 0);
     // TODO: annual emissions in kg CO2e, at 275 g CO2e per kWh
     println!("{}", 0);
-    // TODO: whether the annual energy use from the line above sits above the 3,150 kWh typical-use figure
+    // TODO: typical-use flag: 1 if the annual energy use above sits above the 3,150 kWh figure, else 0
     println!("{}", 0);
     // TODO: meter status code: 4, plus 2 for each of 3 retries, minus 1
     println!("{}", 0);
@@ -102,7 +102,7 @@ We give you **one** worked reading to show the format. The meter status bitfield
 
 You work out the other three readings yourself in Step 1.
 
-**Assumptions and edge cases.** The annual energy use and the annual emissions are both decimal numbers; the typical-use comparison is a boolean, and it depends on the annual energy use you compute on the line above it, not on a number handed to you separately; the meter status code is a whole number, with no floats in it. Keep whole numbers and decimals apart within a single expression. The meter status line mixes addition, subtraction, and multiplication, so the order those operators run in decides its answer.
+**Assumptions and edge cases.** The annual energy use and the annual emissions are both decimal numbers, and both land on a real fraction rather than a whole number, so each prints the same digits in either language. The typical-use flag and the meter status code are whole numbers, with no floats in them, and the flag depends on the annual energy use you compute on the line above it, not on a number handed to you separately. Keep whole numbers and decimals apart within a single expression. The meter status line mixes addition, subtraction, and multiplication, so the order those operators run in decides its answer.
 
 <Aside type="danger" title="AURA drafted the annual-use reading. Decide whether to trust it.">
 AURA, the office's assistant, offers this for the annual energy use: "The field technician's number is a daily reading, and the office's standard shortcut for turning any recurring reading into an annual figure is to multiply by twelve, the same way a monthly total rolls up to a year. Multiply the daily energy by twelve and the annual figure is ready for the report."
@@ -119,7 +119,7 @@ Your table must include, and label, at least these rows:
 - The worked reading above, `9`, as a starting check.
 - The annual energy use, reduced fully by hand from the rated power, the daily hours, and a full year. Include this row so you can check AURA's claim against it.
 - The annual emissions, reduced fully by hand from your annual-energy row and the grid's carbon intensity, including the gram-to-kilogram conversion.
-- The typical-use boolean, using the annual energy value from your own row above, compared by hand against the office's typical-use figure.
+- The typical-use flag, using the annual energy value from your own row above, compared by hand against the office's typical-use figure.
 
 Build the annual-energy row yourself, from the requirements, before you decide whether to trust AURA's claim.
 
@@ -137,7 +137,7 @@ Replace each `TODO` placeholder in the provided program with the literal or expr
 
 <WhatDiffers>
 <Fragment slot="differs">
-Two lines print differently between the languages. Whichever way your typical-use comparison lands, Python spells its boolean with a capital letter (`True`) and Rust spells it in lowercase (`true`); both are the same value, printed the way each language writes it. The annual-energy-use line lands on a whole-numbered float: Python's `print` shows the trailing `.0` on a whole-numbered float, while Rust's `println!` drops it. The annual-emissions line has a real fraction, so it prints identically in both languages, and the meter status line, a whole number, also prints identically.
+Nothing differs in the output here, and that is the point: all five lines print exactly the same characters in Python and in Rust, which is what lets one expected output grade both languages. It took two deliberate choices to make that true, and both are worth noticing because they will not always hold. A **bare boolean** would have broken it, since Python prints `True` where Rust prints `true`, which is why line 4 is a `1` or a `0` rather than a boolean. A **whole-valued float** would have broken it too, since Python's `print` keeps the trailing `.0` where Rust's `println!` drops it; both decimal readings here land on a real fraction, so the question never arises. Watch for both traps whenever printed output is what gets compared.
 </Fragment>
 </WhatDiffers>
 

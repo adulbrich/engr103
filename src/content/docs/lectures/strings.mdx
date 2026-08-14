@@ -343,6 +343,10 @@ print(word)
 <TabItem label="Rust">
 ```rust title="Concatenating and building in a loop"
 fn main() {
+    let mut greeting = String::from("Hello, ");
+    greeting.push_str("World");
+    println!("{}", greeting);
+
     let name = "Ada";
     println!("{}", format!("Hello, {}!", name));
 
@@ -365,13 +369,14 @@ ababab
 ```
 
 ```text frame="terminal" title="Output (Rust)"
+Hello, World
 Hello, Ada!
 ababab
 ```
 
 <WhatDiffers>
 <Fragment slot="differs">
-Python treats all strings alike: `+` concatenates them, an f-string (`f"...{name}..."`) splices values in, and a plain variable can be reassigned to a longer string in a loop. Rust separates a fixed string literal, which cannot grow, from a `String`, which can: you make one with `String::new()`, add to it with `.push_str(...)`, and build one from a template with the `format!` macro in place of an f-string. The `for _ in 0..3` uses `_` for the loop variable because the loop body never reads it.
+Python treats all strings alike: `+` concatenates them, an f-string (`f"...{name}..."`) splices values in, and a plain variable can be reassigned to a longer string in a loop. Rust separates a fixed string literal, which cannot grow, from a `String`, which can, so the concatenation is spelled differently: `String::from("Hello, ")` makes a growable copy of the literal and `.push_str("World")` extends it, where Python simply writes `+` between the two literals. Rust also builds from a template with the `format!` macro in place of an f-string, and grows a `String` in a loop with `.push_str(...)` where Python rebinds the name to a longer string. The `for _ in 0..3` uses `_` for the loop variable because the loop body never reads it.
 </Fragment>
 </WhatDiffers>
 

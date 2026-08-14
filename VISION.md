@@ -339,10 +339,18 @@ Each exam covers everything taught up to it, and nothing else.
 
 Every archetype-by-topic cell that can appear on an exam has appeared at least
 once in an activity, an assignment, or a recitation first. The exams contain no
-ambushes; they contain variations. A second invariant guards the runway: **no
+ambushes; they contain variations. One week satisfies that rule by the activity
+alone and is worth naming: **testing (lecture 10) is taught on the Monday of
+week 6 and examined on the Friday of week 6**, so its assignment (A7) and its
+recitation (R7) both land the week *after* the midterm. The in-class activity is
+therefore the rehearsal for testing on the midterm, which meets the rule as
+written; this is an accepted consequence of putting the midterm in the week-6
+Friday slot, not an oversight, and the final gets the full practice cycle.
+A second invariant guards the runway: **no
 new examinable archetype-by-topic cell is introduced after week 9.** Week 10 is
-synthesis (lecture 18) and non-exam judgment (lecture 19) only, so every exam
-topic has a full assignment-and-recitation practice cycle before the final.
+advanced extras only, dictionaries (lecture 17) and judgment (lecture 18), so
+every exam topic has a full assignment-and-recitation practice cycle before the
+final.
 Concepts that culminate late (the systematic debugging method, the
 modeling-versus-analysis distinction) are introduced in week 1 and threaded, then
 consolidated, never first-taught in week 10.
@@ -417,10 +425,10 @@ transferred off the keyboard.
 
 ### Structure of a session
 
-- **Warm-up (15 min, 25% of points).** One direct application of the current
+- **Warm-up (15 min, 15% of points).** One direct application of the current
   problem family, at assignment difficulty. Everyone should finish it.
-- **Quick checks (a few minutes).** One or two multiple-choice questions on the
-  week's ideas, alongside the warm-up.
+- **Quick checks (a few minutes, 10% of points).** One or two multiple-choice
+  questions on the week's ideas, alongside the warm-up.
 - **Core problems (75% of points).** Two problems at assignment
   difficulty: the same skeletons students practiced, in fresh Rubber Duck costume with
   new values and at most one small twist, answerable in either language by hand.
@@ -458,13 +466,15 @@ transferred off the keyboard.
 
 - Weeks 2 to 10 are graded (9 recitations); the lowest is dropped, so 8 count
   at exactly 5% each. Week 1 is an ungraded onboarding session (environment,
-  editor, terminal, git, "hello" in both languages). Every graded week,
+  editor, terminal, "hello" in both languages, and reading a deliberate error in
+  each); git and server access are optional pointers only. Every graded week,
   including week 6 and week 10, is a regular session over the previous week's
   two lectures; no recitation is a cumulative synthesis session, because the
   exams simply cover everything taught before them and need no dedicated
   rehearsal event.
-- The instructor collects the written handouts at the end of the session and
-  grades them by hand: the warm-up, the quick checks, and the two core problems
+- The written handouts are collected at the end of the session and graded by
+  hand, by the TAs against the answer key, with the instructor calibrating and
+  handling disputes: the warm-up, the quick checks, and the two core problems
   make up the 100%, and the extra-credit problem adds up to +10 on top. There is
   no autograder and no online submission at the recitation tier; the written
   answers are the audit trail. Because the work is on paper, a WiFi or machine
@@ -501,8 +511,8 @@ If the ratio still strains (larger sections, a weak TA cohort), the fallback
 ladder in order of preference: (1) reduce oral checks to two scheduled
 five-minute vivas per student per term, sampled a few students per week;
 (2) replace the live check with a per-student randomized written explain item
-inside the session (archetype 7, answered on the machine), which costs zero
-session time and keeps most of the deterrence; (3) deep-grade a published
+printed on the handout itself (archetype 7), which costs zero session time and
+keeps most of the deterrence; (3) deep-grade a published
 subset of problems each week and completion-grade the rest. What never gives:
 the proctored setting itself and the autograded correctness core.
 
@@ -574,7 +584,13 @@ paper trace, and the reflection), and the code goes to **Gradescope**. Its parts
    the ladder like that is not a second independent output: the two functions
    are never tested as inverses of each other, and the round trip they form
    does not close until the next assignment reads the code back. This is never
-   license for an arbitrary second entry point. The grader calls
+   license for an arbitrary second entry point. **Exactly two assignments carry
+   two entry points, and both are recorded here so the exception stays closed:**
+   A9 (`code_for` and `digit_value`, the ladder-forced codec split above) and A4
+   (`fly_ash_mass_kg` and `slag_mass_kg`). A4's pair are the two masses a mix
+   design has to report, so a caller genuinely wants both numbers; they are not
+   fully independent, since the second follows from the first and the target, and
+   that is the cost of the exception. No third assignment may claim it. The grader calls
    the entry point directly with values it
    chooses and reads only what it returns, so every helper written inside is the
    student's to choose. From A4 on, every assignment still ships a whole,
@@ -710,7 +726,7 @@ week); from then on the notes are the exposition and class time is activities.
 ### Shape of a 50-minute session
 
 - **5 min: misconception opener.** The most-missed pre-check question, live.
-- **3 activity blocks of about 13 min each.** Each block: pose a problem (an
+- **3 activity blocks of about 10 min each.** Each block: pose a problem (an
   exam archetype at guided difficulty), students attempt it solo or in pairs on
   paper or in the browser, then resolve it live. Activity types rotate:
   - **Predict-then-run:** commit to an output on paper, then run it and
@@ -723,6 +739,11 @@ week); from then on the notes are the exposition and class time is activities.
     week's recitation mistakes; vote, discuss, revote.
   - **Paper tracing:** exam archetype 2 or 6 by hand, since the exam is on
     paper and hands need reps.
+- **13 min: the write-it-yourself block.** The student produces a small solution
+  from a blank page and submits the `.py` or `.rs` for completion credit. This is
+  the guided tier's only O3 rep, so it is the block that must not be the one cut
+  when the session runs long; the three blocks above are sized at 10 minutes
+  rather than 13 precisely to protect it.
 - **2 min: bridge.** Exactly which recitation problem family this session fed.
 
 Activities are the first altitude of each problem family: every activity problem
@@ -1020,11 +1041,14 @@ a page students read once:
   incomplete, which makes the plan worth writing exactly when it matters.
 - The oral check probes the understand and look-back steps ("what would this
   do on an empty stream?", "how do you know it works?").
-- Lecture 18 (program design) is Polya at full scale, from word problem to
-  program.
+- Lecture 18 (computing with judgment) runs the method at full scale on code the
+  student did not write: reconstruct the specification, trace it, test it at the
+  edges, and look back at what it assumes and whom it fails.
 
-The existing Polya practicalities page survives as the canonical reference,
-linked from week 1 and from every stretch problem.
+The existing Polya practicalities page survives as the canonical reference. It
+must be linked from the week 1 notes and from every summit and stretch problem;
+as of the August 2026 review neither link exists anywhere, so this is an open
+authoring task, not a description of the current state.
 
 ---
 
@@ -1061,7 +1085,7 @@ teaches its concept).
 
 | Wk | Lecture | Notes content (read in advance) | Recitation that week | Assignment due before that recitation |
 |---|---|---|---|---|
-| 1 | 1 | **How programs run.** Computation and algorithms; source code, interpreters (Python) and compilers (Rust); running a program; printing results; errors as messages, not verdicts; the systematic debugging method and the modeling-versus-analysis distinction, both introduced here and threaded all term; the two-language philosophy and the language ladder. (This lecture gets a full in-class walkthrough; the rest are read before class.) | R1 (ungraded): environment, terminal, editor, the `check` harness, hello in both languages. | A1: setup, toolchains, hello in both languages. |
+| 1 | 1 | **How programs run.** Computation and algorithms; source code, interpreters (Python) and compilers (Rust); running a program; printing results; errors as messages, not verdicts; the systematic debugging method and the modeling-versus-analysis distinction, both introduced here and threaded all term; the two-language philosophy and the language ladder. (This lecture gets a full in-class walkthrough; the rest are read before class.) | R1 (ungraded): environment, terminal, editor, hello in both languages, and reading a deliberate error in each. The starter files and the `check` harness are A1's job, not R1's. | A1: setup, toolchains, hello in both languages. |
 | 1 | 2 | **Values, types, and expressions.** Values (integers, floats, booleans, strings) and their types; static vs dynamic typing; arithmetic operators and precedence; integer vs float division and truncation; implicit coercion; mixed-type expressions; evaluating expressions by hand. Type names such as `i32` and `f64` appear here as plain labels only; what the numbers in them mean is lecture 3's job, so no type name is used to mean a bit-width before bits are taught. | | |
 | 2 | 3 | **How values are stored.** Binary and decimal; bits and bytes; memory as addressable boxes and hexadecimal; type sizes and what the numbers in `i32`/`f64` mean; the `i32` range and the out-of-range literal; Python's arbitrary-precision `int` vs Rust's fixed `i32`/`f64`; floats as approximations. Opens by answering the rules lecture 2 stated without reasons (no mixing of whole and decimal numbers, the discarded remainder, the largest `i32`). Taught with the interactive binary/bits visualizer and a memory-box diagram. Character encoding and ASCII are deferred to lecture 13, where characters are taught. | R2: how programs run, values, types, and expressions. | A2: Values-types-and-expressions families + paper trace. |
 | 2 | 4 | **Variables and state.** Names vs values; assignment and rebinding; `let` and `let mut`, shadowing; initialization and uninitialized reads (Rust forbids them at compile time); constants; tracing with a variable table; console input: reading a line and turning it into a number. Uses the memory stepper. | | |

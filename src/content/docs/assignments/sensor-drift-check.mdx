@@ -115,8 +115,8 @@ We give you **one** worked example to show the format. A reading of `42.0` micro
 
 **Assumptions and edge cases.** `reading_ugm3`, `reference_ugm3`, and `tolerance_ugm3` are all floats, and `tolerance_ugm3` is zero or greater. `0.0` and `500.0` are exact boundaries of the physical range and both count as in range. The reference can sit on either side of the reading, so the gap between them is a size, never a signed difference.
 
-<Aside type="danger" title="AURA has a rule for the disagreement check. Decide whether to trust it.">
-AURA, the office's assistant, offers this: "A tolerance is the most that two good sensors should ever drift apart, so treat it as a hard ceiling: the moment the gap between the reading and the reference reaches the tolerance, the pair has already drifted too far, and the reading should come back marked as disagreeing."
+<Aside type="danger" title="AURA has a better shape for the agreement check. Decide whether to trust it.">
+AURA, the office's assistant, offers this: "A fixed gap in micrograms is the wrong shape for this comparison, because the same absolute gap means something very different at 5 micrograms than it does at 400. Scale it instead: divide the gap by the reference reading, and compare that fraction against the tolerance. One tolerance value then works sensibly across the whole range, which is what a station configuration is supposed to give you."
 
 Office rule: no AURA analysis is published unverified. Decide whether AURA's rule is right before you build anything on it, and let your test cases settle the question.
 </Aside>

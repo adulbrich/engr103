@@ -33,12 +33,12 @@ Writing those instructions down requires a **programming language**, and a langu
 
 ## Source Code and Machine Code
 
-The Python or Rust text you type is called **source code**: a form meant for people to read and write, full of words, indentation, and punctuation an interpreter or compiler recognizes. A processor understands none of it. What a processor actually executes is **machine code**: instructions encoded as raw numbers, each one a pattern of the bits and bytes the next lecture examines up close, meaning something specific to that particular kind of processor, such as "add these two numbers" or "copy this value from here to there." Machine code has no variable names, no indentation, no words, nothing a person would call readable; it is numbers all the way down.
+The Python or Rust text you type is called **source code**: a form meant for people to read and write, full of words, indentation, and punctuation an interpreter or compiler recognizes. A processor understands none of it. What a processor actually executes is **machine code**: instructions encoded as raw numbers, each one a pattern of the bits and bytes the [How Values Are Stored](/lectures/data-representation/) lecture examines up close, meaning something specific to that particular kind of processor, such as "add these two numbers" or "copy this value from here to there." Machine code has no variable names, no indentation, no words, nothing a person would call readable; it is numbers all the way down.
 
 Two facts follow from that, and both explain why you write source code instead of machine code directly. First, machine code is punishing for a human to write or read: a task that takes one line of Python can take dozens of numeric instructions with nothing to hint at their purpose. Second, machine code is not portable. Different families of processors speak different machine codes, so instructions written for one kind of chip are meaningless to another, while the same Python or Rust source file can run on many. Source code is the readable, portable form; machine code is the form the hardware runs. Getting from one to the other is the job of a **translator** program, and the choice of translator is exactly where Python and Rust diverge.
 
 :::note[What a processor instruction really is]
-A single machine instruction is itself just a number, stored as bits, sitting in memory alongside the data it operates on. When the next lecture describes memory as a long row of numbered boxes holding bits, that includes the program's own instructions, not only its data. "Running a program" is the processor reading those instruction-numbers one after another and doing what each one encodes.
+A single machine instruction is itself just a number, stored as bits, sitting in memory alongside the data it operates on. When the [How Values Are Stored](/lectures/data-representation/) lecture describes memory as a long row of numbered boxes holding bits, that includes the program's own instructions, not only its data. "Running a program" is the processor reading those instruction-numbers one after another and doing what each one encodes.
 :::
 
 ## Interpreters and Compilers
@@ -257,7 +257,7 @@ Whichever language reports a problem, its error message is information, not a ve
 
 The same loop resolves all three kinds of error: read the error, form one hypothesis, make one change, and retest. It is worth using deliberately from your very first program, instead of falling into random guessing.
 
-Underneath all of it sits a distinction worth carrying forward: building a model of a situation is a different act from analyzing what that model produces, and telling them apart will help you find a mistake faster all term. The next lecture goes underneath the source code entirely, to how a computer stores every value a program touches as bits in memory, and what the numbers hiding inside type names like `i32` and `f64` actually mean.
+Underneath all of it sits a distinction worth carrying forward: building a model of a situation is a different act from analyzing what that model produces, and telling them apart will help you find a mistake faster all term. The next lecture looks closely at the data a program works on: what a value and a type are, and how operators combine values into expressions you can work out by hand before ever running them.
 
 ## Resources
 

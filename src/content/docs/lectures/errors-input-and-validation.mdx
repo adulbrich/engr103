@@ -25,6 +25,17 @@ You already know how to read a number someone types. The [variables and state](/
 
 Real people are not that cooperative. Someone asked for a whole number can type `twenty-five` instead of `25`, leave the line blank, or press Enter without typing anything at all, and the text a program reads back is not automatically a number just because a number was expected. Even a number that reads back cleanly can still be wrong for what your program needs: an age of `-5` or `9000` is a perfectly good whole number and a perfectly bad age. Trusting typed input the way lecture 4's examples did works only until a real person uses the program, and it stops working the instant they type something unexpected. What happens when the text someone typed is not a number at all, and what to do about a number that parses fine but makes no sense, is this lecture's subject.
 
+:::note[Four things this lecture asks you to take on trust, and where each is repaid]
+This is the densest Rust lecture in the course, and most of that density is spelling rather than ideas. Four pieces arrive here that are explained somewhere else, and it helps to know the list is exactly four and not open-ended.
+
+1. **The three lines that read a typed line** (`use std::io`, `String::new()`, and `io::stdin().read_line(&mut ...)`). Repaid at the end of *this* lecture, in "Inside the Read Helper," once the pieces they lean on have been taught.
+2. **The `&mut` inside that read.** Repaid in the memory model lecture, where references are the subject.
+3. **The turbofish, `::<i32>`.** Never expanded further, and deliberately so: it is a fixed spelling you use as written, exactly as the [language ladder](/reference/language-ladder/) records. You are not writing generic code by typing it.
+4. **Asking the person again after a bad value.** Repaid in the loop patterns lecture, because repeating until something is right is what a loop is for.
+
+Everything else in this lecture is explained where it appears. If a Rust example looks like a wall, read the Python tab first for the idea, then come back: the two do the same job, and only the spelling of the reading step is longer on the Rust side.
+:::
+
 ## Parsing
 
 Reading a line of typed text, the way lecture 4 taught, only gets you a string of characters. Whether the person typed `21` or `twenty-one`, what you have in hand is text, not a number, and text cannot be compared with `<` the way a number can or added the way a number can. **Parsing** is the step that turns text into the value it represents, here a whole number.
@@ -145,7 +156,7 @@ use std::io;
 fn main() {
     println!("Enter your age: ");
     let mut age_text = String::new();
-    io::stdin().read_line(&mut age_text).expect("failed to read line"); // the input-reading line read_i32 hides; opened up at the end of this lecture
+    io::stdin().read_line(&mut age_text).expect("failed to read line");
 
     match age_text.trim().parse::<i32>() {
         Ok(age) => println!("You are {} years old.", age),
@@ -193,7 +204,7 @@ use std::io;
 fn main() {
     println!("Enter your age: ");
     let mut age_text = String::new();
-    io::stdin().read_line(&mut age_text).expect("failed to read line"); // the input-reading line read_i32 hides; opened up at the end of this lecture
+    io::stdin().read_line(&mut age_text).expect("failed to read line");
 
     let age: i32 = age_text.trim().parse().expect("age must be a whole number");
     println!("You are {} years old.", age);
@@ -253,7 +264,7 @@ use std::io;
 fn main() {
     println!("Enter your age: ");
     let mut age_text = String::new();
-    io::stdin().read_line(&mut age_text).expect("failed to read line"); // the input-reading line read_i32 hides; opened up at the end of this lecture
+    io::stdin().read_line(&mut age_text).expect("failed to read line");
 
     match age_text.trim().parse::<i32>() {
         Ok(age) => {
@@ -324,7 +335,7 @@ fn read_i32() -> i32 {
 }
 ```
 
-This function does not compile by itself if you paste it into an empty file: it lives inside the starter file alongside a `main` that calls it, the same starter file lecture 4 pointed you to.
+This function does not compile by itself if you paste it into an empty file, because nothing here calls it and a Rust program needs a `main`: it lives inside the starter file alongside a `main` that does call it, the same starter file lecture 4 pointed you to. This and the calling example in lecture 4 are the only two Rust examples in the course that do not run as pasted.
 
 The first line, `use std::io;`, brings in `std::io`, the standard library's **module** for input and output. A module is a named bundle of related code a language's standard library ships ready to use, and the `use` line makes its contents callable by short names, like `stdin`, instead of a longer path.
 

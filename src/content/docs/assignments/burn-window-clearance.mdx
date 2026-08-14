@@ -81,8 +81,8 @@ We give you **one** worked example to show the format. Every worked-example call
 
 **Assumptions and edge cases.** All four readings come from the site's automated weather station and fuel moisture probe, except `burn_ban_declared`, which the county fire marshal's office sets by mid-morning. The three numeric windows above are WRO's own operating prescription for this burn type, not a published statewide standard; real agency prescriptions vary by fuel type, unit, and region. The boundaries are exact: `20.0` miles per hour, `25.0` percent, and `10.0` percent are the safety thresholds, and a reading sitting exactly at one of them does not breach it. The ideal window needs `12.0`, `40.0`, and `15.0` exactly met, so a day sitting exactly on a safety threshold is marginal, not unsafe and not cleared. A declared burn ban always returns `3`, even when all three readings would otherwise be inside the ideal window.
 
-<Aside type="danger" title="AURA has a rule for the unsafe check. Decide whether to trust it.">
-AURA, the office's assistant, offers this: "A burn day only turns unsafe when it is bad in every way at once, so the unsafe code should fire only when the wind speed is past its ceiling, the humidity is past its floor, and the fuel moisture is past its floor, all together. One reading drifting past its own limit on its own is still just a marginal day, worth a note, not a stop."
+<Aside type="danger" title="AURA has a way to simplify the check. Decide whether to trust it.">
+AURA, the office's assistant, offers this: "You have been handed two sets of numbers for the same three readings, and you only need one. The `12.0`, `40.0` and `15.0` are the real operating figures; the other three are those same figures restated with a reporting margin, so nothing in the decision needs them. Compare each reading against its ideal figure once: a day that meets all three is cleared, and a day that misses any of them is unsafe. One comparison per reading, and the whole thing collapses."
 
 Office rule: no AURA analysis is published unverified. Test AURA's rule against the requirements above before you rely on it, and let your test cases settle the question.
 </Aside>
@@ -94,9 +94,7 @@ Before writing any code, decide what correct behavior looks like. Write a set of
 Your table must include, and label, at least these cases:
 
 - An override case that returns `3` while the readings themselves would otherwise be unsafe, to prove the burn ban really outranks the readings.
-- An unsafe case driven by wind speed alone.
-- An unsafe case driven by relative humidity alone.
-- An unsafe case driven by fuel moisture alone.
+- Enough unsafe cases to cover every reading that can drive that outcome on its own, if any can.
 - A marginal case.
 - A cleared case.
 - One case that lands exactly on a boundary: a reading exactly at `20.0`, `25.0`, `10.0`, `12.0`, `40.0`, or `15.0`.
