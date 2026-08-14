@@ -1,6 +1,6 @@
 ---
 title: Glossary
-description: One plain-language definition per course term, each linking to the lecture that explains it in full.
+description: One plain-language definition per course term, each linking to the lecture section that explains it in full.
 sidebar:
   order: 0
 draft: true
@@ -8,22 +8,684 @@ draft: true
 
 {/* AUTHOR NOTE, not rendered to students.
 
-Each term below is an `##` heading (giving it a stable anchor such as
-`#function`), one plain-language sentence of definition, and a link to the
-lecture section where the term is first introduced and explained in full. Other
-artifacts reference a term by linking to its entry here (for example
-`/reference/glossary#function`); this page routes the reader on to the lecture.
+All 163 entries are written: every one of the 111 terms tagged in the lectures'
+ai-summary `glossary_terms` fields, plus 52 supporting terms the notes define in
+passing. Each links to the lecture section that teaches it, and every one of
+those 163 anchors was validated by a live `npm run build` before this page was
+set back to draft.
 
-STATUS: 2 of roughly 80 terms authored. The full term list is the union of the
-`glossary_terms` fields in the 18 lecture ai-summary blocks. This page is
-`draft: true` until those are written, because a live glossary with two entries
-is worse than none. Flip to false only once the terms are in and the lectures
-link them from first use (VISION section 9's plain-language rule). */}
+It is `draft: true` only because the draft policy reserves publishing to the
+instructor, not because anything is missing. Flip it to false when you are happy
+with the definitions.
+
+Two collisions worth knowing about, both deliberate:
+- `index` is tagged by both the strings and collections lectures. One entry,
+  linked to strings, where it is first taught.
+- `value` is tagged by both values-types-and-expressions and collections-ii, but
+  it means two different things there: a piece of data, and the half of a
+  key-value pair. The entry defines the first; the second is covered under
+  `key-value pair`. VISION section 9 asks for one name per concept, so this is
+  the one place the lectures currently break that rule.
+
+Still to do: link terms from first use in the lecture notes, which is what
+VISION section 9 actually asks for. This page is the target for those links. */}
+
+Every technical word this course uses, defined in one plain sentence and linked
+to the place it is explained in full. Terms are listed alphabetically, so you can
+look one up without knowing which week it came from.
+
+If a definition here is all you needed, good. If it is not, follow the link: the
+lecture section is where the idea is actually taught, and this page only exists
+to get you there.
+
+## accumulator
+
+A variable that holds a result being built up across the passes of a loop, set before it, updated in it, and read after it. Introduced in [Loop Patterns](/lectures/loop-patterns/#accumulate-a-running-total).
+
+## algorithm
+
+A finite, ordered sequence of steps that solves a problem or completes a task, with every step unambiguous and nothing left to guess. Introduced in [How Programs Run](/lectures/how-programs-run/#programs-algorithms-and-languages).
+
+## algorithmic exclusion
+
+A computing tool working for the people its builders had in mind and failing the people they did not, by an assumption baked into the code. Introduced in [Computing with Judgment](/lectures/computing-with-judgment/#who-our-tools-leave-out).
+
+## aliasing
+
+Two or more names referring to the same underlying value, so a change made through any one of them is a change all of them see. Introduced in [The Memory Model: Aliasing and Ownership](/lectures/the-memory-model/#aliasing-in-python).
+
+## analysis
+
+Running a model and making sense of what comes out, judging whether the numbers are reasonable and what they say about the situation. Introduced in [How Programs Run](/lectures/how-programs-run/#modeling-and-analysis).
+
+## antipattern
+
+A tempting habit that causes more trouble than it saves, such as using a global variable to let two functions communicate. Introduced in [Scope and the Call Stack](/lectures/scope-and-the-call-stack/#global-variables).
+
+## append
+
+Adding a new element to the end of a list, making it one element longer. Introduced in [Collections I: Lists and Vectors](/lectures/collections-i/#growing-and-changing-a-list).
+
+## approximation
+
+The closest value a float's fixed bits can hold, which is what gets stored when the exact number cannot be written in binary. Introduced in [How Values Are Stored](/lectures/data-representation/#floats-as-approximations).
+
+## arbitrary precision
+
+A whole-number type that uses however many bits its current value needs rather than a fixed number, so it has no built-in ceiling. Introduced in [How Values Are Stored](/lectures/data-representation/#arbitrary-precision).
+
+## argument
+
+The actual value a function receives at a particular call, as opposed to a parameter, which is only the placeholder in the definition. Introduced in [Functions](/lectures/functions/#calling-a-function).
+
+## ASCII
+
+The oldest character encoding still in everyday use, covering the common characters of written English with the numbers 0 to 127. Introduced in [Strings and Characters](/lectures/strings/#character-encoding-and-ascii).
+
+## assertion
+
+A single line of code that states what a value must be and stops the program the moment it is not. Introduced in [Testing](/lectures/testing/#assertions).
+
+## assignment
+
+Giving a variable its value, in two fixed steps: evaluate the right-hand side to a single value, then bind the name on the left to it. Introduced in [Variables and State](/lectures/variables-and-state/#assignment-and-mutability).
+
+## associativity
+
+The rule that breaks a tie between two operators of equal precedence, which for the arithmetic operators means reducing left to right. Introduced in [Values, Types, and Expressions](/lectures/values-types-and-expressions/#operator-precedence).
+
+## binary
+
+A number system that writes every value using only the digits 0 and 1, with each position worth twice the position to its right. Introduced in [How Values Are Stored](/lectures/data-representation/#binary).
+
+## binding
+
+The link between a name and the value it refers to. Introduced in [Variables and State](/lectures/variables-and-state/#variables).
+
+## bit
+
+The smallest piece of information a computer can store: a single 0 or a single 1. Introduced in [How Values Are Stored](/lectures/data-representation/#bits).
+
+## block
+
+A pair of curly braces opening a new, smaller scope, whose variables are gone once the closing brace passes. Introduced in [Scope and the Call Stack](/lectures/scope-and-the-call-stack/#block-scope-in-rust).
+
+## boolean
+
+A value that is only ever one of two things, true or false. Introduced in [Booleans and Conditionals](/lectures/booleans-and-conditionals/#booleans).
+
+## borrow
+
+A temporary, non-owning reference to a value, written with `&`, that leaves the original owner in charge. Introduced in [The Memory Model: Aliasing and Ownership](/lectures/the-memory-model/#borrowing-looking-without-owning).
+
+## boundary bug
+
+A mistake at the edge between two branches, such as a wrong comparison operator, which produces a plausible but wrong answer with no error. Introduced in [Decision Structures](/lectures/decision-structures/#common-boundary-bugs).
+
+## boundary case
+
+An input at the very edge of what a specification treats specially, such as zero, a stated maximum, or the exact value a comparison turns on. Introduced in [Testing](/lectures/testing/#boundary-cases).
+
+## break
+
+A statement that stops a loop immediately, skipping any remaining passes. Introduced in [Loops](/lectures/loops/#break).
+
+## buffer overflow
+
+Reading or writing past the end of a value in a language that does not check, landing inside memory that belongs to something else. Introduced in [Collections I: Lists and Vectors](/lectures/collections-i/#when-an-index-is-out-of-bounds).
+
+## byte
+
+A group of 8 bits handled together as one unit, able to hold 256 different patterns. Introduced in [How Values Are Stored](/lectures/data-representation/#bytes).
+
+## call
+
+Running a function by writing its name followed by parentheses holding one value for each of its parameters. Introduced in [Functions](/lectures/functions/#calling-a-function).
+
+## call stack
+
+The mechanism that gives every function call, the moment it starts, a fresh private set of boxes for its parameters and local variables. Introduced in [Scope and the Call Stack](/lectures/scope-and-the-call-stack/#the-call-stack).
+
+## character
+
+A single letter, digit, space, or symbol, one piece of a string. Introduced in [Strings and Characters](/lectures/strings/#strings-as-sequences-of-characters).
+
+## character encoding
+
+A fixed, shared agreement saying which whole number stands for each character. Introduced in [Strings and Characters](/lectures/strings/#character-encoding-and-ascii).
+
+## clone
+
+Asking Rust for a full, separate copy of a value, so that duplication is never silent. Introduced in [The Memory Model: Aliasing and Ownership](/lectures/the-memory-model/#ownership-in-rust).
+
+## code review
+
+Reading a piece of code carefully, on purpose, to decide whether it is correct and fits the job you need it for, before you rely on it. Introduced in [Computing with Judgment](/lectures/computing-with-judgment/#reviewing-code-you-did-not-write).
+
+## comparison operator
+
+An operator that takes two values and produces a boolean by asking how they relate, such as `==`, `<`, or `>=`. Introduced in [Booleans and Conditionals](/lectures/booleans-and-conditionals/#comparison-operators).
+
+## compiler
+
+A translator that reads your entire source file first, checks it, and only then produces a separate executable file to run. Introduced in [How Programs Run](/lectures/how-programs-run/#interpreters-and-compilers).
+
+## concatenation
+
+Joining two strings end to end into a longer one. Introduced in [Strings and Characters](/lectures/strings/#building-strings).
+
+## conditional
+
+A statement that runs one block of code when a condition is true and a different block when it is false. Introduced in [Booleans and Conditionals](/lectures/booleans-and-conditionals/#the-ifelse-statement).
 
 ## console input
 
 Text a program reads from the person running it while the program executes, rather than text already written into the source code. Introduced in [Variables and State](/lectures/variables-and-state/#console-input).
 
+## constant
+
+A name attached to a value that is never meant to be reassigned. Introduced in [Variables and State](/lectures/variables-and-state/#constants).
+
+## continue
+
+A statement that abandons only the current pass of a loop and moves straight to the next one. Introduced in [Loops](/lectures/loops/#continue).
+
+## count pattern
+
+An accumulator with a gate in front of it, adding one only on the passes where a condition is true. Introduced in [Loop Patterns](/lectures/loop-patterns/#count-the-matches).
+
+## dangling reference
+
+A name left pointing at a value that has already been cleaned up. Introduced in [The Memory Model: Aliasing and Ownership](/lectures/the-memory-model/#why-this-matters-memory-safety).
+
+## debugging
+
+Finding and fixing a fault by a deliberate loop: read the error, form one hypothesis, make a single change, and test it. Introduced in [How Programs Run](/lectures/how-programs-run/#the-systematic-debugging-method).
+
+## decision table
+
+A table listing every combination of the relevant conditions in rows, alongside the outcome each combination should produce. Introduced in [Decision Structures](/lectures/decision-structures/#decision-tables).
+
+## defensive copy
+
+A fresh, separate collection made on purpose so a function can change it without touching your original. Introduced in [Sharing and Mutation](/lectures/sharing-and-mutation/#defensive-copying).
+
+## dictionary
+
+A collection that stores values, each one filed under a name you pick. Introduced in [Collections II: Dictionaries and Maps](/lectures/collections-ii/#a-dictionary-maps-keys-to-values).
+
+## dynamic typing
+
+A language deciding whether a value's type makes sense for a given use only at the moment that use actually runs. Introduced in [Values, Types, and Expressions](/lectures/values-types-and-expressions/#dynamic-typing).
+
+## element
+
+A single value in a list. Introduced in [Collections I: Lists and Vectors](/lectures/collections-i/#a-list-is-a-growable-sequence-of-values).
+
+## else-if chain
+
+An extension of `if`/`else` with additional conditions between them, each checked only if every condition before it was false. Introduced in [Decision Structures](/lectures/decision-structures/#else-if-chains).
+
+## error case
+
+An input outside the range a function's ordinary use expects, such as a negative number or an empty piece of text. Introduced in [Testing](/lectures/testing/#error-and-unusual-cases).
+
+## evaluation
+
+Reduction by replacement: the computer computes a sub-expression, replaces it with its single value, and repeats until one value is left. Introduced in [Values, Types, and Expressions](/lectures/values-types-and-expressions/#expressions).
+
+## exception
+
+An object representing an error which, the instant it is raised, interrupts the normal flow of the program and searches outward for code willing to handle it. Introduced in [Errors, Input, and Validation](/lectures/errors-input-and-validation/#exceptions-versus-result).
+
+## exhaustive
+
+Covering every possible value of the matched type, which Rust requires of a `match` and checks before the program runs. Introduced in [Decision Structures](/lectures/decision-structures/#rusts-match).
+
+## expression
+
+A piece of code that produces a value when the computer runs it. Introduced in [Values, Types, and Expressions](/lectures/values-types-and-expressions/#expressions).
+
+## f-string
+
+A Python string literal with an `f` before the opening quote, where anything inside curly braces is replaced by its value. Introduced in [Strings and Characters](/lectures/strings/#building-strings).
+
+## failure mode
+
+A specific way a piece of code can be wrong: not the bug itself, but the shape of the mistake. Introduced in [Computing with Judgment](/lectures/computing-with-judgment/#failure-modes-of-generated-and-library-code).
+
+## float
+
+A number that can have a fractional part, short for floating-point number. Introduced in [Values, Types, and Expressions](/lectures/values-types-and-expressions/#values).
+
+## floating-point tolerance
+
+A small margin decided ahead of time, within which two computed decimal numbers are treated as equal rather than compared with `==`. Introduced in [Booleans and Conditionals](/lectures/booleans-and-conditionals/#comparing-floats-with-a-tolerance).
+
+## floor
+
+Rounding to the largest whole number that is less than or equal to a value, which is what Python's `//` does. Introduced in [Values, Types, and Expressions](/lectures/values-types-and-expressions/#integer-versus-float-division).
+
+## for loop
+
+A loop that walks a loop variable through a known sequence of values, handling the start, the step, and the stop for you. Introduced in [Loops](/lectures/loops/#counting-with-a-for-loop).
+
+## found flag
+
+A boolean set to false before a search and to true in the same `if` that runs the `break`, so the code after the loop can tell success from exhaustion. Introduced in [Loop Patterns](/lectures/loop-patterns/#search-for-the-first-match).
+
+## frequency counting
+
+Counting how many times each distinct item appears, keeping not one counter but a counter for every item at once. Introduced in [Collections II: Dictionaries and Maps](/lectures/collections-ii/#counting-how-often-each-value-appears).
+
+## function
+
+A named, reusable block of code that carries out a computation and produces a result. Introduced in [Functions](/lectures/functions/#functions).
+
+## function signature
+
+A function's name, its parameters, and the type of value it returns: what it needs and what it gives back, before you look at how it computes it. Introduced in [Functions](/lectures/functions/#defining-a-function).
+
+## garbage collection
+
+Python's way of managing memory as the program runs, reclaiming an object once no name refers to it any longer. Introduced in [The Memory Model: Aliasing and Ownership](/lectures/the-memory-model/#why-this-matters-memory-safety).
+
+## global variable
+
+A variable defined outside every function, readable by any function below it. Introduced in [Scope and the Call Stack](/lectures/scope-and-the-call-stack/#global-variables).
+
+## growable
+
+Able to change size after it is created, which is what separates a list from a fixed string literal. Introduced in [Collections I: Lists and Vectors](/lectures/collections-i/#a-list-is-a-growable-sequence-of-values).
+
+## guard clause
+
+A check for a special or invalid case at the top of a function that returns immediately, so the rest of the function needs no surrounding `else`. Introduced in [Decision Structures](/lectures/decision-structures/#guard-clauses).
+
+## half-open range
+
+A range that includes its starting value but stops just short of its ending value, so `range(5)` and `0..5` each give five values ending at 4. Introduced in [Loops](/lectures/loops/#counting-with-a-for-loop).
+
+## hash function
+
+A small computation turning a key into a number, which tells the dictionary roughly where to keep or find its value and is what makes lookup fast. Introduced in [Collections II: Dictionaries and Maps](/lectures/collections-ii/#a-dictionary-maps-keys-to-values).
+
+## hash map
+
+Rust's name for a dictionary, written `HashMap`. Introduced in [Collections II: Dictionaries and Maps](/lectures/collections-ii/#a-dictionary-maps-keys-to-values).
+
+## heap
+
+The other place a running program stores data, used for values whose size or lifetime does not fit the stack's push-and-pop pattern. Introduced in [Scope and the Call Stack](/lectures/scope-and-the-call-stack/#the-call-stack).
+
+## heterogeneous
+
+Able to hold values of different types at once, as a Python list can. Introduced in [Collections I: Lists and Vectors](/lectures/collections-i/#mixed-types-or-one-type).
+
+## hexadecimal
+
+A number system with sixteen digits, borrowing the letters A to F, used for addresses because one hex digit stands for exactly four bits. Introduced in [How Values Are Stored](/lectures/data-representation/#memory-addresses).
+
+## homogeneous
+
+Required to hold values all of one type, as a Rust vector is. Introduced in [Collections I: Lists and Vectors](/lectures/collections-i/#mixed-types-or-one-type).
+
+## identifier
+
+A variable's name, which may contain only letters, digits, and underscores, and may not start with a digit. Introduced in [Variables and State](/lectures/variables-and-state/#variables).
+
+## implicit coercion
+
+A language automatically converting a value from one type to another so an operation can proceed, without you writing any conversion. Introduced in [Values, Types, and Expressions](/lectures/values-types-and-expressions/#implicit-coercion).
+
+## index
+
+The position of one item in a sequence, counted from zero, used to reach that item. Introduced in [Strings and Characters](/lectures/strings/#indexing-and-characters).
+
+## indexing
+
+Using an index to pull a single item out of a sequence. Introduced in [Strings and Characters](/lectures/strings/#indexing-and-characters).
+
+## infinite loop
+
+A loop whose condition never becomes false, so it repeats endlessly and never lets the program move past it. Introduced in [Loops](/lectures/loops/#termination-and-infinite-loops).
+
+## initialization
+
+The first time a name is given a value at all. Introduced in [Variables and State](/lectures/variables-and-state/#initialization-and-reading-before-assignment).
+
+## input validation
+
+Checking a value you already have against the rules your program actually requires, and rejecting it clearly the moment it fails one. Introduced in [Errors, Input, and Validation](/lectures/errors-input-and-validation/#input-validation).
+
+## integer
+
+A whole number, with no fractional part. Introduced in [Values, Types, and Expressions](/lectures/values-types-and-expressions/#values).
+
+## integer division
+
+Division between two whole numbers that produces a whole-number result instead of the exact, possibly fractional, answer. Introduced in [Values, Types, and Expressions](/lectures/values-types-and-expressions/#integer-versus-float-division).
+
+## integer size
+
+The number of bits a language sets aside to store one whole-number value, which is what the 32 in `i32` names. Introduced in [How Values Are Stored](/lectures/data-representation/#integer-size).
+
+## interpreter
+
+A translator that reads your source code one instruction at a time and carries out each one immediately, before it looks at what comes next. Introduced in [How Programs Run](/lectures/how-programs-run/#interpreters-and-compilers).
+
+## key
+
+The name you look a stored value up by. Introduced in [Collections II: Dictionaries and Maps](/lectures/collections-ii/#a-dictionary-maps-keys-to-values).
+
+## key-value pair
+
+One key joined to the value stored under it; the value half of a pair is what a dictionary hands back when you name its key. Introduced in [Collections II: Dictionaries and Maps](/lectures/collections-ii/#a-dictionary-maps-keys-to-values).
+
+## last-in, first-out
+
+The order frames come off the call stack, the most recently added being the first removed; often shortened to LIFO. Introduced in [Scope and the Call Stack](/lectures/scope-and-the-call-stack/#the-call-stack).
+
+## lifetime
+
+The span of a program's execution during which a variable exists at all. Introduced in [Scope and the Call Stack](/lectures/scope-and-the-call-stack/#how-long-a-local-variable-lives).
+
+## list
+
+An ordered sequence of values, kept in a fixed order and reachable one at a time by position. Introduced in [Collections I: Lists and Vectors](/lectures/collections-i/#a-list-is-a-growable-sequence-of-values).
+
+## literal
+
+A value written out directly in your code, rather than computed from something else. Introduced in [Values, Types, and Expressions](/lectures/values-types-and-expressions/#values).
+
+## local variable
+
+A variable created inside a function, whose name can only be used within that function's own body. Introduced in [Scope and the Call Stack](/lectures/scope-and-the-call-stack/#local-scope).
+
+## logic error
+
+A program that runs from start to finish with no error message at all and computes the wrong answer, because the steps you wrote do not do what you intended. Introduced in [How Programs Run](/lectures/how-programs-run/#logic-errors).
+
+## logical operator
+
+An operator that combines one or two booleans into a single new boolean: `and`, `or`, and `not`, which Rust writes `&&`, `||`, and `!`. Introduced in [Booleans and Conditionals](/lectures/booleans-and-conditionals/#logical-operators).
+
+## loop
+
+A block of code that runs repeatedly, control returning to the start of the block instead of moving on after one pass. Introduced in [Loops](/lectures/loops/#the-idea-of-a-loop).
+
+## loop variable
+
+The value a loop's condition tests and its body updates on every pass. Introduced in [Loops](/lectures/loops/#the-while-loop).
+
+## machine code
+
+Instructions encoded as raw numbers, specific to one kind of processor, which is the only form the hardware actually runs. Introduced in [How Programs Run](/lectures/how-programs-run/#source-code-and-machine-code).
+
+## match
+
+A Rust expression that compares one value against a list of patterns and uses the first that fits, with the compiler checking the list is exhaustive. Introduced in [Decision Structures](/lectures/decision-structures/#rusts-match).
+
+## memory address
+
+The number that identifies one specific byte-sized box in memory, the way a house number identifies one house on a street. Introduced in [How Values Are Stored](/lectures/data-representation/#memory-addresses).
+
+## memory safety
+
+A guarantee that no program written in a language can read or write memory that is not validly part of a value it is allowed to touch. Introduced in [The Memory Model: Aliasing and Ownership](/lectures/the-memory-model/#why-this-matters-memory-safety).
+
+## method
+
+A function attached to a value, called by writing the value, a dot, and the function's name. Introduced in [Errors, Input, and Validation](/lectures/errors-input-and-validation/#parsing).
+
+## modeling
+
+Building a representation of a real situation out of values, expressions, and steps: deciding what quantities matter and how they relate. Introduced in [How Programs Run](/lectures/how-programs-run/#modeling-and-analysis).
+
+## module
+
+A named bundle of related code a language's standard library ships ready to use, such as Rust's `std::io`. Introduced in [Errors, Input, and Validation](/lectures/errors-input-and-validation/#inside-the-read-helper).
+
+## modulo
+
+The `%` operator, giving the remainder left over after an integer division. Introduced in [Values, Types, and Expressions](/lectures/values-types-and-expressions/#integer-versus-float-division).
+
+## move
+
+Transferring ownership of a value from one name to another, leaving the original name empty and unusable. Introduced in [The Memory Model: Aliasing and Ownership](/lectures/the-memory-model/#ownership-in-rust).
+
+## mutability
+
+Whether a variable is allowed to change after it is created. Introduced in [Variables and State](/lectures/variables-and-state/#assignment-and-mutability).
+
+## mutable reference
+
+A borrow written `&mut Vec<i32>` that lets a function change the caller's collection, announcing that intent in the type. Introduced in [Sharing and Mutation](/lectures/sharing-and-mutation/#mutable-references).
+
+## mutual exclusivity
+
+The guarantee an else-if chain gives that exactly one of its blocks runs, or at most one when there is no final `else`. Introduced in [Decision Structures](/lectures/decision-structures/#mutual-exclusivity).
+
+## nested loop
+
+An outer loop whose body contains an inner loop, so the inner loop runs in full on every pass of the outer one. Introduced in [Loops](/lectures/loops/#nested-loops).
+
+## object
+
+A larger value, such as a list, whose parts live together elsewhere in memory rather than where the name is. Introduced in [The Memory Model: Aliasing and Ownership](/lectures/the-memory-model/#what-a-name-holds).
+
+## operand
+
+One of the values an operator combines. Introduced in [Values, Types, and Expressions](/lectures/values-types-and-expressions/#operators).
+
+## operator
+
+A symbol that combines one or more values to produce a new value. Introduced in [Values, Types, and Expressions](/lectures/values-types-and-expressions/#operators).
+
+## operator precedence
+
+The rules a language uses to decide which operator reduces first, so that every expression has exactly one value. Introduced in [Values, Types, and Expressions](/lectures/values-types-and-expressions/#operator-precedence).
+
+## Option
+
+A Rust value that is either `Some`, holding a thing that was found, or `None`, meaning there was nothing there. Introduced in [Strings and Characters](/lectures/strings/#indexing-and-characters).
+
+## out-of-bounds
+
+An index naming a position the sequence does not have. Introduced in [Collections I: Lists and Vectors](/lectures/collections-i/#when-an-index-is-out-of-bounds).
+
+## ownership
+
+Rust's rule that every value has exactly one owner, the single name responsible for it, and is cleaned up when that name goes away. Introduced in [The Memory Model: Aliasing and Ownership](/lectures/the-memory-model/#ownership-in-rust).
+
+## panic
+
+A deliberate crash in Rust, reporting where it happened and why. Introduced in [Errors, Input, and Validation](/lectures/errors-input-and-validation/#exceptions-versus-result).
+
+## parameter
+
+A placeholder, listed in a function's definition, for a value the function will receive each time it is called. Introduced in [Functions](/lectures/functions/#defining-a-function).
+
 ## parsing
 
-Turning text into a value of another type, such as turning the text `"25"` into the whole number `25`. Introduced in [Errors, Input, and Validation](/lectures/errors-input-and-validation/#parsing).
+Turning text into the value it represents, such as turning the text `"25"` into the whole number 25. Introduced in [Errors, Input, and Validation](/lectures/errors-input-and-validation/#parsing).
+
+## pattern
+
+The part of a `match` arm before the `=>`, describing which values that arm claims. Introduced in [Decision Structures](/lectures/decision-structures/#rusts-match).
+
+## plausible-but-wrong
+
+Code that looks correct, reads correctly, and passes a casual glance, yet fails on an input nobody thought to try. Introduced in [Computing with Judgment](/lectures/computing-with-judgment/#a-function-that-looks-right).
+
+## program
+
+An algorithm written down in a language a computer can eventually carry out. Introduced in [How Programs Run](/lectures/how-programs-run/#programs-algorithms-and-languages).
+
+## reassignment
+
+Any assignment to a name after the first one, rebinding it to a new value. Introduced in [Variables and State](/lectures/variables-and-state/#assignment-and-mutability).
+
+## reference
+
+A name standing for a value without necessarily containing that value inside itself. Introduced in [The Memory Model: Aliasing and Ownership](/lectures/the-memory-model/#what-a-name-holds).
+
+## responsible engineering
+
+The stance that you remain accountable for what your code does and whom it affects, regardless of who or what produced it. Introduced in [Computing with Judgment](/lectures/computing-with-judgment/#responsible-engineering).
+
+## Result
+
+A Rust value that is one of two possibilities, `Ok` holding a success or `Err` holding a description of what went wrong. Introduced in [Errors, Input, and Validation](/lectures/errors-input-and-validation/#exceptions-versus-result).
+
+## return value
+
+The value a function's `return` statement sends back to wherever the function was called. Introduced in [Functions](/lectures/functions/#return-values).
+
+## run-time error
+
+A failure that happens after a program has already started, when a specific instruction turns out to be impossible to carry out. Introduced in [How Programs Run](/lectures/how-programs-run/#run-time-errors).
+
+## scope
+
+The region of a program where a variable's name means anything at all. Introduced in [Scope and the Call Stack](/lectures/scope-and-the-call-stack/#local-scope).
+
+## search pattern
+
+A loop that stops at the first item satisfying a condition, pairing a `break` with a flag recording that it succeeded. Introduced in [Loop Patterns](/lectures/loop-patterns/#search-for-the-first-match).
+
+## semantics
+
+What a well-formed arrangement of symbols means, the behaviour it stands for. Introduced in [How Programs Run](/lectures/how-programs-run/#programs-algorithms-and-languages).
+
+## sentinel value
+
+A designated input that means stop, chosen to signal the end of a series rather than to be processed as data. Introduced in [Loop Patterns](/lectures/loop-patterns/#read-until-a-sentinel).
+
+## shadowing
+
+Declaring a brand new Rust variable with a name already in use, hiding the older one rather than changing it. Introduced in [Scope and the Call Stack](/lectures/scope-and-the-call-stack/#shadowing).
+
+## shallow copy
+
+A copy of the outer collection and its elements, which still shares any objects those elements referred to. Introduced in [Sharing and Mutation](/lectures/sharing-and-mutation/#defensive-copying).
+
+## shared reference
+
+A borrow written `&Vec<i32>` that lets a function read a collection without owning it and without changing it. Introduced in [Sharing and Mutation](/lectures/sharing-and-mutation/#shared-references).
+
+## short-circuit evaluation
+
+An operator computing its left operand and, when that alone settles the result, skipping the right operand entirely. Introduced in [Booleans and Conditionals](/lectures/booleans-and-conditionals/#short-circuit-evaluation).
+
+## slice
+
+Taking a substring by giving a start and an end position, following the same half-open convention as a range. Introduced in [Strings and Characters](/lectures/strings/#slicing-and-substrings).
+
+## source code
+
+The text you type in Python or Rust, a form meant for people to read and write. Introduced in [How Programs Run](/lectures/how-programs-run/#source-code-and-machine-code).
+
+## specification
+
+The plain-language description of what a function is supposed to do: what it takes in, and what it must give back for each kind of input. Introduced in [Testing](/lectures/testing/#test-cases).
+
+## stack
+
+The growing and shrinking pile of frames a running program keeps, one of the two places it stores data. Introduced in [Scope and the Call Stack](/lectures/scope-and-the-call-stack/#the-call-stack).
+
+## stack frame
+
+The private set of boxes belonging to one function call. Introduced in [Scope and the Call Stack](/lectures/scope-and-the-call-stack/#the-call-stack).
+
+## state
+
+All the values a program's variables currently hold. Introduced in [Variables and State](/lectures/variables-and-state/#assignment-and-mutability).
+
+## static typing
+
+A language working out the type of every value and checking that those types are used consistently before the program ever runs. Introduced in [Values, Types, and Expressions](/lectures/values-types-and-expressions/#static-typing).
+
+## string
+
+A piece of text, treated by the computer as data rather than as code to run. Introduced in [Values, Types, and Expressions](/lectures/values-types-and-expressions/#values).
+
+## string literal
+
+A piece of text written directly in your code, inside quotation marks. Introduced in [Strings and Characters](/lectures/strings/#strings-as-sequences-of-characters).
+
+## substring
+
+A piece of a string taken out as its own smaller string. Introduced in [Strings and Characters](/lectures/strings/#slicing-and-substrings).
+
+## syntax
+
+The rules of a language for how its symbols may be arranged, deciding which arrangements are well formed and which are gibberish. Introduced in [How Programs Run](/lectures/how-programs-run/#programs-algorithms-and-languages).
+
+## syntax error
+
+A violation of the language's grammar, caught before any of your code runs because a translator has to understand a line's structure before carrying it out. Introduced in [How Programs Run](/lectures/how-programs-run/#syntax-errors).
+
+## termination
+
+A loop reaching the point where its condition is finally false, which the body is responsible for making happen. Introduced in [Loops](/lectures/loops/#termination-and-infinite-loops).
+
+## test case
+
+A specific input paired with the exact output the specification says that input should produce. Introduced in [Testing](/lectures/testing/#test-cases).
+
+## test function
+
+An ordinary function whose body is a sequence of assertions checking another function's test cases. Introduced in [Testing](/lectures/testing/#test-functions).
+
+## truncation
+
+Throwing away the fractional part of a number and keeping the whole-number part already there, which is what Rust's `/` does on two whole numbers. Introduced in [Values, Types, and Expressions](/lectures/values-types-and-expressions/#integer-versus-float-division).
+
+## truthy
+
+Python's habit of treating a non-boolean value as standing in for true or false, where 0 and empty values count as false and everything else as true. Introduced in [Booleans and Conditionals](/lectures/booleans-and-conditionals/#the-ifelse-statement).
+
+## turbofish
+
+The `::<i32>` written after `parse` to name the type it should produce, used in this course as a fixed spelling. Introduced in [Errors, Input, and Validation](/lectures/errors-input-and-validation/#parsing).
+
+## type
+
+A category that tells the computer what kind of value something is, which operations make sense on it, and how much memory to claim for it. Introduced in [Values, Types, and Expressions](/lectures/values-types-and-expressions/#types).
+
+## typical case
+
+An input from the middle of the range a function is meant to handle, nowhere near any rule in the specification. Introduced in [Testing](/lectures/testing/#typical-cases).
+
+## Unicode
+
+A much larger mapping giving a number to characters from writing systems all over the world, whose first 128 numbers are exactly ASCII. Introduced in [Strings and Characters](/lectures/strings/#character-encoding-and-ascii).
+
+## UTF-8
+
+The usual way to store Unicode text, in which a character that is not plain ASCII takes more than one byte. Introduced in [Strings and Characters](/lectures/strings/#character-encoding-and-ascii).
+
+## validate-until-correct
+
+A loop that keeps re-prompting until the input both parses and passes validation, so every later line can trust the value. Introduced in [Loop Patterns](/lectures/loop-patterns/#validate-until-correct).
+
+## value
+
+A single piece of data that a program works with, such as the number 7 or a short piece of text. Introduced in [Values, Types, and Expressions](/lectures/values-types-and-expressions/#values).
+
+## variable
+
+A name that refers to a value a program has stored, so later code can use the name instead of the value. Introduced in [Variables and State](/lectures/variables-and-state/#variables).
+
+## variable table
+
+A table listing, line by line, the value every variable holds after that line runs. Introduced in [Variables and State](/lectures/variables-and-state/#tracing-variables-by-hand).
+
+## vector
+
+Rust's name for a list, written `Vec`. Introduced in [Collections I: Lists and Vectors](/lectures/collections-i/#a-list-is-a-growable-sequence-of-values).
+
+## while loop
+
+A loop that pairs a condition with a body and runs the body over and over for as long as the condition stays true. Introduced in [Loops](/lectures/loops/#the-while-loop).
