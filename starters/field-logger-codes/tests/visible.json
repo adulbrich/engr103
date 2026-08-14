@@ -1,0 +1,43 @@
+{
+  "title": "Assignment 9: Field Logger Codes, visible tests",
+  "mode": "function",
+  "tolerance": 1e-06,
+  "files": {
+    "py": "field_codes.py",
+    "rs": [
+      "field_codes.rs"
+    ]
+  },
+  "entry": [
+    {
+      "name": "code_for",
+      "params": [
+        "i32"
+      ],
+      "ret": "String"
+    },
+    {
+      "name": "digit_value",
+      "params": [
+        "char"
+      ],
+      "ret": "i32"
+    }
+  ],
+  "cases": [
+    {
+      "call": "code_for",
+      "args": [
+        35
+      ],
+      "expect": "00z"
+    },
+    {
+      "call": "digit_value",
+      "args": [
+        "a"
+      ],
+      "expect": 10
+    }
+  ]
+}

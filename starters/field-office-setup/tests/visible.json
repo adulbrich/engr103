@@ -1,0 +1,17 @@
+{
+  "title": "Assignment 1: Field Office Setup, visible tests",
+  "mode": "stdout",
+  "files": {
+    "py": "hello.py",
+    "rs": [
+      "hello.rs"
+    ]
+  },
+  "cases": [
+    {
+      "label": "hello prints the checkout line",
+      "stdin": "",
+      "expect": "Hello from the field office.\n"
+    }
+  ]
+}

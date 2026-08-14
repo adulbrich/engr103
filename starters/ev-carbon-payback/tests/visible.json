@@ -1,0 +1,17 @@
+{
+  "title": "Assignment 3: EV Carbon Payback, visible tests",
+  "mode": "stdout",
+  "files": {
+    "py": "ev_payback.py",
+    "rs": [
+      "ev_payback.rs"
+    ]
+  },
+  "cases": [
+    {
+      "label": "the worked example",
+      "stdin": "4800000\n190\n55\n15000\n",
+      "expect": "35555\n2\n5555\n"
+    }
+  ]
+}

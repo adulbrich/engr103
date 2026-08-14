@@ -1,0 +1,33 @@
+{
+  "title": "Assignment 8: Solar Array Lifetime, visible tests",
+  "mode": "function",
+  "tolerance": 1e-06,
+  "files": {
+    "py": "array_lifetime.py",
+    "rs": [
+      "array_lifetime.rs"
+    ]
+  },
+  "entry": [
+    {
+      "name": "lifetime_generation_kwh",
+      "params": [
+        "f64",
+        "f64",
+        "f64"
+      ],
+      "ret": "f64"
+    }
+  ],
+  "cases": [
+    {
+      "call": "lifetime_generation_kwh",
+      "args": [
+        20000.0,
+        10.0,
+        12000.0
+      ],
+      "expect": 81902.0
+    }
+  ]
+}
