@@ -5,6 +5,7 @@ dist/
 
 #pdfs
 pdf/
+zip/
 
 # dependencies
 node_modules/

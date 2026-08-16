@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Assemble every assignment starter into dist/starters/<slug>/ and zip each one
+# Assemble every assignment starter into zip/<slug>/ and zip each one
 # for upload to Canvas. Each starter's own files live in starters/<slug>/; the
 # check and pack tools live once in starters/_lib/ and are copied in here, so
 # there is exactly one copy of the harness to maintain.
@@ -13,7 +13,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SRC="$ROOT/starters"
 LIB="$SRC/_lib"
-OUT="$ROOT/dist/starters"
+OUT="$ROOT/zip"
 
 if [ ! -d "$LIB" ]; then
 	echo "build-starters: missing $LIB" >&2
@@ -63,8 +63,8 @@ for slug in "${slugs[@]}"; do
 	rm -f "$dest/submission.zip"
 
 	( cd "$OUT" && zip -qr "$slug.zip" "$slug" )
-	echo "built $slug -> dist/starters/$slug.zip"
+	echo "built $slug -> zip/$slug.zip"
 done
 
 echo
-echo "Upload each dist/starters/<slug>.zip to its Canvas assignment."
+echo "Upload each zip/<slug>.zip to its Canvas assignment."
