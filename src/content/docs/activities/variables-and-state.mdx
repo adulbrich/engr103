@@ -15,7 +15,7 @@ type: activity
 slug: variables-and-state
 order: 4
 paired_lecture: variables-and-state
-practices: reads a typed number with input()/read_i32() and computes with it using // and %, then runs the same program with a non-numeric value and records the error it produces; hand-traces a two-variable swap through a temporary, filling a variable table row by row for three names; diagnoses an immutable Rust `let` binding from its E0384 compile error by distinguishing, among several variables, which are mutable and reassigned and which are not
+practices: reads a typed number with input()/read_i32() and computes with it using // and %, then runs the same program with a non-numeric value and records the error it produces; hand-traces a two-variable swap through a temporary, filling a variable table row by row for three names, then predicts a self-referential assignment whose right side reads the same name twice from one current value; diagnoses an immutable Rust `let` binding from its E0384 compile error by distinguishing, among several variables, which are mutable and reassigned and which are not
 prereq_activities:
 block_types: predict-then-run, paper-tracing, live-debugging
 output: a program run twice with a recorded prediction and a recorded parse failure, a completed swap trace, and a corrected mutable binding
@@ -144,6 +144,7 @@ b = 2
 temp = a
 a = b
 b = temp
+b = b * b
 print(a)
 print(b)
 ```
@@ -156,6 +157,7 @@ fn main() {
     let temp = a;
     a = b;
     b = temp;
+    b = b * b;
     println!("{}", a);
     println!("{}", b);
 }
@@ -164,7 +166,7 @@ fn main() {
 </Tabs>
 
 <Reveal label="Reveal the completed table and the output">
-Walk it one line at a time. Line 1 binds `a` to `7`. Line 2 binds `b` to `2`. Line 3 evaluates `a`, which is `7`, and binds `temp` to `7`: this is the copy that keeps the original `a` safe. Line 4 evaluates `b`, which is `2`, and rebinds `a` to `2`, discarding the `7` that used to be in `a`, which is fine because `temp` still holds it. Line 5 evaluates `temp`, which is still `7`, and rebinds `b` to `7`. Recording the value of each variable after each line gives the table:
+Walk it one line at a time. Line 1 binds `a` to `7`. Line 2 binds `b` to `2`. Line 3 evaluates `a`, which is `7`, and binds `temp` to `7`: this is the copy that keeps the original `a` safe. Line 4 evaluates `b`, which is `2`, and rebinds `a` to `2`, discarding the `7` that used to be in `a`, which is fine because `temp` still holds it. Line 5 evaluates `temp`, which is still `7`, and rebinds `b` to `7`. Line 6 evaluates `b * b`, and both copies of `b` are read from the same current value, `7`, so the right side is `7 * 7`, which is `49`, and `b` is rebound to `49`. Recording the value of each variable after each line gives the table:
 
 | Line | Statement | `a` afterward | `b` afterward | `temp` afterward |
 |---|---|---|---|---|
@@ -173,8 +175,9 @@ Walk it one line at a time. Line 1 binds `a` to `7`. Line 2 binds `b` to `2`. Li
 | 3 | `temp = a` | 7 | 2 | 7 |
 | 4 | `a = b` | 2 | 2 | 7 |
 | 5 | `b = temp` | 2 | 7 | 7 |
+| 6 | `b = b * b` | 2 | 49 | 7 |
 
-The two `print` lines read whatever the variables hold at the end, which the table shows is `2` for `a` and `7` for `b`: the values started out `7` and `2` and are now swapped. Running the program confirms the trace, and both languages print the same two values because the assignment rules are identical and only the surrounding syntax differs:
+The two `print` lines read whatever the variables hold at the end, which the table shows is `2` for `a` and `49` for `b`. Running the program confirms the trace, and both languages print the same two values because the assignment rules are identical and only the surrounding syntax differs:
 
 ```bash title="Run the Python program"
 python3 swap.py
@@ -182,10 +185,10 @@ python3 swap.py
 
 ```text frame="terminal" title="Output"
 2
-7
+49
 ```
 
-The row that carries the whole trick is line 3. Without `temp`, line 4 would overwrite `a` with `b`'s value before anything preserved the old `a`, and the original `7` would be lost for good. In the Rust version, `a` and `b` are declared `let mut` because both are reassigned, while `temp` is a plain `let`: it is bound once on line 3 and never changed, so it needs no `mut`.
+Two rows carry the trace. Line 3 is the one that makes the swap work: without `temp`, line 4 would overwrite `a` with `b`'s value before anything preserved the old `a`, and the original `7` would be lost for good. Line 6 is the one that is easiest to mispredict, because the same name sits on both sides of the `=`. Assignment still does its two steps in order: the whole right side is evaluated first, from the values the variables hold right now, and only then is the name on the left rebound. Both copies of `b` therefore read `7`, the value line 5 left behind. A prediction of `14` means reading one copy of `b` as its pre-swap `2` and the other as its current `7`, mixing a value line 4 already discarded with a live one; a prediction of `7` means treating line 6 as leaving `b` alone. In the Rust version, `a` and `b` are declared `let mut` because both are reassigned, while `temp` is a plain `let`: it is bound once on line 3 and never changed, so it needs no `mut`.
 </Reveal>
 
 ---
