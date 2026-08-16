@@ -26,8 +26,8 @@ open a fresh copy of it at the start of each term.
 
 Authoring conventions for the different kinds of page live in
 [`AGENTS.md`](AGENTS.md) and in the skills under `.claude/skills/`.
-`VISION.md` holds the design rationale behind the whole course, and
-`ARCHITECTURE.md` covers the proposed recitation-lab hardware.
+`VISION.md` holds the design rationale behind the whole course and is the
+authority whenever a skill or a page disagrees with it.
 
 ## Assessments live in a separate, private repository
 
