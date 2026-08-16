@@ -31,8 +31,15 @@ else
 	done
 fi
 
-rm -rf "$OUT"
+# Clear only what this run rebuilds. Wiping all of $OUT would mean that building
+# one starter silently deletes the other nine zips, which is a trap when you are
+# fixing one assignment mid-term and then upload from $OUT.
+# Each slug's old directory and zip must go before the rebuild regardless: `zip`
+# appends to an existing archive, so a stale file would survive inside it.
 mkdir -p "$OUT"
+for slug in "${slugs[@]}"; do
+	rm -rf "$OUT/$slug" "$OUT/$slug.zip"
+done
 
 for slug in "${slugs[@]}"; do
 	src="$SRC/$slug"
