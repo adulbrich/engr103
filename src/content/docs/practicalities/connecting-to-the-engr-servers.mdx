@@ -1,0 +1,126 @@
+---
+title: "Connecting to the ENGR Servers"
+description: "How to create an OSU College of Engineering account, connect to the ENGR servers with ssh, move files between your computer and the server, and install an SSH key so you stop being asked for Duo every time."
+---
+
+import { Steps, Aside } from '@astrojs/starlight/components';
+
+You do not need this page to pass this course. Your laptop is the machine this course expects you to work on, and Python and Rust run on it directly.
+
+The **ENGR servers** are computers in the Kelley Engineering Center that you control remotely from your own machine by typing commands. Every tool this course uses is already installed there and kept working by the college. Reaching them takes `ssh`, so this is a second setup to learn rather than a way around the first one.
+
+## Why This Is Worth Your Time
+
+Serious computing does not happen on laptops. It happens on machines somewhere else, and `ssh` is the door to all of them.
+
+**The interesting hardware is remote.** A simulation that needs 200 cores, a training run that needs a GPU you cannot afford, a lab instrument that logs data around the clock, a web service that has to stay up when your laptop is shut: all of it lives on a machine you reach over the network. OSU's own research clusters work exactly the way the ENGR servers do, and so does every cloud instance you will ever rent.
+
+**`ssh` is the universal door.** One command, one mental model, and it is the same on a university server, an AWS instance, a Raspberry Pi on your desk, and a controller in a plant. The key pair you set up at the bottom of this page is the same mechanism GitHub, GitLab, and every cloud provider use to know you are you. Learn it once here and it keeps paying out.
+
+**An internship will assume it.** "Log into the dev box and run the pipeline" is a normal first-week instruction, and nobody stops to explain it. Knowing your way around a remote Linux machine, editing a file over the connection, and moving files back and forth, is quietly one of the most transferable skills in this course.
+
+**It is a spare machine when yours breaks.** A toolchain that stops working two days before a deadline is not a hypothetical. An environment the college maintains, with everything already installed, is a real backup plan.
+
+## Create an Engineering Account
+
+Your ONID account is not enough on its own; the servers need a College of Engineering (CoE) account, which gives you a home folder on them.
+
+<Steps>
+
+1. Open [TEACH](https://teach.engr.oregonstate.edu/teach.php?type=want_auth), the college's account tool.
+
+2. Choose **"Create a new account (Enable your Engineering Resources)"**.
+
+3. Follow the instructions on screen.
+
+</Steps>
+
+Once the account exists, you can log in to the servers.
+
+## Log In With ssh
+
+`ssh` (secure shell) connects your terminal to another computer and runs your commands there instead of on your own machine. Open a terminal (**PowerShell** on Windows, **Terminal** on macOS, whichever you use on Linux) and run:
+
+```bash title="Connect to the ENGR servers"
+ssh <your_ONID>@access.engr.oregonstate.edu
+```
+
+Replace `<your_ONID>` with the first part of your OSU email address. You are asked for your ONID password, the one you use for Canvas. **Nothing appears as you type it.** That is deliberate, not a frozen terminal; type it and press Enter.
+
+Next you authenticate with Duo. If you have several devices registered, type the number of the one you want and press Enter.
+
+```text frame="terminal" title="A successful login ends like this"
+Last login: Mon Jan  5 09:14:02 2026 from 10.0.0.1
+[your_ONID@flip1 ~]$
+```
+
+Every command you type now runs on the server. Your files live in `/nfs/stak/users/<your_ONID>`, and the shell commands from the [Development Environment](/practicalities/development-environment/) guide work exactly as they do locally.
+
+To end the session, run `exit`.
+
+## Move Files Between Your Computer and the Server
+
+Canvas downloads land on your own computer, so the starter files have to travel up to the server, and your finished work has to come back down to be uploaded to Gradescope. `scp` copies files over the same connection `ssh` uses. Run it in a terminal on **your own computer**, not in one that is logged into the server.
+
+```bash title="Copy a file up to the server"
+scp starter.zip <your_ONID>@access.engr.oregonstate.edu:~/
+```
+
+```bash title="Copy a file back down to your computer"
+scp <your_ONID>@access.engr.oregonstate.edu:~/submission.zip .
+```
+
+The `~` means your home folder on the server, and the `.` at the end of the second command means the folder you are currently in on your own computer. Unzip on the server with `unzip starter.zip`.
+
+<Aside type="tip" title="VS Code can do this for you">
+VS Code's **Remote - SSH** extension connects to the server and gives you a normal editor window, a file tree you can drag files into, and a terminal already logged in. If you use VS Code, set that up once and you can skip `scp` entirely.
+</Aside>
+
+## Stop Duo From Asking Every Time
+
+Typing a password and approving a Duo push on every connection gets old fast. An **SSH key** is a pair of files, one private and one public, that proves who you are without a password: you keep the private one on your computer, put the public one on the server, and the two are checked against each other automatically.
+
+<Steps>
+
+1. **Generate the key pair**, in a terminal on your own computer. Skip this step if you already have keys.
+
+   ```bash title="Generate an SSH key pair"
+   ssh-keygen -t ed25519
+   ```
+
+   Press Enter to accept the default location. You are then offered a passphrase: type one for extra safety, or press Enter for none. With a passphrase you type it when the key is first used in a session, which is still fewer prompts than Duo on every connection.
+
+2. **Copy the public key.** It is the file ending in `.pub`, and its contents start with `ssh-ed25519`.
+
+   ```bash title="Print the public key so you can copy it"
+   cat ~/.ssh/id_ed25519.pub
+   ```
+
+   Copy the whole line, including the `ssh-ed25519` at the start.
+
+3. **Log in to the server** in another terminal and make the folder the key goes in. The first character of these paths is a tilde (`~`), which means your home folder.
+
+   ```bash title="Create the .ssh folder with the right permissions"
+   mkdir -p ~/.ssh
+   chmod 700 ~/.ssh
+   ```
+
+4. **Paste the key into the authorized keys file**, on its own line, then save and close.
+
+   ```bash title="Open the authorized keys file"
+   vim ~/.ssh/authorized_keys
+   ```
+
+   The [Vim Cheat Sheet](/practicalities/vim/) covers opening, editing, and saving if vim is new to you. To paste in a terminal, use `Ctrl+Shift+V` on Windows and Linux, or `Command+V` on macOS.
+
+5. **Lock the file down.** The server refuses to use a key file other people could read.
+
+   ```bash title="Set the file permissions"
+   chmod 600 ~/.ssh/authorized_keys
+   ```
+
+6. **Test it.** From a terminal on your own computer that is not already connected, run the `ssh` command again. It should log you straight in with no password and no Duo prompt.
+
+</Steps>
+
+If it still asks for a password, the usual cause is the permissions in steps 3 and 5. The college's IT team documents the same procedure at [SSH key generation](https://it.engineering.oregonstate.edu/ssh-keygen).

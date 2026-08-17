@@ -1,45 +1,82 @@
 # ENGR 103: Engineering Computation and Algorithmic Thinking
 
-This repository contains the source code for the ENGR103 website.
+This repository contains the source for the ENGR 103 course website at Oregon
+State: an Astro + Starlight site holding every lecture note, activity,
+assignment, recitation coverage page, and reference page, plus the Canvas
+rubrics, the assignment starters, and the PDF and slide tooling that ship
+alongside them.
 
-## Instructor Checklist
+The course is taught in **Python and Rust simultaneously**. Every concept
+appears in both languages, and students may answer in either.
 
-This coming term:
+## Contributing
 
-- [ ] Add the Canvas assignments + rubrics to GitHub (OK for assignments 2, 3, 4, 5)
+Course-design and content work is tracked in
+[issues](https://github.com/adulbrich/engr103/issues), organised by area
+(`area:lectures`, `area:assignments`, ...) and by kind of work (`type:content`,
+`type:decision`, ...). The **Next Iteration** milestone holds what is committed
+for the next offering; **Backlog** holds what is wanted but not yet scheduled.
 
-Every term:
+Found a typo, a broken link, or an instruction that does not work? Please open
+an issue.
 
-- [x] Update professional development assignments, resources, and end-of-term survey
-- [x] Update **Due Dates** in Canvas
-- [x] Update **Due Times** for quizzes and exams
-- [x] Update **Course Schedule** in Canvas
-- [x] Update **Syllabus** in Canvas
-- [x] Update the version of this repository if making changes (`package.json`)
-- [x] Add TAs to Canvas
-- [x] Create team **Bookings** page for assignment demo and set up slots
-- [x] Update sections in Canvas
-- [x] Update **TA Names** in Canvas
-- [x] Update **Office Hours** in Canvas
-- [x] Update **Booking Links** in Canvas
-- [x] Create **GitHub Classroom** class
-- [x] Add TAs to GitHub Organization and send Classroom invite link
-- [x] Add assignments to GitHub Classroom
-- [x] Update GitHub Classroom **links** in Canvas (assignments)
-- [ ] Test all studios and assignments on the ENGR servers
-- [ ] Add DAS accommodations for midterm and final exams
+The per-term instructor checklist lives in
+[`.github/ISSUE_TEMPLATE/term-setup.md`](.github/ISSUE_TEMPLATE/term-setup.md);
+open a fresh copy of it at the start of each term.
+
+Authoring conventions for the different kinds of page live in
+[`AGENTS.md`](AGENTS.md) and in the skills under `.claude/skills/`.
+`VISION.md` holds the design rationale behind the whole course and is the
+authority whenever a skill or a page disagrees with it.
+
+## Assessments live in a separate, private repository
+
+Graded, on-paper, offline material lives in the private
+`github.com/adulbrich/engr103-assessments`: the R2
+through R10 recitation handouts and their answer keys, the midterm and final
+banks with their practice papers, the pre-lecture check QTI packages, the
+autograders, and the paper build scripts. This repository is public, so a
+problem authored here is a published problem.
+
+What that leaves here: `src/content/docs/recitations/` holds coverage pages that
+state each session's premise and the skills it evaluates, and carry no problems.
+Recitation 1 (`intern-orientation.mdx`) is ungraded and is authored here in
+full.
+
+## Assignment starters
+
+Each assignment ships as a downloadable starter rather than a repository to
+clone:
+
+```bash
+./scripts/build-starters.sh              # every starter
+./scripts/build-starters.sh <slug> ...   # only the named ones
+```
+
+Starters are assembled into `zip/<slug>/` and zipped alongside as
+`zip/<slug>.zip` for upload to Canvas. `zip/` is build output and is not
+tracked. Per-assignment files live in `starters/<slug>/`; the `check` and `pack`
+tools live once in `starters/_lib/` and are copied in at build time, so there is
+one copy of the harness to maintain.
 
 ## Canvas
 
-The `canvas/` directory contains assets for the Canvas LMS.
+`canvas/assignments/` holds one rubric per assignment as a `.tsv`. The
+assignment pages import these at build time through `RubricTable.astro`, so they
+are not optional: renaming or deleting one breaks the build.
 
-Rubrics are stored in a `.tsv` format, which can be imported directly into Canvas using the [Canvas LMS Mods (Basic) Extension](https://chromewebstore.google.com/detail/bnpdolbpbjiniodlbahddbnkollgojon?utm_source=item-share-cb). Go to your Canvas course Rubrics tab, click "Add Rubric", then click "Import Details". A template of the expected format can be found in `canvas/_template/template_rubric_details_name.tsv`.
-
-Assignments are stored in HTML format. When editing a Canvas assignment, click the `</>` icon in the rich text editor to switch to HTML mode, then copy and paste the contents of the corresponding HTML file from the `canvas/` directory. The HTML assignments are not full-fledged HTML pages but rather snippets that work for Canvas assignments. CSS styles are included inline in the HTML snippets.
+The same files import directly into Canvas using the [Canvas LMS Mods (Basic)
+Extension](https://chromewebstore.google.com/detail/bnpdolbpbjiniodlbahddbnkollgojon?utm_source=item-share-cb).
+Go to your Canvas course Rubrics tab, click "Add Rubric", then click "Import
+Details". A template of the expected format is in
+`canvas/assignments/_template/template_rubric_details_name.tsv`.
 
 ## PDFs
 
-The `scripts/generate-pdfs.sh` helper will retrieve and generate individual PDFs for all lectures, studios, assignments, and practicalities from the live deployment. It will then generate a combined version of all files. To run it, use:
+The `scripts/generate-pdfs.sh` helper will retrieve and generate individual PDFs
+for all lectures, activities, assignments, and practicalities from the live
+deployment, then generate a combined version of all files. Output lands in
+`pdf/`, which is not tracked. To run it, use:
 
 ```bash
 cd scripts
@@ -47,101 +84,82 @@ chmod +x ./generate-pdfs.sh
 ./generate-pdfs.sh
 ```
 
-You can change the `BASE` variable in the script to point to a different deployment if needed.
+You can change the `BASE` variable in the script to point to a different
+deployment if needed. Recitation and exam PDFs are built in
+`engr103-assessments` instead, by its own script.
 
 To generate slides from `marp`, use:
 
 ```bash
 cd slides
-bun x @marp-team/marp-cli@latest web-graphics.md --pdf --allow-local-files
+npx @marp-team/marp-cli@latest web-graphics.md --pdf --allow-local-files
 ```
 
 Change `web-graphics.md` to the desired slide deck.
 
-## To Dos
-
-### Course Design
-
-- [ ] Add more content on proper design (including testing and coming up with good test cases)
-- [ ] Completely re-evalute assessment in this class, assuming that everyone has access to strong GenAI tools (i.e., tools that can reason, write code, and explain code -- basically tackle any of the fundamental concepts they should be learning). Here are some ideas:
-  - How do we define the goal underlying engineering studies? Here's a possible answer: reliably judge under uncertainty in safety-critical, economically consequential systems.
-  - Could we do more in-person live oral (vivas) assessments in addition to the written exams? We already do live demos but many students still use GenAI to write their code.
-  - Could we have vivas where students have to think through a problem on a whiteboard? They would not know the problem in advance, and this would be similar to "live" coding interviews that are common in industry. Instead of 70+ unique problems, we could have afew with variations in values. we don't have to grade everyone every week or every assignment, but at least grade students twice every term in a viva format. This would require coming up with good rubric items to make it easy for TAs to conduct these sessions and give consistent feedback.
-  - Studios/recitations have very simple problems to help students practice fundamentals. If they use GenAI or other resources to "give" them the answers, they are not learning those fundamentals. Is that a problem? Will it be a problem? How can we make those studios useful? SHould we re-design the problems or the format/assessment?
-  - Add constraints to entry-level assignments, forbidding the use of advanced features of the language (no references, pointers, arrays, strings, or new libraries in early assignments, for example).
-  - Separate an "auto-graded" outcome part from the "process" and "understanding" part of the grade. Provide a function that accepts required inputs and outputs for the auto-graded part, for each assignment.
-  - Force process through mutli-commits in their repository history. Require a certain number of commits, and require that they include messages that indicate their process (e.g., "initial commit", "added function to calculate factorial", "added test cases for edge cases", etc.). This would make it easier for TAs to grade the process and understanding part of the grade, even if the code itself is generated by GenAI.
-  - Ask students to submit a hand-drawn explanation of the memory before/after lines are executed, or the call stack for a function, or the flow of data through their program.
-  - The design part should have a hand-drawn workflow diagram, or a hand-drawn sketch of the program structure, or a hand-drawn sketch of the memory layout, etc.
-  - Midterm/final => 50% of the grade
-  - Viva component => 25% of the grade
-  - Studios/assignments/participation => 25% of the grade
-  - Randomize in-person instructor interview on larger assignments -- could this reduce incentive to use GenAI for the entire assignment, since they won't know which part will be discussed in the interview?
-  - Reward understanding over output (output could be lower grade, auto-graded, and understanding would count for much more). Need to have TAs trained to handle this grading, including adequate rubrics and training sessions to ensure consistency across TAs.
-  - Rubrics should include submitting all AI prompts and responses as part of the assignment, and grading the quality of the prompts and the understanding of the responses. This would encourage students to use GenAI as a learning tool rather than a shortcut to get answers.
-  - Don't ban AI tools, but focus on process and verification?
-- [ ] Itemize rubrics for "subjective" demo grading
-- [ ] Add learning objectives to each lecture, optionally studios and assignments as well
-- [ ] Improve the "secondary" learning outcomes for the class (to be more programming specific)
-
-### Contents
-
-- [ ] Consider additional explanations about static vs dynamic array allocations, the STL (resizable and dynamic) and automatic vs dynamic storage duration (bonus)
-- [ ] Consider additional object-oriented programming contents, including examples of class declaration and usage, and the design of classes (bonus)
-- [ ] Illustrate base address and references (when discussing arrays and references) - done for references, not for arrays yet
-- [ ] Provide larger code examples/programs the students can play with
-
-### Housekeeping
-
-- [ ] Create a Question? component that uses details/summary for better UX (ie in studio to challenge students)
-- [ ] Update Svelte components to Svelte 5.
-
 ## 🚀 Project Structure
 
-Inside of your Astro + Starlight project, you'll see the following folders and files:
+Inside of this Astro + Starlight project, you'll see the following folders and
+files:
 
 ```text
 .
+├── .claude/
+│   └── skills/
+├── .github/
+│   └── ISSUE_TEMPLATE/
 ├── canvas/
 ├── public/
 ├── scripts/
 ├── slides/
+├── starters/
 ├── src/
 │   ├── assets/
 │   ├── components/
 │   ├── content/
-│   │   ├── docs/
-│   │   └── config.ts
+│   │   └── docs/
+│   ├── content.config.ts
 │   └── env.d.ts
 ├── astro.config.mjs
 ├── package.json
-├── tailwind.config.mjs
 └── tsconfig.json
 ```
 
 Important directories and files include:
 
-- `canvas/`: assets for Canvas LMS (TSV rubrics, HTML assignments)
-- `scripts/`: helper scripts for generating PDFs, etc.
+- `.claude/skills/`: authoring skills that define the house style for lecture
+  notes, activities, assignments, and recitation coverage pages
+- `canvas/`: TSV rubrics for Canvas LMS, imported by the assignment pages at
+  build time
+- `scripts/`: helper scripts for generating PDFs and building the starters
 - `slides/`: slide decks for lectures in Marp Markdown format
-- `src/content/docs/`: all lecture notes, studios, assignments, practicalities, and other documentation, in `mdx` format
-- `src/components/`: reusable components for assignments and lectures, inlcuding a Latex component, and reactive Svelte components for assignments
+- `starters/`: per-assignment starter code, plus the shared `check` and `pack`
+  harness in `starters/_lib/`
+- `src/content/docs/`: all lecture notes, activities, assignments, recitation
+  coverage pages, references, and practicalities, in `mdx` format
+- `src/components/`: reusable components for assignments and lectures, including
+  a LaTeX component and reactive Svelte components
 - `astro.config.mjs`: Astro configuration file, update sidebar entries here
 
 ## 🧞 Commands
 
 All commands are run from the root of the project, from a terminal.
 
-This project uses `bun` instead of `npm`. Feel free to use `npm`, `pnpm`, or `yarn` if you prefer.
+This project uses `npm`. Feel free to use `pnpm`, `yarn`, or `bun` if you
+prefer.
 
 | Command                   | Action                                           |
 | :------------------------ | :----------------------------------------------- |
-| `bun install`             | Installs dependencies                            |
-| `bun run dev`             | Starts local dev server at `localhost:4321`      |
-| `bun run build`           | Build your production site to `./dist/`          |
-| `bun run preview`         | Preview your build locally, before deploying     |
-| `bun run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `bun run astro -- --help` | Get help using the Astro CLI                     |
+| `npm install`             | Installs dependencies                            |
+| `npm run dev`             | Starts local dev server at `localhost:4321`      |
+| `npm run build`           | Build your production site to `./dist/`          |
+| `npm run preview`         | Preview your build locally, before deploying     |
+| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
+| `npm run astro -- --help` | Get help using the Astro CLI                     |
+
+`npm run build` is the gate for any content change: it runs `astro check`, and
+the `starlight-links-validator` integration fails the build on a broken internal
+link.
 
 ## Resources
 
@@ -158,40 +176,28 @@ This project uses `bun` instead of `npm`. Feel free to use `npm`, `pnpm`, or `ya
 
 ### Markdown Slides to PDF
 
-I tried Quarto + Reveal.js to generate slides instead of Marp but it was difficult to automate the PDF generation. Marp seems to work well enough for now. Reveal.js is very feature-rich, tough, and would be a good option if we wanted to make more complex slides in the future.
+I tried Quarto + Reveal.js to generate slides instead of Marp but it was
+difficult to automate the PDF generation. Marp seems to work well enough for
+now. Reveal.js is very feature-rich, tough, and would be a good option if we
+wanted to make more complex slides in the future.
 
-A better option seem to be [Slidev](https://sli.dev/), which is also Markdown-based, is feature-rich, flexible, AND can export to PDF easily. To be tested in the future, maybe in a separate repository.
+A better option seem to be [Slidev](https://sli.dev/), which is also
+Markdown-based, is feature-rich, flexible, AND can export to PDF easily. To be
+tested in the future, maybe in a separate repository.
 
-### Multi-Code Version (C++, Python, etc.)
+## License
 
-One option is to use [Internationalization](https://starlight.astro.build/guides/i18n/) to have multiple version of the course for different terms or different languages. We would need to change the icon for the language dropdown (code instead of translation) so that it is clear what the purpose is.
+Licensed under [Creative Commons Attribution-ShareAlike 4.0
+International](https://creativecommons.org/licenses/by-sa/4.0/) (CC BY-SA 4.0).
+See [`LICENSE`](LICENSE).
 
-Here's an example of the change to be made to `astro.config.mjs` to enable different versions:
-
-```js
-defaultLocale: 'root',
-locales: {
-  root: {
-    label: 'C++',
-    lang: 'cpp', 
-  },
-  'py': {
-    label: 'Python',
-    lang: 'py',
-  },
-},
-```
-
-I don't think this will be necessary. When I change the programming language to Rust or Python, I might:
-
-- Fork or cretae a new repository for the new language, or
-- Replace the content in this repository entirely, or
-- Keep the C++ contents in the repository but in another directory.
-
-### VS Code
-
-In the future, have vim and the ENGR servers as optional dev environments, and focus more on VS Code since it's more common nowadays. Find a stack (C++ or Rust or Python) that is easy to install and set up on different OSes and VS Code. Don't rely on OS-specific dependencies.
+You may share and adapt this material, including commercially, provided you give
+appropriate credit and license your adaptations under the same terms.
 
 ## Acknowledgments
 
-The original content for the first iteration of this textbook (C++) was provided by Alexander Guyer under CC-BY. This includes lectures notes, studios, assignments, practicalities, and other content. The ENGR 103 course was originally developed by Jennifer Parham-Mocello and Natasha Mallette. They developed the contents in their capacity of faculty at Oregon State University.
+The original content for the first iteration of this textbook (C++) was provided
+by Alexander Guyer under CC-BY. This includes lectures notes, studios,
+assignments, practicalities, and other content. The ENGR 103 course was
+originally developed by Jennifer Parham-Mocello and Natasha Mallette. They
+developed the contents in their capacity of faculty at Oregon State University.

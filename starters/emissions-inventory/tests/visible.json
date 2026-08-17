@@ -1,0 +1,38 @@
+{
+  "title": "Assignment 10: The Annual Emissions Inventory, visible tests",
+  "mode": "function",
+  "tolerance": 1e-06,
+  "files": {
+    "py": "report.py",
+    "rs": [
+      "report.rs"
+    ]
+  },
+  "entry": [
+    {
+      "name": "log_reading",
+      "params": [
+        "Vec<String>",
+        "&str"
+      ],
+      "ret": "String"
+    }
+  ],
+  "cases": [
+    {
+      "call": "log_reading",
+      "args": [
+        [
+          "WRO-03:640"
+        ],
+        "WRO-07,100,42.5"
+      ],
+      "mutates": 0,
+      "expect": "LOGGED WRO-07 1296",
+      "expect_mutated": [
+        "WRO-03:640",
+        "WRO-07:1296"
+      ]
+    }
+  ]
+}

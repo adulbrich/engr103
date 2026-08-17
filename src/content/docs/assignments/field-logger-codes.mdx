@@ -1,0 +1,198 @@
+---
+title: "Field Logger Codes"
+description: "Write the two functions that pack a bandwidth-starved field logger's reading into a fixed-width base-36 code test-first: design your test cases, write pseudocode, then implement the character-code arithmetic, and judge AURA's shortcut before you build on it."
+sidebar:
+  order: 9
+draft: false
+---
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+import Reveal from '/src/components/Reveal.astro';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+import WhatDiffers from '/src/components/WhatDiffers.astro';
+import RubricTable from '/src/components/RubricTable.astro';
+
+{/* ai-summary
+type: assignment
+slug: field-logger-codes
+order: 9
+family: packing a bounded integer reading into a fixed-width base-36 code, and decoding a single base-36 digit character back to its value, split across the week-8 reference boundary
+paired_recitation: R9
+prereq_lectures: strings, collections-i
+prereq_activities: strings, collections-i
+prereq_assignment: solar-array-lifetime
+new_scope: writing two entry-point functions, code_for(reading_ugm3) -> String and digit_value(c) -> i32, over scalar parameters only, building a fixed-width string one character at a time with character-code arithmetic and decoding a single character back to its digit value
+target_construct: character-code arithmetic (ord/chr in Python, as u32 and as u8 as char in Rust) used to build a fixed-width string one character at a time and to decode a single character back to its digit value
+persistent_requirements: dual-language, one shared contract; grader reads return values only; no String, &str, or Vec may be a parameter; no negative operand may reach / or %; code_for and digit_value are two halves of one codec and are never tested as inverses of each other
+story_beat: packing a bandwidth-starved field logger's reading into a compact three-character code before transmission
+output: two functions to Gradescope, an optional extra-credit function, and a PDF on Canvas with acceptance tests, pseudocode, a hand trace, and a reflection
+*/}
+
+<LanguageVersions />
+
+WRO's field air-quality network transmits over a satellite or LoRa radio link at stations with no grid connection, and every byte a station sends costs battery power it may not get back until the next sunny day. To keep each report small, a station packs its air-quality reading into a compact three-character code instead of sending the whole number as plain text. Your job as a junior engineer on the office's software team is to write the piece of the pipeline that builds that code from a reading, and the small piece that turns one of its characters back into the value it stands for.
+
+## How This Assignment Works
+
+You work **test first**: you read the problem, decide what correct behavior looks like by writing your own test cases, plan the code in pseudocode, and only then write the code. The problem is solvable in Python or Rust, whichever you prefer. The program's `main`, its console input and output, and the local test runner are already written; you write the two functions named below, and the automated grader calls each directly with values it chooses, reading only what you `return`. The order is fixed: design your tests, write your pseudocode, then write your functions. After that comes an optional extra-credit stretch, a short paper trace, and a two-sentence reflection.
+
+## What to Submit
+
+You submit in two places. Mechanics are in [Running and Submitting Your Code](/practicalities/starter-repo-and-check/); each section below also repeats what it asks for.
+
+- **A single PDF on Canvas** holding everything that is not code: your **acceptance tests**, your **pseudocode**, your **paper trace**, and your **reflection**.
+- **Your code on Gradescope**: the two functions `code_for` and `digit_value`, plus the extra-credit `code_with_check` if you attempt the summit.
+
+## The Problem
+
+The [Sensor Drift Check](/assignments/sensor-drift-check/) assignment defined the field archive's reading line: one line per reading, three fields in a fixed order, `station_id,code,reference_ugm3`. `station_id` is always exactly six characters, and `code` is always exactly three base-36 characters: the reading's whole number of micrograms per cubic meter, already rounded to the nearest unit before it ever reaches your function. You are building the piece of the pipeline that produces `code`, and the small primitive a later step will need to read one of its characters back.
+
+A base-36 digit is a single character that can stand for more values than an ordinary decimal digit. The ten characters `0` through `9` stand for the values zero through nine, exactly like a normal digit, and the lowercase letters `a` through `z` continue counting from there: `a` stands for ten, `b` for eleven, and so on up through `z`, which stands for thirty-five. Three of these characters in a row can therefore hold any whole number from `0` up to `zzz`, far more than three decimal digits could hold in the same three characters.
+
+Each station's radio draws its transmissions from a small solar-charged battery that holds enough charge for about 40 transmissions before it needs a full day of sun to recover.
+
+Write two functions:
+
+1. `code_for(reading_ugm3)` must return the reading's three-character base-36 code, most significant character first, so the code's leftmost character carries the largest share of the reading's value and its rightmost character the smallest.
+2. `digit_value(c)` must return the value a single base-36 digit character stands for: `0` through `9` for the characters `'0'` through `'9'`, and `10` through `35` for the lowercase letters `'a'` through `'z'`. Any other character, including an uppercase letter, must return `-1`.
+
+`code_for` and `digit_value` are two halves of one codec, not a matched pair to test against each other. `code_for` builds a whole three-character code in a single call; `digit_value` only ever looks at one character at a time. Turning a code you built back into the number it represents is a job for a later step in the pipeline, not something this assignment asks you to write or test.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="field_codes.py"
+def code_for(reading_ugm3):
+    ...
+
+def digit_value(c):
+    ...
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="field_codes.rs"
+fn code_for(reading_ugm3: i32) -> String {
+    todo!()
+}
+
+fn digit_value(c: char) -> i32 {
+    todo!()
+}
+```
+</TabItem>
+</Tabs>
+
+We give you **one** worked example for each function, to show the format.
+
+| Call | Returns |
+|---|---|
+| `code_for(35)` | `"00z"` |
+| `digit_value('a')` | `10` |
+
+**Assumptions and edge cases.** `reading_ugm3` is a whole number, guaranteed `0 <= reading_ugm3 <= 46655`: the lower bound keeps every division and remainder your function computes working on a non-negative value, and the upper bound is the largest whole number three base-36 digits can hold. `code_for` is never called outside that range. `c` can be any single character: a digit, a lowercase letter, an uppercase letter, punctuation, or a space; only the ten digit characters and the twenty-six lowercase letters are valid base-36 digits, and every other character, uppercase letters included, must return `-1` from `digit_value`.
+
+<Aside type="danger" title="AURA has a shortcut for building the code. Decide whether to trust it.">
+AURA, the office's assistant, offers this: "However you work the three digits out, they come out one at a time, so build the code the same way: take each digit's character as you produce it and add it onto the end of the code so far. Three digits, three additions, and the string is finished in the order it was computed."
+
+Office rule: no AURA analysis is published unverified. Decide whether AURA's shortcut is right before you build anything on it, and let your own test cases settle the question.
+</Aside>
+
+## Step 1: Write Your Acceptance Tests
+
+Before writing any code, decide what correct behavior looks like. Write a set of test cases for `code_for` and `digit_value` as a plain table of rows: the call and the value you expect back. Now that the testing lecture has been covered you may pin each case down with an `assert` if you prefer, but a plain table of rows is all this step asks for. For each row, work out the expected value by hand from the rules above.
+
+Your table must include, and label, at least these cases:
+
+- The worked examples above, as starting checks.
+- Both ends of `code_for`'s valid range: `reading_ugm3` equal to `0` and equal to `46655`.
+- A `code_for` case whose three digits are all different from each other, computed fully by hand.
+- `digit_value` at the boundary between the digit characters and the letter characters (`'9'` and `'a'`), and at the far end of the letter range (`'z'`).
+- A `digit_value` case with a character that is not a valid base-36 digit at all, including one uppercase letter.
+- At least one more case of your own, whose expected value you work out fully by hand.
+
+**Submit your test table in your PDF on Canvas.**
+
+## Step 2: Write Your Pseudocode
+
+Now plan the code, still before writing it. In plain steps (not Python or Rust), describe how `code_for` turns its reading into the three characters it returns, and how `digit_value` turns a single character into the value it returns. Name the intermediate values you intend to create, so a reader could follow your plan and write the code from it.
+
+**Submit your pseudocode in your PDF on Canvas.**
+
+## Step 3: Write Your Code
+
+Implement `code_for` and `digit_value` from the signatures above, in Python or Rust, following your own pseudocode. The automated grader calls each function directly with values it chooses and checks what you `return`, so nothing is graded on how you get there, only on the returned value being right for every input.
+
+<WhatDiffers>
+<Fragment slot="differs">
+Python has no separate character type: `ord(c)` gives a character's code and `chr(n)` turns a code back into a one-character string. Rust's `char` is its own type; you get a character's code with `c as u32`, and to turn a code back into a character you cast the byte-sized value with `as u8` first, then `as char`.
+</Fragment>
+</WhatDiffers>
+
+**Submit your two functions to Gradescope.**
+
+## Summit Problem (extra credit)
+
+This one is a real stretch, and it earns extra credit. It is also your practice for the graded stretch problem in the recitation room, where a harder problem is waiting.
+
+Some of WRO's stations attach a lightweight self-check character to their transmission, so a receiver can catch a single corrupted character without decoding the whole message. The self-check character is one more base-36 character, computed straight from the reading's own three digit values, the same three values `code_for` already works out from `reading_ugm3`: add the three digit values together and wrap the sum into the `0` through `35` range, the same way any base-36 digit's value is chosen. Write `code_with_check(reading_ugm3)`, returning the reading's code together with this check character, four characters in all.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="code_with_check.py"
+def code_with_check(reading_ugm3):
+    ...
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="code_with_check.rs"
+fn code_with_check(reading_ugm3: i32) -> String {
+    todo!()
+}
+```
+</TabItem>
+</Tabs>
+
+As one worked example, `code_with_check(1296)` returns `"1001"`: the reading's code is `"100"`, its three digit values add to `1`, and `1` wrapped into `0` through `35` is still `1`, so `"1"` is appended.
+
+**Submit `code_with_check` to Gradescope** to earn the extra credit.
+
+## Paper Practice
+
+Trace this program by hand, on paper. It uses the same character-to-number arithmetic your two functions above are built from, applied to a short run of individual characters rather than a fixed-width code. Build a variable table with a row for each call to `digit_or_flag`, tracking the character passed in, the value returned, and `total` after each call. Write the exact value the program prints.
+
+```python title="trace_me.py"
+def digit_or_flag(c):
+    if c >= '0' and c <= '9':
+        return ord(c) - ord('0')
+    else:
+        return -1
+
+total = 0
+total = total + digit_or_flag('7')
+total = total + digit_or_flag('#')
+total = total + digit_or_flag('2')
+print(total)
+```
+
+<Reveal label="Reveal the completed trace">
+Each call checks whether its character is one of the ten digit characters. `'7'` and `'2'` are; `'#'` is punctuation, not a digit character, so it falls through to the `-1` sentinel.
+
+| Call | `c` | returns | `total` after |
+|---|---|---|---|
+| `digit_or_flag('7')` | `'7'` | `7` | `7` |
+| `digit_or_flag('#')` | `'#'` | `-1` | `6` |
+| `digit_or_flag('2')` | `'2'` | `2` | `8` |
+
+The program prints `8`. The same program written in Rust prints the same whole number, `8`, since every value here is a whole `i32`, never a float.
+</Reveal>
+
+Photograph your trace and include it in your PDF on Canvas. This part is graded on completion (the attached photograph), not on whether every cell is right, so attempt it by hand first, then open the reveal to check yourself.
+
+## Reflection
+
+Include a short reflection in your PDF on Canvas. In two sentences: first, state plainly whether you used an AI tool on this assignment and, if you did, what you used it for (if you did not use AI at all, say so explicitly); second, name any other help you used (a peer, the official docs, the lecture notes) and one thing you still could not do without that help.
+
+Then add one more sentence: which intermediate values did you choose to name inside `code_for` and `digit_value`, and why those? This is graded on completion, not on what you say, and it is not shared with anyone but the instructor.
+
+## Rubric
+
+<RubricTable src="canvas/assignments/field-logger-codes-rubrics.tsv" caption="Field Logger Codes Rubric" />

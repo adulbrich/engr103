@@ -1,0 +1,234 @@
+---
+title: "Dashboard Publication Check"
+description: "Write the dashboard publication check's test suite test-first: design your test cases, write pseudocode, then implement an assert-based suite strong enough to accept the correct two-rule check and reject every broken one, and judge AURA's claim about what qualifies it."
+sidebar:
+  order: 7
+draft: false
+---
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+import Reveal from '/src/components/Reveal.astro';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+import WhatDiffers from '/src/components/WhatDiffers.astro';
+import RubricTable from '/src/components/RubricTable.astro';
+
+{/* ai-summary
+type: assignment
+slug: dashboard-publication-tests
+order: 7
+family: testing (deriving and writing assert-based test cases from a two-rule specification with a priority override)
+paired_recitation: R7
+prereq_lectures: errors-input-and-validation, testing
+prereq_activities: errors-input-and-validation, testing
+prereq_assignment: sensor-drift-check
+new_scope: writing one assert-based test suite against a provided two-rule dashboard publication check (an inclusive plausible band and a timestamp freshness rule with a clock-fault override), covering typical, boundary, and fault cases on both rules, strong enough to accept the correct implementation and reject every broken one; judging AURA's claim about how many cases are enough to certify the check
+target_construct: writing assert-based test cases that pin down both rules' boundaries in a specification (testing week)
+persistent_requirements: dual-language, one shared contract; grader runs the test function and reads which assertions raise; no loops or collections on the ladder yet; the function under test takes only scalar parameters
+story_beat: certifying the check that decides whether a live air-quality reading may reach WRO's public dashboard
+output: one assert-based test function submitted to the grader; a Canvas PDF with the test-case design, the test plan, a hand trace, and a reflection; an optional summit test function
+*/}
+
+<LanguageVersions />
+
+WRO's public air-quality map shows a live PM2.5 reading from every station in its network, each one recalibrated on a fixed 90-day schedule, and neighbors use that map to decide whether to keep kids indoors on a smoky day. A reading only reaches the map after it clears one more gate: a publication check that looks at the value and the timestamp together, not just the value on its own. Nobody takes the check's word for it either: before it goes live, it has to clear its own review, backed by test cases that prove it does what its specification promises. Your job as a junior engineer on the office's software team is to write that test suite, and to judge AURA's claim about the check for yourself.
+
+## How This Assignment Works
+
+You work **test first**: you read the specification, design the cases that will prove the function meets it, plan your test function, and only then write it. You write the test function and nothing else: the program's `main`, its input and output, the function under test, and the local test runner are already written. The problem is solvable in Python or Rust, whichever you prefer, and both are checked the same way. Because the [Testing](/lectures/testing/) lecture is behind you, you write real `assert`-based tests now, not a table of rows on the page. The automated grader runs your test function twice over: against the correct implementation printed below, where every assertion you wrote must hold, and against several broken implementations, each of which gets one thing wrong somewhere in the specification, where each one must fail at least one of your assertions. The order is fixed: design your cases, plan your test function, then write it. After that comes an optional summit stretch, a short paper trace, and a two-sentence reflection.
+
+## What to Submit
+
+You submit in two places. Mechanics are in [Running and Submitting Your Code](/practicalities/starter-repo-and-check/); each section below also repeats what it asks for.
+
+- **A single PDF on Canvas** holding everything that is not code: your **test-case design** (Step 1), your **test plan** (Step 2), your **paper trace**, and your **reflection**.
+- **Your code on Gradescope**: the test function `test_dashboard_cleared`, plus the extra-credit `test_band_zone` if you attempt the summit.
+
+## The Problem
+
+Before a reading reaches the public map, the publishing service asks one function for clearance: `dashboard_cleared`, the check that decides whether a reading may go live. Two rules govern the decision, and your suite certifies the check against both.
+
+Here is the specification your suite certifies against:
+
+1. `dashboard_cleared(reading_ugm3, band_min_ugm3, band_max_ugm3, age_min, clock_fault)` returns `true` exactly when both rules hold. First, the reading `reading_ugm3` must sit inside the station's plausible band, from `band_min_ugm3` through `band_max_ugm3` with both ends of the band included: outside that band a reading is too implausible to show the public without a person looking at it first. Second, the reading's timestamp must still be fresh, meaning its age `age_min`, the whole number of minutes since it was logged, is under `15`, the window WRO's publication policy allows; a reading built on a stale timestamp misrepresents current conditions.
+2. A reading is never published when the station's clock-fault flag, `clock_fault`, is set, no matter how good the value looks or how fresh the timestamp appears: a station whose own clock has faulted cannot be trusted to say how old any of its readings are.
+
+**Provided code.** You do not write `dashboard_cleared`, and you do not fix it: the correct implementation is on file, and here it is, in both languages. This is the function your test suite exercises.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="Provided: the correct dashboard_cleared, on file with the office"
+def dashboard_cleared(reading_ugm3, band_min_ugm3, band_max_ugm3, age_min, clock_fault):
+    if clock_fault:
+        return False
+    in_band = band_min_ugm3 <= reading_ugm3 and reading_ugm3 <= band_max_ugm3
+    fresh = age_min < 15
+    return in_band and fresh
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="Provided: the correct dashboard_cleared, on file with the office"
+fn dashboard_cleared(reading_ugm3: i32, band_min_ugm3: i32, band_max_ugm3: i32, age_min: i32, clock_fault: bool) -> bool {
+    if clock_fault {
+        return false;
+    }
+    let in_band = band_min_ugm3 <= reading_ugm3 && reading_ugm3 <= band_max_ugm3;
+    let fresh = age_min < 15;
+    return in_band && fresh;
+}
+```
+</TabItem>
+</Tabs>
+
+Alongside it, the grader holds several broken implementations, each of which gets one thing wrong somewhere in the specification. Your job is to write `test_dashboard_cleared`, a test function whose body is a sequence of assertions checking `dashboard_cleared` against the specification, ending with a printed confirmation line once every assertion has held. What cases you check, and how you order and label them, is entirely your decision.
+
+The grader runs your test function against the correct `dashboard_cleared`, where every assertion must hold and your confirmation line must print, and against each broken version, where every one of them must fail at least one of your assertions. A suite that passes the correct implementation but lets any broken one slip through has not certified the check.
+
+**Interface.** This is the test function you write; it calls the provided `dashboard_cleared` above.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="certify.py"
+def test_dashboard_cleared():
+    ...
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="certify.rs"
+fn test_dashboard_cleared() {
+    todo!()
+}
+```
+</TabItem>
+</Tabs>
+
+We give you **one** worked example to show the format. A reading of `42` micrograms per cubic meter, in a station band of `30` to `120`, logged `5` minutes ago with no clock fault, is inside the band on a fresh timestamp, so it clears, and a single assertion for it looks like this:
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python
+assert dashboard_cleared(42, 30, 120, 5, False) == True
+```
+</TabItem>
+<TabItem label="Rust">
+```rust
+assert_eq!(dashboard_cleared(42, 30, 120, 5, false), true);
+```
+</TabItem>
+</Tabs>
+
+**Assumptions and edge cases.** `reading_ugm3`, `band_min_ugm3`, `band_max_ugm3`, and `age_min` are all whole numbers, matching the whole-unit readings WRO's own archive already stores. `band_min_ugm3` is no greater than `band_max_ugm3`, and both are zero or greater. `age_min` is the number of whole minutes since the reading was logged and is zero or greater. `clock_fault` is `True`/`true` when the station reports its own clock as faulted, `False`/`false` otherwise.
+
+<Aside type="danger" title="AURA says the check is already certified. Decide whether to trust it.">
+AURA, the office's assistant, offers this: "I already certified the publication check myself. I ran it on a routine reading, one comfortably inside the plausible band with a fresh timestamp, and it published. Then I ran it on a bad reading, one far outside the band, and it was withheld. The check only ever gives one of two answers, and I have now watched it give both of them correctly, so its behavior is fully covered and the check is ready to certify."
+
+Office rule: no AURA analysis is published unverified. Decide whether AURA's two cases certify the check before you rely on its judgment, and let your own test suite settle the question.
+</Aside>
+
+## Step 1: Design Your Test Cases
+
+Before writing any test code, decide what a certified `dashboard_cleared` must do on every kind of input, and capture it as a table. Write a set of test cases as a plain table of rows: the five inputs and the boolean you expect back, worked out from the specification, not from running the code. This table is your design; you turn each row into an assertion in Step 3.
+
+Your table must include, and label, at least these cases:
+
+- A routine reading that publishes: a value comfortably inside the band, on a fresh timestamp, with no clock fault.
+- A reading withheld for a value below the band, and one withheld for a value above it.
+- The boundary readings sitting exactly on each end of the band, on a fresh timestamp.
+- A reading one microgram per cubic meter outside the band at each end.
+- A reading with an in-band value whose timestamp age sits exactly at the freshness limit, and one whose age is just under it.
+- The clock-fault case: an in-band, fresh-looking reading whose clock-fault flag is set.
+- At least one more case whose expected boolean you work out fully by hand.
+
+A reading can be withheld for more than one reason at once when it fails both rules together; a case like that tells you less about which rule failed than one that fails for exactly one reason.
+
+**Submit your test table in your PDF on Canvas.**
+
+## Step 2: Write Your Pseudocode
+
+Now plan your test function, still before writing it. In plain steps (not Python or Rust), describe how `test_dashboard_cleared` will check each case from your table: which cases you assert, in what order, how you group or label them so a reader can see which case is which, and what the function does once every assertion has held. Write it so a classmate could produce the test function from your plan.
+
+**Submit your pseudocode in your PDF on Canvas.**
+
+## Step 3: Write Your Test Suite
+
+Implement `test_dashboard_cleared` from your plan, in Python or Rust, following your own pseudocode. Each row in your table becomes an assertion: call `dashboard_cleared` with the inputs and assert that it equals the boolean you expect. End the function with a printed confirmation line, so a passing run says so out loud. Because the [Testing](/lectures/testing/) lecture is behind you, assertions are the right tool here, the same pattern that lecture's `test_coupon_discount` uses, not a table of rows.
+
+The grader runs your test function against the correct `dashboard_cleared`, where every assertion must hold and your confirmation line must print, and against several broken implementations, where each one must fail at least one of your assertions. A suite that passes the correct implementation but lets any broken one through is not yet strong enough to certify the check.
+
+<WhatDiffers>
+<Fragment slot="differs">
+You write these assertions differently in the two languages, and this is a real difference, not just boilerplate. In Python an assertion is `assert dashboard_cleared(120, 30, 120, 5, False) == True`, and the confirmation prints with `print`. In Rust the same check is `assert_eq!(dashboard_cleared(120, 30, 120, 5, false), true);`, with `true` and `false` spelled in lowercase, and the confirmation prints with `println!`. The cases you check and the booleans you expect are identical in both.
+</Fragment>
+</WhatDiffers>
+
+**Submit your test function to Gradescope.**
+
+## Summit Problem (extra credit)
+
+This one is a real stretch, and it earns extra credit. It is also your practice for the graded stretch problem in the recitation room, where a harder problem is waiting.
+
+Some publication checks qualify not a yes-or-no gate but a classifier. WRO's field app asks a finer question about each reading: not just whether it may publish, but which way it is implausible when it may not. The check on file is `band_zone(reading_ugm3, band_min_ugm3, band_max_ugm3)`, which returns `0` when `reading_ugm3` sits inside the station's band, both ends included, `1` when the reading is below `band_min_ugm3`, and `2` when it is above `band_max_ugm3`. You do not write this function; this time the correct version stays on file with the office, so your suite has to come from the specification alone. The grader holds the correct version and several broken versions, and each of those gets one thing wrong. Write `test_band_zone`, a test function strong enough to hold against the correct version and fail at least one assertion against every broken one.
+
+With three outcomes instead of two, an assertion has to pin the exact code, not just whether a reading was withheld, and each edge of the band now separates a different pair of outcomes. Include, and label, at least a case inside the band, a case sitting exactly on each end of the band, a case one microgram per cubic meter below the band, and a case one microgram per cubic meter above it, each asserting the exact code it expects. As one worked example: `assert band_zone(62, 30, 120) == 0`.
+
+**Interface.** You are not implementing `band_zone`; this is the signature your test function calls against.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="classify.py"
+def band_zone(reading_ugm3, band_min_ugm3, band_max_ugm3):
+    ...
+
+def test_band_zone():
+    ...
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="classify.rs"
+fn band_zone(reading_ugm3: i32, band_min_ugm3: i32, band_max_ugm3: i32) -> i32 {
+    todo!()
+}
+
+fn test_band_zone() {
+    todo!()
+}
+```
+</TabItem>
+</Tabs>
+
+**Submit `test_band_zone` to Gradescope** to earn the extra credit.
+
+## Paper Practice
+
+Trace this program by hand, on paper. Build a table with one row per call to `safe_margin` and one row per `assert`: for each call, write the values held by its `reading` and `limit` parameters and the value it returns; for each `assert`, write whether the condition it checks is `True` or `False`. Write the exact line the program prints, and only that line.
+
+```python title="trace_me.py"
+def safe_margin(reading, limit):
+    return reading <= limit
+
+assert safe_margin(80.0, 100.0) == True
+assert safe_margin(120.0, 100.0) == False
+print("both checks passed")
+```
+
+<Reveal label="Reveal the completed trace">
+The first call, `safe_margin(80.0, 100.0)`, binds `reading` to `80.0` and `limit` to `100.0`, evaluates `80.0 <= 100.0`, which is `True`, and returns `True`. The first `assert` checks `True == True`, which holds, so nothing visible happens and execution moves to the next line.
+
+| Line | `reading` | `limit` | returns | assert condition |
+|---|---|---|---|---|
+| `assert safe_margin(80.0, 100.0) == True` | `80.0` | `100.0` | `True` | `True` |
+| `assert safe_margin(120.0, 100.0) == False` | `120.0` | `100.0` | `False` | `True` |
+
+The second call, `safe_margin(120.0, 100.0)`, binds `reading` to `120.0` and `limit` to `100.0`, evaluates `120.0 <= 100.0`, which is `False`, and returns `False`. The second `assert` checks `False == False`, which also holds. Both assertions passed silently, so the program reaches the final line and prints `both checks passed`, and nothing else.
+</Reveal>
+
+Photograph your trace and include it in your PDF on Canvas. This part is graded on completion (the attached photograph), not on whether every cell is right, so attempt it by hand first, then open the reveal to check yourself.
+
+## Reflection
+
+Include a short reflection in your PDF on Canvas. In two sentences: first, state plainly whether you used an AI tool on this assignment and, if you did, what you used it for (if you did not use AI at all, say so explicitly); second, name any other help you used (a peer, the official docs, the lecture notes) and one thing you still could not do without that help.
+
+Then add one more sentence: of the cases in your test suite, which one do you think a broken implementation is most likely to fail, and why did you include it? This is graded on completion, not on what you say, and it is not shared with anyone but the instructor.
+
+## Rubric
+
+<RubricTable src="canvas/assignments/dashboard-publication-tests-rubrics.tsv" caption="Dashboard Publication Check Rubric" />

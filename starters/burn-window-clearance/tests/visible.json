@@ -1,0 +1,35 @@
+{
+  "title": "Assignment 5: Burn Window Clearance, visible tests",
+  "mode": "function",
+  "tolerance": 1e-06,
+  "files": {
+    "py": "burn.py",
+    "rs": [
+      "burn.rs"
+    ]
+  },
+  "entry": [
+    {
+      "name": "burn_clearance_status",
+      "params": [
+        "f64",
+        "f64",
+        "f64",
+        "bool"
+      ],
+      "ret": "i32"
+    }
+  ],
+  "cases": [
+    {
+      "call": "burn_clearance_status",
+      "args": [
+        8.0,
+        45.0,
+        18.0,
+        false
+      ],
+      "expect": 0
+    }
+  ]
+}

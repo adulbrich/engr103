@@ -1,0 +1,225 @@
+---
+title: "Sensor Drift Check"
+description: "Write the low-cost PM2.5 sensor check test-first: design your test cases, write pseudocode, then implement a tiered classifier that sorts a live reading into trusted, out-of-range, or drifting from the reference monitor before WRO trusts it, and judge AURA's claim about the tolerance boundary before you build on it."
+sidebar:
+  order: 6
+draft: false
+---
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+import Reveal from '/src/components/Reveal.astro';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+import WhatDiffers from '/src/components/WhatDiffers.astro';
+import RubricTable from '/src/components/RubricTable.astro';
+
+{/* ai-summary
+type: assignment
+slug: sensor-drift-check
+order: 6
+family: tiered classifiers checked in a fixed priority order, with a float tolerance against a trusted reference
+paired_recitation: R6
+prereq_lectures: booleans-and-conditionals, decision-structures, errors-input-and-validation
+prereq_activities: decision-structures, errors-input-and-validation
+prereq_assignment: burn-window-clearance
+new_scope: classifying a parsed sensor reading into fault categories against a physical range and a float tolerance against a trusted reference, using an elif/else-if (or Rust match) chain checked in a fixed priority order
+target_construct: an elif/else-if chain (or Rust match on comparisons) shaped as a tiered classifier over a physical range and a float tolerance, so an ordered decision chain is the natural tool
+persistent_requirements: dual-language, one shared contract; grader reads return values only; no loops or collections on the ladder yet; student functions take only scalar parameters, never a string
+story_beat: validating a live low-cost PM2.5 sensor reading against a co-located reference monitor before WRO trusts the number
+output: one function submitted to the grader, an optional summit function, and a PDF on Canvas with acceptance tests, pseudocode, a hand trace, and a reflection
+*/}
+
+<LanguageVersions />
+
+WRO tracks fine particle pollution, PM2.5, with a network of low-cost sensors spread across neighborhoods that a handful of expensive reference-grade monitors could never cover on their own. Every low-cost unit drifts with age and dust, so WRO co-locates a few of them next to a reference-grade monitor and checks each live reading before anyone treats it as real data. Your job as a junior engineer on the office's software team is to write the check that sorts a live reading into trusted or faulty before it reaches anyone's dashboard.
+
+## How This Assignment Works
+
+You work **test first**: you read the problem, decide what correct behavior looks like by writing your own test cases, plan the code in pseudocode, and only then write the code. The problem is solvable in Python or Rust, whichever you prefer. The program's `main`, its console input and output, and the local test runner are already written; you write the one function named below, and the automated grader calls it directly with values it chooses, reading only what you `return`. The order is fixed: design your tests, write your pseudocode, then write your function. After that comes an optional extra-credit stretch, a short paper trace, and a two-sentence reflection.
+
+## What to Submit
+
+You submit in two places. Mechanics are in [Running and Submitting Your Code](/practicalities/starter-repo-and-check/); each section below also repeats what it asks for.
+
+- **A single PDF on Canvas** holding everything that is not code: your **acceptance tests**, your **pseudocode**, your **paper trace**, and your **reflection**.
+- **Your code on Gradescope**: the function `reading_status`, plus the extra-credit `stream_do_status` if you attempt the summit.
+
+## The Problem
+
+A reading nobody has checked cannot tell WRO anything useful. The office uses this network to watch how close a neighborhood sits to the EPA's PM2.5 National Ambient Air Quality Standard, revised in 2024 to an annual mean of 9.0 micrograms per cubic meter, with the 24-hour standard unchanged at 35 micrograms per cubic meter (EPA National Ambient Air Quality Standards, 2024 revision). Before any of that matters, each live reading has to clear a basic sanity check.
+
+WRO's field loggers also keep a compact archive of every reading, for reporting later: one line per reading, three fields separated by commas, always in this fixed order: `station_id,code,reference_ugm3`. `station_id` is always exactly six characters, the station's short ID (for example `WRO-07`). `code` packs the sensor's own reading into a fixed three-character base-36 code, most significant character first, encoding the reading as a whole number of micrograms per cubic meter, rounded to the nearest whole unit; a shorted line has nothing valid to encode, so it is logged elsewhere and never written to this archive as a `code`. `reference_ugm3` is the co-located reference monitor's reading in the same units, written as a decimal, or the letters `NA`, the archive's only sentinel, when a station has no reference monitor installed. A deployment's agreement tolerance does not travel with each reading; it is set once when a station goes in and stays fixed after that.
+
+For this exercise, the low-cost sensor is read live from the console, as text, the way the [Errors, Input, and Validation](/lectures/errors-input-and-validation/) lecture describes, rather than from an archive line. The provided harness already reads that live text and parses it, using exactly the `try`/`except` or `parse`-and-`match` idiom from the lecture, so text that does not parse at all (a blank line, a stray word) never reaches your function: the harness reports it as `unreadable` on its own. What does reach your function is a number, and a number can still be untrustworthy in more than one way, so the check sorts each parsed reading into a status code before anyone acts on it. `REFERENCE_UGM3` and `TOLERANCE_UGM3` are constants the harness already sets for this station, read from that station's own archive and configuration.
+
+```python title="Provided in the harness: you do not write this"
+reading_text = input("Live sensor reading (ug/m3): ")
+try:
+    reading = float(reading_text)
+    if reading_status(reading, REFERENCE_UGM3, TOLERANCE_UGM3) == 0:
+        print("trusted")
+    else:
+        print("rejected")
+except ValueError:
+    print("unreadable")
+```
+
+```rust title="Provided in the harness: you do not write this"
+match reading_text.trim().parse::<f64>() {
+    Ok(reading) => {
+        if reading_status(reading, REFERENCE_UGM3, TOLERANCE_UGM3) == 0 {
+            println!("trusted");
+        } else {
+            println!("rejected");
+        }
+    }
+    Err(_) => println!("unreadable"),
+}
+```
+
+<WhatDiffers>
+<Fragment slot="differs">
+Both snippets reach the same `unreadable` outcome for garbage text, but by the two routes the errors lecture described. Python's `float` raises a `ValueError` the instant the text fails to parse, and the surrounding `try`/`except` catches it. Rust's `parse::<f64>()` never raises; it always finishes and hands back a `Result`, and the `match` reads that value and picks the `Ok` or `Err` arm. Either way, `reading_status` is only ever called once a reading has already parsed into a number.
+</Fragment>
+</WhatDiffers>
+
+Write `reading_status(reading_ugm3, reference_ugm3, tolerance_ugm3)`, returning the status code for a parsed reading. What it must return, checking the conditions in this priority order:
+
+1. Return `1` when `reading_ugm3` is below `0.0`. A reading below zero is physically impossible, and in practice a shorted sensor line reads negative, so this flags a hardware fault at the low end.
+2. Otherwise, return `2` when `reading_ugm3` is above `500.0`. That is the sensor's own stated ceiling: the Plantower PMS5003 series data manual (version 2.3, 2016) lists an effective PM2.5 measurement range of 0 to 500 micrograms per cubic meter, and a reading above that ceiling means the sensor has railed high, a hardware fault the office logs separately.
+3. Otherwise the reading sits inside the physically possible range, `0.0` to `500.0` inclusive. Compare it to the reference: the gap between the two readings is a size, and the pair agrees whenever that size is at or below `tolerance_ugm3`. Return `3` when they disagree, since that means at least one of the two sensors cannot be trusted.
+4. Otherwise, return `0`. The reading is in range and agrees with the reference. This is the only trusted case.
+
+The order matters: a reading is compared to the reference only after it has passed the physical-range check, so an out-of-range value is always reported as a range fault (`1` or `2`), never as a disagreement (`3`), even when it also happens to be far from the reference. The function returns a whole-number status code (`0`, `1`, `2`, or `3`). How you arrange the comparisons and what intermediate values you give names to along the way is entirely your decision.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="classify_reading.py"
+def reading_status(reading_ugm3, reference_ugm3, tolerance_ugm3):
+    ...
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="classify_reading.rs"
+fn reading_status(reading_ugm3: f64, reference_ugm3: f64, tolerance_ugm3: f64) -> i32 {
+    todo!()
+}
+```
+</TabItem>
+</Tabs>
+
+We give you **one** worked example to show the format. A reading of `42.0` micrograms per cubic meter, with a reference of `40.0` and a tolerance of `3.0`, sits in range and agrees with the reference, so it is trusted:
+
+| Call | Returns |
+|---|---|
+| `reading_status(42.0, 40.0, 3.0)` | `0` |
+
+**Assumptions and edge cases.** `reading_ugm3`, `reference_ugm3`, and `tolerance_ugm3` are all floats, and `tolerance_ugm3` is zero or greater. `0.0` and `500.0` are exact boundaries of the physical range and both count as in range. The reference can sit on either side of the reading, so the gap between them is a size, never a signed difference.
+
+<Aside type="danger" title="AURA has a better shape for the agreement check. Decide whether to trust it.">
+AURA, the office's assistant, offers this: "A fixed gap in micrograms is the wrong shape for this comparison, because the same absolute gap means something very different at 5 micrograms than it does at 400. Scale it instead: divide the gap by the reference reading, and compare that fraction against the tolerance. One tolerance value then works sensibly across the whole range, which is what a station configuration is supposed to give you."
+
+Office rule: no AURA analysis is published unverified. Decide whether AURA's rule is right before you build anything on it, and let your test cases settle the question.
+</Aside>
+
+## Step 1: Write Your Acceptance Tests
+
+Before writing any code, decide what correct behavior looks like. Write a set of test cases for `reading_status` as a plain table of rows: the three inputs (`reading_ugm3`, `reference_ugm3`, `tolerance_ugm3`) and the status code you expect back. Do not use `assert` yet; a table of rows is what this step wants. For each row, work out the expected code by hand from the priority order, paying attention to which readings sit exactly on the physical boundary or exactly on the tolerance gap.
+
+Your table must include, and label, at least these cases:
+
+- A trusted case, in range and agreeing with the reference, that returns `0`.
+- A low-end hardware fault, a reading below `0.0`, that returns `1`.
+- A high-railed fault whose reading also sits far from the reference reading, that returns `2`.
+- A disagreement case, in range but too far from the reference, that returns `3`.
+- A case that lands exactly on a boundary: either the physical range (a reading of exactly `0.0` or exactly `500.0`) or the agreement check (the gap between the reading and the reference exactly equal to `tolerance_ugm3`).
+- At least one more case whose expected code you compute fully by hand.
+
+**Submit your test table in your PDF on Canvas.**
+
+## Step 2: Write Your Pseudocode
+
+Now plan the code, still before writing it. In plain steps (not Python or Rust), describe how `reading_status` turns its three inputs into the code it returns: in what order you check the outcomes, which comparison each outcome rests on, and which intermediate values, if any, you will give names to along the way (the size of the gap between the reading and the reference is one you may want to name). Write it so a reader could follow your plan and produce the function from it.
+
+**Submit your pseudocode in your PDF on Canvas.**
+
+## Step 3: Write Your Code
+
+Implement `reading_status` from the signature above, in Python or Rust, following your own pseudocode. The automated grader calls the function directly with values it chooses and checks what you `return`, so nothing is graded on how you get there, only on the code being right for every input. The returned status code is a whole number and reads the same in both languages, so there is nothing to compare with a tolerance and nothing to print.
+
+**Submit your function to Gradescope.**
+
+## Summit Problem (extra credit)
+
+This one is a real stretch, and it earns extra credit. It is also your practice for the graded stretch problem in the recitation room, where a harder problem is waiting.
+
+WRO also runs the same kind of check on stream water quality. A dissolved-oxygen probe in a restoration stream reports oxygen concentration in milligrams per liter, and low levels put fish at risk while unusually high levels usually mean the probe itself is fouled or misreading rather than a real supersaturated stream. Cold water can hold more dissolved oxygen at rest than warm water, so WRO uses two plausibility ceilings for the probe reading depending on the water temperature: these are WRO's own field guideline for a quick automated check, not a published solubility table.
+
+Write `stream_do_status(do_mgl, water_temp_c, reference_mgl, tolerance_mgl)`, returning the status code for a parsed reading. What it must return, checking the conditions in this priority order:
+
+1. Return `1` when `do_mgl` is below `0.0`. A negative concentration is physically impossible, so this flags a probe fault.
+2. Otherwise, choose the plausibility ceiling from the water temperature: `15.0` milligrams per liter when `water_temp_c` is `10.0` or below, and `12.0` milligrams per liter otherwise. Return `2` when `do_mgl` is above that ceiling; a reading exactly at the ceiling does not breach it.
+3. Otherwise the reading sits inside its plausible range, so compare it to the reference the same way the main problem does: agree when the gap is at or below `tolerance_mgl`, disagree otherwise. Return `3` when they disagree.
+4. Otherwise, return `0`. The reading is plausible and agrees with the reference.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="stream_do.py"
+def stream_do_status(do_mgl, water_temp_c, reference_mgl, tolerance_mgl):
+    ...
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="stream_do.rs"
+fn stream_do_status(do_mgl: f64, water_temp_c: f64, reference_mgl: f64, tolerance_mgl: f64) -> i32 {
+    todo!()
+}
+```
+</TabItem>
+</Tabs>
+
+As one worked example, `stream_do_status(9.0, 15.0, 8.5, 1.0)` returns `0`: the water is above `10.0` degrees Celsius, so the `12.0` ceiling applies, `9.0` does not breach it, and the gap to the reference, `0.5`, sits at or below the `1.0` tolerance.
+
+**Submit `stream_do_status` to Gradescope** to earn the extra credit.
+
+## Paper Practice
+
+Trace this program by hand, on paper. Build a variable table: for each call to `range_flag`, write the values held by its `value_ugm3` and `calibration_flagged` parameters and the value it returns, then the values bound to `a`, `b`, and `total`. Write the exact value the program prints.
+
+```python title="trace_me.py"
+def range_flag(value_ugm3, calibration_flagged):
+    if calibration_flagged:
+        return 1
+    elif value_ugm3 > 500.0:
+        return 2
+    else:
+        return 0
+
+a = range_flag(650.0, False)
+b = range_flag(650.0, True)
+total = a + b
+print(total)
+```
+
+<Reveal label="Reveal the completed trace">
+The first call, `range_flag(650.0, False)`, binds `value_ugm3` to `650.0` and `calibration_flagged` to `False`. The chain checks `calibration_flagged` first: it is `False`, so that branch is skipped, not entered. The next condition, `value_ugm3 > 500.0`, is `True`, since `650.0` is greater than `500.0`, so the function returns `2` and the final `else` is never even looked at. That `2` is bound to `a`.
+
+| Line | `value_ugm3` | `calibration_flagged` | returns | `a` | `b` | `total` |
+|---|---|---|---|---|---|---|
+| `a = range_flag(650.0, False)` | `650.0` | `False` | `2` | `2` | | |
+| `b = range_flag(650.0, True)` | `650.0` | `True` | `1` | `2` | `1` | |
+| `total = a + b` | | | | `2` | `1` | `3` |
+
+The second call, `range_flag(650.0, True)`, checks `calibration_flagged` first again, and this time it is `True`, so the function returns `1` immediately; the `value_ugm3 > 500.0` condition is never evaluated at all, because the chain stops at the first branch that matches. That `1` is bound to `b`. Finally `total = a + b` computes `2 + 1`, and the program prints `3`.
+</Reveal>
+
+Photograph your trace and include it in your PDF on Canvas. This part is graded on completion (the attached photograph), not on whether every cell is right, so attempt it by hand first, then open the reveal to check yourself.
+
+## Reflection
+
+Include a short reflection in your PDF on Canvas. In two sentences: first, state plainly whether you used an AI tool on this assignment and, if you did, what you used it for (if you did not use AI at all, say so explicitly); second, name any other help you used (a peer, the official docs, the lecture notes) and one thing you still could not do without that help.
+
+Then add one more sentence: which intermediate values, if any, did you choose to name inside `reading_status`, and why those? This is graded on completion, not on what you say, and it is not shared with anyone but the instructor.
+
+## Rubric
+
+<RubricTable src="canvas/assignments/sensor-drift-check-rubrics.tsv" caption="Sensor Drift Check Rubric" />

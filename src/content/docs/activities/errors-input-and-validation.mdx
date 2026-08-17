@@ -1,0 +1,421 @@
+---
+title: "Errors, Input, and Validation"
+description: "Predict, compare, and debug short programs that read a typed value, parse it into a number, and check it before trusting it, in Python and Rust."
+sidebar:
+  order: 9
+draft: true
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import Reveal from '/src/components/Reveal.astro';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+import WhatDiffers from '/src/components/WhatDiffers.astro';
+
+{/* ai-summary
+type: activity
+slug: errors-input-and-validation
+order: 9
+paired_lecture: errors-input-and-validation
+practices: predicts the exact printed line of a program that reads, parses to a decimal, and validates a value against a strict threshold, across three piped inputs including one sitting exactly on the boundary; names what a Python try/except and a Rust match on Result each do and do not protect when a parse succeeds but a following division fails; diagnoses an off-by-one in an inclusive range check that silently accepts the edge value, using the systematic method
+prereq_activities:
+block_types: predict-then-run, same-program-two-languages, live-debugging
+output: a reconciled multi-input prediction, a named cross-language difference in what each error mechanism protects, and a corrected inclusive-range check that now rejects its boundary
+*/}
+
+<LanguageVersions />
+
+This activity puts into practice the [Errors, Input, and Validation](/lectures/errors-input-and-validation/) lecture. You will predict the exact output of a program that reads, parses, and validates a typed value across several inputs, compare what a Python `try`/`except` and a Rust `match` each actually protect when a second operation can fail, and hunt down a bug that never raises an error. By the end, you will be able to trace a read-parse-validate program by hand and catch a validation bug that no error message announces.
+
+## Warm-up
+
+A quick refresher before the harder work. You have read a typed number since week 2: `int(input(...))` in Python, `read_i32()` in Rust. What this lecture opens up is what happens to the text in between the two: **parsing** turns the text into the number it spells. Each program below starts from a string already sitting in the source code, so the parsing step stands on its own, apart from the reading you already know.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="parse_warmup.py"
+age_text = "25"
+age = int(age_text)
+print(age)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="parse_warmup.rs"
+fn main() {
+    let age_text = "25";
+    let age: i32 = age_text.parse().expect("not a whole number");
+    println!("{}", age);
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 parse_warmup.py
+```
+
+```text frame="terminal" title="Output"
+25
+```
+
+```bash title="Compile and run the Rust program"
+rustc parse_warmup.rs
+./parse_warmup
+```
+
+```text frame="terminal" title="Output"
+25
+```
+
+Both programs turn the string `"25"` into the whole number `25`, the same conversion `int(input(...))` and `read_i32()` already do for you every time you call them. Here it is written out on its own, apart from the reading step, so the sections below can put it to work on text that does not always cooperate.
+
+## Predict the Printed Line
+
+Reading a value is only step one: a real program parses it and checks it before trusting it. Here you commit to the output first, for three different inputs, then run the programs to check all three.
+
+Read the two programs below. Each reads a temperature, parses it to a decimal number, and reports whether it is normal, where "normal" means strictly below `99.5`. The run pipes in three values in turn: `98.60`, `99.50`, and `100`. On paper or in a comment, write the exact message line the Python program prints for each input. Predict two things per input: the exact digits of the number that appears, and which of the two messages it gets. That is six commitments in all. Do not run anything yet.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="reading.py"
+temp_text = input("Enter a temperature: ")
+temp = float(temp_text)
+if temp < 99.5:
+    print("Temperature", temp, "is normal.")
+else:
+    print("Temperature", temp, "needs a check.")
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="reading.rs"
+use std::io;
+
+fn main() {
+    println!("Enter a temperature: ");
+    let mut temp_text = String::new();
+    io::stdin()
+        .read_line(&mut temp_text)
+        .expect("failed to read line");
+
+    let temp: f64 = temp_text.trim().parse().expect("temperature must be a number");
+    if temp < 99.5 {
+        println!("Temperature {} is normal.", temp);
+    } else {
+        println!("Temperature {} needs a check.", temp);
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+<Reveal label="Reveal the real outputs in both languages and reconcile them with your prediction">
+```bash title="Run the Python program"
+printf '98.60\n' | python3 reading.py
+printf '99.50\n' | python3 reading.py
+printf '100\n' | python3 reading.py
+```
+
+```text frame="terminal" title="Output"
+Enter a temperature: Temperature 98.6 is normal.
+Enter a temperature: Temperature 99.5 needs a check.
+Enter a temperature: Temperature 100.0 needs a check.
+```
+
+```bash title="Compile and run the Rust program"
+rustc reading.rs
+printf '98.60\n' | ./reading
+printf '99.50\n' | ./reading
+printf '100\n' | ./reading
+```
+
+```text frame="terminal" title="Output"
+Enter a temperature: 
+Temperature 98.6 is normal.
+Enter a temperature: 
+Temperature 99.5 needs a check.
+Enter a temperature: 
+Temperature 100 needs a check.
+```
+
+The printed digits are the number's own, not the ones you typed. `98.60` parses to the value `98.6` in both languages: the trailing zero was never part of the number, only a character you wrote, so it is gone the moment the text became a decimal number. That much is identical across Python and Rust, because it is a fact about parsing, not about display.
+
+The boundary is the surprise that lands the same way in both. `99.50` parses to exactly `99.5`, and the check is `temp < 99.5`, a strict less-than. `99.5 < 99.5` is `False` in Python and in Rust alike, so the value sitting right on the threshold is reported as needing a check, not as normal. A reading typed to land exactly on the limit falls on the reject side, because `<` excludes the limit itself. That single character, `<` versus `<=`, is the whole difference between accepting and rejecting the boundary.
+
+The `100` input adds one cosmetic wrinkle: both languages parse it to the same whole-valued decimal and both reject it, but Python's `print` shows a `float`'s fractional part even when it is zero, so it prints `100.0`, while Rust's `{}` shows an `f64` in its shortest exact form and prints `100`.
+</Reveal>
+
+---
+
+## The Same Division, Two Error Models
+
+A `try`/`except` and a `match` on a `Result` both handle a bad parse, and it is tempting to read them as two spellings of the same safety net. They are not. This section puts them on a program where a parse succeeds and a *second* operation then fails, so you can see exactly what each construct protects and what it quietly leaves exposed.
+
+Each program below reads a divisor, parses it to a whole number, and prints `100` divided by it. Before opening the reveal, predict what each prints for three inputs: `4`, `xyz`, and `0`. Write a prediction for all three, in both languages. Pay special attention to `0`: `0` is a perfectly valid whole number, so ask yourself whether the parse handling has anything to say about it at all.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="divide.py"
+divisor_text = input("Enter a divisor: ")
+
+try:
+    divisor = int(divisor_text)
+    print("100 divided by", divisor, "is", 100 // divisor)
+except ValueError:
+    print("Please enter a whole number.")
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="divide.rs"
+use std::io;
+
+fn main() {
+    println!("Enter a divisor: ");
+    let mut divisor_text = String::new();
+    io::stdin()
+        .read_line(&mut divisor_text)
+        .expect("failed to read line");
+
+    match divisor_text.trim().parse::<i32>() {
+        Ok(divisor) => println!("100 divided by {} is {}", divisor, 100 / divisor),
+        Err(_) => println!("Please enter a whole number."),
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+<Reveal label="Reveal the outputs and what each construct actually protects">
+```bash title="Run the Python program"
+printf '4\n' | python3 divide.py
+printf 'xyz\n' | python3 divide.py
+printf '0\n' | python3 divide.py
+```
+
+```text frame="terminal" title="Output"
+Enter a divisor: 100 divided by 4 is 25
+Enter a divisor: Please enter a whole number.
+Enter a divisor: Traceback (most recent call last):
+  File "divide.py", line 5, in <module>
+    print("100 divided by", divisor, "is", 100 // divisor)
+                                           ~~~~^^~~~~~~~~
+ZeroDivisionError: division by zero
+```
+
+```bash title="Compile and run the Rust program"
+rustc divide.rs
+printf '4\n' | ./divide
+printf 'xyz\n' | ./divide
+printf '0\n' | ./divide
+```
+
+```text frame="terminal" title="Output"
+Enter a divisor: 
+100 divided by 4 is 25
+Enter a divisor: 
+Please enter a whole number.
+Enter a divisor: 
+
+thread 'main' panicked at divide.rs:11:69:
+attempt to divide by zero
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+The first two inputs agree in spirit: `4` divides cleanly, and `xyz` fails to parse and takes the friendly-message path in both languages. The `0` input is where the prediction usually breaks. Many predict `Please enter a whole number.`, reasoning that the error handling will step in. It does not. `0` parses fine; the failure is the division that comes *after* the parse, and neither construct guards that division. Python's program stops with a `ZeroDivisionError` traceback, and Rust's stops with a panic. Both crash.
+
+<WhatDiffers>
+<Fragment slot="differs">
+The parse failure (`xyz`) is handled the same way in both, and the division failure (`0`) is handled by neither. What differs is how each construct advertises its scope. Python's `try`/`except ValueError` wraps a whole region of code, so it *looks* like it protects everything inside it, but it only catches the one exception type it names: a `ZeroDivisionError` is a different type, so it sails straight past the `except` and crashes the program. The catch is type-scoped, and it is easy to read as broader than it is. Rust's `match` is bound to exactly one value, the `Result` from `parse`, and it forces you to write both the `Ok` and `Err` arms or the program will not compile. It never pretends to guard the division sitting inside the `Ok` arm; its scope is exactly as narrow as it looks. One construct is a net cast over a region that catches only the failure types you named; the other is a decision pinned to one value's two outcomes. Neither is a blanket "handle anything that goes wrong here," and the `0` input is what makes that concrete.
+</Fragment>
+</WhatDiffers>
+
+The reason the good runs put `100 divided by 4 is 25` on the prompt line in Python but below it in Rust is the same warm-up detail: `input` omits the trailing newline on its prompt and `println!` does not.
+</Reveal>
+
+---
+
+## Find the Edge That Slips Through
+
+Not every bug announces itself with an error message. The program below compiles, runs cleanly, and prints a normal-looking answer, yet one of its inputs comes out wrong. You find this one with the systematic method: read the symptom, form a hypothesis, test it.
+
+The program below is meant to accept an age from `0` through `130` inclusive and reject anything outside that range. Run it with `131`, which is one past the top and should be rejected. Before opening the reveal, predict what it prints, then work out why the answer is wrong and what single change fixes it.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="validate.py"
+age_text = input("Enter your age: ")
+
+try:
+    age = int(age_text)
+    if age < 0 or age > 131:
+        print("That age is out of range.")
+    else:
+        print("You are", age, "years old.")
+except ValueError:
+    print("That is not a whole number.")
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="validate.rs"
+use std::io;
+
+fn main() {
+    println!("Enter your age: ");
+    let mut age_text = String::new();
+    io::stdin()
+        .read_line(&mut age_text)
+        .expect("failed to read line");
+
+    match age_text.trim().parse::<i32>() {
+        Ok(age) => {
+            if age < 0 || age > 131 {
+                println!("That age is out of range.");
+            } else {
+                println!("You are {} years old.", age);
+            }
+        }
+        Err(_) => println!("That is not a whole number."),
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+<Reveal label="Reveal the diagnosis and the fix">
+```bash title="Run the buggy Python program"
+printf '131\n' | python3 validate.py
+```
+
+```text frame="terminal" title="Output"
+Enter your age: You are 131 years old.
+```
+
+```bash title="Compile and run the buggy Rust program"
+rustc validate.rs
+printf '131\n' | ./validate
+```
+
+```text frame="terminal" title="Output"
+Enter your age: 
+You are 131 years old.
+```
+
+**Symptom.** There is no error message. `131` parses cleanly and is reported as a valid age, even though the rule says the maximum is `130`. The wrong path was taken silently, and nothing about the run signals that anything is wrong.
+
+**Hypothesis.** The rule is "reject above `130`," but the guard is `age > 131`. The `>` is strict, so it is true only for `132` and up; `131` itself makes `age > 131` false, falls through to the `else`, and is accepted. The comparison is off by one: to reject everything above `130`, the boundary in the condition has to be `130`, not `131`. This is the mirror image of the previous section's boundary. There a strict `<` correctly excluded the limit; here a strict `>` is aimed one number too high, so it fails to exclude the first value it should.
+
+**Test.** Change the one number and rerun with `131`, plus `130` to confirm the last valid age is still accepted, plus a non-number to confirm the parse path still works:
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="validate.py (fixed)"
+    if age < 0 or age > 130:
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="validate.rs (fixed)"
+            if age < 0 || age > 130 {
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the fixed Python program"
+printf '131\n' | python3 validate.py
+printf '130\n' | python3 validate.py
+printf 'abc\n' | python3 validate.py
+```
+
+```text frame="terminal" title="Output"
+Enter your age: That age is out of range.
+Enter your age: You are 130 years old.
+Enter your age: That is not a whole number.
+```
+
+```bash title="Compile and run the fixed Rust program"
+rustc validate.rs
+printf '131\n' | ./validate
+printf '130\n' | ./validate
+printf 'abc\n' | ./validate
+```
+
+```text frame="terminal" title="Output"
+Enter your age: 
+That age is out of range.
+Enter your age: 
+You are 130 years old.
+Enter your age: 
+That is not a whole number.
+```
+
+Now `131` is rejected, `130` is still accepted so the fix did not overcorrect and start rejecting the last valid age, and `abc` still fails at the parse and never reaches the range check. The fix is a single digit, `131` to `130`. The lesson is that an off-by-one in a range check produces no error at all; it slips through as a normal-looking answer, and only a test aimed at the exact edge, the boundary and the value just past it, ever reveals it. That is why you validate with the value you expect to fail, not just the ones you expect to pass.
+</Reveal>
+
+---
+
+## Write a Parse-or-Default Program
+
+Write a program that parses each of two pieces of text, `"42"` and `"oops"`, into a whole number and prints it, printing `-1` instead when the text is not a valid whole number. Write the parse and its failure handling out twice, once per piece of text; both pieces of text are written directly into your source code, so nothing is read from the terminal.
+
+<Reveal label="Reveal a sample solution">
+This is a sample solution: your program can differ from it and still be correct.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="parse_or_default.py"
+good_text = "42"
+try:
+    print(int(good_text))
+except ValueError:
+    print(-1)
+
+bad_text = "oops"
+try:
+    print(int(bad_text))
+except ValueError:
+    print(-1)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="parse_or_default.rs"
+fn main() {
+    let good_text = "42";
+    match good_text.parse::<i32>() {
+        Ok(value) => println!("{}", value),
+        Err(_) => println!("{}", -1),
+    }
+
+    let bad_text = "oops";
+    match bad_text.parse::<i32>() {
+        Ok(value) => println!("{}", value),
+        Err(_) => println!("{}", -1),
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 parse_or_default.py
+```
+
+```text frame="terminal" title="Output"
+42
+-1
+```
+
+```bash title="Compile and run the Rust program"
+rustc parse_or_default.rs
+./parse_or_default
+```
+
+```text frame="terminal" title="Output"
+42
+-1
+```
+
+Packaging this repetition into a function you call twice is the obvious next thought, and it is the right one, but it has to wait: a Rust function that takes a piece of text needs a string as a parameter, and a string cannot legally be a parameter until the strings and references weeks. Until then, writing the handling out per value is the version that stays inside what you have been taught.
+</Reveal>
+
+---
+
+## Bridge
+
+These three reps feed the recitation family that reads a stream of noisy typed values, rejects the ones that fail to parse or fall outside a sensible range, and summarizes only the ones that survive. Predicting a parsed value's printed form at a boundary, knowing what your error handling does and does not protect when a later step fails, and writing a range check that actually rejects its own edge are the guided first rung of that ladder, where a single wrong operator, an unguarded second step, or an off-by-one boundary quietly corrupts the summary.

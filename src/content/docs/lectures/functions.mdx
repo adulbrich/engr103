@@ -1,510 +1,351 @@
 ---
 title: "Functions"
-description: "Master the art of creating and using functions in C++. This comprehensive guide explains function headers, parameters, return types, and best practices for designing modular and reusable code."
+description: "Learn how Python and Rust define, call, and return values from functions, and why a function's parameter is a separate copy of its argument."
 sidebar:
-  order: 11
+  order: 5
 ---
 
-import Latex from '../../../components/Latex.astro'
-import CppMemoryStepper from '../../../components/CppMemoryStepper.svelte';
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+import WhatDiffers from '/src/components/WhatDiffers.astro';
+import MemoryStepper from '/src/components/MemoryStepper.svelte';
+import Latex from '/src/components/Latex.astro';
 
-In C++, a function is a reusable block of code that simplifies repetitive computations in your program. By creating functions, you avoid reinventing the wheel each time you need a specific computation. You've already used functions like `main`, `pow`, `sqrt`, and `abs`. In this lecture, you'll learn how to create your own functions to better organize and modularize your code.
+{/* ai-summary
+type: lecture
+slug: functions
+order: 5
+covers: defining functions with def and fn; signatures; typed vs untyped parameters; tracing a call step by step; return values; function calls as expressions; arguments copied into parameters
+prereq_lectures: variables-and-state
+followup_lectures: scope-and-the-call-stack
+glossary_terms: function, parameter, argument, return value, function signature
+*/}
 
-## Creating Functions
+<LanguageVersions />
 
-A function definition consists of two main parts:
+A variable lets a single value be written once and reused by name; a function extends that same idea to a whole computation. Suppose a program needs the area of a circle at several different points: once for a radius of 3, once for a radius of 5, once for a radius of 12. Without a way to name the computation itself, you would retype `3.14159 * radius * radius` at every one of those spots, and if you ever needed to fix a mistake in that formula, or use a more precise value of pi, you would have to find and correct every copy by hand. A **function** solves this by giving a computation a name, the same way a variable gives a value a name, so the steps behind the name can be reused instead of rewritten.
 
-1. **Function Header**, which includes:
-    - A function name
-    - A parameter list
-    - A return type
-2. **Function Body**, which contains the code to execute.
+## Functions
 
-The general syntax for a function definition is as follows:
+A function is a named, reusable block of code that carries out a computation and produces a result. Once a function exists, any other part of the program can run it, or **call** it, by writing its name, without repeating the steps it performs. The [Variables and State](/lectures/variables-and-state) lecture put a name on a single value so you could reuse the value; a function puts a name on a sequence of steps so you can reuse the computation. The two are the same move applied to different things: give a thing a name, and you can refer to it later instead of writing it out again.
 
-```cpp title="Function Definition Syntax"
-<return type> <function name>(<parameter list>) 
-{
-    <function body>
+This should feel familiar from arithmetic. A math function like <Latex formula="f(x) = 3x + 7" /> names a computation once, and you can then ask for <Latex formula="f(2)" /> or <Latex formula="f(10)" /> without rewriting "3 times the input, plus 7" every time. The `x` in that definition is a stand-in: it holds the place of whatever number you supply, so that <Latex formula="f(2)" /> means "take the recipe and use 2 wherever `x` appears," giving 13. A programming function works the same way, except its computation can be as short or as long as you like, and it can do far more than evaluate a single formula. The stand-in, the value you supply, and the answer that comes back are the three pieces this lecture makes precise.
+
+Grouping steps under one name matters for more than saving keystrokes. A function is also a unit a program can be organized around: instead of one long list of statements, a program becomes a set of named, understandable pieces, each responsible for one computation, that call one another as needed. When one of those pieces is wrong, you fix it in the one place it is defined, and every call to it is corrected at once.
+
+## Defining a Function
+
+Before a function can be called, it has to be defined, and the definition does its work in a fixed order: it settles what the function looks like from the outside before a single line of its body ever runs. Defining a function fixes three things: the function's **name**, the **parameters** it accepts as input, and the type of value it produces as output. A **parameter** is a placeholder, listed in the function's definition, for a value the function will receive each time it is called; it is the `x` from the math function, made concrete. A parameter works exactly like a variable inside the function, the same kind of name introduced in the previous lecture, except its value comes from outside, supplied at the call, rather than from an assignment written in the function's own body.
+
+Together, a function's name, its parameters, and its return type make up the function's **function signature**: the part of the definition that says what the function needs and what it gives back, before you ever look at how it computes that result. Read a signature left to right and it answers three questions in order. What is this function called, so I can refer to it? What must I hand it, and in what order? What kind of value will it hand back? Everything after the signature, the body, is the recipe; the signature alone is the contract, and it is fixed the moment the definition is read, before the body runs even once.
+
+Python writes a function definition with the keyword `def`, followed by the function's name, a parenthesized list of parameter names, and a colon; the function's body is indented beneath it, and a `return` statement sends back the result. Rust writes a function definition with the keyword `fn`, followed by the function's name, a parenthesized list of parameters, an arrow `->` and the return type, and a body in curly braces. The difference between the two runs deeper than spelling, and it is the same static-versus-dynamic split you have already seen. Rust demands a type on every parameter and after the arrow because its compiler checks the whole file before running anything, and it cannot check that `area` is used correctly everywhere unless it already knows, from the signature alone, that `area` takes one `f64` and returns an `f64`. Python attaches no type to a parameter at all: the type of `radius` is decided by whatever value arrives when the function is called, the same dynamic typing you saw for variables, so the signature can stay silent about types because nothing is checked until the call actually runs.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="area.py"
+def area(radius):
+    return 3.14159 * radius * radius
+
+result = area(2.0)
+print(result)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="area.rs"
+fn area(radius: f64) -> f64 {
+    return 3.14159 * radius * radius;
+}
+
+fn main() {
+    let result = area(2.0);
+    println!("{}", result);
 }
 ```
+</TabItem>
+</Tabs>
 
-A function must be declared (in this context, “declared” means defined) before it can be used. This means the function definition must appear above any calls to that function.
+<WhatDiffers>
+<Fragment slot="differs">
+Python's `def area(radius):` names the parameter but attaches no type to it and no type to what the function returns. Rust's `fn area(radius: f64) -> f64` requires an explicit type on every parameter, `f64` here, and an explicit return type after the arrow, `-> f64`; the compiler will not infer either one for you, so a function definition without them is rejected before the program runs.
+</Fragment>
+</WhatDiffers>
 
-To illustrate, let's examine this simple function definition:
+Run either version and the call `area(2.0)` produces the area of a circle of radius 2, which the next section traces step by step:
 
-```cpp title="Sum Function Definition Example"
-double sum(double first_value, double second_value) 
-{
-    return first_value + second_value;
-}
+```bash title="Run the Python program"
+python3 area.py
 ```
 
-### Function Headers
-
-The function header is the first thing to determine when creating a function. It consists of the function's name, parameter list, and return type. Syntactically, it is the part of the function definition before the opening curly brace `{`.
-
-```cpp title="Sum Function Header Example"
-double sum(double first_value, double second_value)
+```text frame="terminal" title="Output"
+12.56636
 ```
 
-A well-designed function header should clearly communicate what the function does and how to use it.
+The Rust file takes the compile-then-run pair from the [How Programs Run](/lectures/how-programs-run) lecture, and prints the same value:
 
-#### Function Names
-
-To use a function after it's created, you need a way to refer to it—this is the function's name. Like variable names, function names (identifiers) in C++:
-
-- May consist of letters, numbers, and underscores.
-- Cannot start with a number.
-
-The function name should be descriptive enough to indicate its purpose. For example:
-
-- `sqrt` clearly computes the square root of its input.
-- `abs` computes the absolute value of its input.
-
-Although abbreviations like `sqrt` and `abs` are acceptable when conventional, avoid over-abbreviation. Descriptive names are preferable, even if they take a few extra keystrokes to type. For instance, in the case study, the function name `sum` is appropriate because it computes the sum of two values.
-
-#### Function Parameters
-
-Functions often need to accept input data to be useful. This is achieved through parameters, which act as placeholders for the data that will be passed to the function.
-
-In mathematics, parameters function as placeholders in expressions like <Latex formula="f(x) = 3x + 7"/>. For example:
-
-- In <Latex formula="f(5)"/>, the parameter <Latex formula="x"/> takes the value <Latex formula="5"/>.
-- In <Latex formula="f(10)"/>, <Latex formula="x"/> takes the value <Latex formula="10"/>.
-
-Similarly, function parameters in C++ are placeholders filled with actual values when the function is called. Parameters are declared as variables, but without initialization, since they are just placeholders. Their declarations are listed within parentheses after the function name, separated by commas if there are multiple parameters. This is referred to as the parameter list.
-
-```cpp title="Sum Function Parameters Example"
-double first_value, double second_value
+```bash title="Compile and run the Rust program"
+rustc area.rs
+./area
 ```
 
-In the case study, the sum function has two parameters:
-
-- `first_value` of type `double`
-- `second_value` of type `double`
-
-Parameter names should be meaningful and provide context. For instance, instead of vague names like `distance` or `time`, use descriptive names like `double feet` and `int milliseconds`, which also convey units. This approach improves readability and comprehension.
-
-Parameters can be of any type, and a function can have multiple parameters of different types. The types of the parameters should align with the function's purpose. In the sum example, both parameters are double because the function adds two numbers that may have decimal points.
-
-:::note[Default Parameter Values]
-In C++, you can give a parameter a **default value**. If the caller omits that argument, the default value is used.
-
-```cpp title="Function with Default Parameter Example"
-double rectangle_area(double width, double height = 1.0) 
-{
-    return width * height;
-}
+```text frame="terminal" title="Output"
+12.56636
 ```
 
-Then you can call the function in either of these ways:
-
-```cpp title="Function Calls with and without Default Parameter"
-std::cout << rectangle_area(3.0, 4.0) << std::endl; // Uses height = 4.0
-std::cout << rectangle_area(3.0) << std::endl;      // Uses default height = 1.0
-```
-
-Default parameters must come **after** any non-default parameters. For example, `f(int x = 1, int y)` is not allowed, but `f(int x, int y = 1)` is.
+:::note[When a function returns nothing]
+Not every function hands a value back. A function whose job is only to print, for example, does its work and returns nothing useful. In Python such a function reaches the end of its body without a `return`, and the call still produces a value, a special "nothing" value named `None`. In Rust a function with no `-> type` in its signature returns the empty value written `()`, called the unit type. Rust also lets you return a value by writing it as the last line of the body with no semicolon and no `return` keyword, called a trailing expression, so `area` could end with `3.14159 * radius * radius` instead of `return 3.14159 * radius * radius;`. This lecture always writes an explicit `return` so the point where a value is handed back is easy to see, but you will meet the trailing-expression form in real Rust code.
 :::
 
-#### Function Return Types
+A clear signature is not only good style. Later in this course, the work you submit for a grade is a set of functions that an automated grader calls directly, supplying the arguments and checking what comes back, while the surrounding program's `main` and its input and output are already written for you. A function whose signature states exactly what it needs and what it produces is one the grader, or anyone else, can call correctly without reading a single line of what happens inside it.
 
-In addition to accepting input, functions also produce output. The return value is how a function communicates its result. While a function can have multiple parameters, it can only return a single value in C++. The return type specifies the type of this output.
+## Calling a Function
 
-In the function header, the return type appears before the function name. Importantly, the return value is not the same as console output; instead, it allows functions to pass data to one another. For example, the return value of the sum function is passed back to main or any other function that calls it.
+Once a function is defined, calling it means writing its name followed by parentheses that hold one value for each of its parameters. The values supplied inside those parentheses are called **arguments**: an argument is the actual value a function receives at a particular call, as opposed to a parameter, which is only the placeholder named in the function's definition. Parameter and argument are two ends of the same connection. The parameter is the named slot the definition sets up; the argument is the value the call drops into that slot.
 
-In the case study, the return type of the `sum` function is `double`, which makes sense because the function adds two double values. The result, therefore, is also a double.
+A call looks like one small step, `area(2.0)`, but underneath it is four steps that always happen in the same order, and seeing them is what turns a function call from magic into mechanism. Trace the call `area(2.0)` from the program above, one step at a time.
 
-### Function Bodies
+First, each argument expression is evaluated to a single value, using the reduction from the [Values, Types, and Expressions](/lectures/values-types-and-expressions) lecture. Here the argument is the literal `2.0`, which already is a single value, so this step is immediate; had you written `area(1.0 + 1.0)`, this is the step where `1.0 + 1.0` would reduce to `2.0` before anything else happened. Arguments are ordinary expressions, and they are fully evaluated before the function is entered.
 
-The function body immediately follows the function header. It is enclosed in curly braces `{ }` and contains all the code that determines how the function fulfills its purpose. While the header describes what a function does and how to use it, the body implements the specific steps to achieve the function's purpose. In essence:
+Second, each argument value is copied into its matching parameter, by position, left to right. The first argument value goes into the first parameter, the second into the second, and so on, no matter what either one is named. For `area(2.0)` there is one argument and one parameter, so the value `2.0` is copied into `radius`. From this instant, `radius` is a variable holding `2.0`, living inside the function.
 
-- The function header represents the interface or contract (e.g., inputs, outputs, and the function's name).
-- The function body represents the implementation (i.e., the operations that execute to fulfill the contract).
+Third, control jumps into the function body, which runs with the parameters holding those values. The line `return 3.14159 * radius * radius` runs with `radius` standing for `2.0`, so it reduces `3.14159 * 2.0 * 2.0` to the single value `12.56636`, exactly the by-hand reduction from the expressions lecture.
 
-Simply put, the function body is the code inside the curly braces that the function executes when called.
+Fourth, the `return` hands that one value back and control jumps back to the call site, where the whole call expression is replaced by the returned value. This is the key connection: a function call is itself an expression, and like every expression it reduces to a single value, its return value. So `area(2.0)` reduces to `12.56636` in the surrounding code, and the assignment `result = area(2.0)` becomes `result = 12.56636`. Nothing outside the function can tell that `12.56636` arrived from a call rather than being typed directly; a call is just one more expression that reduces to a value.
 
-#### Using Parameters and Local Variables
+:::note[A call is an expression, and reduction goes down and back up]
+The four steps are reduction crossing into a function and returning. The argument reduces to a value on the way in (steps one and two), the body reduces to a value while inside (step three), and that value replaces the call on the way out (step four). This is why a function call can sit anywhere a value can: it is an expression whose reduction happens to take a detour through the function's body before producing its one value.
+:::
 
-Within the function body, you can:
+### Argument Order and Positional Matching
 
-1. Refer to the function's parameters by name.
-2. Declare and use additional local variables, which are variables defined within the function body. These variables, like those in the main function, exist only within the function in which they are declared.
+Step two matches arguments to parameters strictly by position, and that positional rule is not a detail to skim past: it decides which value lands in which parameter, so swapping two arguments can change the result even though the call runs the same function. Take a function that subtracts one number from another, where the two parameters play genuinely different roles.
 
-#### Returning a Value
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="difference.py"
+def difference(minuend, subtrahend):
+    return minuend - subtrahend
 
-The primary role of the function body is to process its parameters and produce a return value. Once the function completes its intended operations, you can use the return statement to send the result back to the calling location. The syntax for returning a value is:
-
-```cpp title="Return Statement Syntax"
-return <expression>;
+print(difference(10, 3))
+print(difference(3, 10))
 ```
-
-Here, the `<expression>` is evaluated, and its resulting value is sent back to wherever the function was called.
-
-In the case study, the `sum` function calculates the sum of its two parameters, `first_value` and `second_value`, and returns the result:
-
-```cpp title="Sum Function Return Statement Example"
-return first_value + second_value;
-```
-
-This `return` statement evaluates the expression `first_value + second_value` and outputs the sum as the function's result.
-
-#### Function Termination with return
-
-A function terminates immediately after a return statement is executed. Any code written after a return statement is considered **dead code** because it can never execute. For example:
-
-```cpp title="Dead Code Example"
-double sum(double first_value, double second_value) 
-{
-    return first_value + second_value;
-
-    // The code below will NEVER execute because the above return statement
-    // ends the function.
-    std::cout << "Hello!" << std::endl;
-}
-```
-
-Here, the `std::cout` line is unreachable because the return statement ends the function execution.
-
-#### Multiple return Statements
-
-In some cases, it is valid for a function to include multiple return statements. Whether or not this results in dead code depends on the specific context. Regardless, the function terminates as soon as any one of its return statements is executed. This is a key point to remember when designing functions with *branching* logic.
-
-## Function Calls
-
-Now that you know how to define your own functions, let's explore how to use them. Using, or “**calling**”, a function involves invoking its behavior in your code after it has been defined.
-
-A function, like a variable, can only be used if it has been **declared** (defined) before it is called. In other words, the function definition must appear above any usage of that function in your source code file.
-
-This is similar to why we place `#include` directives at the top of our source code files—they give us access to predefined functions like `pow` and `sqrt` that we may want to use later in the program.
-
-Once a function is defined, it can be called from within any other function that appears after it. **To call a function simply means to use it.**
-
-The syntax for calling a function is as follows:
-
-```cpp title="Function Call Syntax"
-<name>(<argument 1>, <argument 2>, ..., <argument N>);
-```
-
-Here:
-
-- `<name>` is the name of the function you want to call.
-- The values inside the parentheses represent the **argument list**--the inputs you are passing to the function.
-
-Arguments are expressions whose values are substituted for the corresponding **parameters** (placeholders) in the function definition. Arguments are mapped to parameters in **left-to-right order**.
-
-Taking the above `sum` function as an example, you can call it like this:
-
-```cpp title="Sum Function Call Example"
-sum(2, 3);
-```
-
-The sum function has two parameters: `first_value` and `second_value` (as defined earlier). In this call:
-
-- The first argument (`2`) corresponds to the parameter `first_value`.
-- The second argument (`3`) corresponds to the parameter `second_value`.
-
-When the function is executed, `first_value` will take the value `2`, and `second_value` will take the value `3`.
-
-Similarly,
-
-```cpp cpp title="Sum Function Call with Different Argument Order"
-sum(3, 2);
-```
-In this case:
-
-- `first_value` takes the value `3`.
-- `second_value` takes the value `2`.
-
-As you can see, changing the order of arguments changes the values assigned to the parameters.
-
-### Rules for Arguments
-
-1. **Type Compatibility**: Arguments must be of a type that can be converted to the type of the corresponding parameter. This is similar to the rules for values appearing on the right-hand side of assignment operators.
-2. **Matching the Number of Arguments**: The number of arguments in a function call must match the number of parameters in the function definition.
-
-For example, consider the following incorrect function call:
-
-```cpp
-// functions.cpp
-#include <iostream>
-
-double sum(double first_value, double second_value) 
-{
-    return first_value + second_value;
+</TabItem>
+<TabItem label="Rust">
+```rust title="difference.rs"
+fn difference(minuend: i32, subtrahend: i32) -> i32 {
+    return minuend - subtrahend;
 }
 
-int main() 
-{
-    std::cout << sum(2) << std::endl;
+fn main() {
+    println!("{}", difference(10, 3));
+    println!("{}", difference(3, 10));
 }
 ```
+</TabItem>
+</Tabs>
 
-Here, only one argument (`2`) is supplied, but the `sum` function is defined to require *two* parameters. This mismatch results in a **compilation error**.
+Both lines call the same function, so both run `minuend - subtrahend`. The only difference is what step two copies where. In `difference(10, 3)`, position puts `10` into `minuend` and `3` into `subtrahend`, so the body computes `10 - 3`, which is `7`. In `difference(3, 10)`, the same positional rule puts `3` into `minuend` and `10` into `subtrahend`, so the body computes `3 - 10`, which is `-7`. The names `minuend` and `subtrahend` do not steer the arguments; position alone does, and swapping the two arguments swaps which parameter each one fills:
 
-```plaintext frame="terminal"
-functions.cpp:8:18: error: no matching function for call to 'sum'
-    8 |     std::cout << sum(2) << std::endl;
-      |                  ^~~
-functions.cpp:3:8: note: candidate function not viable: requires 2 arguments, but 1 was provided
-    3 | double sum(double first_value, double second_value) {
-      |        ^   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-1 error generated.
+```bash title="Run the Python program"
+python3 difference.py
 ```
 
-The error message points out that the `sum` function expects two arguments (as declared), but only one is provided in the call.
-
-### Accessing the Output of a Function Call
-
-We've learned how to call a function, but one important question remains: how do we access the output of a function call? For example, while it's perfectly valid to call the sum function like this:
-
-```cpp title="Sum Function Call Without Using Return Value"
-sum(2, 3);
+```text frame="terminal" title="Output"
+7
+-7
 ```
 
-This call produces a return value of `5.0` (a double), but how can we use that return value in our code?
+### Calling With the Wrong Number of Arguments
 
-The answer is straightforward: a function call is an expression! As you may recall, expressions have both types and values:
+Because step two needs exactly one argument for every parameter, a call that supplies the wrong number has no consistent way to fill the slots, and both languages treat that as an error. They differ only in when they catch it, and the difference is once again the interpreter-versus-compiler split: Python does not check the count until the call actually runs, while Rust checks it while compiling, before the program takes a single step.
 
-- The type of a function call is the return type of the function.
-- The value of a function call is the return value produced by the function.
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="noarg.py"
+def area(radius):
+    return 3.14159 * radius * radius
 
-Since a function call is an expression, it can be used anywhere that an expression of its return type is valid. For example, you can directly use a function call in an output statement, as shown here:
-
-```cpp title="Sum Function Call in Output Statement"
-std::cout << sum(3, 0.14) << std::endl; // Prints 3.14
+print(area())  # TypeError when this line runs: area() missing 1 required positional argument: 'radius'
 ```
+</TabItem>
+<TabItem label="Rust">
+```rust title="noarg.rs (will not compile)"
+fn area(radius: f64) -> f64 {
+    return 3.14159 * radius * radius;
+}
 
-A common use case is to store the return value of a function call in a variable for later use. Here's an example:
-
-```cpp title="Storing Function Call Return Value in Variable"
-int main() 
-{
-    // Call the sum function with first_value = 2 and second_value = 3
-    // Store the return value (5.0) in a new local variable called ‘result'
-    double result = sum(2, 3);
-
-    // Print the result (or use it in any other way)
-    std::cout << result << std::endl; // Prints 5
+fn main() {
+    println!("{}", area()); // error: this function takes 1 argument but 0 arguments were supplied (will not compile)
 }
 ```
+</TabItem>
+</Tabs>
 
-You can also use the return value of one function call as an argument to another function. This enables you to chain function calls and perform more complex operations.
+Run the Python file and it fails only when execution reaches the call, because there is no parameter for the missing argument to fill:
 
-```cpp title="Chained Function Calls Example"
-int main() 
-{
-    // Compute 3 + 0.1 + 0.04 as:
-    // (3 + 0.1) + 0.04
-    // = sum(sum(3, 0.1), 0.04)
-    std::cout << sum(sum(3, 0.1), 0.04) << std::endl; // Prints 3.14
-}
+```bash title="Run the Python program"
+python3 noarg.py
 ```
 
-In this example:
-
-1. The inner call `sum(3, 0.1)` computes `3.1`.
-2. The result of `3.1` is passed as the first argument to the outer call `sum(3.1, 0.04)`.
-3. The outer call computes `3.14`, which is then printed.
-
-## Control Flow of Function Calls
-
-Function calls alter the control flow of a program. By default, program execution begins at the first line of the `main()` function and proceeds in a top-down order. However, when a function call is encountered, the **calling function** (the function that initiated the call) temporarily “pauses.” At this point:
-
-1. The program “jumps” to the first line of code in the **called function** (the function being invoked).
-2. The called function executes its body.
-3. Once the called function terminates, the program “jumps back” to the calling function. The function call in the calling function is replaced by the return value of the called function, and the calling function then resumes execution.
-
-This behavior demonstrates that functions terminate in a **last in, first out (LIFO)** order:
-
-- The most recently called function must finish execution before the program can return to its caller.
-- This is why the `main()` function always serves as both the entry point and the exit point of a program—unless an unexpected event, like a fatal runtime error, causes early termination.
-
-## Arguments Are Not Parameters!
-
-It's common to pass local variables as arguments to function calls, but it's essential to understand how arguments differ from parameters. Let's clarify this with an example:
-
-```cpp title="Arguments vs Parameters Example"
-double sum(double first_value, double second_value) 
-{
-    return first_value + second_value;
-}
-
-int main() 
-{
-    // Setup argument variables
-    double x = 2;
-    double y = 3;
-
-    // Add x and y to get z
-    double z = sum(x, y); // LINE A
-
-    // Print z
-    std::cout << z << std::endl; // Prints 5
-}
+```text frame="terminal" title="Output"
+Traceback (most recent call last):
+  File "noarg.py", line 4, in <module>
+    print(area())
+          ~~~~^^
+TypeError: area() missing 1 required positional argument: 'radius'
 ```
 
-At `LINE A`, the variable `x` is not the same as the parameter `first_value`. Here's the distinction:
+Compile the Rust file and there is no program to run at all; the compiler names exactly how many arguments the function takes and how many were supplied, and refuses to build an executable:
 
-- **Parameters** (e.g., `first_value` and `second_value`) are placeholders declared in the function definition.
-- **Arguments** (e.g., `x` and `y`) are the actual values or expressions passed to the function when it is called.
-
-Although parameters and arguments may seem connected, they are entirely **separate variables** with separate memory locations. When a function is called, the **value** of an argument is **copied** into the memory location of the corresponding parameter. After this initial copying, the argument and parameter no longer affect each other.
-
-To understand how arguments and parameters are independent, consider the following example:
-
-```cpp title="Argument and Parameter Independence Example"
-int weird_sum(int a, int b) 
-{
-    int result = a + b; // Compute sum
-    a = 0;              // Modify parameter a
-    b = 0;              // Modify parameter b
-    return result;      // Return the previously computed sum
-}
-
-int main() 
-{
-    int x = 2;
-    int y = 3;
-
-    std::cout << weird_sum(x, y) << std::endl; // Prints 5
-    std::cout << x << std::endl;               // Prints 2 (NOT 0)
-}
+```bash title="Compile the Rust program"
+rustc noarg.rs
 ```
 
-In this example:
-
-1. Inside `weird_sum`, the parameter `a` is set to `0`, but this does not affect the value of the argument `x`.
-2. Similarly, the parameter `b` is set to `0`, but this does not change the value of `y`.
-
-This is because `a` and `x` are entirely separate variables, as are `b` and `y`. Each has its own memory location, and modifying one does not affect the other.
-
-To make things even more confusing, argument variables and parameters can have the same names and still remain completely separate. Consider the following example, which behaves identically to the previous one:
-
-```cpp title="Same Names for Arguments and Parameters Example"
-int weird_sum(int a, int b) 
-{
-    int result = a + b; // Compute sum
-    a = 0;              // Modify parameter a
-    b = 0;              // Modify parameter b
-    return result;      // Return the previously computed sum
-}
-
-int main() 
-{
-    int a = 2;
-    int b = 3;
-
-    std::cout << weird_sum(a, b) << std::endl; // Prints 5
-    std::cout << a << std::endl;               // Prints 2 (NOT 0)
-}
+```text frame="terminal" title="Output"
+error[E0061]: this function takes 1 argument but 0 arguments were supplied
+ --> noarg.rs:6:20
 ```
 
-In this program:
+<WhatDiffers>
+<Fragment slot="differs">
+Python's missing-argument mistake is a `TypeError` raised the moment the call runs, so the program can start and produce other output before failing on this line. Rust's compiler rejects the same mistake before the program runs, reporting the exact argument count in error `E0061` and building nothing.
+</Fragment>
+</WhatDiffers>
 
-1. The argument `a` in the `main()` function has the same name as the parameter `a` in `weird_sum`, and the same is true for `b`.
-2. Despite the shared names, these are completely separate variables with separate memory locations.
-3. Within the body of `main()`, a refers to the local variable initialized to `2`.
-4. Within the body of `weird_sum`, a refers to the parameter received during the function call.
+## Return Values
 
-This behavior highlights the concept of **variable scope**, which we will explore in greater detail later. For now, remember:
+Step four of a call hands one value back, and a program earns its power from what it can then do with that value. A **return value** is the value a function's `return` statement sends back to wherever the function was called. Because the call expression is replaced by its return value, that value can be used anywhere an expression of its type is allowed: stored in a variable, printed directly, or combined with other values inside a larger expression, exactly like a literal or a variable of the same type.
 
-- Arguments and parameters are separate variables.
-- Even if they share the same name, they do not interfere with each other.
+Combining a call with other values is where the "a call is an expression" rule earns its keep. Consider adding the areas of two circles in a single line.
 
-<CppMemoryStepper
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="sum.py"
+def area(radius):
+    return 3.14159 * radius * radius
+
+print(area(1.0) + area(2.0))
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="sum.rs"
+fn area(radius: f64) -> f64 {
+    return 3.14159 * radius * radius;
+}
+
+fn main() {
+    println!("{}", area(1.0) + area(2.0));
+}
+```
+</TabItem>
+</Tabs>
+
+The `+` cannot add two function calls; it adds two values. So each call must reduce to its return value first, and only then does the `+` combine what is left, the same reduction-by-replacement you traced for arithmetic, now with calls as the sub-expressions. Walk `area(1.0) + area(2.0)` down: the call `area(1.0)` reduces to `3.14159`, the call `area(2.0)` reduces to `12.56636`, and the line becomes an ordinary addition of two floats:
+
+```text title="Reducing area(1.0) + area(2.0)"
+area(1.0) + area(2.0)
+3.14159 + area(2.0)      (area(1.0) returned 3.14159)
+3.14159 + 12.56636       (area(2.0) returned 12.56636)
+15.70795                 (3.14159 + 12.56636)
+```
+
+By the time `+` runs, both calls are gone, replaced by the numbers they returned, so the line adds `3.14159` and `12.56636` and prints their sum:
+
+```bash title="Run the Python program"
+python3 sum.py
+```
+
+```text frame="terminal" title="Output"
+15.70795
+```
+
+Nothing about the outer expression needs to know that either value came from a function call rather than a variable or a literal. A return value behaves like any other value the moment it comes back, which is exactly what "a call is an expression that reduces to its return value" means in practice.
+
+## Why Changing a Parameter Doesn't Change the Argument
+
+Step two of a call was quiet but decisive: each argument value is *copied* into its matching parameter. Copied, not shared. The parameter is a brand new variable, living inside the function, that merely starts out holding the same value the argument had. That one word is the whole reason a function cannot reach back and change the value the caller passed in, and it is worth watching happen.
+
+Because the parameter is a variable of its own, it follows every rule from the previous lecture. In Rust a parameter is immutable by default, just like a variable created with plain `let`, so a function that wants to change its parameter's value inside the body must mark it `mut` in the function's own signature, `fn double_it(mut n: i32)`, not in the caller. Python parameters can always be reassigned, matching Python variables generally. Either way, whatever the body does to the parameter happens to the copy.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="double_it.py"
+def double_it(n):
+    n = n * 2
+    return n
+
+x = 5
+result = double_it(x)
+print(result)
+print(x)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="double_it.rs"
+fn double_it(mut n: i32) -> i32 {
+    n = n * 2;
+    return n;
+}
+
+fn main() {
+    let x = 5;
+    let result = double_it(x);
+    println!("{}", result);
+    println!("{}", x);
+}
+```
+</TabItem>
+</Tabs>
+
+Step through the trace below to watch the whole program run, and notice how the highlighted line jumps: execution starts in the module body, leaps up into `double_it` when the call is made, and drops back down when the function returns. That jump is the call in action. The step that matters most is the copy: when `x` is passed in, its value is copied into the parameter `n`, so `x` and `n` are separate boxes, and rebinding `n` inside the function never touches `x`.
+
+<MemoryStepper
   client:visible
-  title="Function Call: Arguments and Parameters"
-  showWrapper={false}
-  code={`int addOne(int a)
-{
-  int b = a + 1;
-  return b;
-}
+  title="A function call: control flow and the argument copy"
+  code={`def double_it(n):
+    n = n * 2
+    return n
 
-int main()
-{
-  int a = 5;
-  int b;
-  b = addOne(a);
-  return 0;
-}`}
+x = 5
+result = double_it(x)
+print(result)
+print(x)`}
+  steps={[
+    { line: 5, caption: "Execution starts in the module body. x is bound to 5. The function on lines 1 to 3 is defined but has not run yet.", names: [{ name: "x", value: "5" }], objects: [] },
+    { line: 6, caption: "double_it(x) is called: the argument's value, 5, is copied into the parameter n, and control jumps up into the function.", names: [{ name: "x", value: "5" }, { name: "n (in double_it)", value: "5" }], objects: [] },
+    { line: 2, caption: "Now inside double_it, n = n * 2 rebinds n to 10. It touches only n; x in the module is never named by this line and does not change.", names: [{ name: "x", value: "5" }, { name: "n (in double_it)", value: "10" }], objects: [] },
+    { line: 3, caption: "return n hands 10 back to the caller, and control jumps back down to the call on line 6.", names: [{ name: "x", value: "5" }, { name: "n (in double_it)", value: "10" }], objects: [] },
+    { line: 6, caption: "Back in the module, result is bound to the returned 10. double_it has finished, so its n is gone.", names: [{ name: "x", value: "5" }, { name: "result", value: "10" }], objects: [] },
+    { line: 8, caption: "x still holds the 5 it held before the call was ever made.", names: [{ name: "x", value: "5" }, { name: "result", value: "10" }], objects: [] },
+  ]}
 />
 
-## Void Functions
+Both languages print `10`, then `5`:
 
-In C++, it's possible to create functions that do not return a value. These are known as **void functions**, and they are commonly used when the purpose of the function is to produce **side effects** rather than return a value.
-
-A **side effect** is any observable effect of a function other than its return value. Examples of side effects include:
-
-- Printing output to the terminal (e.g., using `std::cout`).
-- Writing data to a file.
-- Sending a request to a server over the internet.
-- Modifying reference parameters (which will be discussed later).
-
-Void functions are ideal for these scenarios because they perform actions but do not need to provide a return value.
-
-Every function's header must include a return type. For functions that do not return a value, the return type is specified as `void`. Note that `void` is not a regular data type--it is a special keyword used to indicate the *absence* of a return type.
-
-The following example demonstrates a `void` function that takes a number as input, rounds it to the nearest penny, formats it as a U.S. dollar amount, and prints it to the terminal. This function has a side effect (printing to the terminal) but does not return any value.
-
-```cpp title="Void Function Example"
-#include <cmath> // For the round() function
-#include <iostream> // For std::cout
-
-void print_money(double dollars) 
-{
-    // Round to the nearest penny
-    // round() rounds its input to the nearest whole number (still a double),
-    // which we then coerce to an integer.
-    int pennies = round(dollars * 100);
-
-    // Convert back to dollars
-    double rounded_dollars = pennies / 100.0;
-
-    // Format and print the rounded dollar amount
-    std::cout << "$" << rounded_dollars << std::endl;
-}
+```bash title="Run the Python program"
+python3 double_it.py
 ```
 
-## Good Function Design
+```text frame="terminal" title="Output"
+10
+5
+```
 
-Implementing functions that work correctly is one thing, but designing good **function contracts** is a separate and essential skill. Below are two fundamental principles of function design that you should adopt. These principles are also detailed in the course's [style guidelines](/practicalities/style/).
+The reason `x` survives untouched is the copy in step two, and nothing else. Had `n` been the same box as `x` rather than a copy of its value, `n = n * 2` would have overwritten `x`, and the second line would print `10`. It prints `5` precisely because the parameter is a separate box that the argument's value was copied into.
 
-### The Single Responsibility Principle (SRP)
+:::note[Copying a scalar is cheap]
+Copying might sound wasteful, as if every call duplicated work. For the values used here it is not: an integer, a float, or a boolean is a small, fixed-size pattern of bits, so copying one is just copying that handful of bits into another box, which a processor does in a single quick step. The copy costs almost nothing precisely because these values are small, which is part of why passing them by copy is a sensible default.
+:::
 
-The Single Responsibility Principle (SRP) is a modularity principle that states that a component of code (such as a function) should have exactly one responsibility. While SRP originates from object-oriented programming, it applies to all types of programming paradigms, including procedural and functional programming.
+This copying rule is scoped to the simple values you have used so far: integers, floats, and booleans. Each of those is small enough that copying it is just copying a number. Later in the course you will meet larger values built from many parts, and passing one of those to a function raises a more subtle question about what gets shared and what gets copied. The memory model lecture takes up that shared-versus-copied distinction, and the sharing and mutation lecture that follows it applies the distinction to function calls. For now, every argument you pass is one of these simple values, and every one of them is copied in full. And because the graded work in this course calls your functions directly with arguments it chooses, this rule is not academic: a function that quietly expected to change the caller's value would fail against a grader that passes its own copies in and reads only what you return.
 
-Although there is no strict definition of what constitutes a “responsibility,” the following guidelines can help you adhere to SRP:
+## Takeaways
 
-#### Avoid Mixing Computation and Side Effects
+A function packages a computation under a name, the way a variable packages a value under a name, so the computation can be reused by calling the name instead of retyping the steps. Defining a function fixes its signature first of all: a name, a list of parameters, and a return type, all settled before the body ever runs. Rust demands a type on every parameter and on the return because its compiler checks the whole file before running it and needs those types to do so, while Python leaves the types off and lets each parameter take on the type of whatever value arrives at the call. Calling a function is four ordered steps: evaluate each argument to a value, copy each value into its matching parameter by position, run the body with the parameters holding those values, and replace the whole call with the single value that `return` hands back. That last step is why a function call is an expression, one that reduces to its return value and can therefore be stored, printed, or folded into a larger expression like any other value; it is also why `area(1.0) + area(2.0)` adds two plain numbers, each call having reduced to its result before the `+` runs. Both languages insist the number of arguments match the number of parameters, though Python only discovers a mismatch when the call runs while Rust catches it while compiling. Underneath all of it sits the copy in step two: because each argument's value is copied into its own parameter, a function works on a private copy and cannot reach back to change the value the caller passed in, at least for the simple scalar values covered so far. The next lecture builds on this by asking where a parameter, and every other variable inside a function, actually lives while the function is running, and what happens to it the moment the function returns.
 
-Functions with side effects--like writing to the terminal (`std::cout`), writing to a file, or modifying reference parameters--should typically not perform computations that produce return values. Functions should communicate through one channel at a time, either via side effects or via return values.
+## Resources
 
-Example: A function that prompts the user for input via `std::cout`, receives input `via std::cin`, and returns the input as a value is still considered to have a single responsibility because the responsibility is interacting with the user.
-
-#### Avoid Daisy-Chaining Functions
-
-Daisy-chaining is when one function calls another, which calls another, and so on, creating a deeply nested function call graph. While calling functions within functions is not inherently bad, problems arise when this becomes the dominant pattern in your code.
-
-Solution: Write modular, stand-alone low-level functions that each perform exactly one task and avoid relying on other functions unnecessarily. Then, create high-level functions that combine these low-level functions to accomplish more abstract tasks. This approach creates a “**wide**” function call graph rather than a *deep* one, resulting in **better separation of responsibilities**.
-
-If you can reasonably break a function into two smaller functions with independent purposes, you should do so. This helps avoid violating SRP.
-
-### The “Don't Repeat Yourself” (DRY) Principle
-
-The Don't Repeat Yourself (DRY) principle states that if you find yourself implementing the same complex operations multiple times, you should extract those operations into a single reusable function. You can then call this function wherever the operations are needed.
-
-Benefits of the DRY Principle:
-
-1. **Maintainability**: By centralizing functionality in one place, you make your code easier to update. If the logic needs to change, you only have to modify the single function rather than hunting down multiple instances of duplicated code. This reduces the risk of introducing errors from missing updates.
-2. **Reduced Clutter**: Extracting repetitive operations into a function keeps your code cleaner and easier to understand. Instead of interpreting the same series of operations multiple times, a reader can focus on understanding the extracted function.
-
-### Function Block Comment
-
-The style guidelines include specific expectations for documenting your code. Every function you write, except for `main()`, must include a function block comment.
-
-The level of details of the function block comment depends on how complex the function is. For simple functions, a brief description of the function's purpose and its parameters is sufficient. For more complex functions, you should provide a more detailed explanation of the function's behavior, including any assumptions or invariants.
-
-If the function produces side effects (e.g., writing to a file, modifying a global variable), document them. If the function assumes certain conditions (e.g., non-negative inputs), specify them.
+- [Python tutorial: Defining Functions](https://docs.python.org/3/tutorial/controlflow.html#defining-functions)
+- [Python language reference: Function definitions](https://docs.python.org/3/reference/compound_stmts.html#function-definitions)
+- [The Rust Book: Functions](https://doc.rust-lang.org/book/ch03-03-how-functions-work.html)
+- [Rust reference: Functions](https://doc.rust-lang.org/reference/items/functions.html)

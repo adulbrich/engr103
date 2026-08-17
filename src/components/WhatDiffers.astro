@@ -1,0 +1,11 @@
+---
+// A call-out that pairs with a dual-language (Python/Rust) tabbed example and
+// names what differs between the two languages. The shared concept lives in the
+// lecture prose, not here. Static, no client JS. Tailwind utilities with
+// Starlight theme variables so it adapts to light and dark.
+---
+
+<aside class="my-6 rounded-lg border border-[var(--sl-color-gray-5)] bg-[var(--sl-color-gray-6)] px-5 py-4" aria-label="What differs between Python and Rust">
+  <p class="mb-1 font-semibold text-[var(--sl-color-white)]"><span aria-hidden="true">&#8644;</span> What differs</p>
+  <slot name="differs" />
+</aside>

@@ -1,0 +1,366 @@
+---
+title: "Errors, Input, and Validation"
+description: "Learn what happens when text a person typed is not a number, or is a number that makes no sense: parsing errors, Python's try/except versus Rust's Result, input validation, and how Rust's read_i32 helper works underneath."
+sidebar:
+  order: 9
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+import WhatDiffers from '/src/components/WhatDiffers.astro';
+
+{/* ai-summary
+type: lecture
+slug: errors-input-and-validation
+order: 9
+covers: parsing with int()/float() and parse::<T>(); exceptions vs Result at the parse boundary; try/except; match on Ok/Err; expect(); input validation; how the read_i32/read_f64 helper's body reads and parses a line
+prereq_lectures: decision-structures
+followup_lectures: testing
+glossary_terms: parsing, exception, Result, input validation
+*/}
+
+<LanguageVersions />
+
+You already know how to read a number someone types. The [variables and state](/lectures/variables-and-state) lecture showed you the call: `int(input("Countdown (s): "))` in Python, and `read_i32()` in Rust, each handing back a whole number bound to a name and ready for the rest of your program to use. Every example there assumed the person typed a real, sensible whole number, and in every one of them, they did.
+
+Real people are not that cooperative. Someone asked for a whole number can type `twenty-five` instead of `25`, leave the line blank, or press Enter without typing anything at all, and the text a program reads back is not automatically a number just because a number was expected. Even a number that reads back cleanly can still be wrong for what your program needs: an age of `-5` or `9000` is a perfectly good whole number and a perfectly bad age. Trusting typed input the way lecture 4's examples did works only until a real person uses the program, and it stops working the instant they type something unexpected. What happens when the text someone typed is not a number at all, and what to do about a number that parses fine but makes no sense, is this lecture's subject.
+
+:::note[Four things this lecture asks you to take on trust, and where each is repaid]
+This is the densest Rust lecture in the course, and most of that density is spelling rather than ideas. Four pieces arrive here that are explained somewhere else, and it helps to know the list is exactly four and not open-ended.
+
+1. **The three lines that read a typed line** (`use std::io`, `String::new()`, and `io::stdin().read_line(&mut ...)`). Repaid at the end of *this* lecture, in "Inside the Read Helper," once the pieces they lean on have been taught.
+2. **The `&mut` inside that read.** Repaid in the memory model lecture, where references are the subject.
+3. **The turbofish, `::<i32>`.** Never expanded further, and deliberately so: it is a fixed spelling you use as written, exactly as the [language ladder](/reference/language-ladder/) records. You are not writing generic code by typing it.
+4. **Asking the person again after a bad value.** Repaid in the loop patterns lecture, because repeating until something is right is what a loop is for.
+
+Everything else in this lecture is explained where it appears. If a Rust example looks like a wall, read the Python tab first for the idea, then come back: the two do the same job, and only the spelling of the reading step is longer on the Rust side.
+:::
+
+## Parsing
+
+Reading a line of typed text, the way lecture 4 taught, only gets you a string of characters. Whether the person typed `21` or `twenty-one`, what you have in hand is text, not a number, and text cannot be compared with `<` the way a number can or added the way a number can. **Parsing** is the step that turns text into the value it represents, here a whole number.
+
+Python parses text with a plain function call. `int(age_text)` reads the string and returns the whole number it spells, and if the string is not a valid whole number it raises a `ValueError`, one of the run-time errors the [How Programs Run](/lectures/how-programs-run) lecture introduced: an error that surfaces only while a specific line is running, not before. `float(age_text)` does the same job for decimal numbers, raising the same kind of error if the text does not look like a valid decimal number.
+
+Rust parses text with one generic **method** instead of a family of named functions. A method is a function attached to a value, called by writing the value, a dot, and the function's name; everything you know about functions applies, only the attachment and the dot are new, and outside of these dotted calls this course keeps saying function. The method here is `parse`, called as `age_text.trim().parse::<i32>()`. The `::<i32>` written after `parse` is called a turbofish, and it tells Rust which type to parse the text into. Without it, or without a type written on the variable that will hold the result, Rust has no way to know whether you wanted a whole number, a decimal number, or something else, because `parse` can produce any of them; the turbofish removes that ambiguity by naming the target type right at the call. Calling `.trim()` first matters here more than it did while only printing. Python's `int` quietly ignores leading and trailing whitespace, including a newline, but Rust's `parse` does not, so parsing `"21\n"` is not the same as parsing `"21"`: the newline left over from reading a typed line is a character, and it is not part of any valid number.
+
+Every Rust example from here on reads that typed line the same way `read_i32` does internally: it opens the standard input stream, fills an empty string, and checks that the read succeeded, using the line `io::stdin().read_line(&mut age_text).expect("failed to read line")`. What each of those pieces actually does is opened up at the end of this lecture, once the pieces it depends on have been properly introduced; until then, treat that line as the same reading step `read_i32` already performs for you, and follow along with what happens to the text once it is read.
+
+```rust title="Forgetting to trim before parsing (fails on valid input)"
+fn main() {
+    let age_text = String::from("21\n"); // simulates what read_line leaves in the string
+    let parsed = age_text.parse::<i32>(); // fails: the trailing newline is not part of a valid number
+    println!("{:?}", parsed);
+}
+```
+
+```text frame="terminal" title="Output"
+Err(ParseIntError { kind: InvalidDigit })
+```
+
+Even though `21` on its own is a perfectly good whole number, the parse fails, and the reported reason, `InvalidDigit`, points at the newline: to `parse`, the string `"21\n"` contains a character that cannot belong to a number. Calling `.trim()` first, as `age_text.trim().parse::<i32>()`, removes the newline before parsing and fixes it. This is exactly why the `read_line` step and the `trim` step belong together every time you parse typed input in Rust.
+
+Notice what that output shows about `parse` itself. Unlike `int`, `parse` never raises anything on its own and never stops your program by itself. It always hands back a value called a **Result**, which is one of two possibilities: `Ok`, holding the number if parsing worked, or `Err`, holding a description of what went wrong if it did not. The `{:?}` in the `println!` above is a formatting placeholder, like `{}`, except it prints a value's underlying structure rather than a clean display form, which is what lets the example print a whole `Result` and see the `Ok` or `Err` inside it.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="Parsing typed text into a number"
+age_text = input("Enter your age: ")
+age = int(age_text)
+print(age)
+print(type(age))
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="Parsing typed text into a number"
+use std::io;
+
+fn main() {
+    println!("Enter your age: ");
+    let mut age_text = String::new();
+    io::stdin().read_line(&mut age_text).expect("failed to read line"); // the input-reading line read_i32 hides; opened up at the end of this lecture
+
+    let parsed = age_text.trim().parse::<i32>();
+    println!("{:?}", parsed);
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+echo "21" | python3 age.py
+```
+
+```text frame="terminal" title="Output"
+Enter your age: 21
+<class 'int'>
+```
+
+Typing `21` prints `21` and then `<class 'int'>`, showing the value is now a genuine whole number rather than text; `type(age)` reports the kind of value `age` holds, and it is an `int`. Typing `abc` instead makes `int` raise a `ValueError` immediately, stopping the program with the message `ValueError: invalid literal for int() with base 10: 'abc'`.
+
+Rust reaches the same two outcomes as two ordinary values rather than as a raised error. Piping `21` prints `Ok(21)`, the parse succeeding with the number `21` inside the `Ok`, and piping `abc` prints `Err(ParseIntError { kind: InvalidDigit })`, the parse failing but still returning calmly.
+
+```bash title="Compile and run the Rust program"
+rustc age.rs
+echo "21" | ./age
+echo "abc" | ./age
+```
+
+```text frame="terminal" title="Output"
+Enter your age: 
+Ok(21)
+Enter your age: 
+Err(ParseIntError { kind: InvalidDigit })
+```
+
+Nothing about `parse` itself stops the program either way; what happens with a bad parse depends entirely on what your code does next, which is exactly what the next section is about.
+
+<WhatDiffers>
+<Fragment slot="differs">
+Python has one named function per target type, `int` or `float`, and it either returns the number directly or raises a `ValueError`. Rust has one generic `parse`, told what type to produce with a turbofish like `::<i32>` or a type written on the variable, and it always returns a `Result` wrapping either outcome, `Ok` or `Err`, without ever raising anything on its own.
+</Fragment>
+</WhatDiffers>
+
+## Exceptions Versus Result
+
+A bad parse has to go somewhere, and Python and Rust send it to your code in two genuinely different ways. This is the deepest difference in the lecture, and it is worth slowing down for, because the two mechanisms are not just two spellings of the same thing: they are two different models of how a failure travels through a program.
+
+Python signals a bad parse by raising an **exception**: an object that represents the error and, the instant it is raised, interrupts the normal top-to-bottom flow of the program. Raising does not return a value to the line that asked; it abandons that line partway through and begins searching outward for code willing to handle this kind of error. It looks in the block the error happened in, then the block around that, and so on, unwinding through each enclosing block in turn. If it finds a handler, control jumps there. If it reaches the top of the program without finding one, the program stops and prints a traceback, a report naming the error and the line it came from. You saw this in the previous section: `int` does not return an error value you can inspect later, it interrupts execution right where it is called.
+
+```python title="An unhandled ValueError stops the program"
+age_text = input("Enter your age: ")
+age = int(age_text)  # raises ValueError here if age_text is not a whole number
+print(age)
+```
+
+Piping `abc` into this program never reaches the `print(age)` line at all. The `int` call raises a `ValueError`, no handler exists anywhere around it, so the exception travels all the way to the top and the program stops with `ValueError: invalid literal for int() with base 10: 'abc'` printed to the terminal. Catching an exception means wrapping the risky code in a `try` block and naming the exception you are prepared to handle in an `except` clause. If that exception is raised anywhere inside the `try` block, the outward search finds the matching `except` immediately, control jumps straight into it, and the program keeps running instead of stopping.
+
+Rust's `parse` never interrupts anything, so there is nothing to search for and nothing to catch. It always finishes and returns a `Result`, and your code decides what to do by inspecting which of the two possibilities, `Ok` or `Err`, it received. Nothing has been abandoned partway through: the value is already sitting in your hand, and you are choosing a branch based on what it is. The tool for that inspection is `match`, introduced in the previous lecture for comparing a value against a fixed set of possibilities. Here the possibilities are the two shapes a `Result` can take: `Ok(age)`, which matches a success and binds the parsed number to `age` for that branch, and `Err(_)`, which matches any failure, using the underscore to say the error's details are not needed here.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="Handling a bad parse"
+age_text = input("Enter your age: ")
+
+try:
+    age = int(age_text)
+    print("You are", age, "years old.")
+except ValueError:
+    print("That is not a whole number.")
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="Handling a bad parse"
+use std::io;
+
+fn main() {
+    println!("Enter your age: ");
+    let mut age_text = String::new();
+    io::stdin().read_line(&mut age_text).expect("failed to read line");
+
+    match age_text.trim().parse::<i32>() {
+        Ok(age) => println!("You are {} years old.", age),
+        Err(_) => println!("That is not a whole number."),
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+echo "21" | python3 age.py
+echo "abc" | python3 age.py
+```
+
+```text frame="terminal" title="Output"
+Enter your age: You are 21 years old.
+Enter your age: That is not a whole number.
+```
+
+```bash title="Compile and run the Rust program"
+rustc age.rs
+echo "21" | ./age
+echo "abc" | ./age
+```
+
+```text frame="terminal" title="Output"
+Enter your age: 
+You are 21 years old.
+Enter your age: 
+That is not a whole number.
+```
+
+Both programs print `You are 21 years old.` for `21` and `That is not a whole number.` for `abc`, but they reach that second message by different routes. Python starts running the `try` block, calls `int("abc")`, which raises a `ValueError` partway through, abandons the rest of the block immediately, finds the matching `except ValueError`, and jumps there. Rust never starts anything it has to abandon: `parse` runs to completion and produces an `Err`, and the `match` simply selects the `Err` branch because that is the value it was handed. One model catches a failure after it has interrupted the flow; the other reads a value that describes the outcome and picks a branch. Both end up printing the same line, which is exactly why seeing them side by side separates the idea, handle a bad input, from the two very different machineries underneath it.
+
+:::note[Result is not only for parsing]
+A `Result` is Rust's general answer to any operation that can fail in a way the program might reasonably recover from, not a special case bolted onto `parse`. Reading a line with `read_line` returns a `Result` for the same reason: reading input can fail. Opening a file, converting between types, and many other standard operations all hand back a `Result`, always the same `Ok` or `Err` shape, always inspected the same way. Learning to read one `Result` teaches you to read all of them, which is why Rust leans on this one pattern so heavily instead of a separate error mechanism per operation.
+:::
+
+Rust offers one more option worth knowing, for the times when a bad value truly should stop the program rather than be handled: `.expect("message")`, already used above on the `Result` from `read_line`. Calling `.expect("age must be a whole number")` on the `Result` from `parse` gives back `Ok`'s inner number when parsing succeeds, but the moment the `Result` is an `Err` it crashes the program on purpose, printing your message. This is close in spirit to letting a Python exception go uncaught, with one difference: the message is one you chose.
+
+```rust title="Choosing to crash with a clear message"
+use std::io;
+
+fn main() {
+    println!("Enter your age: ");
+    let mut age_text = String::new();
+    io::stdin().read_line(&mut age_text).expect("failed to read line");
+
+    let age: i32 = age_text.trim().parse().expect("age must be a whole number");
+    println!("You are {} years old.", age);
+}
+```
+
+```bash title="Compile and run the Rust program"
+rustc age.rs
+echo "abc" | ./age
+```
+
+```text frame="terminal" title="Output"
+Enter your age: 
+
+thread 'main' panicked at age.rs:8:44:
+age must be a whole number: ParseIntError { kind: InvalidDigit }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+The crash Rust prints is called a panic, and its report names the exact place it happened, `age.rs:8:44`, along with your message and the underlying error. Notice too that `let age: i32` writes the type on the variable, so this version does not need a turbofish on `parse`: the `i32` on `age` already tells `parse` what to produce.
+
+:::caution[Reach for expect only when there is no reasonable recovery]
+`.expect` is convenient, but every `.expect` is a place your program will crash outright on a bad value instead of responding to it. That is the right choice only when the value truly means the program cannot sensibly continue, such as a required file that is missing at startup. For anything a person might simply mistype, like an age, crashing is a poor experience: prefer `match` on `Ok`/`Err`, or Python's `try`/`except`, so a bad value is something the program recognizes and answers rather than something that kills it. In real programs, a scattering of `.expect` calls is a warning sign that failures that should have been handled are instead being ignored until they crash.
+:::
+
+<WhatDiffers>
+<Fragment slot="differs">
+Python catches a bad parse after the fact: `int` raises a `ValueError` that interrupts execution and unwinds outward, and `except ValueError` catches it. Rust never raises anything: `parse` always finishes and returns a `Result`, and `match` on `Ok`/`Err` picks a branch from the value already in hand. `.expect` is the deliberate exception on the Rust side, turning an `Err` into an intentional crash with a message you chose.
+</Fragment>
+</WhatDiffers>
+
+## Input Validation
+
+Getting past parsing only proves a value is a number of the right kind; it says nothing about whether that number makes sense for what your program actually needs. A parsed age of `-5` or `9000` is a perfectly valid whole number, and neither `int` nor `parse` has any way to know that an age should never be negative or absurdly large, because that requirement comes from your program, not from the idea of a whole number. **Input validation** is checking a value you already have against the rules your program actually requires, using the comparisons and conditionals from earlier lectures, and rejecting it clearly the moment it fails one.
+
+Validation belongs after a successful parse, since there is no sensible number to check yet if parsing itself failed. The example below checks that a parsed age falls between `0` and `130`, rejecting anything outside that range with its own clear message rather than letting it flow into whatever calculation might use it next. Reading the code, there are now three distinct outcomes: the parse fails, the parse succeeds but the range check fails, or both succeed.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="Validating a parsed age"
+age_text = input("Enter your age: ")
+
+try:
+    age = int(age_text)
+    if age < 0 or age > 130:
+        print("That age is out of range.")
+    else:
+        print("You are", age, "years old.")
+except ValueError:
+    print("That is not a whole number.")
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="Validating a parsed age"
+use std::io;
+
+fn main() {
+    println!("Enter your age: ");
+    let mut age_text = String::new();
+    io::stdin().read_line(&mut age_text).expect("failed to read line");
+
+    match age_text.trim().parse::<i32>() {
+        Ok(age) => {
+            if age < 0 || age > 130 {
+                println!("That age is out of range.");
+            } else {
+                println!("You are {} years old.", age);
+            }
+        }
+        Err(_) => println!("That is not a whole number."),
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+echo "21" | python3 age.py
+echo "200" | python3 age.py
+echo "abc" | python3 age.py
+```
+
+```text frame="terminal" title="Output"
+Enter your age: You are 21 years old.
+Enter your age: That age is out of range.
+Enter your age: That is not a whole number.
+```
+
+```bash title="Compile and run the Rust program"
+rustc age.rs
+echo "21" | ./age
+echo "200" | ./age
+echo "abc" | ./age
+```
+
+```text frame="terminal" title="Output"
+Enter your age: 
+You are 21 years old.
+Enter your age: 
+That age is out of range.
+Enter your age: 
+That is not a whole number.
+```
+
+Trace the three inputs. `21` parses to a whole number and then passes the range check, so the program reports the age. `200` parses to a perfectly valid whole number, so the parse step is happy, but the range check `age < 0 or age > 130` is true, so it is rejected as out of range; this is the case parsing alone could never catch, because `200` is a genuine number and only your program knows it cannot be an age. `abc` never parses at all, so the program fails at the parsing step and never reaches the range check. Three different inputs, three clearly distinguishable outcomes, and each invalid one is reported immediately rather than silently accepted and passed along. That is the point of validating: failing loudly and early, right where the bad value entered the program, rather than letting it quietly corrupt a calculation several steps later where the real cause is much harder to trace back.
+
+Notice that both versions validate one typed value and report the result exactly once. A tempting next step is to make the program ask again automatically whenever a value fails, instead of only reporting the problem. But repeating an action until some condition is finally met is exactly what a loop is for, and loops have not been introduced yet. For now, validating a single input and reporting clearly whether it passed is the whole job; asking again belongs to a later lecture.
+
+<WhatDiffers>
+<Fragment slot="differs">
+Both versions add the same range check after a successful parse. Python nests the check inside the `try` block's success path; Rust nests it inside the `Ok` arm of the `match`, since that is the only place a valid `age` exists to check.
+</Fragment>
+</WhatDiffers>
+
+## Inside the Read Helper
+
+Lecture 4 handed you `read_i32()` and `read_f64()` already written, and had you call them without looking inside. That was never a secret kept from you forever, only postponed: writing a function with a typed return, `fn read_i32() -> i32`, is week-3 material, and you have had functions since week 3, so the definition below needs no apology here. What the body actually leans on, a `Result` and `.expect()`, is the subject of this lecture, which is exactly why the body waited until now.
+
+Here is what the starter file's `read_i32` actually contains:
+
+```rust title="What read_i32 does, opened up"
+use std::io;
+
+fn read_i32() -> i32 {
+    let mut text = String::new();
+    io::stdin().read_line(&mut text).expect("failed to read line");
+    text.trim().parse().expect("not a whole number")
+}
+```
+
+This function does not compile by itself if you paste it into an empty file, because nothing here calls it and a Rust program needs a `main`: it lives inside the starter file alongside a `main` that does call it, the same starter file lecture 4 pointed you to. This and the calling example in lecture 4 are the only two Rust examples in the course that do not run as pasted.
+
+The first line, `use std::io;`, brings in `std::io`, the standard library's **module** for input and output. A module is a named bundle of related code a language's standard library ships ready to use, and the `use` line makes its contents callable by short names, like `stdin`, instead of a longer path.
+
+Inside the function, `String::new()` makes an empty, mutable piece of text named `text`, ready for the read to fill; it has to be declared `mut` because the very next line changes it. `io::stdin()` asks the operating system for a handle to the console's standard input stream, and calling `.read_line(&mut text)` on that handle reads one line of typed text and appends it onto `text`. The `&mut` in front of `text` hands `read_line` permission to change your string rather than only look at it; what `&mut` fully means is taught properly in the memory model lecture later in the course, so for now it is enough to know it grants that permission. `read_line` leaves the newline the Enter key added still attached to `text`, which is exactly why `.trim()` comes next, removing it before anything tries to read the text as a number.
+
+The last line does two jobs in one expression: `.trim()` removes that newline, and `.parse()` turns the trimmed text into a number, the same job the Parsing section above described. Notice there is no turbofish anywhere in this function. `parse` still needs to know what type to produce, but here it reads that type from the function's own signature: `read_i32`'s declared return type is `i32`, and because this line is the last expression in the function, its value is what the function returns, so `parse` infers `i32` as its target with nothing extra written at the call. `.expect("not a whole number")` is the same tool this lecture just taught: it takes the `Result` that `parse` hands back and, the moment that `Result` is an `Err`, crashes the program with the message given, exactly like the age example earlier in this lecture. `read_f64` is written the same way, with `f64` in place of `i32` everywhere the type appears; nothing else about the body changes.
+
+Every time you called `read_i32()` in lecture 4, this is what ran: open standard input, read one line into an empty string, trim its newline, parse it into a number, and crash with a clear message if any of that fails. Calling the function was always the whole story from the outside; now you can see the inside too.
+
+## Takeaways
+
+Trusting a typed value stops the moment a real person is the one typing it, which is why parsing and validation exist. Python's `int` and `float` are named functions that either return the number or raise an exception; Rust's `parse::<T>` is one generic method that always returns a `Result`, `Ok` on success or `Err` on failure, without ever raising anything on its own.
+
+That difference in how a bad parse travels is the deepest one in this lecture. An exception interrupts the program the instant it is raised and unwinds outward looking for a `try`/`except` to catch it, stopping with a traceback if none does. A `Result` interrupts nothing: `parse` finishes, hands back an `Ok` or an `Err`, and your `match` reads the value already in hand and picks a branch, with `.expect` available to turn an `Err` into a deliberate crash carrying a message you chose.
+
+Neither parsing nor catching a bad parse checks whether a successfully parsed number actually makes sense. That is what input validation adds: reusing the conditionals from earlier lectures to reject an out-of-range value immediately, so a bad value is caught right where it entered the program rather than corrupting something downstream.
+
+Rust's `read_i32` and `read_f64`, which you have been calling since lecture 4, turn out to be built from exactly these pieces: a line read from standard input, trimmed, parsed, and unwrapped with `.expect()`. Seeing that body is the payoff of learning `Result` and `.expect()` properly in this lecture, rather than only calling a name someone else wrote.
+
+Repeating a request until a person finally gets it right is a natural next question, and it waits for the lecture that introduces loops. The next lecture turns to testing, and to checking systematically that code like this responds correctly to every kind of input, valid and invalid alike.
+
+## Resources
+
+- [Python documentation: input()](https://docs.python.org/3/library/functions.html#input)
+- [Python documentation: Errors and Exceptions](https://docs.python.org/3/tutorial/errors.html)
+- [The Rust Book: Reading input with read_line](https://doc.rust-lang.org/book/ch02-00-guessing-game-tutorial.html#processing-a-guess)
+- [Rust documentation: str::parse](https://doc.rust-lang.org/std/primitive.str.html#method.parse)
+- [Rust documentation: Result](https://doc.rust-lang.org/std/result/enum.Result.html)

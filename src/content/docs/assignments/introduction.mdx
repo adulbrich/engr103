@@ -1,29 +1,50 @@
 ---
-title: "Introduction"
-description: Welcome to the assignments section for ENGR 103! This guide provides an overview of the assignments designed to help you apply programming concepts to solve real-world problems.
+title: Introduction
+description: The story and structure of the ENGR 103 assignments, the Willamette Resource Office, and the list of assignments in order.
 sidebar:
   order: 0
+draft: false
 pageActions: false
 ---
 
-Welcome to the assignments section for ENGR 103! The assignments in this course are designed to help you apply the concepts learned in lectures and studios to solve real-world problems. Each assignment focuses on a specific topic and provides a series of tasks that will challenge your understanding and enhance your programming skills. 
+The assignments are your take-home practice: the place to work through a problem with any tool you like, including AI, before a proctored recitation tests the same skeleton without them. They are low-stakes on purpose, and worth a small share of your grade. You work each one **test first**, the way real software is written: you read the problem, design your own test cases, plan the code in pseudocode, and only then write it. Your grade combines those parts, most of it for code that produces the right answers and the rest for the test design, the pseudocode, the paper practice, and the reflection you do along the way; every assignment's page carries its exact rubric. The point is still not the points. The point is that you arrive at each recitation having already built the thing it will ask you to build again.
 
-The assignments will be submitted through GitHub Classroom. You can find the invite link on each Canvas assignment.
+Because they are the tier where AI is allowed, they are also the tier that trains you to **judge** a confident answer, not just accept it. That is where AURA comes in.
 
-### Assignment Topics
+## The Willamette Resource Office
 
-1. **[Getting Started](/assignments/getting-started)**: Complete a simple questionnaire to familiarize yourself with the tools and submission process.
-2. **[Linear Equations](/assignments/linear-equations)**: Write programs to solve systems of linear equations in different contexts.
-3. **[Financial Planner](/assignments/financial-planner)**: Develop a program to help the user decide how much to save or what to invest in.
-4. **[Dictionary](/assignments/dictionary)**: Build a terminal interface for a dictionary API to look up word definitions.
-5. **[Calculator](/assignments/calculator)**: Create a simple terminal-based calculator supporting basic arithmetic operations.
+You are a junior engineer on the software team of the **Willamette Resource Office (WRO)**, a fictional public agency that manages sustainability work across the Pacific Northwest. There is no plot: each assignment is its own independent piece of the office's work, not part of a story. Missing a week never puts you behind. A public agency touches every field the course's majors care about: buildings, transport, water, the power grid, waste, air, wildfire, and ecology. Its work is public-facing, so the last assignment's critique of that work grows naturally out of what you built, rather than arriving as a bolted-on essay.
 
-### How to Succeed in Assignments
+On every assignment you work alongside **AURA**, the office's AI assistant, bought from an outside vendor. AURA is helpful, tireless, and, at exactly the wrong moment, confidently wrong. On each assignment AURA offers a **claim**: a confident, plausible statement about how to solve the problem, stated in words, never handed to you as code. The claim is sometimes subtly wrong. Your job is to judge it and reject what does not hold up, letting your own test cases settle the question. AURA is wrong about numbers and methods only, never about a policy question. AURA is on the assignment tier deliberately: this is the one tier where you may use AI, so learning to catch a confident machine when it is wrong is part of the training, not a distraction from it.
 
-- **Understand the Requirements**: Carefully read the assignment description and requirements before starting.
-- **Plan Your Solution**: Break down the problem into smaller tasks and plan your approach.
-- **Write Clean Code**: Follow the course's style guidelines and write modular, well-documented code.
-- **Test Thoroughly**: Test your code with various inputs to ensure it works correctly.
-- **Seek Help**: If you encounter difficulties, don't hesitate to ask for help from TAs or instructors.
+The story is a spine, not a cage. The technical ask is always clear and testable, and you can earn full marks with the setting ignored entirely. No assignment hides what you have to build behind the story.
 
-Assignments are a crucial part of your learning journey in ENGR 103. They provide an opportunity to apply theoretical concepts in practical scenarios and help you build a strong foundation in programming. Let's get started and make the most of these assignments!
+## How an Assignment Works
+
+Each regular assignment is one problem, worked in a fixed order:
+
+- **Design your acceptance tests.** Before writing any code, you decide what correct behavior looks like: a set of test cases, including the boundary and tricky ones, each with the answer worked out by hand. We give you one worked example; you write the rest.
+- **Write your pseudocode.** A plain-language plan of how your code turns its inputs into its answer, naming the intermediate values you will create.
+- **Write your code.** The functions themselves, or, before the Functions lecture, a short program that prints the answer, checked for correctness by an automatic grader.
+- **A paper practice**, one tracing or diagram exercise done by hand and photographed, in the same format the exams use, with the worked solution hidden on the page so you attempt it first and then check yourself.
+- **A reflection**, three sentences: two on what you used help for, including whether and how you used AI, and one naming which intermediate values you chose to represent the situation and why.
+- **An optional summit problem** on most assignments, a harder stretch that earns extra credit.
+
+You submit in two places: everything that is not code, meaning your test cases, your pseudocode, your paper trace, and your reflection, goes in a single **PDF on Canvas**, and your **code goes to Gradescope**. Each assignment's page lists exactly what to hand in where and carries its own grading rubric.
+
+Every assignment is solvable using only the language features the course has taught by the week it is due, so you are never blocked by something you have not seen yet. The [Language Ladder](/reference/language-ladder/) lists what that is, as a recommendation you can lean on when you are unsure; you are always free to use a feature you already know. See the [Schedule](/overview/schedule/) for which recitation each assignment prepares you for, and read [Running and Submitting Your Code](/practicalities/starter-repo-and-check/) for the mechanics of the starter files and how to submit.
+
+## The Assignments
+
+The ten assignments below are listed in the order they are due. Each one stands on its own: you never need last week's assignment to do this week's.
+
+1. [Field Office Setup](/assignments/field-office-setup/): install your toolchain and run your first program in Python and Rust.
+2. [Household Energy Panel](/assignments/household-energy-panel/): print one household's energy use, emissions, and meter status from given numbers.
+3. [EV Carbon Payback](/assignments/ev-carbon-payback/): compute how many kilometres an EV must drive before its manufacturing footprint pays back.
+4. [Low-Carbon Concrete](/assignments/low-carbon-concrete/): choose a low-carbon concrete mix from two given equations.
+5. [Burn Window Clearance](/assignments/burn-window-clearance/): decide whether a burn day is clear, with a county ban override.
+6. [Sensor Drift Check](/assignments/sensor-drift-check/): sort a low-cost air sensor's reading as trusted, out of range, or drifting.
+7. [Dashboard Publication Check](/assignments/dashboard-publication-tests/): write a test suite that catches every broken version of a two-rule check.
+8. [Solar Array Lifetime](/assignments/solar-array-lifetime/): project a rooftop solar array's total lifetime output.
+9. [Field Logger Codes](/assignments/field-logger-codes/): pack and unpack a sensor reading into a short base-36 code.
+10. [The Annual Emissions Inventory](/assignments/emissions-inventory/): parse a reading, decode its code, and critique who the tool leaves out.

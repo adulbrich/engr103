@@ -1,0 +1,311 @@
+---
+title: "How Values Are Stored"
+description: "Convert a number to binary and hexadecimal by hand, predict where Rust's fixed-size whole numbers stop, and pin down what a float really prints."
+sidebar:
+  order: 3
+draft: true
+---
+
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+import Reveal from '/src/components/Reveal.astro';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+import WhatDiffers from '/src/components/WhatDiffers.astro';
+
+{/* ai-summary
+type: activity
+slug: data-representation
+order: 3
+paired_lecture: data-representation
+practices: converts a decimal number to binary and then to hexadecimal by hand and checks the result with place-value arithmetic; predicts what each language does when an arithmetic result, not just a literal, runs past i32's ceiling; chooses what a float sum actually prints and says why the exact decimal is not available
+prereq_activities: values-types-and-expressions
+block_types: paper-tracing, predict-then-run, peer-instruction
+output: a hand conversion checked against a program, a reconciled prediction about the i32 ceiling, and a defended choice of what a float sum prints
+*/}
+
+<LanguageVersions />
+
+This activity puts into practice the [How Values Are Stored](/lectures/data-representation/) lecture. You will convert a number between three number systems on paper, predict where a fixed-size whole number stops holding, and pin down exactly what a decimal sum prints. By the end, you will be able to convert a decimal number to binary and hexadecimal by hand and explain why a value's fixed bits change what a program can print.
+
+## Warm-up
+
+A quick refresher before the sections. Each binary position is worth double the position to its right, and a `0b` prefix writes a whole-number literal in binary in both languages.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="warmup.py"
+print(0b1)
+print(0b10)
+print(0b100)
+print(0b1000)
+print(0b1111)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="warmup.rs"
+fn main() {
+    println!("{}", 0b1);
+    println!("{}", 0b10);
+    println!("{}", 0b100);
+    println!("{}", 0b1000);
+    println!("{}", 0b1111);
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 warmup.py
+```
+
+```text frame="terminal" title="Output"
+1
+2
+4
+8
+15
+```
+
+Rust prints the same five numbers. With the place values fresh, the sections below take a number that needs all eight of a byte's bits.
+
+---
+
+## Convert 173 Three Ways
+
+The lecture converted 65, a number with only two 1 bits, so most of its positions could be skipped in one glance. This one fills six of its eight positions, which is enough that you have to keep the subtraction straight. Do it entirely on paper, with no program running.
+
+Convert the decimal number `173` to binary, then convert those binary digits to hexadecimal, then check your answer without converting back.
+
+<Steps>
+
+1. Write the place values that do not exceed 173, largest first: 128, 64, 32, 16, 8, 4, 2, 1.
+
+2. Take each in turn. If it fits in what is left, write a 1 above it and subtract it; if it does not, write a 0 and move on.
+
+3. Read the eight digits from the 128 position down to the 1 position. That is the binary numeral.
+
+4. Split those eight digits into two groups of four, and turn each group into one hexadecimal digit, using A through F for ten through fifteen.
+
+5. Check your work by adding up the place values you kept, and separately by working the hexadecimal digits back out as an ordinary arithmetic expression.
+
+</Steps>
+
+<Reveal label="Reveal the completed conversion">
+The subtraction runs like this, one place value at a time:
+
+```text title="Converting 173 to binary by subtraction"
+128 fits in 173   -> 1, remainder 45
+ 64 too large     -> 0, remainder 45
+ 32 fits in 45    -> 1, remainder 13
+ 16 too large     -> 0, remainder 13
+  8 fits in 13    -> 1, remainder 5
+  4 fits in 5     -> 1, remainder 1
+  2 too large     -> 0, remainder 1
+  1 fits in 1     -> 1, remainder 0
+```
+
+Reading the digits from the 128 position down gives `10101101`.
+
+Splitting those eight digits into two groups of four gives `1010` and `1101`. The first group is 8 plus 2, which is 10, and the tenth hexadecimal digit is `A`. The second is 8 plus 4 plus 1, which is 13, and the thirteenth is `D`. So `173` is `0b10101101` in binary and `0xAD` in hexadecimal.
+
+Both checks agree. The place values you kept are 128, 32, 8, 4, and 1, and the two hexadecimal digits are worth 10 sixteens and 13 ones:
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="check.py"
+print(0b10101101)
+print(128 + 32 + 8 + 4 + 1)
+print(10 * 16 + 13)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="check.rs"
+fn main() {
+    println!("{}", 0b10101101);
+    println!("{}", 128 + 32 + 8 + 4 + 1);
+    println!("{}", 10 * 16 + 13);
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 check.py
+```
+
+```text frame="terminal" title="Output"
+173
+173
+173
+```
+
+Rust prints the same three lines. Three spellings, one value: the binary literal, the sum of the place values it keeps, and the hexadecimal digits reduced as ordinary arithmetic.
+
+If your binary numeral came out one digit short, the usual slip is dropping a 0 for a place value that did not fit; every position between the largest one you used and the 1 gets a digit, including the ones you skipped.
+</Reveal>
+
+---
+
+## Predict Where the Ceiling Bites
+
+The lecture showed a whole-number literal too large for `i32`, written out in full. Here every literal in the program is legal on its own, and it is the arithmetic that runs past the ceiling. Whether that changes what each language does is what you predict.
+
+Read both programs. Write down, on paper or in a comment, exactly what you expect each one to do: what it prints, or what it refuses to do and when. Do not run them yet.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="ceiling.py"
+print(2 * 2147483647)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="ceiling.rs"
+fn main() {
+    println!("{}", 2 * 2147483647);
+}
+```
+</TabItem>
+</Tabs>
+
+<Reveal label="Reveal what each language really does">
+Python runs and prints the doubled value without comment:
+
+```bash title="Run the Python program"
+python3 ceiling.py
+```
+
+```text frame="terminal" title="Output"
+4294967294
+```
+
+Rust never produces a program to run:
+
+```bash title="Compile the Rust program"
+rustc ceiling.rs
+```
+
+```text frame="terminal" title="Output"
+error: this arithmetic operation will overflow
+ --> ceiling.rs:2:20
+  |
+2 |     println!("{}", 2 * 2147483647);
+  |                    ^^^^^^^^^^^^^^ attempt to compute `2_i32 * i32::MAX`, which would overflow
+  |
+  = note: `#[deny(arithmetic_overflow)]` on by default
+```
+
+<WhatDiffers>
+<Fragment slot="differs">
+Both literals are fine in Rust on their own: `2` is a small `i32` and `2147483647` is exactly `i32`'s largest value. It is their product that has no 32-bit pattern to live in, and because both operands are literals the compiler can reduce the multiplication itself, see the result run past the ceiling, and refuse to build. Python's `int` has no ceiling to run past, so it simply claims more bytes and prints `4294967294`.
+</Fragment>
+</WhatDiffers>
+
+If you predicted that Rust would compile and print a wrong or wrapped number, that is a reasonable guess and it is what happens in many languages. Rust's compiler catches this particular case because it can compute the whole expression before the program runs. If you predicted a Python error, that is the `i32` rule applied to a language that does not have one: Python's whole numbers grow to fit.
+</Reveal>
+
+---
+
+## Choose What the Sum Prints
+
+Two floats are added and the result is printed. Exactly one of the four answers below is what actually appears on the screen, in both languages. Commit to one before you open the reveal, and be ready to say why each of the other three is wrong.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="sum.py"
+print(0.1 + 0.7)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="sum.rs"
+fn main() {
+    println!("{}", 0.1 + 0.7);
+}
+```
+</TabItem>
+</Tabs>
+
+- **A.** `0.8`
+- **B.** `0.7999999999999999`
+- **C.** `0.8000000000000001`
+- **D.** An error, because a decimal fraction cannot be stored exactly.
+
+<Reveal label="Reveal the correct choice and why the others fail">
+The answer is **B**, `0.7999999999999999`, in both languages:
+
+```bash title="Run the Python program"
+python3 sum.py
+```
+
+```text frame="terminal" title="Output"
+0.7999999999999999
+```
+
+Rust prints the same digits, because Python's `float` and Rust's `f64` are the same 64-bit format.
+
+Neither `0.1` nor `0.7` can be written exactly in binary: one tenth and seven tenths both become endless repeating bit patterns, and 64 bits cannot hold an endless pattern. Each literal is therefore stored as the nearest value those bits can spell, and the sum of two nearest values is not the nearest value to `0.8`. It lands one step below it, and printing shows enough digits to reveal the gap.
+
+**Why A is wrong.** `0.8` is what the arithmetic means, not what the bits hold. It is also what many programs appear to print, because some languages round the display to fewer digits; Python and Rust both show enough digits to distinguish this value from `0.8`, so the difference is visible here.
+
+**Why C is wrong.** The tail is real, but its direction is not something you can guess. Rounding error can fall either way depending on which values were stored and in what order they were added. Here the stored sum sits just below `0.8`, not above it.
+
+**Why D is wrong.** Storing a decimal fraction is never an error. The value is always stored, just not exactly; the language accepts every float literal you write and quietly keeps the closest one it can.
+
+The practical consequence arrives in a later lecture: because a computed float can miss its exact value by a sliver like this, asking whether two computed floats are equal is unreliable, and a tolerance is used instead.
+</Reveal>
+
+---
+
+## Write the Place-Value Check
+
+Write a program that prints three lines: the value of the binary literal `0b1010110`, then that same value written as the sum of only the place values whose bit is a 1, then how many distinct patterns 7 bits can make, computed with arithmetic rather than typed as a finished number.
+
+<Reveal label="Reveal a sample solution">
+More than one correct program can produce this result; the one below is a sample solution, not the only path to it.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="places.py"
+print(0b1010110)
+print(64 + 16 + 4 + 2)
+print(2 * 2 * 2 * 2 * 2 * 2 * 2)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="places.rs"
+fn main() {
+    println!("{}", 0b1010110);
+    println!("{}", 64 + 16 + 4 + 2);
+    println!("{}", 2 * 2 * 2 * 2 * 2 * 2 * 2);
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 places.py
+```
+
+```text frame="terminal" title="Output"
+86
+86
+128
+```
+
+```bash title="Compile and run the Rust program"
+rustc places.rs
+./places
+```
+
+```text frame="terminal" title="Output"
+86
+86
+128
+```
+
+The seven positions of `1010110` are worth 64, 32, 16, 8, 4, 2, and 1, and the four holding a 1 are 64, 16, 4, and 2, which sum to 86. The third line multiplies 2 by itself once per bit, which is the doubling rule written out: 7 bits give 128 distinct patterns, and 86 is one of them.
+</Reveal>
+
+---
+
+## Bridge
+
+This session feeds the arithmetic-with-units-and-time family in recitation, where a reading has to be written in the right number system and computed in a type that can actually hold the answer. Knowing what a value's bits can and cannot spell is what keeps a plausible-looking wrong number from getting past you.

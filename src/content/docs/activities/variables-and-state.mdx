@@ -1,0 +1,303 @@
+---
+title: "Variables and State"
+description: "Run a program that reads a typed number and computes with it, then run it again with a value that is not a number, hand-trace a two-variable swap through a temporary, and diagnose an immutable-binding compile error among several variables in Python and Rust."
+sidebar:
+  order: 4
+draft: true
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import Reveal from '/src/components/Reveal.astro';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+
+{/* ai-summary
+type: activity
+slug: variables-and-state
+order: 4
+paired_lecture: variables-and-state
+practices: reads a typed number with input()/read_i32() and computes with it using // and %, then runs the same program with a non-numeric value and records the error it produces; hand-traces a two-variable swap through a temporary, filling a variable table row by row for three names, then predicts a self-referential assignment whose right side reads the same name twice from one current value; diagnoses an immutable Rust `let` binding from its E0384 compile error by distinguishing, among several variables, which are mutable and reassigned and which are not
+prereq_activities:
+block_types: predict-then-run, paper-tracing, live-debugging
+output: a program run twice with a recorded prediction and a recorded parse failure, a completed swap trace, and a corrected mutable binding
+*/}
+
+<LanguageVersions />
+
+This activity puts into practice the [Variables and State](/lectures/variables-and-state/) lecture. You will run a program that reads a number you type and computes with it, then run it again with a value that is not a number and record what happens, hand-trace a two-variable swap through a temporary, and hunt down a compile error caused by trying to change a variable Rust will not let you change. By the end, you will be able to read a typed value into a program, walk assignment's evaluate-then-bind steps across many lines by hand, and predict a variable's stored value at any point in a program.
+
+## Warm-up
+
+A quick refresher before the three problems. Creating a variable attaches a name to a value, and using the name looks that value back up. Here are two variables created from bare literals and read back, in both languages.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="warmup.py"
+width = 10
+height = 4
+print(width)
+print(height)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="warmup.rs"
+fn main() {
+    let width = 10;
+    let height = 4;
+    println!("{}", width);
+    println!("{}", height);
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 warmup.py
+```
+
+```text frame="terminal" title="Output"
+10
+4
+```
+
+Rust prints the same two values. The one visible difference is that Rust needs the keyword `let` to create each name, where Python needs nothing but the name, an `=`, and a value. With those pieces fresh, the three problems below read a value in, rearrange values between variables, and catch a reassignment Rust refuses to allow.
+
+## Run a Program That Reads a Number
+
+Every program so far in this course has computed only with values already sitting in its source code. The lecture showed you the call that lets a program take a number from the person running it, while the program runs. Here you make that call yourself, and you run the result twice.
+
+The program below asks for a number of seconds, then prints how many whole minutes that many seconds makes and how many seconds are left over, using the `//` and `%` operators from the [Values, Types, and Expressions](/lectures/values-types-and-expressions/) lecture. Read it, then write down, on paper or in a comment, the two numbers you expect it to print for the input `500`.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="countdown_split.py"
+seconds = int(input("Seconds: "))
+print(seconds // 60)
+print(seconds % 60)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="countdown_split.rs"
+// read_i32 is provided for you, the same as in the lecture.
+fn main() {
+    println!("Seconds: ");
+    let seconds = read_i32();
+    println!("{}", seconds / 60);
+    println!("{}", seconds % 60);
+}
+```
+</TabItem>
+</Tabs>
+
+Now run the program yourself. Run the Python file, and when it asks for `Seconds:`, type `500` and press Enter. Rust's `read_i32` and `read_f64` do not exist in a file you write; they come with this session, brought by your instructor, because the course's starter repositories do not begin until assignment A3. If you are working alone, the [starter-repo practicalities page](/practicalities/starter-repo-and-check/) has both already written; compile and run the Rust version the same way and type `500`. Check the two printed numbers against what you predicted.
+
+Then run the program a second time. This time, when it asks for `Seconds:`, type a word instead of a number, for example `banana`, and press Enter. Write down exactly what the program does.
+
+<Reveal label="Reveal the real output for both runs">
+```bash title="Run the Python program"
+python3 countdown_split.py
+```
+
+```text frame="terminal" title="Output (you typed 500)"
+Seconds: 8
+20
+```
+
+`500 // 60` is `8`: `500` seconds is `8` full minutes. `500 % 60` is `20`: the `20` seconds left over after those `8` minutes. Rust prints the same `8` and `20`, though its own line for `Seconds:` ends before either number, because `println!` always ends with a newline while Python's `input` does not:
+
+```text frame="terminal" title="Rust output (you typed 500)"
+Seconds: 
+8
+20
+```
+
+Now the second run, with a word instead of a number:
+
+```bash title="Run the Python program again"
+python3 countdown_split.py
+```
+
+```text frame="terminal" title="Output (you typed banana)"
+Seconds: Traceback (most recent call last):
+  File "countdown_split.py", line 1, in <module>
+    seconds = int(input("Seconds: "))
+ValueError: invalid literal for int() with base 10: 'banana'
+```
+
+Python's `int()` cannot turn `"banana"` into a whole number, so it raises a `ValueError` and the program stops right there: neither `print` line ever runs. Rust's `read_i32` stops the program the same way. It prints the prompt, then crashes with a message that ends `not a whole number: ParseIntError { kind: InvalidDigit }`; the exact line the message names depends on where your copy of `read_i32` lives, but that message text is always the same one.
+
+Both programs stop the instant the typed text cannot become a number. Neither one tries again or recovers; what a program can do instead of just stopping is the subject of the [Errors, Input, and Validation](/lectures/errors-input-and-validation/) lecture in week 5.
+</Reveal>
+
+---
+
+## Trace the Swap
+
+Swapping the values of two variables is a small task that goes wrong the instant you try to shortcut it, because the first assignment overwrites a value the second one still needs. The standard fix is a third variable, a temporary, that holds one value out of the way while the other is moved. Tracing this by hand, one variable at a time, is the surest way to see why the temporary is not optional. A **variable table** lists the value every variable holds after each line runs.
+
+Trace the program below by hand. For each line, do both steps of the assignment: evaluate the right side from the variables' current values, then rebind the name on the left. Fill in the value of `a`, `b`, and `temp` after every line, then predict the two printed values.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="swap.py"
+a = 7
+b = 2
+temp = a
+a = b
+b = temp
+b = b * b
+print(a)
+print(b)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="swap.rs"
+fn main() {
+    let mut a = 7;
+    let mut b = 2;
+    let temp = a;
+    a = b;
+    b = temp;
+    b = b * b;
+    println!("{}", a);
+    println!("{}", b);
+}
+```
+</TabItem>
+</Tabs>
+
+<Reveal label="Reveal the completed table and the output">
+Walk it one line at a time. Line 1 binds `a` to `7`. Line 2 binds `b` to `2`. Line 3 evaluates `a`, which is `7`, and binds `temp` to `7`: this is the copy that keeps the original `a` safe. Line 4 evaluates `b`, which is `2`, and rebinds `a` to `2`, discarding the `7` that used to be in `a`, which is fine because `temp` still holds it. Line 5 evaluates `temp`, which is still `7`, and rebinds `b` to `7`. Line 6 evaluates `b * b`, and both copies of `b` are read from the same current value, `7`, so the right side is `7 * 7`, which is `49`, and `b` is rebound to `49`. Recording the value of each variable after each line gives the table:
+
+| Line | Statement | `a` afterward | `b` afterward | `temp` afterward |
+|---|---|---|---|---|
+| 1 | `a = 7` | 7 | not yet set | not yet set |
+| 2 | `b = 2` | 7 | 2 | not yet set |
+| 3 | `temp = a` | 7 | 2 | 7 |
+| 4 | `a = b` | 2 | 2 | 7 |
+| 5 | `b = temp` | 2 | 7 | 7 |
+| 6 | `b = b * b` | 2 | 49 | 7 |
+
+The two `print` lines read whatever the variables hold at the end, which the table shows is `2` for `a` and `49` for `b`. Running the program confirms the trace, and both languages print the same two values because the assignment rules are identical and only the surrounding syntax differs:
+
+```bash title="Run the Python program"
+python3 swap.py
+```
+
+```text frame="terminal" title="Output"
+2
+49
+```
+
+Two rows carry the trace. Line 3 is the one that makes the swap work: without `temp`, line 4 would overwrite `a` with `b`'s value before anything preserved the old `a`, and the original `7` would be lost for good. Line 6 is the one that is easiest to mispredict, because the same name sits on both sides of the `=`. Assignment still does its two steps in order: the whole right side is evaluated first, from the values the variables hold right now, and only then is the name on the left rebound. Both copies of `b` therefore read `7`, the value line 5 left behind. A prediction of `14` means reading one copy of `b` as its pre-swap `2` and the other as its current `7`, mixing a value line 4 already discarded with a live one; a prediction of `7` means treating line 6 as leaving `b` alone. In the Rust version, `a` and `b` are declared `let mut` because both are reassigned, while `temp` is a plain `let`: it is bound once on line 3 and never changed, so it needs no `mut`.
+</Reveal>
+
+---
+
+## Find the Immutable Binding
+
+Rust makes every variable immutable unless you add `mut`, so a plain `let` binding cannot be reassigned, and the compiler rejects the second assignment before the program ever runs. That is straightforward with one variable. It is a real diagnosis when several variables are in play and only one of them is at fault: the error names the culprit, but understanding why *that* line fails and the others do not means checking each declaration against what the program later does to it. You find the bug with the systematic method: read the error, form a hypothesis, test it.
+
+The program below is meant to start a `length` at `10` and a `width` at `4`, grow the `length` by `5`, double the `width`, then print their product. It does not compile. Read it, predict which line the compiler will reject and why, then work out the one change that fixes it.
+
+```rust title="dimensions.rs (will not compile)"
+fn main() {
+    let mut length = 10;
+    let width = 4;
+    length = length + 5;
+    width = width * 2;
+    let area = length * width;
+    println!("{}", area);
+}
+```
+
+<Reveal label="Reveal the diagnosis and the fix">
+```bash title="Compile the Rust program"
+rustc dimensions.rs
+```
+
+```text frame="terminal" title="Output"
+error[E0384]: cannot assign twice to immutable variable `width`
+ --> dimensions.rs:5:5
+```
+
+**Symptom.** There is no run at all; compiling stops with error `E0384` pointing at line 5, `width = width * 2;`, and it names `width` specifically, not `length` or `area`.
+
+**Hypothesis.** The fix is not just "add `mut` somewhere", it is understanding why this exact line is the one that fails. Three variables are declared, and the compiler treats each according to how it was created and what the program does to it afterward:
+
+- `length` is declared `let mut`, and line 4 reassigns it. A mutable binding is allowed to change, so that reassignment is fine.
+- `width` is declared with a plain `let`, which makes it immutable, and line 5 tries to reassign it. The compiler recorded that `width` may never change, so it refuses the assignment. This is the one error.
+- `area` is declared with a plain `let`, but it is never reassigned: it is bound once on line 6 and only read afterward. An immutable binding that is never changed is exactly what `let` is for, so it needs no `mut` and causes no error.
+
+So the culprit is the one variable that is both immutable and reassigned: `width`. The fix is to allow the change at the point `width` is created, by adding `mut` right after its `let`. Leaving `area` as a plain `let` is correct, and adding `mut` to it would only earn an unused-mutability warning.
+
+**Test.** Add `mut` to the `width` declaration so its binding may be reassigned:
+
+```rust title="dimensions.rs (fixed)"
+fn main() {
+    let mut length = 10;
+    let mut width = 4;
+    length = length + 5;
+    width = width * 2;
+    let area = length * width;
+    println!("{}", area);
+}
+```
+
+```bash title="Compile and run the fixed program"
+rustc dimensions.rs
+./dimensions
+```
+
+```text frame="terminal" title="Output"
+120
+```
+
+With `mut` on `width`, the compiler allows line 5: `width * 2` evaluates from the current `4` to `8`. Line 4 had already grown `length` from `10` to `15`, so `area` is `15 * 8`, which is `120`. The lesson is that immutable-by-default turns an accidental reassignment into an error caught at compile time, before a single line runs, and that finding it in a crowd of variables is a matter of matching each declaration against what the program later asks of it.
+</Reveal>
+
+---
+
+## Write a Water Tank Level
+
+A storage tank starts at `500` litres. Write a program that stores that starting level in one variable, then reassigns that same variable to subtract a `120` litre draw, then reassigns it again to subtract a `30` litre draw, then prints the final level.
+
+<Reveal label="Reveal a sample solution">
+More than one program can get this right; this is a sample solution, not the only one.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="tank.py"
+level = 500
+level = level - 120
+level = level - 30
+print(level)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="tank.rs"
+fn main() {
+    let mut level = 500;
+    level = level - 120;
+    level = level - 30;
+    println!("{}", level);
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 tank.py
+```
+
+```text frame="terminal" title="Output"
+350
+```
+
+Rust prints the same `350`. `level` starts at `500`, drops to `380` after the first draw, then to `350` after the second, the same evaluate-then-bind rebinding the three problems above already walked through.
+</Reveal>
+
+---
+
+## Bridge
+
+These three reps feed the arithmetic-with-units-and-time family in recitation, where a value arrives, is stored and updated across several steps, and is read back later, and one assignment taken out of order, one wrong current value, or an unhandled bad reading quietly throws off the final answer. Reading a value in and computing with it, and the evaluate-then-bind tracing you did by hand, are the guided first rungs of that ladder.

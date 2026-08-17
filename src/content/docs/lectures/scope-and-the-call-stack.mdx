@@ -1,0 +1,472 @@
+---
+title: "Scope and the Call Stack"
+description: "Learn how a local variable's scope and the call stack's stack frames decide where a variable lives and how long it lasts, and why relying on global variables to connect functions is best avoided."
+sidebar:
+  order: 6
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+import WhatDiffers from '/src/components/WhatDiffers.astro';
+import MemoryStepper from '/src/components/MemoryStepper.svelte';
+
+{/* ai-summary
+type: lecture
+slug: scope-and-the-call-stack
+order: 6
+covers: local scope; the call stack and stack frames; LIFO order; lifetime of a local variable; Rust block scope and shadowing vs Python function scope; global-variable antipattern
+prereq_lectures: functions
+followup_lectures: booleans-and-conditionals
+glossary_terms: scope, local variable, call stack, stack frame, shadowing, global variable
+*/}
+
+<LanguageVersions />
+
+The previous lecture treated a function's parameter as a variable that lives inside the function, a private copy of whatever value the caller passed in. That description leaves a real question unanswered: where, exactly, does that variable live while the function is running, and for how long does it stay there? The question gets sharper the moment one function calls another, because at that point two functions are both partway through running at once, each with its own variables, and the program needs a precise, reliable way to keep one function's variables from being confused with the other's.
+
+The answer rests on two ideas that fit together. One is scope, which decides where in a program a variable's name can be used at all. The other is the call stack, the mechanism that gives every function call its own private set of variables and keeps them separate from every other call in progress, even when one call is still waiting on another to finish.
+
+## Local Scope
+
+A variable created inside a function belongs to that function alone. Code outside the function has no way to see it, read it, or change it. This is called **scope**: the region of a program where a variable's name means anything at all. A variable declared inside a function has **local scope**, meaning the function's own body is the only place its name can be used, which is why it is called a **local variable**.
+
+Why a local variable is invisible from outside is not a rule the language enforces to keep code tidy; it follows from where the variable actually lives. The previous lecture showed that a function's parameter is a private copy, a variable that lives inside the function rather than out in the caller. A local variable created in the body works the same way: it lives in storage that belongs to that one function, storage the language sets aside when the function is called and throws away when the function returns. Outside the function there is simply no box carrying that name to read, because the box exists only while the function runs, and only in the function's own space. Parameters and locals share this exactly: both live in the function's private storage, and neither can be reached from anywhere else in the program.
+
+Trying to read a local variable from outside its function is not a minor style slip; it is a mistake the language itself refuses to allow, though Python and Rust catch it in different ways and at different times.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="local.py"
+def show_cost():
+    cost = 4
+    print(cost)
+
+show_cost()
+print(cost) # NameError: name 'cost' is not defined (cost is local to show_cost)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="local.rs (will not compile)"
+fn show_cost() {
+    let cost = 4;
+    println!("{}", cost);
+}
+
+fn main() {
+    show_cost();
+    println!("{}", cost); // error: cannot find value `cost` in this scope (will not compile)
+}
+```
+</TabItem>
+</Tabs>
+
+<WhatDiffers>
+<Fragment slot="differs">
+Python only discovers the mistake when the `print(cost)` line actually runs, raising a `NameError` at that moment, consistent with Python checking things line by line as the program executes. Rust's compiler rejects the reference to `cost` before the program ever runs, because it tracks every variable's scope while compiling the whole function.
+</Fragment>
+</WhatDiffers>
+
+Run the Python file and it prints the value from inside `show_cost`, where `cost` is perfectly visible, then fails the instant the outer `print` reaches for a name that has no box anywhere outside the function:
+
+```bash title="Run the Python program"
+python3 local.py
+```
+
+```text frame="terminal" title="Output"
+4
+Traceback (most recent call last):
+  File "local.py", line 6, in <module>
+    print(cost)
+          ^^^^
+NameError: name 'cost' is not defined
+```
+
+Compile the Rust file and there is no run at all. Tracking each variable's scope as it reads the file, the compiler sees `cost` named in `main`, where no such box exists, and refuses to build an executable, reporting error `E0425`:
+
+```bash title="Compile the Rust program"
+rustc local.rs
+```
+
+```text frame="terminal" title="Output"
+error[E0425]: cannot find value `cost` in this scope
+ --> local.rs:8:20
+```
+
+## The Call Stack
+
+Local scope explains why one function cannot read another's variables, but it does not yet explain what happens to those variables while a function is paused, waiting on a call it made to finish. The answer is the **call stack**: the mechanism that gives every function call, the moment it starts running, a fresh, private set of boxes for its parameters and local variables. Programmers call this private set of boxes a function call's **stack frame**.
+
+Each time a function is called, a new stack frame is created and placed on top of whatever frames are already in progress. Placing it there is the whole mechanism, and programmers call the action **pushing** a frame: the new frame goes on the top of the pile, and the function starts running with a clean set of boxes that no other frame can touch. The function that made the call does not disappear while this happens: its own frame, with its own boxes, waits underneath, completely untouched, until the function it called returns. When a function finishes and returns, its frame is removed from the top of the pile, an action called **popping** the frame; its local variables and parameters are discarded with it, and control goes back to the frame directly beneath, which resumes exactly where it left off. Because frames come off in the reverse of the order they went on, the most recently pushed frame is always the first to be popped; programmers call this **last-in, first-out**, or **LIFO**, order.
+
+This push-and-pop mechanism is exactly why changing a parameter's value inside a function, as you saw in the previous lecture, never changes the argument back in the caller. The caller's variable and the called function's parameter sit in two different stack frames, each with its own box, even when the two boxes happen to hold the same value. The copy the previous lecture described is safe for a concrete reason: the copy lands in a box in the callee's frame, a frame stacked above the caller's, so writing to it cannot reach down into the caller's separate frame below.
+
+:::note[The stack and the heap]
+Programmers call this growing-and-shrinking pile of frames the **stack**, and it is one of two places a running program keeps its data. The other is called the **heap**, used for values whose size or lifetime does not fit the neat push-and-pop pattern of a stack frame. Every local variable and parameter in this course lives on the stack; the heap, and the difference between the two, belongs to a later lecture on how a program's memory is organized.
+:::
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="quarter.py"
+def half(n):
+    result = n / 2
+    return result
+
+def quarter(n):
+    result = half(n) / 2
+    return result
+
+print(quarter(9))
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="quarter.rs"
+fn half(n: f64) -> f64 {
+    let result = n / 2.0;
+    return result;
+}
+
+fn quarter(n: f64) -> f64 {
+    let result = half(n) / 2.0;
+    return result;
+}
+
+fn main() {
+    println!("{}", quarter(9.0));
+}
+```
+</TabItem>
+</Tabs>
+
+Both versions print 2.25:
+
+```bash title="Run the Python program"
+python3 quarter.py
+```
+
+```text frame="terminal" title="Output"
+2.25
+```
+
+The Rust version compiles to an executable first, then runs, and prints the same value:
+
+```bash title="Compile and run the Rust program"
+rustc quarter.rs
+./quarter
+```
+
+```text frame="terminal" title="Output"
+2.25
+```
+
+Step through the trace below to watch the whole program run `quarter(9)`, and see why the two functions never confuse their variables. Watch the highlighted line jump up into each function as it is called and back down as it returns, and watch the frames push on and pop off with it. Each frame is a private set of boxes; the name in parentheses says which frame a box belongs to.
+
+<MemoryStepper
+  client:visible
+  title="The call stack: quarter(9) calls half(n)"
+  code={`def half(n):
+    result = n / 2
+    return result
+
+def quarter(n):
+    result = half(n) / 2
+    return result
+
+print(quarter(9))`}
+  steps={[
+    { line: 9, caption: "The program calls quarter(9). The argument 9 is copied into quarter's parameter n, control jumps up into quarter, and quarter's frame is pushed.", names: [{ name: "n (quarter)", value: "9" }], objects: [] },
+    { line: 6, caption: "Inside quarter, computing half(n) / 2 begins by calling half(n). 9 is copied into half's parameter n, control jumps into half, and a second frame is pushed on top. quarter's frame waits beneath, unchanged.", names: [{ name: "n (half)", value: "9" }, { name: "n (quarter)", value: "9" }], objects: [] },
+    { line: 2, caption: "Now inside half, result = n / 2 computes 4.5 and stores it in a box belonging to half's own frame.", names: [{ name: "n (half)", value: "9" }, { name: "result (half)", value: "4.5" }, { name: "n (quarter)", value: "9" }], objects: [] },
+    { line: 3, caption: "return result hands 4.5 back. half's frame is popped, taking its n and result with it, and control jumps back down into quarter on line 6.", names: [{ name: "n (quarter)", value: "9" }], objects: [] },
+    { line: 6, caption: "Back in quarter, half(n) was 4.5, so 4.5 / 2 is 2.25, stored in quarter's own result.", names: [{ name: "n (quarter)", value: "9" }, { name: "result (quarter)", value: "2.25" }], objects: [] },
+    { line: 9, caption: "quarter returns 2.25; its frame is popped in turn, and print shows 2.25. The stack is empty again.", names: [], objects: [] },
+  ]}
+/>
+
+At no point could `half` see or change `quarter`'s `n`, or the reverse, because each `n` lived in a different frame the whole time.
+
+:::note[The stack is not infinite]
+The stack has a limited size. Each call pushes another frame on top, and normally each return pops one back off, so the pile stays small. But if a function keeps calling more functions without ever returning, frames pile up and are never removed, and the stack eventually runs out of room. The program then stops with an error usually called a **stack overflow**. In everyday code the stack never comes close to filling, but it is worth knowing the pile has a ceiling.
+:::
+
+## How Long a Local Variable Lives
+
+The call stack also answers the question this lecture opened with: a local variable's **lifetime**, the span of the program's execution during which it exists at all. A local variable is created the moment its function's frame is pushed, when the function is called, and it is destroyed the moment that frame is popped, when the function returns. Between those two points its value can change as many times as the function's code changes it, but before the call and after the return, the variable simply does not exist: there is no box for it anywhere.
+
+Look back at the `half` and `quarter` example. `half`'s local variable `result` is born when `half(n)` is called and pushes `half`'s frame, and it is gone the instant `half` returns 4.5 and that frame is popped. This is exactly why `quarter` cannot reach into `half` and read `result` directly, and must rely on the value `half` returns instead: by the time control is back in `quarter`, `half`'s frame and its `result` box no longer exist. A local variable's lifetime is always exactly as long as the one frame that holds it, never longer, and never shared with any other call, even a call to the very same function.
+
+## Block Scope in Rust
+
+Function scope is not the only kind of scope Rust has. A bare pair of curly braces, `{ }`, written anywhere inside a function body, opens a new, smaller scope of its own, called a **block**. A variable declared inside a block exists only until that block's closing brace; once the program passes it, the variable is gone, exactly as if the block were a tiny function nested inside the real one. The mechanism is the same one at work in a stack frame: the closing brace is the point at which the block's variables are dropped, the way a return drops a frame's locals.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="blocks.py"
+def show_values():
+    outer = 1
+    print(outer)
+
+    inner = 2
+    print(inner)
+    print(outer)
+
+    print(inner)
+
+show_values()
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="blocks.rs"
+fn main() {
+    let outer = 1;
+    println!("{}", outer);
+
+    {
+        let inner = 2;
+        println!("{}", inner);
+        println!("{}", outer);
+    }
+
+    println!("{}", outer);
+}
+```
+</TabItem>
+</Tabs>
+
+<WhatDiffers>
+<Fragment slot="differs">
+Rust's `{ }` creates a new nested scope: `inner`, declared inside the block, cannot be read once the block's closing brace passes, while `outer`, declared before the block, remains visible both inside it and after it, printing 1, 2, 1, 1. Python has no matching idea of a block scope: every name assigned anywhere inside a function belongs to that whole function from the point of assignment onward, so `inner` is still visible on the last line, printing 1, 2, 1, 2. Python's smallest scope is the function, never a block within it.
+</Fragment>
+</WhatDiffers>
+
+Run the Python file and the last line still prints `inner`, because in Python a name assigned anywhere in a function belongs to the whole function from that point on:
+
+```bash title="Run the Python program"
+python3 blocks.py
+```
+
+```text frame="terminal" title="Output"
+1
+2
+1
+2
+```
+
+Compile and run the Rust version and the last line prints `outer` again, not `inner`, because `inner`'s box was dropped the moment the block's closing brace passed:
+
+```bash title="Compile and run the Rust program"
+rustc blocks.rs
+./blocks
+```
+
+```text frame="terminal" title="Output"
+1
+2
+1
+1
+```
+
+:::note[Why Python has function scope, not block scope]
+Python has no block scope because it has no separate step that declares a variable. A name comes into being simply by being assigned, and Python's rule is that any name assigned anywhere inside a function is treated as local to that whole function. There is no `let` marking where a variable begins, so there is no closing brace at which it could end; the function itself is the smallest region Python can attach a name to. Rust's `let`, by contrast, marks the exact point a variable is born, and the enclosing `{ }` marks where it dies, which is what lets Rust divide a function into smaller scopes at all.
+:::
+
+Rust enforces this the same way it enforces local scope: by refusing to compile code that reaches for a variable after its block has ended.
+
+```rust title="afterblock.rs (will not compile)"
+fn main() {
+    {
+        let inner = 2;
+        println!("{}", inner);
+    }
+
+    println!("{}", inner); // error: cannot find value `inner` in this scope (will not compile)
+}
+```
+
+Compiling it fails with the same `E0425` you saw for reading a local from outside its function, because the situation is the same one: a name used where its box no longer exists.
+
+```bash title="Compile the Rust program"
+rustc afterblock.rs
+```
+
+```text frame="terminal" title="Output"
+error[E0425]: cannot find value `inner` in this scope
+ --> afterblock.rs:7:20
+```
+
+## Shadowing
+
+Block scope also allows something Python variables cannot do: reusing a name for a brand new variable. In Rust, writing `let` with a name that is already in use, even inside the very same block, does not modify the existing variable; it creates an entirely new, separate variable that happens to share the old one's name. From that point on, any plain use of the name refers to the new variable, and the old one is said to be **shadowed**: hidden, but not destroyed, until the new variable itself goes out of scope, at which point the older one becomes visible again. This is why shadowing and reassignment read alike but behave differently: reassignment overwrites the one box a name refers to, while a new `let` adds a second box and points the name at it.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="shadow.py"
+x = 5
+print(x)
+
+x = x + 1
+print(x)
+
+x = x * 10
+print(x)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="shadow.rs"
+fn main() {
+    let x = 5;
+    println!("{}", x);
+
+    let x = x + 1;
+    println!("{}", x);
+
+    {
+        let x = x * 10;
+        println!("{}", x);
+    }
+
+    println!("{}", x);
+}
+```
+</TabItem>
+</Tabs>
+
+<WhatDiffers>
+<Fragment slot="differs">
+Rust's three `let x = ...` lines each create a new variable named `x`. The innermost one, declared inside the nested block, shadows the other two only until its block ends, so the program reverts to the enclosing `x` afterward, printing 5, 6, 60, 6. Python's `x = ...` always reassigns the one and only `x` that exists; there is no new variable and nothing to revert to, so Python prints 5, 6, 60, with no fourth line to print.
+</Fragment>
+</WhatDiffers>
+
+Run the Python file and it prints three lines, since it has only one `x`, reassigned twice:
+
+```bash title="Run the Python program"
+python3 shadow.py
+```
+
+```text frame="terminal" title="Output"
+5
+6
+60
+```
+
+Compile and run the Rust version and it prints a fourth line. After the inner block ends, its new `x` is dropped and the name refers to the enclosing `x` again, whose value of 6 was never touched by the shadowing inside the block:
+
+```bash title="Compile and run the Rust program"
+rustc shadow.rs
+./shadow
+```
+
+```text frame="terminal" title="Output"
+5
+6
+60
+6
+```
+
+## Global Variables
+
+Not every variable lives inside a function. A variable defined at the top level of a program, outside any function (in Python, the module body), has global scope: any function below it in the file can read it, and, in Python, can be told to modify it too. Such a variable is called a **global variable**, and at first glance it looks like a convenient way for two functions to share information without bothering with parameters or return values at all.
+
+That convenience is exactly the problem. If any function anywhere in the program can quietly change a global variable's value, then understanding what any one function does requires knowing the current value of every global variable it touches, and knowing every other function that might have changed those values first. A function that reads or writes a global variable has a hidden dependency that the function's own signature never reveals: read the signature and you cannot tell the function depends on that value at all, so you cannot understand the function in isolation. That makes a program harder to read, harder to test one function at a time, and harder to debug, since a wrong value can enter from anywhere. For this reason, relying on global variables for two functions to communicate is considered an **antipattern**: a tempting habit that causes more trouble than it saves. Passing values in as parameters and getting them back as return values, the pattern from the previous lecture, keeps every function's dependencies visible in its own signature instead.
+
+Rust's `static` keyword is how you write a global variable at all: it makes a variable that lives outside every function, in the global scope, rather than inside any one function's stack frame.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="total.py"
+running_total = 0
+
+def add_to_total(amount):
+    global running_total
+    running_total = running_total + amount # runs, but now both functions depend on a variable neither one owns
+
+def show_total():
+    print(running_total)
+
+add_to_total(5)
+add_to_total(3)
+show_total()
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="total.rs (will not compile)"
+static mut RUNNING_TOTAL: i32 = 0;
+
+fn add_to_total(amount: i32) {
+    RUNNING_TOTAL = RUNNING_TOTAL + amount; // error: use of mutable static is unsafe and requires unsafe function or block (will not compile)
+}
+
+fn main() {
+    add_to_total(5);
+    println!("{}", RUNNING_TOTAL);
+}
+```
+</TabItem>
+</Tabs>
+
+<WhatDiffers>
+<Fragment slot="differs">
+Python lets a function modify a global variable once it states `global running_total`, so the Python version runs and prints 8, even though the two functions now silently depend on a variable neither one owns. Rust refuses to compile the same idea at all: touching a mutable `static` variable is only allowed inside an `unsafe` block, a way of telling the compiler to stop checking a piece of code, which this course never uses. Rust simply will not let a program write to shared global state this way.
+</Fragment>
+</WhatDiffers>
+
+Run the Python file and it prints 8: the two calls raise the shared total, and `show_total` reads it back, all three functions leaning on the same global variable:
+
+```bash title="Run the Python program"
+python3 total.py
+```
+
+```text frame="terminal" title="Output"
+8
+```
+
+Compile the Rust file and it does not build at all. Writing to a mutable `static` is only permitted inside an `unsafe` block, so the compiler reports error `E0133` and produces no executable:
+
+```bash title="Compile the Rust program"
+rustc total.rs
+```
+
+```text frame="terminal" title="Output"
+error[E0133]: use of mutable static is unsafe and requires unsafe function or block
+ --> total.rs:4:5
+```
+
+Python's own function scope adds one more trap here. Leaving out the `global` keyword does not silently fail to update the outer variable; it makes `running_total` a brand new local variable for the whole function, exactly as described earlier, so Python raises an error the moment it tries to read that local variable's value before anything has been assigned to it:
+
+```python title="forgot_global.py"
+running_total = 0
+
+def add_to_total(amount):
+    running_total = running_total + amount # UnboundLocalError: assigning to running_total anywhere in the function makes it local for the whole function, so the right side has no value yet
+
+add_to_total(5)
+```
+
+Run it and Python fails inside `add_to_total`, at the exact point the addition tries to read `running_total`, because inside this function that name is now a local variable that has not been given a value yet:
+
+```bash title="Run the Python program"
+python3 forgot_global.py
+```
+
+```text frame="terminal" title="Output"
+Traceback (most recent call last):
+  File "forgot_global.py", line 6, in <module>
+    add_to_total(5)
+    ~~~~~~~~~~~~^^^
+  File "forgot_global.py", line 4, in add_to_total
+    running_total = running_total + amount
+                    ^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'running_total' where it is not associated with a value
+```
+
+None of this trouble is needed for the running-total example above. Passing `running_total` in as a parameter and returning the updated value out, exactly as the previous lecture's functions did, gives the same result without a global variable at all, and without either language's traps.
+
+## Takeaways
+
+A local variable belongs entirely to the function that created it: its scope, the region of the program where its name means anything, does not reach outside that function, and neither language will let you read it from anywhere else. The call stack is what makes this possible: every call pushes a private stack frame holding its own parameters and local variables, frames stack on top of each other in last-in-first-out order as functions call other functions, and each frame is popped when its function returns, so a variable's lifetime lasts exactly as long as the one frame that holds it. That same frame-per-call mechanism is why the previous lecture's argument copy is safe, since the copy lands in the callee's frame and cannot reach down into the caller's. Rust divides scope even more finely with bare `{ }` blocks, letting a variable live and die inside a small part of a function, and lets a new `let` shadow an existing name with a brand new variable that reverts once its own scope ends; Python has neither feature, since its smallest scope is the whole function and its `=` always reassigns the one variable that already exists. A global variable sidesteps all of this by living outside every function, reachable from anywhere below it, which sounds convenient until you have to track down which function last changed its value; passing values as parameters and getting them back as return values keeps every function's dependencies visible in its own signature instead, which is why the previous lecture's pattern remains the one to reach for.
+
+## Resources
+
+- [Python language reference: Naming and binding](https://docs.python.org/3/reference/executionmodel.html#naming-and-binding)
+- [The Rust Book: Variables and Mutability](https://doc.rust-lang.org/book/ch03-01-variables-and-mutability.html)
+- [Rust reference: Block expressions](https://doc.rust-lang.org/reference/expressions/block-expr.html)
+- [Rust reference: Static items](https://doc.rust-lang.org/reference/items/static-items.html)

@@ -1,0 +1,37 @@
+{
+  "title": "Assignment 7: Dashboard Publication Check, visible tests",
+  "mode": "suite",
+  "run": "test_dashboard_cleared",
+  "files": {
+    "py": "certify.py",
+    "rs": [
+      "certify.rs"
+    ]
+  },
+  "subjects": [
+    {
+      "label": "the correct implementation",
+      "should_pass": true,
+      "py": "subject_correct.py",
+      "rs": "subject_correct.rs"
+    },
+    {
+      "label": "a broken version that treats a 15-minute-old reading as fresh",
+      "should_pass": false,
+      "py": "subject_stale.py",
+      "rs": "subject_stale.rs"
+    },
+    {
+      "label": "a broken version that excludes both ends of the band",
+      "should_pass": false,
+      "py": "subject_openband.py",
+      "rs": "subject_openband.rs"
+    },
+    {
+      "label": "a broken version that ignores the clock-fault flag",
+      "should_pass": false,
+      "py": "subject_ignoresclock.py",
+      "rs": "subject_ignoresclock.rs"
+    }
+  ]
+}

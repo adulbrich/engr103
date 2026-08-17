@@ -1,0 +1,408 @@
+---
+title: "Variables and State"
+description: "Learn how a variable names a stored value, how assignment evaluates then binds, how Python and Rust create, change, and initialize variables differently, and how to trace a variable's value by hand."
+sidebar:
+  order: 4
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+import WhatDiffers from '/src/components/WhatDiffers.astro';
+import MemoryStepper from '/src/components/MemoryStepper.svelte';
+
+{/* ai-summary
+type: lecture
+slug: variables-and-state
+order: 4
+covers: variables and identifiers; assignment as evaluate-then-bind; rebinding; let vs let mut vs bare Python assignment; console input with input() and the provided read_i32/read_f64 helpers; initialization; reading an uninitialized variable; constants; tracing a variable table
+prereq_lectures: values-types-and-expressions
+followup_lectures: functions
+glossary_terms: variable, assignment, mutability, initialization, constant, console input
+*/}
+
+<LanguageVersions />
+
+Every expression in the last lecture produced a value and printed it in the very same line: `3 + 4` became `7`, and once that line finished running, the 7 was gone. If you needed that same 7 three lines later, you had to type `3 + 4` again, or copy the `7` by hand and hope you got it right. Real programs almost never use a value exactly once. A total that grows as more items are counted, a result that gets checked against something later, a measurement that changes as the program learns more: none of this works if a value only exists for the instant it is produced. What a program needs is a way to keep a value around after it is computed, and to attach a name to it so that later code can call it back by that name instead of recomputing or retyping it.
+
+## Variables
+
+A **variable** is a name that refers to a value a program has stored, so that later code can use that name instead of the value itself. The [How Values Are Stored](/lectures/data-representation) lecture showed that every value a program holds lives as bits in memory, in a numbered location. A variable puts a readable name on one of those locations, so you never have to know or track the number: you write the name, and the language looks up whatever value that name currently refers to.
+
+Creating a variable means picking a name and attaching it, for the first time, to a value. After that, using the name anywhere in your code has the same effect as writing the value itself. If `num_students` refers to 10, then writing `num_students` in an expression or a `print` works exactly as if you had written `10` there directly, except that the computer looks up whatever value the name currently refers to. This connects straight back to the previous lecture: a variable is one more kind of expression, and evaluating it reduces it, in a single step, to the value it currently names, the same way evaluating `7` produces `7`.
+
+A variable's name is called an **identifier**, and both Python and Rust apply the same basic rules to what counts as a valid one: it may contain only letters, digits, and underscores; it cannot start with a digit; it cannot be empty; and it is case-sensitive, so `count` and `Count` name two different variables. Neither language lets you use one of its own reserved words, such as `if` or `let`, as a variable name, because the language needs those words to mean only one thing.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="naming.py"
+num_students = 10
+print(num_students)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="naming.rs"
+fn main() {
+    let num_students = 10;
+    println!("{}", num_students);
+}
+```
+</TabItem>
+</Tabs>
+
+<WhatDiffers>
+<Fragment slot="differs">
+Python creates a variable with nothing more than a name, an `=`, and a value: writing `num_students = 10` is enough on its own. Rust requires the keyword `let` before the name, so the same idea is written `let num_students = 10;`. Without `let`, Rust does not recognize the line as creating a variable at all.
+</Fragment>
+</WhatDiffers>
+
+Run the Python version and the `print` looks the name up and displays the value it refers to:
+
+```text frame="terminal" title="Output"
+10
+```
+
+Picture a variable as a small labeled box: the label is the name, and the box holds whatever value was last stored in it. Step through the trace below to watch the name `num_students` get bound to the value 10 and then looked up by name.
+
+<MemoryStepper
+  client:visible
+  title="Binding a name to a value"
+  code={`num_students = 10
+print(num_students)`}
+  steps={[
+    { line: 1, caption: "Assignment binds the name num_students to the value 10.", names: [{ name: "num_students", value: "10" }], objects: [] },
+    { line: 2, caption: "Using the name looks up the value it is bound to, 10, and prints it.", names: [{ name: "num_students", value: "10" }], objects: [] },
+  ]}
+/>
+
+A name matters because it lets one stored value stand in for itself everywhere it is needed. Without variables, a value used in five places would have to be written out, identically, in all five places, and updating it later would mean finding and changing every single copy by hand. A variable lets you write the value once and reuse the name as many times as you like.
+
+:::note[What "binding" means]
+The link between a name and the value it refers to is called a **binding**, and you will see the words "bind" and "rebind" throughout this lecture. To *bind* a name is to make it refer to a value; to *rebind* it is to make the same name refer to a different value than before. A variable, then, is a binding you can look up by name. Keeping the name and the value as two separate things, joined by a binding you can change, is exactly what lets the same name refer to 10 now and something else later.
+:::
+
+## Assignment and Mutability
+
+Giving a variable its value is called **assignment**, and it is performed with the `=` operator. Assignment is a definite two-step process, and seeing both steps is what keeps it from being mysterious. First, the expression on the right side of the `=` is evaluated, using the reduction from the [Values, Types, and Expressions](/lectures/values-types-and-expressions) lecture, until it becomes a single value. Second, the name on the left is bound to that value: the name is made to refer to the value the right side produced. Evaluate the right, then bind the left. Always in that order.
+
+That order is the whole reason assignment is not the same as mathematical equality, even though it borrows the `=` sign. Equality is a claim that two things are already the same; assignment is an action that changes what a name refers to. The difference is easiest to see when the same variable appears on both sides. A statement like `count = count + 1` reads as nonsense if you treat `=` as equality, because no number equals itself plus one. As assignment it is perfectly ordinary. Suppose `count` currently refers to 5. Step one evaluates the right side, `count + 1`: the name `count` reduces to its current value 5, giving `5 + 1`, which reduces to the single value 6. Step two binds `count` to that 6. The name that referred to 5 an instant ago now refers to 6, and the old 5 is gone. The right side was computed from the *old* value before the name was rebound, which is why using a variable on both sides of its own assignment works and does something useful: it builds the new value out of the current one.
+
+Because assignment changes what a name refers to, it is a change of **state**: the stored value the program remembers is different after the line than before it. That is the sense in which this lecture is about state, not just names. A program's state is all the values its variables currently hold, and assignment is the operation that changes it.
+
+The first time a name is given a value at all, that assignment is called **initialization**; every assignment after that first one is a **reassignment**, which rebinds the name to a new value. In Python, a variable can be reassigned at any time, simply by writing its name, `=`, and a new value, with no extra step required.
+
+Rust starts from the opposite assumption. A variable created with plain `let` is immutable: once it holds a value, that value cannot be changed, and the compiler rejects any later assignment to it before your program ever runs.
+
+```rust title="immutable.rs (will not compile)"
+fn main() {
+    let count = 5;
+    count = 6; // error: cannot assign twice to immutable variable `count` (Rust will not compile this)
+    println!("{}", count);
+}
+```
+
+The mechanism behind that rejection is worth naming. When Rust's compiler reads `let count = 5;`, it records in its own bookkeeping that `count` is a binding that may not change. When it then reaches `count = 6;`, it checks that record, sees the binding is not allowed to change, and reports the error rather than producing an executable. This all happens while compiling, so there is no program to run and nothing prints:
+
+```bash title="Compile the Rust program"
+rustc immutable.rs
+```
+
+```text frame="terminal" title="Output"
+error[E0384]: cannot assign twice to immutable variable `count`
+ --> immutable.rs:3:5
+```
+
+**Mutability** is whether a variable is allowed to change after it is created. Rust makes every variable immutable unless you say otherwise, and the reason is a deliberate trade in your favor: most variables in a working program are never meant to change once they are set, so making immutability the default matches what code usually wants, and turns an accidental second assignment into an error the compiler catches for free. Finding that mistake before the program runs is far cheaper than tracking down the wrong answer it would otherwise cause much later. To allow a variable to change, add the keyword `mut` right after `let`, when the variable is first created.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="reassign.py"
+count = 5
+print(count)
+count = 6
+print(count)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="reassign.rs"
+fn main() {
+    let mut count = 5;
+    println!("{}", count);
+    count = 6;
+    println!("{}", count);
+}
+```
+</TabItem>
+</Tabs>
+
+<WhatDiffers>
+<Fragment slot="differs">
+Python variables can always be reassigned; there is no keyword that restricts this. Rust variables are immutable by default, so reassigning a plain `let` binding is a compile error, and only a variable declared with `let mut` can be given a new value after it is created.
+</Fragment>
+</WhatDiffers>
+
+Both versions print the value before the reassignment and then after it:
+
+```text frame="terminal" title="Output"
+5
+6
+```
+
+Step through the trace below to watch `count` before and after the reassignment. Reassignment does not create a second box beside the first; it overwrites what the one box holds, so once the name is rebound to 6, the old 5 is gone and no later code can read it back.
+
+<MemoryStepper
+  client:visible
+  title="Reassigning a variable"
+  code={`count = 5
+print(count)
+count = 6
+print(count)`}
+  steps={[
+    { line: 1, caption: "Initialization binds count to 5.", names: [{ name: "count", value: "5" }], objects: [] },
+    { line: 2, caption: "Reading count looks up its current value, 5, and prints it.", names: [{ name: "count", value: "5" }], objects: [] },
+    { line: 3, caption: "Reassignment rebinds the same name to 6; the old 5 is overwritten and gone.", names: [{ name: "count", value: "6" }], objects: [] },
+    { line: 4, caption: "Reading count now looks up 6.", names: [{ name: "count", value: "6" }], objects: [] },
+  ]}
+/>
+
+:::note[A second `let` is not a change]
+Rust also allows a second `let` with a name that already exists, which creates a brand new binding rather than reassigning the old one; this is called shadowing, and the lecture on scope and the call stack teaches it in full.
+:::
+
+## Console Input
+
+Every value assigned so far in this lecture came from your own source code: `10`, `5`, `count + 1`. A program becomes far more useful once it can also take a value from the person running it while the program runs, instead of only from what you typed into the file ahead of time. **Console input** is text a program reads from the person running it while the program executes, rather than text already written into the source code. Reading a value this way still ends the same way any other value does: the text that comes back has to be bound to a name before later code can use it, following the exact evaluate-then-bind process from earlier in this lecture.
+
+Python reads one line of console input with a single built-in function call. `input(prompt)` does three things in order: it prints the `prompt` you give it to the screen, then it pauses the whole program and waits, doing nothing further until the person types something and presses Enter, and finally it returns exactly what they typed as a string, with the newline character that pressing Enter adds already removed for you. The value `input` hands back is always a string of text, never a number, even if every character typed was a digit. Writing `age_text = input("Enter your age: ")` binds `age_text` to a string like `"25"`, not to the number 25, using the same evaluate-then-bind process: the call to `input` runs to completion and produces a value, and only then is `age_text` bound to it.
+
+A string of digits is not the same thing as a number: you cannot add `"25"` and `"3"` and get `28`, because addition on two strings does something else entirely, and a string cannot be compared with `<` the way a number can. **Parsing** is the step that turns text into the value it represents, here a whole number or a decimal number. Python parses with another plain function call: `int(age_text)` reads the string and returns the whole number it spells, and `float(age_text)` does the same job for a number with a decimal point. Both hand back an ordinary value that can be bound to a name the same way any other value can, so `age = int(age_text)` binds `age` to the number 25 itself, not to the string it came from.
+
+Rust needs more steps to do the same job, because reading input is the first place in this course where a Rust program has to do work that Python folds into a single call. Rather than write those steps every time a program needs a number from the keyboard, this course hands you two functions already written, in a file you can open and read: `read_i32()` reads one line and hands back a whole number, and `read_f64()` does the same for a decimal number. You call them exactly the way you already call `println!`, a name followed by parentheses; the lecture on errors, input, and validation explains what is written inside them once the pieces they use have all been introduced.
+
+If the person types something that is not a number, the program stops right there and prints an error message, in both languages, and what it can do instead of simply stopping is the subject of a later lecture on errors, input, and validation.
+
+With `read_i32` and `read_f64` written for you, using one from `main` is a single line, the same shape as Python's `int(input(...))`:
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="Reading a number someone types"
+countdown_seconds = int(input("Countdown (s): "))
+print(countdown_seconds)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="Reading a number someone types"
+// Provided for you in the starter file:
+//     fn read_i32() -> i32
+// It reads one line that a person types and gives back the whole number they
+// typed. The errors lecture explains how it works.
+
+fn main() {
+    println!("Countdown (s): ");
+    let countdown_seconds = read_i32();
+    println!("{}", countdown_seconds);
+}
+```
+</TabItem>
+</Tabs>
+
+This is one of only two Rust examples in the course that do not run as pasted, and both say so on the page (the other is the body of `read_i32` itself, opened up in the errors lecture). `read_i32` is not shown here because writing a function with a typed return is not yet introduced at this point in the course, so the code above belongs in the starter file, where `read_i32` is already written for you.
+
+To see this run, pipe a line of text into each program so the run is reproducible without actually typing anything at a keyboard:
+
+```bash title="Run the Python program"
+echo "500" | python3 countdown.py
+```
+
+```text frame="terminal" title="Output"
+Countdown (s): 500
+```
+
+```bash title="Compile and run the Rust program"
+rustc countdown.rs
+echo "500" | ./countdown
+```
+
+```text frame="terminal" title="Output"
+Countdown (s): 
+500
+```
+
+Both programs read the same `500` and bind it to `countdown_seconds` as the number 500, not the text `"500"`. The two outputs only look different because Python's prompt does not end with a newline of its own, so the typed value lands on the same line as the prompt, while Rust's `println!` always ends its own line, so the value prints on the line below it.
+
+<WhatDiffers>
+<Fragment slot="differs">
+Python folds the whole job into one call that hands back the typed text with the newline already removed. Rust spells the same job out across several steps, so this course hands you `read_i32` and `read_f64` already written; you call them the same way you have been calling `println!`, and the lecture on errors explains what is inside them.
+</Fragment>
+</WhatDiffers>
+
+## Initialization and Reading Before Assignment
+
+A variable is only useful once it has been initialized, so both languages have to decide what happens if code tries to read a variable's value before that has happened. They decide it very differently, and the difference is the same interpreter-versus-compiler split from the [How Programs Run](/lectures/how-programs-run) lecture, showing up in a new place.
+
+Python has no separate step for creating a variable before giving it a value. A name simply does not exist until the first line that assigns it actually runs; there is no declaration that sets a name aside in advance. So reading a name that has never been assigned is not a case of an empty variable, it is a case of a name the interpreter has never heard of. Because Python runs one line at a time, it only discovers this the instant it reaches the offending line and tries to look the name up, at which point it raises a run-time error called a `NameError`.
+
+Rust reasons about the whole file before running any of it, so it can be stricter. As part of compiling, Rust's compiler tracks, for every variable, whether that variable has definitely been given a value on every path that reaches a use of it. If it finds a place where a variable is read but might not have been assigned yet, it refuses to build the program at all. This means reading a variable that was declared but never given a value is a compile error, caught before the program takes a single step, not something that only shows up if that particular line happens to run.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="mystery.py"
+print(mystery_count) # NameError: name 'mystery_count' is not defined (raised only when this line runs)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="mystery.rs (will not compile)"
+fn main() {
+    let mystery_count: i32;
+    println!("{}", mystery_count); // error: used binding `mystery_count` isn't initialized (will not compile)
+}
+```
+</TabItem>
+</Tabs>
+
+<WhatDiffers>
+<Fragment slot="differs">
+Python has no separate declaration step, so a name that was never assigned does not exist yet; reading it is a run-time `NameError`, and only if that exact line of code actually runs. Rust checks that every variable is initialized as part of compiling your program, so reading one that was declared but never assigned is a compile error you see immediately, whether or not the line would have run often.
+</Fragment>
+</WhatDiffers>
+
+Run the Python file and it fails only when execution reaches the line, printing a traceback that names the file, the line, and the exact problem:
+
+```text frame="terminal" title="Output"
+Traceback (most recent call last):
+  File "mystery.py", line 1, in <module>
+    print(mystery_count)
+          ^^^^^^^^^^^^^
+NameError: name 'mystery_count' is not defined
+```
+
+Compile the Rust file and there is no run at all; the compiler names the uninitialized binding and stops:
+
+```bash title="Compile the Rust program"
+rustc mystery.rs
+```
+
+```text frame="terminal" title="Output"
+error[E0381]: used binding `mystery_count` isn't initialized
+ --> mystery.rs:3:20
+```
+
+The simplest way to avoid this in either language is the same habit: give a variable a value the moment you create it, so there is never a window where the name exists but has nothing to refer to.
+
+```rust title="Initializing when you create the variable"
+fn main() {
+    let mystery_count: i32 = 42;
+    println!("{}", mystery_count);
+}
+```
+
+## Constants
+
+Some values in a program should never change once the program starts running: a maximum class size, the number of days in a week, a fixed conversion factor. Both languages let you signal that intent, but only one of them enforces it. A **constant** is a name attached to a value that is never meant to be reassigned.
+
+Python has no dedicated keyword for a constant; a name meant to stay fixed is still an ordinary variable. The convention is to write its name entirely in capital letters with underscores between words, such as `MAX_STUDENTS`, so that anyone reading the code recognizes it as a value meant to stay fixed. This is a signal to human readers only. The interpreter treats an all-capitals name exactly like any other name, so nothing stops a later `MAX_STUDENTS = 31`, and Python accepts it without complaint.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="constant.py"
+MAX_STUDENTS = 30
+print(MAX_STUDENTS)
+MAX_STUDENTS = 31 # Python accepts this: the convention is not enforced
+print(MAX_STUDENTS)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="constant.rs"
+fn main() {
+    const MAX_STUDENTS: i32 = 30;
+    println!("{}", MAX_STUDENTS);
+}
+```
+</TabItem>
+</Tabs>
+
+<WhatDiffers>
+<Fragment slot="differs">
+Python's `MAX_STUDENTS` is an ordinary variable that follows an ALL_CAPS naming convention purely by agreement among programmers; the language never checks the name or blocks a later reassignment. Rust's `const` is a distinct keyword: it requires a type annotation the compiler will not infer for you, and it can never be reassigned, not even with `mut`. Rust even warns you, though it still compiles, if you name a `const` in anything other than ALL_CAPS.
+</Fragment>
+</WhatDiffers>
+
+Run the Python file and the second assignment goes through, so the "constant" prints two different values:
+
+```text frame="terminal" title="Output"
+30
+31
+```
+
+Rust has an actual `const` keyword, and the compiler enforces two things a plain `let` does not require. A `const` must always carry an explicit type annotation, since Rust will not infer one for it, which is why the example writes `: i32`. And a `const` can never be reassigned, under any circumstances, because `mut` is not a valid option for it at all. A `const`'s value must also be fixed and known before the program runs, rather than something computed while it runs. Compile and run it and it simply prints its one fixed value:
+
+```text frame="terminal" title="Output"
+30
+```
+
+:::note[Why Python cannot enforce a constant]
+Python could, in principle, refuse to reassign a capitalized name, so why does it not? Because the all-capitals form is a naming convention layered on top of ordinary variables, not a separate kind of binding the interpreter knows about. When Python runs `MAX_STUDENTS = 31`, it does exactly what it does for any assignment: evaluate the right side and rebind the name. It has no record that this particular name was meant to stay fixed, because there is nothing in the language that ever recorded such an intent. Rust's `const` is a different construct entirely, one the compiler does track, which is what lets it reject a reassignment that Python cannot even see coming.
+:::
+
+## Tracing Variables by Hand
+
+Just as hand-evaluating an expression from the last lecture let you predict a program's output before running it, hand-tracing a variable lets you predict its stored value at any point in a program. A **variable table** lists, line by line, the current value every variable holds after that line runs; building one by hand is a reliable way to check your understanding of a program against what it actually does.
+
+Take a short program that starts a variable at 5, adds 3 to it, then doubles the result. Each line after the first is an assignment whose right side is built from the variable's own current value, so each one is the evaluate-then-bind process from earlier, applied in turn.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="trace.py"
+count = 5
+count = count + 3
+count = count * 2
+print(count)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="trace.rs"
+fn main() {
+    let mut count = 5;
+    count = count + 3;
+    count = count * 2;
+    println!("{}", count);
+}
+```
+</TabItem>
+</Tabs>
+
+Walk it one line at a time, doing both steps of each assignment out loud. Line 1 initializes: the right side is already the single value 5, so `count` is bound to 5. Line 2 reassigns: the right side `count + 3` evaluates using the current `count`, so `5 + 3` reduces to 8, and `count` is rebound to 8, with the 5 discarded. Line 3 reassigns again: `count * 2` evaluates using the now-current `count`, so `8 * 2` reduces to 16, and `count` is rebound to 16, with the 8 discarded. Recording the value after each line gives the table:
+
+| Line | Statement | `count` afterward |
+|---|---|---|
+| 1 | `count = 5` | 5 |
+| 2 | `count = count + 3` | 8 |
+| 3 | `count = count * 2` | 16 |
+
+The final `print` reads whatever value `count` holds at that point in the program, which the table shows is 16. Running the program confirms the trace, and it prints the same 16 in both languages, because the assignment and rebinding rules are identical here and only the surrounding syntax differs:
+
+```text frame="terminal" title="Output"
+16
+```
+
+:::note[A shorter way to write `count = count + 3`]
+Reassigning a variable from its own current value is common enough that both languages offer a shorthand for it, called augmented assignment: `count += 3` means exactly `count = count + 3`, and `count *= 2` means `count = count * 2`. It is the same evaluate-then-bind process, just written more briefly. This course does not use augmented assignment in its examples yet, so the language ladder introduces it later; the point here is only that when you meet `+=` down the road, it is not a new idea, only a compact spelling of the assignment you already understand.
+:::
+
+## Takeaways
+
+A variable gives a stored value a name you can use and update anywhere in your code, turning a one-time expression into something that can be reused, checked, and changed as a program runs. Assignment is how a variable gets or changes its value, and it is two steps in a fixed order: evaluate the right-hand side down to a single value, then bind the name on the left to that value. That order is exactly why `count = count + 1` builds a new value out of the current one instead of asserting something impossible.
+
+The two languages create variables differently. Python needs nothing more than a name and `=`, and any variable can be reassigned at any time. Rust requires `let` to create a variable and makes it immutable unless you explicitly add `mut`, catching an accidental reassignment at compile time by recording which bindings are allowed to change.
+
+Initialization exposes the same interpreter-versus-compiler split in a different place. In Python, a never-assigned name does not exist until a line assigns it, so reading it is a run-time `NameError` discovered only when that line runs. Rust tracks whether every variable is definitely set before it is read, and refuses to compile a program that reads an uninitialized one.
+
+Constants extend mutability one step further, naming a value that should never change at all. Python's ALL_CAPS is a convention the interpreter never checks, so a later reassignment is quietly accepted; Rust's `const` is a distinct construct the compiler enforces, requiring an explicit type and forbidding any reassignment.
+
+Tracing a variable table by hand ties all of this together: it is the evaluate-then-bind process applied across several lines instead of one, and it is worth practicing until it feels routine. The next lecture builds directly on variables, packaging a sequence of steps into a function so that code you would otherwise repeat can be written once and reused by name, the same way a variable already lets you reuse a value by name.
+
+## Resources
+
+- [The Rust Book: Variables and Mutability](https://doc.rust-lang.org/book/ch03-01-variables-and-mutability.html)
+- [Rust reference: Constant items](https://doc.rust-lang.org/reference/items/constant-items.html)
+- [Python reference: Assignment statements](https://docs.python.org/3/reference/simple_stmts.html#assignment-statements)
+- [PEP 8: Constants](https://peps.python.org/pep-0008/#constants)

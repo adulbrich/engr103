@@ -22,7 +22,7 @@ For coding, you can think of it as a super-powered autocomplete + explanation en
 - You give it a prompt (question, code snippet, error message, goal).
 - It predicts a helpful response (explanation, example, rewrite, checklist, etc.).
 
-Most "chat" GenAI tools for programming are based on large language models (LLMs). They are trained to produce plausible, useful text — not to "run" your program in their head.
+Most "chat" GenAI tools for programming are based on large language models (LLMs). They are trained to produce plausible, useful text, not to "run" your program in their head.
 
 ## What GenAI Is Not
 
@@ -30,10 +30,10 @@ GenAI does **not** understand your program the way a human does.
 
 - It does not *know* if a statement is true. It produces text that *sounds* right.
 - It does not automatically check your code against your assignment requirements.
-- It can make confident mistakes (including subtle C++ mistakes).
+- It can make confident mistakes, including subtle Python and Rust mistakes.
 - Unless a tool is explicitly connected to the internet or your files, it cannot "see" your project or browse documentation.
 
-### Wait — Can Some Tools “Verify” Things Now?
+### Can Some Tools Verify Things Now?
 
 Yes, some modern GenAI tools are **more than just a text-only LLM**.
 
@@ -87,8 +87,8 @@ If you can't explain the code line-by-line, you shouldn't submit it.
 
 ### Weaknesses
 
-- **Hallucinations**: making up facts, APIs, or C++ rules.
-- **Subtle bugs**: off-by-one errors, incorrect loop bounds, wrong types, missing headers.
+- **Hallucinations**: making up facts, library functions, or language rules.
+- **Subtle bugs**: off-by-one errors, incorrect loop bounds, wrong types, missing imports.
 - **Overconfidence**: sounding certain even when wrong.
 - **Hidden assumptions**: inventing requirements you didn't ask for.
 - **Academic-risk behavior**: generating a full solution that you can't explain.
@@ -106,9 +106,9 @@ If you feel like you're making progress but you couldn't reproduce the solution 
 Ask for explanations/concepts, not solutions/answers. Ask it to quiz you.
 
 ```text title="Tutor mode prompt"
-You are a patient C++ tutor for a first-year student.
+You are a patient Python and Rust tutor for a first-year student.
 
-Topic: [loops / functions / arrays / strings / file I/O]
+Topic: [loops / functions / lists / strings / error handling]
 My current understanding: [1-2 sentences]
 
 Teach me using short steps.
@@ -122,12 +122,12 @@ Some tools have a "tutor" or "teaching" mode you can enable.
 
 GenAI is most useful when you provide:
 
-- the **exact compiler error**,
+- the **exact error message** the tool printed,
 - the **smallest code snippet** that triggers it,
 - what you expected vs what happened.
 
 ```text title="Explain this compiler error"
-I am compiling C++ with g++.
+I am running Python 3 with python3 / compiling Rust with rustc.
 
 Error message:
 [paste the error]
@@ -142,10 +142,11 @@ Then suggest a tiny experiment I can run to confirm the cause.
 
 ### Using It Like Documentation
 
-This can be great for learning standard library functions, but verify with a trusted source (cppreference, your notes, or lecture material).
+This can be great for learning standard library functions, but verify with a trusted source: docs.python.org, doc.rust-lang.org, your notes, or the lecture material.
 
 ```text title="How do I use this?"
-In C++, what does [std::getline / std::vector::push_back / std::stoi] do?
+In Python, what does [input / list.append / int] do?
+In Rust, what does [Vec::push / String::from / parse] do?
 
 Give me:
 1. a one-sentence description
@@ -158,12 +159,12 @@ Give me:
 Ask for *small* examples you can adapt (not a complete assignment).
 
 ```text title="Small example request"
-Show a minimal C++ example of:
-- reading an int safely from std::cin
-- rejecting bad input
-- reprompting until valid
+Show a minimal example, in Python and in Rust, of:
+- reading a whole number from the console
+- rejecting input that is not a number
+- asking again until the input is valid
 
-Keep it under 30 lines and explain each part.
+Keep each version under 30 lines and explain each part.
 ```
 
 ### Refactoring and Improvement
@@ -171,7 +172,7 @@ Keep it under 30 lines and explain each part.
 GenAI is useful **once your program works** and you want to make it cleaner.
 
 ```text title="Refactor without changing behavior"
-Please refactor this C++ code to improve readability.
+Please refactor this Python (or Rust) code to improve readability.
 
 Rules:
 - do not change behavior
@@ -182,8 +183,6 @@ Rules:
 Here is the code:
 [paste code]
 ```
-
-We provide a [prompt to apply the course C++ style guide](/practicalities/style/#ai-instructions).
 
 ## Prompts to Illustrate Strengths vs Weaknesses
 
@@ -196,7 +195,7 @@ Try these and compare the results:
 3. **Risky use (solution vending)**
    - "Write my whole program for the assignment."
 4. **Tricky use (hallucination bait)**
-   - "What does `std::vector::append` do in C++?" (It doesn't exist — see if it invents it.)
+   - "What does `list.push()` do in Python?" (It does not exist; Python lists use `append`. See if the tool invents it.)
 
 ## Privacy and Safety
 
@@ -225,7 +224,7 @@ GenAI use must follow the course's academic integrity rules. In general:
 
 It is usually fine to ask for explanations, examples, debugging strategies, and refactoring suggestions, as long as you understand and verify what you use.
 
-ENGR 103 assignments have an AI Critique rubric item. You may be asked to explain how you used GenAI tools and reflect on their usefulness and limitations.
+Every ENGR 103 assignment ends with a reflection in which you state plainly whether you used an AI tool and, if so, for what. Saying you did is never penalized; the disclosure is what is graded.
 
 :::caution[The Golden Rule of GenAI Use]
 If you can't explain what every part of your submission does (and why it's correct), you are not ready to turn it in.
@@ -236,7 +235,7 @@ If you can't explain what every part of your submission does (and why it's corre
 Before you use any GenAI output in your work, check:
 
 1. Can I explain it line-by-line? 
-2. Does it compile?
+2. Does it run, and does the Rust version compile?
 3. Did I test it with at least a few inputs (including edge cases)?
 4. Does it match the assignment's requirements exactly?
 5. Did I verify any factual/API claims with a trusted source?

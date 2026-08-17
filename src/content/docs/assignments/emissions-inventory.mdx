@@ -1,0 +1,204 @@
+---
+title: "The Annual Emissions Inventory"
+description: "Write the one entry-point function that parses a raw field reading line character by character, decodes the base-36 code Field Logger Codes built, and folds a qualifying reading into the caller's station manifest, test-first, then critique the coverage of the tool you built."
+sidebar:
+  order: 10
+draft: false
+---
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+import Reveal from '/src/components/Reveal.astro';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+import WhatDiffers from '/src/components/WhatDiffers.astro';
+import RubricTable from '/src/components/RubricTable.astro';
+
+{/* ai-summary
+type: assignment
+slug: emissions-inventory
+order: 10
+family: parsing and validating a fixed-width raw text reading line character by character into a conditional, in-place append to the caller's station manifest and a formatted report line
+paired_recitation: R10
+prereq_lectures: strings, collections-i, the-memory-model, sharing-and-mutation
+prereq_activities: the-memory-model, sharing-and-mutation
+prereq_assignment: field-logger-codes
+new_scope: one entry point that takes a string parameter and a list parameter together, decodes a base-36 code back into a whole-number reading (closing the round trip Field Logger Codes opened), and mutates the caller's list in place only when the line qualifies
+target_construct: passing a list to a function and mutating it in place through a shared reference, the aliasing the caller can observe, with fixed-offset character-by-character parsing deciding whether the mutation happens
+persistent_requirements: dual-language, one shared contract; the grader reads the returned report line and inspects the caller's list after the call; strings and lists only, no dict or HashMap; no construct beyond the week-9 ladder
+story_beat: folding a year's worth of raw field-network reading lines into the office's running station manifest
+output: one function to Gradescope, an optional extra-credit function, and a Canvas PDF with acceptance tests, pseudocode, a hand trace, a one-page equity critique, and a reflection
+*/}
+
+<LanguageVersions />
+
+WRO's annual air-quality inventory is built from a year of raw reading lines the field network has been sending in, one line per reading, in the fixed format the archive has always used. Not every line arrives clean: a station drops a character mid-transmission, or a byte flips somewhere on the way in. Your job as a junior engineer on the office's software team is to write the one function that reads an incoming line, decides whether it can be trusted, and folds every trustworthy reading into the year's running station manifest as the lines come in.
+
+## How This Assignment Works
+
+You work **test first**: you read the problem, decide what correct behavior looks like by writing your own test cases, plan the code in pseudocode, and only then write the code. The problem is solvable in Python or Rust, whichever you prefer. The program's `main`, its console input and output, and the local test runner are already written; you write the one function named below, and the automated grader calls it directly with a manifest and a line it chooses. It reads the report line you `return`, and separately, it inspects the caller's own manifest after the call. The order is fixed: design your tests, write your pseudocode, then write your function. After that comes an optional extra-credit stretch, a short paper trace, a one-page equity critique, and a two-sentence reflection.
+
+## What to Submit
+
+You submit in two places. Mechanics are in [Running and Submitting Your Code](/practicalities/starter-repo-and-check/); each section below also repeats what it asks for.
+
+- **A single PDF on Canvas** holding everything that is not code: your **acceptance tests**, your **pseudocode**, your **paper trace**, your **equity critique**, and your **reflection**.
+- **Your code on Gradescope**: the function `log_reading`, plus the extra-credit `archive_snapshot` if you attempt the summit.
+
+## The Problem
+
+The [Sensor Drift Check](/assignments/sensor-drift-check/) assignment fixed the field archive's reading line: one line per reading, three fields in a fixed order with no separator between a field and its own characters, `station_id,code,reference_ugm3`. `station_id` is always exactly six characters. `code` is always exactly three base-36 characters, the reading's whole number of micrograms per cubic meter, most significant character first: the ten characters `0` through `9` stand for the values zero through nine, and the lowercase letters `a` through `z` continue counting from there up through `z`, which stands for thirty-five. `reference_ugm3` is the only field with no fixed width: it holds either a decimal number or the letters `NA`, the archive's sentinel for a station with no co-located reference monitor.
+
+The [Field Logger Codes](/assignments/field-logger-codes/) assignment built the function that packs a reading into that three-character `code`. `log_reading` is the piece of the pipeline that finally reads one back: the same base-36 mapping, run in the other direction, turning three characters back into the number they stand for. That earlier assignment could only ever look at `code` one character at a time, because a whole string could not yet be a function parameter. Now that a list and a string can both be handed to a function, `log_reading` can take the whole line at once and finish the job that the codec started.
+
+Write `log_reading(manifest, line)`. First decide whether `line` is a **valid reading**: it is at least twelve characters long, the character at position 6 (counting from zero) is a comma, the character at position 10 is also a comma, and each of the three characters at positions 7, 8, and 9 is a valid base-36 digit character, one of `0` through `9` or a lowercase letter `a` through `z`. When `line` is not a valid reading, the function must return exactly the string `REJECTED` and leave `manifest` completely unchanged.
+
+When `line` is a valid reading, the six characters at positions 0 through 5 are its `station_id`, and the three characters at positions 7 through 9 are its `code`. Decode `code` back into the whole number it stands for: the character at position 7 carries the largest share of the value, position 9 the smallest, the same order `code_for` built it in. The function must then append the entry `station_id:reading_ugm3` to the end of `manifest`, with `reading_ugm3` written as a plain whole number, and return the report line `LOGGED station_id reading_ugm3`, its three pieces separated by single spaces.
+
+`log_reading` changes the caller's `manifest` in exactly this one case, and only by adding to it; it never removes or reorders anything already there. How you walk the line's characters, and what intermediate values you give names to along the way, is entirely your decision.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="report.py"
+def log_reading(manifest, line):
+    ...
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="report.rs"
+fn log_reading(manifest: &mut Vec<String>, line: &str) -> String {
+    todo!()
+}
+```
+</TabItem>
+</Tabs>
+
+We give you **one** worked example to show the format. Starting from a `manifest` holding `["WRO-03:640"]`:
+
+| Call | Result |
+|---|---|
+| `log_reading(manifest, "WRO-07,100,42.5")` | returns `"LOGGED WRO-07 1296"`; `manifest` becomes `["WRO-03:640", "WRO-07:1296"]` |
+
+**Assumptions and edge cases.** `line` may be any string at all, including the empty string; only a line with the exact shape above counts as valid. `reference_ugm3`, everything after position 10, is guaranteed to be either the letters `NA` or a decimal number whenever `line` is otherwise well-formed, but your function does not need to parse its value, only confirm that something is there. A reading decoded from a valid `code` always falls between `0` and `46655` inclusive: a shorted, negative reading is never packed into a `code` in the first place, so decoding a valid `code` never produces a negative value. No uppercase letter is ever a valid `code` character, exactly as in Field Logger Codes's `digit_value`. `manifest` may already hold any number of entries, including none, and a logged entry is always appended after whatever is already there, never in place of it. WRO's air-quality network currently reports through 84 active field stations across the district.
+
+<Aside type="danger" title="AURA has a claim about what a caller can see. Decide whether to trust it.">
+AURA, the office's assistant, offers this: "A function's return value is the only thing a caller can ever observe change. Unless you hand the manifest back out through `return`, whatever you do to it inside the function stays inside the function, so getting the report line right is really the whole job here."
+
+Office rule: no AURA analysis is published unverified. Decide whether AURA's claim is right before you build anything on it, and let your own test cases settle the question.
+</Aside>
+
+## Step 1: Write Your Acceptance Tests
+
+Before writing any code, decide what correct behavior looks like. Write a set of test cases for `log_reading` as a plain table of rows, or as `assert` lines if you prefer now that the testing lecture is behind you. Because `log_reading` both returns a value and can change `manifest`, each row should record the `manifest` before the call, the call itself, the report line you expect back, and the `manifest` you expect afterward. For each row, work out both expected values by hand from the rules above.
+
+Your table must include, and label, at least these cases:
+
+- The worked example above, as a starting check.
+- Both ends of the valid `code` range, `"000"` and `"zzz"`, decoded fully by hand.
+- One more `code` in between, decoded fully by hand.
+- A `code` containing a character that is not a valid base-36 digit, including one uppercase letter.
+- A `station_id` of the wrong length, so the required comma does not land at position 6.
+- A line that ends right after the second comma, with nothing in `reference_ugm3`.
+- A rejected line, showing `manifest` is completely unchanged afterward.
+- A call that starts from a `manifest` already holding entries, showing the new entry is appended after them rather than replacing them.
+
+**Submit your test table in your PDF on Canvas.**
+
+## Step 2: Write Your Pseudocode
+
+Now plan the code, still before writing it. In plain steps (not Python or Rust), describe how `log_reading` decides whether `line` is valid, how it turns a valid `code` into the number it stands for, and what it does to `manifest` and to its return value in each case. Name the intermediate values you intend to create, so a reader could follow your plan and write the code from it.
+
+**Submit your pseudocode in your PDF on Canvas.**
+
+## Step 3: Write Your Code
+
+Implement `log_reading` from the signature above, in Python or Rust, following your own pseudocode. The automated grader calls your function directly with a manifest and a line it chooses: it reads the report line you `return`, and it separately inspects the caller's own `manifest` after the call, so nothing is graded on how you get there, only on both of those being right for every input.
+
+<WhatDiffers>
+<Fragment slot="differs">
+Two real differences show up here. First, how a list reaches a function at all: in Python a list is shared the moment you pass it, so a plain `manifest.append(...)` inside the function changes the caller's list with no special syntax anywhere, while Rust spells the sharing out in the type, `manifest: &mut Vec<String>`, and the caller must write `&mut` at the call site too. Second, how you reach a character by position: Python indexes a string directly, `line[7]`, and hands back the character. Rust refuses to index a string with an integer at all; you first collect it into a list of characters, `let chars: Vec<char> = line.chars().collect();`, and index that instead, `chars[7]`.
+</Fragment>
+</WhatDiffers>
+
+**Submit your function to Gradescope.**
+
+## Summit Problem (extra credit)
+
+This one is a real stretch, and it earns extra credit. It is also your practice for the graded stretch problem in the recitation room, where a harder problem is waiting.
+
+Once a year is closed out, the office needs a permanent copy of that year's manifest for the archive, a copy that stays exactly as the year left it no matter what next year later logs into the live manifest. Write `archive_snapshot(manifest)`, which must build and return a new list holding the same entries currently in `manifest`, in the same order. The returned list must be independent of `manifest`: any entry logged into `manifest` after the call must never appear in the list you already returned.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="snapshot.py"
+def archive_snapshot(manifest):
+    ...
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="snapshot.rs"
+fn archive_snapshot(manifest: &Vec<String>) -> Vec<String> {
+    todo!()
+}
+```
+</TabItem>
+</Tabs>
+
+As one worked example, starting from `manifest` holding `["WRO-03:640", "WRO-07:1296"]`, `archive_snapshot(manifest)` returns `["WRO-03:640", "WRO-07:1296"]`, a separate list; logging another reading into `manifest` afterward leaves that already-returned list unchanged.
+
+**Submit `archive_snapshot` to Gradescope** to earn the extra credit.
+
+## Paper Practice
+
+Trace this program by hand, on paper. It is the aliasing pattern from the [Sharing and Mutation](/lectures/sharing-and-mutation/) lecture: `backup` is set to `daily`, which gives the one list a second name rather than making a second list. Build a variable table with a row for each line, tracking what `daily` and `backup` each hold after that line runs. Then write the exact two values the program prints.
+
+```python title="trace_me.py"
+def log_note(notes, text):
+    notes.append(text)
+
+daily = ["calibration ok"]
+backup = daily
+log_note(daily, "sensor swapped")
+print(daily)
+print(backup)
+```
+
+<Reveal label="Reveal the completed trace">
+The line `backup = daily` does not copy the list; it makes `backup` a second name for the very same list object, so anything that changes one is seen through the other.
+
+| Line | `daily` after | `backup` after |
+|---|---|---|
+| `daily = ["calibration ok"]` | `["calibration ok"]` | (not yet bound) |
+| `backup = daily` | `["calibration ok"]` | `["calibration ok"]` (same list, second name) |
+| `log_note(daily, "sensor swapped")` | `["calibration ok", "sensor swapped"]` | `["calibration ok", "sensor swapped"]` |
+
+`log_note` appends `"sensor swapped"` to the one shared list, so the change shows through both names even though `log_note` returns nothing at all. The program prints `['calibration ok', 'sensor swapped']`, then the exact same list again. Rust reaches the same two entries in the same order, and prints them with `{:?}` as `["calibration ok", "sensor swapped"]`; only the quotation marks differ, since Python's display of a list uses single quotes around its strings and Rust's uses double.
+</Reveal>
+
+Photograph your trace and include it in your PDF on Canvas. This part is graded on completion (the attached photograph), not on whether every cell is right, so attempt it by hand first, then open the reveal to check yourself.
+
+## Equity Critique
+
+This part is not code. Write about one page (roughly 300 to 500 words) critiquing the coverage of the tool you just built: the station manifest `log_reading` folds valid readings into.
+
+Regulatory air-quality monitors, the kind whose readings show up as a station's `reference_ugm3`, are not spread evenly across a region. A 2024 analysis of the EPA's own Air Quality System monitoring network found that under the tightened 2024 PM2.5 annual standard, coverage gaps leave roughly forty-four percent of urban areas that exceed the standard undetected, about 20 million people in all, and that the people living in those undetected hotspots are substantially more likely to be people of color or low-income than the U.S. population overall (Wang, Marshall, and Apte, "U.S. Ambient Air Monitoring Network Has Inadequate Coverage under New PM2.5 Standard," *Environmental Science & Technology Letters*, 2024). A neighborhood with no station nearby never produces a line for `log_reading` to read at all, and it never appears in the manifest, `LOGGED` or `REJECTED`, either way.
+
+Your one page must address all three of these:
+
+1. **What the manifest assumes.** `log_reading` reports a whole number of micrograms per cubic meter for every station that sends it a valid line, and it reports nothing for anywhere else. Describe, specifically, what a reader of the finished manifest would have to already believe about where WRO's stations sit in order to read that manifest as a complete picture of air quality across the district.
+2. **Where it fails, and how.** Name the concrete mechanism by which the manifest goes wrong for a place with no station: is the gap visible to whoever reads the manifest, or does it look identical to a place that was checked and found clean? Be specific about what in `log_reading`'s own behavior produces that outcome.
+3. **Whom it fails, and what closing the gap would take.** Using the source above or one you find yourself, describe who is more likely to live somewhere the network does not cover. Then describe one real change that would narrow the gap, and name the trade-off it carries: more stations to fund and maintain, a different siting rule that costs the easiest locations, or something else. A fix with no trade-off at all is a sign you have not looked closely enough.
+
+This critique is graded on completion, evaluated on whether it genuinely engages with all three points, not on whether the instructor agrees with your conclusions. It is not shared with anyone but the instructor.
+
+<Aside type="note" title="Why this critique sits here">
+Every requirement above describes exactly what `log_reading` must do, and nothing in that list says who is served by it doing that. A spec is silent about that question by design. This is the one week left to ask it about a tool you actually built, rather than one you only read about.
+</Aside>
+
+## Reflection
+
+Include a short reflection in your PDF on Canvas. In two sentences: first, state plainly whether you used an AI tool on this assignment and, if you did, what you used it for (if you did not use AI at all, say so explicitly); second, name any other help you used (a peer, the official docs, the lecture notes) and one thing you still could not do without that help.
+
+Then add one more sentence: which intermediate values did you choose to name inside `log_reading`, and why those? This is graded on completion, not on what you say, and it is not shared with anyone but the instructor.
+
+## Rubric
+
+<RubricTable src="canvas/assignments/emissions-inventory-rubrics.tsv" caption="The Annual Emissions Inventory Rubric" />

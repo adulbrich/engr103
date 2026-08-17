@@ -5,8 +5,8 @@ import starlight from "@astrojs/starlight";
 import tailwindcss from "@tailwindcss/vite";
 import mermaid from 'astro-mermaid';
 import svelte from "@astrojs/svelte";
-import starlightPageActions from 'starlight-page-actions'
-import starlightLinksValidator from 'starlight-links-validator'
+import starlightPageActions from 'starlight-page-actions';
+import starlightLinksValidator from 'starlight-links-validator';
 
 // https://astro.build/config
 export default defineConfig({
@@ -27,12 +27,12 @@ export default defineConfig({
           baseUrl: "https://engr103.alexulbrich.com",
           actions: {
             markdown: false,
-            custom: {
-              grok: {
-                label: "Open in Grok",
-                href: "https://grok.com/?q=",
-              },
-            },
+            // custom: {
+            //   grok: {
+            //     label: "Open in Grok",
+            //     href: "https://grok.com/?q=",
+            //   },
+            // },
           },
         })
       ],
@@ -55,27 +55,35 @@ export default defineConfig({
       sidebar: [
         {
           label: "Overview",
-          autogenerate: { directory: "overview" },
+          items: [{ autogenerate: { "directory": "overview" } }],
         },
         {
           label: "Practicalities",
-          autogenerate: { directory: "practicalities" },
+          items: [{ autogenerate: { "directory": "practicalities" } }],
         },
         {
           label: "Lecture Notes",
-          autogenerate: { directory: "lectures" },
+          items: [{ autogenerate: { "directory": "lectures" } }],
         },
         {
-          label: "Studios",
-          autogenerate: { directory: "studios" },
+          label: "Activities",
+          items: [{ autogenerate: { "directory": "activities" } }],
         },
         {
           label: "Assignments",
-          autogenerate: { directory: "assignments" },
+          items: [{ autogenerate: { "directory": "assignments" } }],
+        },
+        {
+          label: "Recitations",
+          items: [{ autogenerate: { "directory": "recitations" } }],
+        },
+        {
+          label: "Reference",
+          items: [{ autogenerate: { "directory": "reference" } }],
         },
         {
           label: "About",
-          autogenerate: { directory: "about" },
+          items: [{ autogenerate: { "directory": "about" } }],
         },
       ],
       customCss: ["./src/styles/global.css"],

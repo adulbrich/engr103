@@ -1,0 +1,17 @@
+{
+  "title": "Assignment 2: Household Energy Panel, visible tests",
+  "mode": "stdout",
+  "files": {
+    "py": "energy_panel.py",
+    "rs": [
+      "energy_panel.rs"
+    ]
+  },
+  "cases": [
+    {
+      "label": "the panel prints its five lines",
+      "stdin": "",
+      "expect": "ENERGY AUDIT\n4106.25\n1129.21875\n1\n9\n"
+    }
+  ]
+}

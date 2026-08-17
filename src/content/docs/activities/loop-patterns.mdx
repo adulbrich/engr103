@@ -1,0 +1,392 @@
+---
+title: "Loop Patterns"
+description: "Predict two loop patterns running in a single pass, trace a triangular nested loop by hand, and fix a sentinel loop that reports the wrong total."
+sidebar:
+  order: 12
+draft: true
+---
+
+import { Tabs, TabItem, Steps } from '@astrojs/starlight/components';
+import Reveal from '/src/components/Reveal.astro';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+import Latex from '/src/components/Latex.astro';
+
+{/* ai-summary
+type: activity
+slug: loop-patterns
+order: 12
+paired_lecture: loop-patterns
+practices: predicts the final values of a loop that accumulates a running total and counts the passes on which that total clears a threshold, both in one pass; traces a triangular nested loop by hand to count how many times the inner body runs when the inner range depends on the outer variable; diagnoses a sentinel loop that overwrites its total each pass instead of accumulating it; states the purpose of a small loop function in one sentence before writing one of their own
+prereq_activities:
+block_types: predict-then-run, paper-tracing, live-debugging
+output: a reconciled two-value prediction, a completed triangular trace with its pass count, and a corrected accumulator for each of the three sections
+*/}
+
+<LanguageVersions />
+
+This activity puts into practice the [Loop Patterns](/lectures/loop-patterns/) lecture. You will predict the final values of a loop that runs two patterns at once, trace a triangular nested loop by hand to count how many times its inner body runs, and fix a sentinel loop whose total comes out wrong. By the end, you will be able to read a loop, name which patterns it is running, and say what each one keeps across passes and what makes it stop.
+
+## Warm-up
+
+A quick refresher before the sections. The accumulator has three parts in three places: you create the variable before the loop, update it on every pass, and read it after. Here is the smallest version, summing `1` through `3`, in both languages.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="warmup.py"
+total = 0
+for n in range(1, 4):
+    total = total + n
+print(total)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="warmup.rs"
+fn main() {
+    let mut total = 0;
+    for n in 1..4 {
+        total = total + n;
+    }
+    println!("{}", total);
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 warmup.py
+```
+
+```text frame="terminal" title="Output"
+6
+```
+
+The range `range(1, 4)` and `1..4` are half-open: they walk `1, 2, 3` and stop before `4`. So `total` climbs `0`, `1`, `3`, `6`, and the `print` after the loop reads `6`. With that skeleton fresh, the sections below run more than one pattern at a time and make the final values harder to guess.
+
+## Predict Two Patterns in One Pass
+
+A single loop can run two patterns at once, and when it does, the second pattern can depend on the first. The loop below keeps a running total, the accumulator from the warm-up, and at the same time counts passes with an `if`. You commit to both final values first, then run the program to check them.
+
+Read the program below and write down, on paper or in a comment, the two exact numbers you expect it to print, `total` first and `count` second. Do not run it yet. Trace both variables pass by pass.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="predict.py"
+total = 0
+count = 0
+for n in range(1, 9):
+    total = total + n
+    if total > 10:
+        count = count + 1
+print(total, count)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="predict.rs"
+fn main() {
+    let mut total = 0;
+    let mut count = 0;
+    for n in 1..9 {
+        total = total + n;
+        if total > 10 {
+            count = count + 1;
+        }
+    }
+    println!("{} {}", total, count);
+}
+```
+</TabItem>
+</Tabs>
+
+<Reveal label="Reveal the real output and reconcile it with your prediction">
+```bash title="Run the Python program"
+python3 predict.py
+```
+
+```text frame="terminal" title="Output"
+36 4
+```
+
+The range `range(1, 9)` is half-open, so `n` walks `1, 2, 3, 4, 5, 6, 7, 8` and never reaches `9`. The accumulator adds each `n`, so `total` runs through this sequence of values, one per pass:
+
+| pass `n` | `total` after adding `n` | `total > 10`? |
+| --- | --- | --- |
+| 1 | 1 | no |
+| 2 | 3 | no |
+| 3 | 6 | no |
+| 4 | 10 | no |
+| 5 | 15 | yes, `count` becomes 1 |
+| 6 | 21 | yes, `count` becomes 2 |
+| 7 | 28 | yes, `count` becomes 3 |
+| 8 | 36 | yes, `count` becomes 4 |
+
+After the last pass `total` holds `36`, the sum of `1` through `8`, and `count` holds `4`, the number of passes on which the running total had already cleared `10`.
+
+The count is where the two common misses live. The pass at `n` of `4` is the trap: `total` is exactly `10` there, and `10 > 10` is false, so that pass does not count. If you predicted `count` of `5`, you almost certainly counted that pass, reading `total > 10` as "ten or more." If you predicted `count` of `0`, you probably tested `n > 10` instead of `total > 10`; no single `n` in this range exceeds `10`, so nothing would ever be counted at all. The Rust version walks the same range and tests the same running total, so it prints `36 4` as well.
+</Reveal>
+
+---
+
+## Trace the Triangle and Count the Passes
+
+In the lecture's grid the inner loop walked the same range on every row. Here the inner range is `range(1, row + 1)`. You trace the grid this prints and predict, by hand, how many times the inner body runs.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="triangle.py"
+count = 0
+for row in range(1, 6):
+    for col in range(1, row + 1):
+        count = count + 1
+        print(row * col, end="\t")
+    print()
+print("Cells:", count)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="triangle.rs"
+fn main() {
+    let mut count = 0;
+    for row in 1..6 {
+        for col in 1..(row + 1) {
+            count = count + 1;
+            print!("{}\t", row * col);
+        }
+        println!();
+    }
+    println!("Cells: {}", count);
+}
+```
+</TabItem>
+</Tabs>
+
+Trace the program above on paper, working out each row's inner range fresh before you write its cells. Follow these steps.
+
+<Steps>
+
+1. Set `count` to `0` and `row` to `1`. Work out which values the inner range `range(1, 2)` gives `col`, write the product `row * col` for each, and add `1` to `count` per cell.
+
+2. Repeat for `row` of `2`, `3`, `4`, and `5`, working out each row's inner range before writing its products.
+
+3. Write down the value of `count` after the last pass, and the grid of products you produced.
+
+</Steps>
+
+<Reveal label="Reveal the completed trace, the grid, and the pass count">
+The inner body runs `row` times on row `row`, so it runs `1`, then `2`, then `3`, then `4`, then `5` times as the rows go by. That is not a product but a sum: <Latex formula="1 + 2 + 3 + 4 + 5 = 15" />. Trace `count` row by row: row `1` lifts it from `0` to `1`, row `2` from `1` to `3`, row `3` from `3` to `6`, row `4` from `6` to `10`, and row `5` from `10` to `15`.
+
+```bash title="Run the Python program"
+python3 triangle.py
+```
+
+```text frame="terminal" title="Output"
+1
+2	4
+3	6	9
+4	8	12	16
+5	10	15	20	25
+Cells: 15
+```
+
+The Rust version nests the same ranges and prints the same triangle and `Cells: 15`. Because the inner range grows with the outer variable, the pass count is the sum of the row lengths, `15`, not the rectangle's rows-times-columns `25`.
+</Reveal>
+
+---
+
+## Fix the Sentinel Loop's Wrong Total
+
+A sentinel loop reads values until a designated stop value appears. The program below does not crash, but it prints the wrong total. You find the bug with the systematic method: read the symptom, form a hypothesis, test it.
+
+The program is meant to sum the numbers before the sentinel. For the input `3`, `5`, `2`, `-1`, the correct total is `10`. Run it with that input, see what it actually prints, then work out why the value is wrong and how one change fixes it.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="sentinel.py"
+total = 0
+while True:
+    number = int(input())
+    if number == -1:
+        break
+    total = number
+print("Total:", total)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="sentinel.rs"
+use std::io;
+
+fn main() {
+    let mut total = 0;
+    loop {
+        let mut line = String::new();
+        io::stdin().read_line(&mut line).expect("failed to read line");
+        let number: i32 = line.trim().parse().expect("please enter a whole number");
+        if number == -1 {
+            break;
+        }
+        total = number;
+    }
+    println!("Total: {}", total);
+}
+```
+</TabItem>
+</Tabs>
+
+<Reveal label="Reveal the diagnosis and the fix">
+```bash title="Run the buggy Python program"
+printf '3\n5\n2\n-1\n' | python3 sentinel.py
+```
+
+```text frame="terminal" title="Output"
+Total: 2
+```
+
+**Symptom.** There is no error message; the program runs, turns away the sentinel correctly, and prints `Total: 2`, but the sum of `3`, `5`, and `2` should be `10`. The wrong number is the only signal you get, and it happens to be the last value entered before the sentinel.
+
+**Hypothesis.** That "last value entered" clue is the tell. An accumulator is supposed to build on its own current value, `total = total + number`, so that each pass adds to what came before. This body instead runs `total = number`, which throws away whatever `total` held and replaces it with the current value. So `total` never accumulates; it only ever remembers the most recent number. After reading `3`, `5`, then `2`, it holds `2`, and the sentinel pass breaks before touching it. The `total = 0` before the loop is fine, and the sentinel check is in the right place; the accumulation step itself is what is broken.
+
+**Test.** Restore the accumulation so each pass adds the new value to the running total instead of overwriting it:
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="sentinel.py (fixed)"
+total = 0
+while True:
+    number = int(input())
+    if number == -1:
+        break
+    total = total + number
+print("Total:", total)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="sentinel.rs (fixed)"
+use std::io;
+
+fn main() {
+    let mut total = 0;
+    loop {
+        let mut line = String::new();
+        io::stdin().read_line(&mut line).expect("failed to read line");
+        let number: i32 = line.trim().parse().expect("please enter a whole number");
+        if number == -1 {
+            break;
+        }
+        total = total + number;
+    }
+    println!("Total: {}", total);
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the fixed Python program"
+printf '3\n5\n2\n-1\n' | python3 sentinel.py
+```
+
+```text frame="terminal" title="Output"
+Total: 10
+```
+
+```bash title="Compile and run the fixed Rust program"
+rustc sentinel.rs
+printf '3\n5\n2\n-1\n' | ./sentinel
+```
+
+```text frame="terminal" title="Output"
+Total: 10
+```
+
+The fix is a single line: `total = number` becomes `total = total + number`, so the accumulator reads its own value and adds to it. Note how quiet the bug is. The loop structure, the sentinel order, and the initialization all look right, so nothing points at the accumulation line except the value itself, which is exactly why reading the wrong output as a clue, `2` is the last number in, is what cracks it.
+</Reveal>
+
+---
+
+## Name the Purpose, Then Count the Evens
+
+Two reps close the session: first you say what a finished function does, then you write one of your own.
+
+Read the function below and write one sentence saying what it does. State its purpose, the way a comment above it would, not what each line does.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="mystery.py"
+def mystery(n):
+    result = 0
+    for i in range(1, n + 1):
+        if i % 3 == 0:
+            result = result + i
+    return result
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="mystery.rs"
+fn mystery(n: i32) -> i32 {
+    let mut result = 0;
+    for i in 1..(n + 1) {
+        if i % 3 == 0 {
+            result = result + i;
+        }
+    }
+    return result;
+}
+```
+</TabItem>
+</Tabs>
+
+<Reveal label="Reveal a model purpose sentence">
+A model sentence: `mystery(n)` returns the sum of the multiples of `3` from `1` up to and including `n`. That is the whole function at the level of purpose. A line-by-line paraphrase, "it sets `result` to zero, loops `i` from `1` to `n`, and adds `i` when `i % 3` is zero," restates the code without saying what it is for. The pattern is an accumulator guarded by a condition, and naming what it accumulates, and over which numbers, is what makes the sentence worth writing.
+</Reveal>
+
+Now write your own. Define a function `count_even(n)` that returns how many whole numbers from `1` up to and including `n` are even, using the count pattern: a counter that starts at `0` and increments only on the passes where the number is even. Then call it with `count_even(10)` and print the result.
+
+<Reveal label="Reveal a sample solution">
+This is a sample solution; another correct program can shape the loop or the condition differently and still be right.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="count_even.py"
+def count_even(n):
+    count = 0
+    for i in range(1, n + 1):
+        if i % 2 == 0:
+            count = count + 1
+    return count
+
+print(count_even(10))
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="count_even.rs"
+fn count_even(n: i32) -> i32 {
+    let mut count = 0;
+    for i in 1..(n + 1) {
+        if i % 2 == 0 {
+            count = count + 1;
+        }
+    }
+    return count;
+}
+
+fn main() {
+    println!("{}", count_even(10));
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 count_even.py
+```
+
+```text frame="terminal" title="Output"
+5
+```
+
+The Rust version walks the same range and the same `if`, so it prints `5` as well.
+</Reveal>
+
+---
+
+## Bridge
+
+These three reps feed the recitation family that runs a loop to build up a value or a grid and has to keep the right things across passes: an accumulator whose final value drives a second pattern in the same loop, a nested loop whose inner length changes from row to row, and a sentinel read whose accumulator has to add rather than overwrite. The hand-tracing and the one-line fix you just practiced are the guided first rung of that ladder.

@@ -1,0 +1,264 @@
+---
+title: "How Values Are Stored"
+description: "Learn how a computer holds every value as bits gathered into bytes at numbered addresses, and why that storage explains Rust's refusal to mix types, the largest i32, and why a float is only ever an approximation."
+sidebar:
+  order: 3
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+import WhatDiffers from '/src/components/WhatDiffers.astro';
+import BinaryVisualizer from '/src/components/BinaryVisualizer.svelte';
+import MemoryBoxes from '/src/components/MemoryBoxes.astro';
+
+{/* ai-summary
+type: lecture
+slug: data-representation
+order: 3
+covers: bits; binary and place value; decimal-binary conversion by hand; bytes; memory addresses and hexadecimal; integer sizes and what the numbers in i32 and f64 mean; the i32 range and out-of-range literals; Python's arbitrary precision; floats as approximations
+prereq_lectures: values-types-and-expressions
+followup_lectures: variables-and-state
+glossary_terms: bit, byte, binary, hexadecimal, memory address, integer size, arbitrary precision
+*/}
+
+<LanguageVersions />
+
+The previous lecture handed you a rule with no reason attached to it: Rust refuses to add 3 to 2.5, even though a person adding those two numbers on paper has no trouble at all. That refusal is not a quirk of the language, and neither are the two other rules that came with it, that dividing two whole numbers throws the remainder away, and that a whole number in Rust stops at a largest value while a whole number in Python does not. All three follow from something physical about the way a computer holds a number.
+
+A computer cannot store a 7 the way a page stores the ink of a 7. You can write "seven," "7," or "VII" and mean the same number three ways, but every value a computer holds is a pattern of tiny switches, and each switch can only ever be in one of two states. Everything in this lecture follows from that one restriction: what those switches can spell, how many of them a value gets, and where in the machine they sit.
+
+## Binary and Bits
+
+That two-state switch is where storage begins, and it has a name.
+
+### Bits
+
+A **bit** is the smallest piece of information a computer can store: a single 0 or a single 1. Nothing smaller exists inside a computer's memory. A single bit on its own can tell you almost nothing: it can distinguish only two possibilities, such as on versus off, or yes versus no. Every value your program touches, whether a whole number, a decimal number, a true-or-false answer, or a piece of text, is ultimately stored as some longer pattern of these two symbols, strung together so that the pattern as a whole can represent far more than two possibilities.
+
+### Binary
+
+**Binary** is a number system that writes every value using only the two digits 0 and 1, the same two symbols a bit can hold. You already know a different number system by heart: the decimal system, which writes every value using ten digits, 0 through 9. What makes decimal work is not the digits themselves but the idea of place value: each position in a number is worth ten times the position to its right. The digit string "247" means 2 hundreds, plus 4 tens, plus 7 ones, because the three positions are worth 100, 10, and 1, and each of those is ten times the one after it. The value of the whole number is the sum of each digit multiplied by the worth of its position.
+
+Binary uses the exact same place-value machinery, with one change: each position is worth two times the position to its right instead of ten. So the binary positions, reading from the right, are worth 1, 2, 4, 8, 16, 32, 64, and so on, each one double the last. Because a binary digit is only ever 0 or 1, "multiply the digit by the worth of its position" is even simpler than in decimal: a 1 means "count this position's worth," and a 0 means "skip it." Binary is not a different kind of number, only a different way of writing the same whole numbers you already know, using an alphabet a computer's switches can actually hold.
+
+To read a binary numeral back into the decimal you are used to, add up the worth of every position that holds a 1. Take `1000001`. Its seven positions, from the right, are worth 1, 2, 4, 8, 16, 32, and 64. Only two of them hold a 1: the rightmost (worth 1) and the leftmost (worth 64). Every other position holds a 0 and contributes nothing. The whole conversion is one expression of the kind the previous lecture taught you to reduce, `64 + 1`, which gives 65. That is all of binary-to-decimal conversion: line the positions up, keep the ones marked 1, and sum them.
+
+Going the other way, from a decimal number to its binary digits, you can work by subtracting place values. Start with 65 and the list of position worths that do not exceed it: 64, 32, 16, 8, 4, 2, 1. Ask of each, largest first, "does it fit in what remains?" 64 fits in 65, so that position gets a 1 and 64 is subtracted, leaving 1. Now 32, 16, 8, 4, and 2 are each larger than the remaining 1, so every one of those positions gets a 0. Finally 1 fits in the remaining 1, so that position gets a 1, leaving 0. Reading the positions from the 64 down to the 1 gives `1000001`, the same digits you started from.
+
+The visualizer below lets you type an ordinary decimal number and watch its binary digits appear, grouped into bytes of eight bits (the next section explains why eight). Try 65, confirm you get the `1000001` just worked out by hand, then try a larger number and watch how many digits it takes to write in binary.
+
+<BinaryVisualizer client:visible />
+
+:::note[The letter that appears at 65]
+As you try values in the visualizer, a single character may appear next to numbers up to 127: at 65 it shows `A`. That is because text is itself stored as whole numbers, one number standing for each character, and 65 is the agreed-upon number for a capital A. How characters are mapped to numbers, and how longer text is stored, is a topic a later lecture takes up on its own; for now, treat it as a preview that even a letter is, underneath, just one of these binary numbers.
+:::
+
+A binary numeral is still just a whole number, so both Python and Rust let you write a whole-number literal directly in binary, using a `0b` prefix, and it evaluates to the exact same value as writing the number out in decimal.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="base.py"
+print(65)
+print(0b1000001)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="base.rs"
+fn main() {
+    println!("{}", 65);
+    println!("{}", 0b1000001);
+}
+```
+</TabItem>
+</Tabs>
+
+Running either version prints the same number twice, because `65` and `0b1000001` are two spellings of one value, and printing a whole number always shows it in decimal no matter how the literal was written:
+
+```text frame="terminal" title="Output"
+65
+65
+```
+
+## Bytes and Memory as Addressable Boxes
+
+Knowing that a computer stores everything as 0s and 1s is only half the picture. The other half is where those bits actually live while a program runs, and how many of them a program groups together as one unit.
+
+### Bytes
+
+A single bit is too small to describe anything useful on its own, so computers handle bits in a fixed group: a **byte** is a group of 8 bits handled together as one unit. A byte is the unit programmers actually use to talk about how much space something takes, and it is also the size of the smallest separately addressable location in a computer's memory, which the next part explains.
+
+The reason a byte can hold the range it does comes straight from counting patterns, and it is worth deriving rather than memorizing. One bit has 2 possible patterns: 0 or 1. Add a second bit and each of those 2 patterns can be followed by either a 0 or a 1, so there are 2 times 2, or 4, patterns: 00, 01, 10, 11. Every extra bit doubles the count again, because each existing pattern can be extended by a 0 or a 1. So 3 bits give 8 patterns, 4 bits give 16, and continuing to double, 5 bits give 32, 6 give 64, 7 give 128, and 8 bits give 256. Those 256 distinct patterns are 256 distinct whole numbers, and by convention the smallest pattern (all zeros) stands for 0, so a single byte counts from 0 up through 255, which is 256 different values in all. The rule that each bit doubles the number of possibilities is the single most useful fact in this lecture, and it returns in full force when the fixed sizes of Rust's number types come up.
+
+### Memory Addresses
+
+A running program's memory is organized as a long row of byte-sized boxes, one after another, and each box is numbered in order: the first box is 0, the next is 1, the next is 2, and so on through every byte the machine has. A **memory address** is the number that identifies one specific box in that row, the same way a house number identifies one specific house on a street. Just as a delivery driver needs a house number to find the right house, a running program needs an address to find the right byte, out of the millions or billions of bytes memory actually contains. Every value your program works with lives in one or more of these boxes, and the value is found by its address: the number 65, stored in a byte, sits at some particular numbered box, and the program reaches it by that number.
+
+An address is just a whole number, but you will almost always see one written in **hexadecimal**, a number system with sixteen digits rather than ten, and it helps to know why. Hexadecimal, base 16, needs sixteen digit symbols, so it borrows the letters A through F to stand for the values ten through fifteen after 0 through 9. Its usefulness here is a direct consequence of counting patterns: a single hexadecimal digit has 16 possible values, and 16 is exactly the number of patterns 4 bits produce (2 doubled four times: 2, 4, 8, 16). So one hexadecimal digit encodes exactly 4 bits, with no remainder and no overlap, and two hexadecimal digits encode exactly one 8-bit byte. That clean fit is why addresses and raw bytes are shown in hexadecimal: it is a compact stand-in for binary, four bits to a digit, rather than an unrelated way of writing the number.
+
+Work one small example both ways to see the fit. The address written `0x2A` (the `0x` prefix simply marks the digits that follow as hexadecimal) has two hex digits, `2` and `A`. As a plain number, `2` is worth 2 sixteens and `A` is worth 10 ones, so its decimal value is `2 * 16 + 10`, which reduces to 42. As bits, each hex digit expands to its own 4-bit group: `2` is `0010` and `A` (ten) is `1010`, so `0x2A` is the byte `00101010`. Check that byte back against place values: the positions worth 32, 8, and 2 hold a 1, and `32 + 8 + 2` is 42, the same number. One byte, three equal spellings: `0x2A` in hexadecimal, `00101010` in binary, and 42 in decimal.
+
+Here is what four consecutive bytes in memory might look like while a simple program runs, each holding a small whole number, each living at its own address one after the other:
+
+<MemoryBoxes boxes={[
+  { address: "0x00", value: "00000000" },
+  { address: "0x01", value: "00000001" },
+  { address: "0x02", value: "00000010" },
+  { address: "0x03", value: "00000011" },
+]} />
+
+Whatever value a program prints, computes, or holds while it runs sits inside memory exactly like this: as one or more bytes, each at its own address, each storing some pattern of bits.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="Four small whole numbers, one after another"
+print(0)
+print(1)
+print(2)
+print(3)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="Four small whole numbers, one after another"
+fn main() {
+    println!("{}", 0);
+    println!("{}", 1);
+    println!("{}", 2);
+    println!("{}", 3);
+}
+```
+</TabItem>
+</Tabs>
+
+## Type Sizes: Fixed Width Versus Arbitrary Precision
+
+Every value a program stores needs an amount of memory set aside for it, and this is where Python and Rust part ways. The previous lecture called a type a claim on memory and left the size of that claim unexplained; now that bits and bytes are on the table, the claim, and the numbers sitting inside type names like `i32` and `f64`, can finally be made exact.
+
+### Integer Size
+
+An **integer size** is the number of bits a language sets aside to store one whole-number value. Rust's default whole-number type, `i32`, reserves exactly 32 bits, no more and no less, for every value of that type, whether the value being stored is 0, 7, or the largest number those 32 bits can represent. That fixed budget of 32 bits is exactly what the `32` in `i32` names: not a version number, not an arbitrary label, but the number of bits Rust always sets aside for a value of that type. The `i` names the other half of the story, that the type holds a signed integer, meaning one that can be negative as well as positive.
+
+Those 32 bits also settle a question the previous lecture raised and could not answer: why dividing two whole numbers throws the remainder away. Each of the 32 bits stands for a place value, 1, 2, 4, 8, and on up, and every one of those place values is a whole number. There is no position in the pattern worth one half, so there is no arrangement of the 32 bits that means 3.5. When a division of two whole numbers has to produce a whole number, the fraction is not being ignored out of carelessness; there is physically nowhere in the pattern to record it.
+
+That signedness is the key to why `i32` stops where it does, and the number it stops at is not magic once you count patterns. Thirty-two bits give 2 doubled thirty-two times, which is 4,294,967,296 distinct patterns in all: a fixed budget, exactly as one byte gave 256. If every one of those patterns stood for a non-negative number, `i32` could count from 0 up to 4,294,967,295. But `i32` has to spend its patterns on negatives too, so it splits the budget down the middle: half of the patterns, 2,147,483,648 of them, are set aside for negative numbers, and the other half, another 2,147,483,648, cover zero and the positive numbers together. Zero uses up one of those non-negative patterns, leaving 2,147,483,647 for the positive values. That is why the largest whole number an `i32` can hold is 2,147,483,647: it is one less than half of 32 bits' patterns, or two doubled thirty-one times minus one. A whole number larger than that has no pattern left to stand for it in 32 bits, and Rust's compiler refuses to build a program that writes one as a plain `i32` literal.
+
+Rust's default decimal type, `f64`, follows the same "fixed budget of bits" idea with a wider budget: the `64` names 64 bits, or 8 bytes, set aside for every value of that type. Those extra bits buy a far larger range than `i32`, but the range is still fixed, decided by a set number of bits rather than growing on demand.
+
+:::note[How the negative half is actually stored]
+Splitting the patterns "half to negatives, half to zero and up" explains the size of the range but not how a specific negative number is written in bits. Real processors use a scheme called two's complement, which is what makes the smallest `i32` value negative 2,147,483,648, one further from zero than the largest positive value 2,147,483,647, rather than a symmetric negative 2,147,483,647. How two's complement actually encodes a negative number is something this course never needs, so it is not covered here or later; only the count of patterns matters, and that count fixes both ends of the range.
+:::
+
+### Arbitrary Precision
+
+To see why a fixed width forces a limit, picture what "too big" actually means in bits. A value stored as an `i32` gets exactly 32 boxes for its bits and not one more. Ask it to hold 2,147,483,648, one past its largest value, and there is simply no 32-bit pattern reserved for that number: the value cannot be written in the space the type provides, the same way a three-digit odometer cannot show one thousand. Rust catches this the moment it sees such a literal, because a compiler checks the whole file before running it, and reports that the number is out of range rather than storing something wrong.
+
+Python's whole-number type, `int`, makes the opposite choice. It is **arbitrary-precision**: instead of a fixed number of bits, it uses however many bits its current value actually needs, growing as large as the value requires. Where an `i32` always occupies its 32 boxes, a Python `int` claims more bytes of memory as its value grows and fewer when a smaller value is enough, so there is no fixed ceiling built into the type. There is no whole number too big for Python's `int` to hold, short of running out of the computer's memory entirely. This is the direct payoff of everything this lecture has covered: a value's bits live somewhere in memory as bytes at addresses, and Python's `int` is simply free to claim as many of those bytes as a given value needs, while Rust's `i32` and `f64` always claim exactly the same number of bytes, 4 and 8, no matter what value they hold. The trade is the familiar one: Rust's fixed size is more rigid but lets the compiler know a value's exact cost and catch an overflowing literal before the program runs, while Python's flexible size is more forgiving but decided only as the program runs and uses a little more machinery to manage.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="big.py"
+print(99999999999999999999999999999)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="big.rs"
+fn main() {
+    println!("{}", 2147483647);
+}
+```
+</TabItem>
+</Tabs>
+
+Run each and both print their literal back unchanged. Python's is a 29-digit number its `int` holds without strain:
+
+```text frame="terminal" title="Output"
+99999999999999999999999999999
+```
+
+Rust's sits exactly at `i32`'s ceiling, the largest whole number 32 bits can spell:
+
+```text frame="terminal" title="Output"
+2147483647
+```
+
+<WhatDiffers>
+<Fragment slot="differs">
+Python's literal is simply the value written out, and since its `int` type has no upper limit beyond the computer's memory, this 29-digit whole number prints back exactly as written. Rust's literal must fit inside `i32`'s 32-bit budget, and 2,147,483,647 is the largest whole number that budget allows; a bare literal even one more than that fails to compile, because Rust checks a whole-number literal against its 32-bit budget before your program ever runs.
+</Fragment>
+</WhatDiffers>
+
+Here is that failure in practice. One whole number higher than `i32`'s largest value, and Rust's compiler refuses to build the program at all:
+
+```rust title="over.rs (will not compile)"
+fn main() {
+    println!("{}", 2147483648); // error: literal out of range for `i32` (Rust will not compile this)
+}
+```
+
+Compiling it produces no executable, only a message naming the exact problem and even spelling out the range the value fell outside:
+
+```bash title="Compile the Rust program"
+rustc over.rs
+```
+
+```text frame="terminal" title="Output"
+error: literal out of range for `i32`
+ --> over.rs:2:20
+  |
+2 |     println!("{}", 2147483648);
+  |                    ^^^^^^^^^^
+  |
+  = note: the literal `2147483648` does not fit into the type `i32` whose range is `-2147483648..=2147483647`
+```
+
+Python has no equivalent failure here: because `int` grows to fit any value, no whole-number literal is ever too large for it to hold.
+
+### Floats as Approximations
+
+A fixed budget of bits costs a float something subtler than the ceiling it puts on an integer, because a float does not spend its bits the way an integer does. An `i32` gives every one of its 32 bits a plain place value, 1, 2, 4, 8, and upward. An `f64` splits its 64 bits into three parts with different jobs: one bit records the sign, a group of bits records a scale, meaning how far the value's digits sit from the decimal point, and the rest record the digits themselves. That is why Rust will not let you add an `i32` to an `f64` without a conversion: the two patterns are not two sizes of the same thing, they are two unrelated layouts, and one machine instruction for adding whole numbers simply cannot be run on a pattern built the other way.
+
+The three-part layout also brings a cost. A whole number either fits its type's bits or it does not, and when it fits, it is stored exactly. A fractional value has a harder problem: most decimal fractions cannot be written exactly in binary at all, no matter how many bits are available. The decimal fraction 0.1 is the standard example. Just as one third in decimal becomes 0.3333..., a digit pattern that repeats forever and is never finished, one tenth in binary becomes a repeating pattern of bits with no end. An `f64` has exactly 64 bits to spend, so it cannot hold that endless pattern; it stores the nearest value its bits can represent instead, which is extremely close to 0.1 but not equal to it.
+
+So a float is stored as an **approximation**: the closest value the type's fixed bits can hold, rather than the exact number written in the code. Add two such approximations and the small errors travel into the result, which is why a sum that should be exactly 0.3 comes back with a tail of digits that no one wrote:
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="approx.py"
+print(0.1 + 0.2)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="approx.rs"
+fn main() {
+    println!("{}", 0.1 + 0.2);
+}
+```
+</TabItem>
+</Tabs>
+
+Both languages print the same thing, because Python's `float` uses the exact same 64-bit format as Rust's `f64`:
+
+```text frame="terminal" title="Output"
+0.30000000000000004
+```
+
+Neither stored value was ever exactly 0.1 or exactly 0.2, so their sum was never going to be exactly 0.3; what you see is the closest `f64` to that sum, printed with enough digits to reveal the gap. For any real measurement the difference is far too small to matter. It does matter when you ask whether two computed floats are equal, and the Booleans and Conditionals lecture returns to this fact and shows what to do about it.
+
+## Takeaways
+
+Every value a running program touches is a pattern of bits, and a bit is a single 0 or 1. Binary is not a different kind of number, only a different way of writing the same whole numbers decimal already writes, using the two-symbol alphabet those bits are built from, with each position worth double the one to its right.
+
+Bits are handled in groups of eight, called bytes, and memory is a long row of byte-sized boxes, each numbered by its address. Addresses are written in hexadecimal because one hex digit stands for exactly four bits, so two hex digits spell exactly one byte. Everything a program holds sits in that row, at some address, as some pattern of bits.
+
+Counting patterns is the one skill that explains all the sizes: each extra bit doubles the number of distinct patterns, so 8 bits give 256 and 32 bits give 4,294,967,296. That count is where the `32` in `i32` and the `64` in `f64` come from, and splitting an `i32`'s patterns between negative and non-negative values is why its largest whole number is 2,147,483,647 and a bigger literal will not compile. Python's `int` refuses the fixed budget entirely, claiming as many bytes as its value needs, so it has no ceiling at all.
+
+Those same patterns answer the rules the previous lecture stated without reasons. There is no bit position worth one half, so a whole-number type has nowhere to keep a remainder. An integer's bits and a float's bits are laid out for different jobs, so Rust will not add one to the other without a conversion. And because a float's fixed bits cannot spell most decimal fractions exactly, it stores the nearest value it can, which is why `0.1 + 0.2` prints as `0.30000000000000004`.
+
+The next lecture leaves representation behind and gives a value a name, so that a program can store it, reuse it, and change it as it runs.
+
+## Resources
+
+- [Rust integer types](https://doc.rust-lang.org/book/ch03-02-data-types.html#integer-types)
+- [Rust floating-point types](https://doc.rust-lang.org/book/ch03-02-data-types.html#floating-point-types)
+- [Rust integer literals](https://doc.rust-lang.org/reference/tokens.html#integer-literals)
+- [Python integers (arbitrary precision)](https://docs.python.org/3/library/stdtypes.html#numeric-types-int-float-complex)
+- [Python: floating-point arithmetic, issues and limitations](https://docs.python.org/3/tutorial/floatingpoint.html)

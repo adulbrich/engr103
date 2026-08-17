@@ -1,0 +1,525 @@
+#!/usr/bin/env python3
+"""Run this assignment's visible tests and print exactly what the grader prints.
+
+Usage, from inside the assignment folder:
+
+    ./check            run whichever language folders you have worked in
+    ./check py         run only the Python side
+    ./check rs         run only the Rust side
+
+On Windows, where ./check does not run a script directly, use:
+
+    python3 check
+
+This tool reads tests/visible.json, which describes the assignment's contract.
+You never edit that file. The grader runs these same visible cases plus hidden
+ones you cannot see, so a green check here is necessary but not a guarantee.
+"""
+
+import json
+import os
+import shutil
+import subprocess
+import sys
+import tempfile
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+SPEC_PATH = os.path.join(HERE, "tests", "visible.json")
+TOLERANCE_DEFAULT = 1e-6
+
+
+# ---------------------------------------------------------------- reporting
+
+class Report:
+    def __init__(self):
+        self.passed = 0
+        self.failed = 0
+
+    def ok(self, label):
+        print(f"[PASS] {label}")
+        self.passed += 1
+
+    def bad(self, label, detail=None):
+        print(f"[FAIL] {label}")
+        if detail:
+            for line in str(detail).rstrip().splitlines():
+                print(f"       {line}")
+        self.failed += 1
+
+    def total(self):
+        return self.passed + self.failed
+
+
+def die(message):
+    print(f"check: {message}", file=sys.stderr)
+    sys.exit(2)
+
+
+# ---------------------------------------------------------------- comparing
+
+def render(value):
+    """Render an expected value the way the language prints it, for labels."""
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    return repr(value) if isinstance(value, str) else str(value)
+
+
+def same(actual, expected, tolerance):
+    if isinstance(expected, bool) or isinstance(actual, bool):
+        return bool(actual) == bool(expected)
+    if isinstance(expected, float) or isinstance(actual, float):
+        try:
+            return abs(float(actual) - float(expected)) <= tolerance
+        except (TypeError, ValueError):
+            return False
+    return actual == expected
+
+
+def call_label(case):
+    args = ", ".join(render(a) for a in case.get("args", []))
+    return f"{case['call']}({args})"
+
+
+# ---------------------------------------------------------------- Python side
+
+def python_source(spec):
+    return os.path.join(HERE, "py", spec["files"]["py"])
+
+
+def run_python_stdout(spec, report):
+    src = python_source(spec)
+    if not os.path.exists(src):
+        die(f"missing {src}")
+    for case in spec["cases"]:
+        stdin = case.get("stdin", "")
+        expected = case["expect"]
+        label = case.get("label") or f"stdin {stdin!r}"
+        try:
+            done = subprocess.run(
+                [sys.executable, src], input=stdin, capture_output=True,
+                text=True, timeout=15,
+            )
+        except subprocess.TimeoutExpired:
+            report.bad(label, "the program did not finish within 15 seconds")
+            continue
+        if done.returncode != 0:
+            report.bad(label, done.stderr or "the program stopped with an error")
+            continue
+        actual = done.stdout
+        if actual == expected:
+            report.ok(f"{label} -> output matches")
+        else:
+            report.bad(
+                label,
+                "expected:\n" + indent(expected) + "\nactual:\n" + indent(actual),
+            )
+
+
+def indent(text):
+    return "\n".join("  | " + line for line in text.rstrip("\n").split("\n"))
+
+
+def run_python_functions(spec, report):
+    src = python_source(spec)
+    if not os.path.exists(src):
+        die(f"missing {src}")
+    tol = spec.get("tolerance", TOLERANCE_DEFAULT)
+    # Run each case in a fresh interpreter so one crash cannot hide the rest,
+    # and so a student's stray print does not pollute the comparison.
+    driver = os.path.join(HERE, "tests", "_py_driver.py")
+    for case in spec["cases"]:
+        label = call_label(case)
+        payload = json.dumps({
+            "source": src,
+            "call": case["call"],
+            "args": case.get("args", []),
+            "mutates": case.get("mutates"),
+        })
+        try:
+            done = subprocess.run(
+                [sys.executable, driver], input=payload, capture_output=True,
+                text=True, timeout=15,
+            )
+        except subprocess.TimeoutExpired:
+            report.bad(label, "the call did not finish within 15 seconds")
+            continue
+        if done.returncode != 0:
+            report.bad(label, done.stderr or "the call raised an error")
+            continue
+        try:
+            got = json.loads(done.stdout.strip().splitlines()[-1])
+        except (ValueError, IndexError):
+            report.bad(label, "could not read a result back from your function")
+            continue
+        check_case(report, label, case, got, tol)
+
+
+def check_case(report, label, case, got, tol):
+    """Compare one case's returned value, and any expected mutation."""
+    expected = case["expect"]
+    if not same(got["value"], expected, tol):
+        report.bad(label, f"expected {render(expected)}, got {render(got['value'])}")
+        return
+    if "expect_mutated" in case:
+        if got.get("mutated") != case["expect_mutated"]:
+            report.bad(
+                label,
+                f"the list the caller passed in should be "
+                f"{case['expect_mutated']} afterward, but it is {got.get('mutated')}",
+            )
+            return
+        report.ok(
+            f"{label} -> {render(expected)}, and the caller's list is "
+            f"{case['expect_mutated']}"
+        )
+        return
+    report.ok(f"{label} -> {render(expected)}, expected {render(expected)}")
+
+
+# ------------------------------------------------------------------ Rust side
+
+def rust_sources(spec):
+    return [os.path.join(HERE, "rs", name) for name in spec["files"]["rs"]]
+
+
+def have_rustc():
+    return shutil.which("rustc") is not None
+
+
+def compile_rust(pieces, workdir, report, label):
+    """Concatenate source pieces into one file and compile it."""
+    path = os.path.join(workdir, "harness.rs")
+    with open(path, "w") as handle:
+        handle.write("\n\n".join(pieces))
+    exe = os.path.join(workdir, "harness")
+    done = subprocess.run(
+        ["rustc", "-A", "dead_code", "-o", exe, path],
+        capture_output=True, text=True,
+    )
+    if done.returncode != 0:
+        report.bad(label, done.stderr)
+        return None
+    return exe
+
+
+def fail_every_case(report, spec, reason, detail=None):
+    """Report one failure per case when the whole Rust run could not proceed.
+
+    Without this the summary would count a single aggregate failure and read,
+    say, 0/3 for a four-case assignment, which is more confusing than the bug.
+    """
+    if detail:
+        for line in str(detail).rstrip().splitlines():
+            print(f"       {line}")
+    for case in spec["cases"]:
+        report.bad(call_label(case), reason)
+
+
+def run_rust_stdout(spec, report):
+    srcs = rust_sources(spec)
+    for src in srcs:
+        if not os.path.exists(src):
+            die(f"missing {src}")
+    pieces = [open(s).read() for s in srcs]
+    with tempfile.TemporaryDirectory() as workdir:
+        exe = compile_rust(pieces, workdir, report, "compiling your Rust program")
+        if exe is None:
+            return
+        for case in spec["cases"]:
+            stdin = case.get("stdin", "")
+            expected = case["expect"]
+            label = case.get("label") or f"stdin {stdin!r}"
+            try:
+                done = subprocess.run(
+                    [exe], input=stdin, capture_output=True, text=True, timeout=15,
+                )
+            except subprocess.TimeoutExpired:
+                report.bad(label, "the program did not finish within 15 seconds")
+                continue
+            if done.returncode != 0:
+                report.bad(label, done.stderr or "the program stopped with an error")
+                continue
+            if done.stdout == expected:
+                report.ok(f"{label} -> output matches")
+            else:
+                report.bad(
+                    label,
+                    "expected:\n" + indent(expected) + "\nactual:\n" + indent(done.stdout),
+                )
+
+
+def rust_literal(value, kind):
+    """Write a JSON value as a Rust literal of the declared parameter type."""
+    if kind == "f64":
+        return f"{float(value):?}".replace("?", "") if False else repr(float(value))
+    if kind == "i32":
+        return str(int(value))
+    if kind == "bool":
+        return "true" if value else "false"
+    if kind == "char":
+        return "'" + str(value).replace("\\", "\\\\").replace("'", "\\'") + "'"
+    if kind == "&str":
+        return '"' + str(value).replace("\\", "\\\\").replace('"', '\\"') + '"'
+    if kind == "Vec<String>":
+        inner = ", ".join(
+            'String::from("' + str(v).replace("\\", "\\\\").replace('"', '\\"') + '")'
+            for v in value
+        )
+        return f"vec![{inner}]"
+    if kind == "Vec<i32>":
+        return "vec![" + ", ".join(str(int(v)) for v in value) + "]"
+    if kind == "Vec<f64>":
+        return "vec![" + ", ".join(repr(float(v)) for v in value) + "]"
+    raise ValueError(f"check: no Rust literal rule for parameter type {kind!r}")
+
+
+def run_rust_functions(spec, report):
+    srcs = rust_sources(spec)
+    for src in srcs:
+        if not os.path.exists(src):
+            die(f"missing {src}")
+    tol = spec.get("tolerance", TOLERANCE_DEFAULT)
+    entries = {e["name"]: e for e in spec["entry"]}
+    pieces = [open(s).read() for s in srcs]
+    # Strip any provided `fn main` so our generated harness owns the entry point.
+    pieces = [strip_main(p) for p in pieces]
+
+    lines = ["fn main() {"]
+    for index, case in enumerate(spec["cases"]):
+        entry = entries[case["call"]]
+        args = [
+            rust_literal(a, t)
+            for a, t in zip(case.get("args", []), entry["params"])
+        ]
+        if "expect_mutated" in case:
+            # The mutated argument is passed by mutable borrow, so bind it first.
+            owner = f"arg{index}"
+            lines.append(f"    let mut {owner} = {args[0]};")
+            rest = ", ".join(args[1:])
+            call = f"{case['call']}(&mut {owner}{', ' + rest if rest else ''})"
+            lines.append(f'    println!("{index}|{{:?}}", {call});')
+            lines.append(f'    println!("{index}M|{{:?}}", {owner});')
+        else:
+            lines.append(
+                f'    println!("{index}|{{:?}}", {case["call"]}({", ".join(args)}));'
+            )
+    lines.append("}")
+    pieces.append("\n".join(lines))
+
+    with tempfile.TemporaryDirectory() as workdir:
+        path = os.path.join(workdir, "harness.rs")
+        with open(path, "w") as handle:
+            handle.write("\n\n".join(pieces))
+        exe = os.path.join(workdir, "harness")
+        built = subprocess.run(
+            ["rustc", "-A", "dead_code", "-o", exe, path],
+            capture_output=True, text=True,
+        )
+        if built.returncode != 0:
+            fail_every_case(
+                report, spec, "your Rust code did not compile", built.stderr
+            )
+            return
+        try:
+            done = subprocess.run([exe], capture_output=True, text=True, timeout=30)
+        except subprocess.TimeoutExpired:
+            fail_every_case(report, spec, "the run did not finish within 30 seconds")
+            return
+        if done.returncode != 0:
+            fail_every_case(
+                report, spec, "the run stopped before finishing", done.stderr
+            )
+            return
+        produced = {}
+        for line in done.stdout.splitlines():
+            if "|" in line:
+                tag, _, value = line.partition("|")
+                produced[tag] = value
+        for index, case in enumerate(spec["cases"]):
+            label = call_label(case)
+            raw = produced.get(str(index))
+            if raw is None:
+                report.bad(label, "your function produced no result")
+                continue
+            got = {"value": parse_rust(raw), "mutated": None}
+            if "expect_mutated" in case:
+                got["mutated"] = parse_rust(produced.get(f"{index}M", ""))
+            check_case(report, label, case, got, tol)
+
+
+def strip_main(source):
+    """Remove a top-level `fn main() { ... }` block, brace-matching to its end."""
+    marker = source.find("fn main(")
+    if marker == -1:
+        return source
+    opening = source.find("{", marker)
+    if opening == -1:
+        return source
+    depth, index, in_str = 0, opening, False
+    while index < len(source):
+        ch = source[index]
+        if in_str:
+            if ch == "\\":
+                index += 2
+                continue
+            if ch == '"':
+                in_str = False
+        elif ch == '"':
+            in_str = True
+        elif ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+            if depth == 0:
+                return source[:marker] + source[index + 1:]
+        index += 1
+    return source
+
+
+def parse_rust(text):
+    """Turn a Rust {:?} rendering back into a Python value for comparison."""
+    text = text.strip()
+    if text == "true":
+        return True
+    if text == "false":
+        return False
+    if text.startswith('"') and text.endswith('"'):
+        return text[1:-1]
+    if text.startswith("[") and text.endswith("]"):
+        body = text[1:-1].strip()
+        if not body:
+            return []
+        return [parse_rust(part.strip()) for part in split_top(body)]
+    try:
+        return int(text)
+    except ValueError:
+        pass
+    try:
+        return float(text)
+    except ValueError:
+        return text
+
+
+def split_top(body):
+    parts, depth, current, in_str = [], 0, [], False
+    for ch in body:
+        if in_str:
+            current.append(ch)
+            if ch == '"':
+                in_str = False
+            continue
+        if ch == '"':
+            in_str = True
+            current.append(ch)
+        elif ch == "[":
+            depth += 1
+            current.append(ch)
+        elif ch == "]":
+            depth -= 1
+            current.append(ch)
+        elif ch == "," and depth == 0:
+            parts.append("".join(current))
+            current = []
+        else:
+            current.append(ch)
+    if current:
+        parts.append("".join(current))
+    return parts
+
+
+# ----------------------------------------------------------------- suite mode
+
+def run_suite(spec, report, language):
+    """A7: the student wrote the tests. Run them against good and broken code."""
+    subjects = spec["subjects"]
+    if language == "py":
+        student = open(python_source(spec)).read()
+        for subject in subjects:
+            path = os.path.join(HERE, "tests", subject["py"])
+            body = open(path).read()
+            with tempfile.TemporaryDirectory() as workdir:
+                merged = os.path.join(workdir, "suite.py")
+                with open(merged, "w") as handle:
+                    handle.write(body + "\n\n" + student + f"\n\n{spec['run']}()\n")
+                done = subprocess.run(
+                    [sys.executable, merged], capture_output=True, text=True, timeout=20
+                )
+            judge(report, subject, done.returncode == 0, "Python")
+    else:
+        student = open(rust_sources(spec)[0]).read()
+        for subject in subjects:
+            path = os.path.join(HERE, "tests", subject["rs"])
+            body = open(path).read()
+            with tempfile.TemporaryDirectory() as workdir:
+                pieces = [body, strip_main(student),
+                          "fn main() { " + spec["run"] + "(); }"]
+                exe = compile_rust(pieces, workdir, report,
+                                   f"compiling your suite against {subject['label']}")
+                if exe is None:
+                    continue
+                done = subprocess.run([exe], capture_output=True, text=True, timeout=20)
+            judge(report, subject, done.returncode == 0, "Rust")
+
+
+def judge(report, subject, held, language):
+    label = f"{language}: your suite against {subject['label']}"
+    if subject["should_pass"]:
+        if held:
+            report.ok(f"{label} -> every assertion held, as it must")
+        else:
+            report.bad(label, "an assertion failed against the correct implementation")
+    else:
+        if held:
+            report.bad(
+                label,
+                "every assertion held, so this broken version slipped through; "
+                "add a case that tells it apart from the correct one",
+            )
+        else:
+            report.ok(f"{label} -> caught it, as it must")
+
+
+# ----------------------------------------------------------------------- main
+
+def main():
+    if not os.path.exists(SPEC_PATH):
+        die("no tests/visible.json here. Run ./check from the assignment folder.")
+    spec = json.load(open(SPEC_PATH))
+
+    wanted = sys.argv[1:] or None
+    languages = []
+    for lang in ("py", "rs"):
+        if wanted and lang not in wanted:
+            continue
+        if os.path.isdir(os.path.join(HERE, lang)):
+            languages.append(lang)
+    if not languages:
+        die("no py/ or rs/ folder found here")
+    if "rs" in languages and not have_rustc():
+        print("check: rustc not found, so the Rust side is skipped.\n")
+        languages.remove("rs")
+
+    print(f"{spec['title']}\n")
+    report = Report()
+    for lang in languages:
+        print(f"--- {'Python' if lang == 'py' else 'Rust'} ---")
+        mode = spec["mode"]
+        if mode == "stdout":
+            (run_python_stdout if lang == "py" else run_rust_stdout)(spec, report)
+        elif mode == "function":
+            (run_python_functions if lang == "py" else run_rust_functions)(spec, report)
+        elif mode == "suite":
+            run_suite(spec, report, lang)
+        else:
+            die(f"unknown mode {mode!r} in tests/visible.json")
+        print()
+
+    total = report.total()
+    print(f"{report.passed}/{total} visible tests passed")
+    if report.failed:
+        print("\nThe grader also runs hidden cases you cannot see, so fix these first.")
+    sys.exit(1 if report.failed else 0)
+
+
+if __name__ == "__main__":
+    main()

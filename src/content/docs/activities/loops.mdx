@@ -1,0 +1,335 @@
+---
+title: "Loops"
+description: "Predict the output of a nested loop that breaks partway, trace a while loop where two variables change together, and choose the one condition that makes a counting loop cover its full range."
+sidebar:
+  order: 11
+draft: true
+---
+
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+import Reveal from '/src/components/Reveal.astro';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+
+{/* ai-summary
+type: activity
+slug: loops
+order: 11
+paired_lecture: loops
+practices: predicts the output of a nested loop whose inner pass breaks; traces a while loop where two variables update together, one added to and one doubled, until the condition turns false; chooses the loop condition that covers a stated range of values from candidates that quietly stop one short or overshoot
+prereq_activities:
+block_types: predict-then-run, paper-tracing, peer-instruction
+output: a reconciled nested-loop prediction, a completed two-variable while trace, and a chosen and justified loop condition
+*/}
+
+<LanguageVersions />
+
+This activity puts into practice the [Loops](/lectures/loops/) lecture. You will predict the output of a nested loop that breaks partway, trace a `while` loop where two variables change on every pass, and choose the one condition that makes a counting loop print exactly the values it promises. By the end, you will be able to say exactly which loop a `break` ends, follow two loop variables at once until a condition turns false, and pick the boundary a loop condition needs.
+
+## Warm-up
+
+A quick refresher before the sections. A `while` loop runs its body while a condition stays true, and a `for` loop walks a variable through the values of a range. Here is the smallest example of each, back to back, in both languages.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="warmup.py"
+count = 1
+while count <= 3:
+    print(count)
+    count = count + 1
+for i in range(3):
+    print(i)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="warmup.rs"
+fn main() {
+    let mut count = 1;
+    while count <= 3 {
+        println!("{}", count);
+        count = count + 1;
+    }
+    for i in 0..3 {
+        println!("{}", i);
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 warmup.py
+```
+
+```text frame="terminal" title="Output"
+1
+2
+3
+0
+1
+2
+```
+
+Rust prints the same six lines. The `while` counts `1` to `3` and stops when `count` reaches `4`, and the `for` walks `range(3)` and `0..3`, which are the three values `0, 1, 2`. With those two shapes fresh, the sections below add a second loop, a `break`, and a second variable, so the stopping point and the number of passes stop being obvious.
+
+## Predict What the Nested Loop Prints
+
+An exam hands you a loop inside a loop and asks for its exact output, and the only way to earn that answer is to commit to it before running. Read the program below and write down, on paper or in a comment, every line it prints, in order, including the final number. Do not run it yet.
+
+The outer loop steps `i` through `1, 2, 3`, and for each `i` the inner loop steps `j` through `1, 2, 3`, but the inner loop `break`s as soon as `j` reaches `i`. A counter records how many numbers actually print, and the last line prints that count. The question is what prints, in what order, and what the final count is.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="nested.py"
+count = 0
+for i in range(1, 4):
+    for j in range(1, 4):
+        if j == i:
+            break
+        print(i * 10 + j)
+        count = count + 1
+print(count)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="nested.rs"
+fn main() {
+    let mut count = 0;
+    for i in 1..4 {
+        for j in 1..4 {
+            if j == i {
+                break;
+            }
+            println!("{}", i * 10 + j);
+            count = count + 1;
+        }
+    }
+    println!("{}", count);
+}
+```
+</TabItem>
+</Tabs>
+
+<Reveal label="Reveal the output and which loop the break ended">
+```bash title="Run the Python program"
+python3 nested.py
+```
+
+```text frame="terminal" title="Output"
+21
+31
+32
+3
+```
+
+Rust prints the same four lines. The whole result turns on one fact: `break` ends only the loop it sits in, which here is the inner loop, not the outer one. Trace the outer passes. When `i` is `1`, the inner loop starts with `j` at `1`, the check `j == i` is `1 == 1`, true at once, so `break` runs before anything prints and the inner loop ends having printed nothing. The outer loop is untouched, so it moves on. When `i` is `2`, `j` starts at `1`: `1 == 2` is false, so `21` prints and `count` becomes `1`; then `j` is `2` and `2 == 2` breaks, ending only the inner loop again. When `i` is `3`, `j` runs `1` then `2` before `3 == 3` breaks, so `31` and `32` print and `count` reaches `3`. The outer loop then finishes on its own and `print(count)` shows `3`. If you predicted the whole thing stopped the first time `break` ran, you read `break` as leaving both loops; it leaves just the inner one, and the outer loop kept handing it fresh work.
+
+A variant worth trying on your own: swap the `break` for a `continue`, which obeys the same rule and acts only on the loop that contains it, jumping the inner loop straight back to its own next pass instead of ending it.
+</Reveal>
+
+---
+
+## Trace a Loop Where Two Variables Move
+
+An exam asks you to say what a loop prints without running it, and the only reliable way is to trace it: track every variable and re-check the condition at the top of each pass, exactly as the machine does. The loop below is harder than a single counter, because it carries two variables that change differently on every pass: `a` grows by three, and `b` doubles. The condition compares them, so where the loop stops depends on which value overtakes the other, and that is not obvious by eye. You will build the trace by hand.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="race.py"
+a = 3
+b = 1
+while a > b:
+    print(a - b)
+    a = a + 3
+    b = b * 2
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="race.rs"
+fn main() {
+    let mut a = 3;
+    let mut b = 1;
+    while a > b {
+        println!("{}", a - b);
+        a = a + 3;
+        b = b * 2;
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+Do not run it yet. Trace it on paper with these steps.
+
+<Steps>
+
+1. Write the starting values `a = 3` and `b = 1` at the top.
+
+2. For each pass, write the condition `a > b` with the current values filled in, and mark it true or false.
+
+3. If it is true, write down the value that `print` outputs, which is `a - b`, then compute the new `a` from `a = a + 3` and the new `b` from `b = b * 2`, and carry both to the next pass.
+
+4. Stop the first time the condition is false. The output is every value you wrote in step 3, in order.
+
+</Steps>
+
+<Reveal label="Reveal the completed trace">
+| Pass | `a` | `b` | `a > b` | Prints `a - b` | new `a` | new `b` |
+|---|---|---|---|---|---|---|
+| 1 | 3 | 1 | `3 > 1` is true | `2` | 6 | 2 |
+| 2 | 6 | 2 | `6 > 2` is true | `4` | 9 | 4 |
+| 3 | 9 | 4 | `9 > 4` is true | `5` | 12 | 8 |
+| 4 | 12 | 8 | `12 > 8` is true | `4` | 15 | 16 |
+| 5 | 15 | 16 | `15 > 16` is false | nothing, loop ends | | |
+
+The loop prints `2`, `4`, `5`, `4` and stops. Notice the printed values are not increasing: they climb to `5`, then fall back to `4`, because `b` doubles faster than `a` grows and the gap between them first widens and then closes. The fifth check is the one that ends it: by then `b` has reached `16` while `a` is only `15`, so `15 > 16` is false, the body does not run again, and the `16` and `15` never turn into a printed line. Run both programs to confirm.
+
+```bash title="Run the Python program"
+python3 race.py
+```
+
+```text frame="terminal" title="Output"
+2
+4
+5
+4
+```
+
+```bash title="Compile and run the Rust program"
+rustc race.rs
+./race
+```
+
+```text frame="terminal" title="Output"
+2
+4
+5
+4
+```
+
+The loop ran exactly four times, not a number you could guess from the starting values alone. Because `b` doubles, it catches and passes `a` faster than the steady `+3` on `a` suggests, and the only way to know the pass where that happens is to carry both variables down the table. Tracking just one of the two would have left you unable to say when the condition flips.
+</Reveal>
+
+---
+
+## Choose the Condition That Completes the Loop
+
+The exams' complete-the-code questions hand you a program with one line missing and several candidates that all look plausible. The loop below is meant to print every even number from `2` through `10`, the five lines `2`, `4`, `6`, `8`, `10`, but its condition is blank.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="evens.py"
+n = 2
+while ____:  # (A) fill in the condition
+    print(n)
+    n = n + 2
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="evens.rs"
+fn main() {
+    let mut n = 2;
+    while ____ {  // (A) fill in the condition
+        println!("{}", n);
+        n = n + 2;
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+Exactly one of these four candidates for blank (A) produces the intended five lines; the comparisons read the same in Python and Rust.
+
+1. `n < 10`
+2. `n != 10`
+3. `n <= 10`
+4. `n <= 12`
+
+Before opening the reveal, commit to your choice, and for each candidate you reject, write down the output it would actually produce.
+
+<Reveal label="Reveal the right condition and what each candidate prints">
+The answer is candidate 3, `n <= 10`. With it in the blank, the run prints the intended five lines, identically in both languages:
+
+```bash title="Run the completed Python program"
+python3 evens.py
+```
+
+```text frame="terminal" title="Output"
+2
+4
+6
+8
+10
+```
+
+The counter steps `2, 4, 6, 8, 10, 12`, and the condition is checked at the top of every pass, so the loop covers `10` only if the check stays true when `n` is exactly `10`. `<=` keeps the boundary value; each of the other three candidates misses it from a different side:
+
+- Candidate 1, `n < 10`, prints `2`, `4`, `6`, `8` and stops: the check `10 < 10` is false, so the strict `<` ends the loop just as `n` reaches the one value the loop was built to include, one line short.
+
+- Candidate 2, `n != 10`, also prints `2`, `4`, `6`, `8`: after `8` prints, the body sets `n` to `10`, and `10 != 10` is false, so the loop stops before printing `10`, not after. It is also fragile: aimed at a boundary the counter steps over instead of landing on, an `!=` never turns false and the loop never ends.
+
+- Candidate 4, `n <= 12`, prints `2`, `4`, `6`, `8`, `10`, `12`: it keeps the `10`, but its boundary sits one step too high, so the check `12 <= 12` is still true and an unwanted sixth line slips out.
+
+Candidates 1 and 2 are the dangerous ones: both run cleanly, print output that looks right, and are quietly one value short. Nothing crashes and no message appears, so the only way to tell them from the correct condition is to know exactly which values the loop was supposed to cover and check the boundary by hand.
+</Reveal>
+
+---
+
+## Write a Sum-to-N Function
+
+Write a function `sum_to(n)` that adds up every whole number from `1` through `n` using a loop, then print `sum_to(5)`.
+
+<Reveal label="Reveal a sample solution">
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="sum_to.py"
+def sum_to(n):
+    total = 0
+    for i in range(1, n + 1):
+        total = total + i
+    return total
+
+print(sum_to(5))
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="sum_to.rs"
+fn sum_to(n: i32) -> i32 {
+    let mut total = 0;
+    for i in 1..=n {
+        total = total + i;
+    }
+    return total;
+}
+
+fn main() {
+    println!("{}", sum_to(5));
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 sum_to.py
+```
+
+```text frame="terminal" title="Output"
+15
+```
+
+```bash title="Compile and run the Rust program"
+rustc sum_to.rs
+./sum_to
+```
+
+```text frame="terminal" title="Output"
+15
+```
+
+This is a sample solution: a `while` loop, or a different accumulator name, reaches the same total just as correctly.
+</Reveal>
+
+---
+
+## Bridge
+
+These three reps feed the recitation family where a loop drives a piece of changing state to a boundary and stops there: a counter walked to a limit, or a condition re-checked at the top of each pass until it turns false, sometimes with one loop nested inside another so the inner sweep runs in full for every step of the outer, and sometimes with more than one value changing together as the loop advances. The by-hand tracing, the where-does-it-stop prediction, and the boundary you had to pick for yourself are the guided first rung of that ladder.

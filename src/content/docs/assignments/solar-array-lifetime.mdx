@@ -1,0 +1,185 @@
+---
+title: "Solar Array Lifetime"
+description: "Write the function that projects a rooftop solar array's total lifetime output test-first: design your test cases, write pseudocode, then implement the accumulation, and judge AURA's claim about the shortcut before you trust it."
+sidebar:
+  order: 8
+draft: false
+---
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+import Reveal from '/src/components/Reveal.astro';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+import WhatDiffers from '/src/components/WhatDiffers.astro';
+import RubricTable from '/src/components/RubricTable.astro';
+
+{/* ai-summary
+type: assignment
+slug: solar-array-lifetime
+order: 8
+family: loops over state (accumulating a running total across a data-dependent number of passes)
+paired_recitation: R8
+prereq_lectures: loops, loop-patterns
+prereq_activities: loops, loop-patterns
+prereq_assignment: dashboard-publication-tests
+new_scope: writing one entry-point function that accumulates a running total across a data-dependent number of years by repeated multiplication, without a power operator and without collections
+target_construct: a while loop that carries a running total and a degrading value across a data-dependent number of passes, so iteration is the natural tool
+persistent_requirements: dual-language, one shared contract; grader reads return values only; no construct beyond the loops week on the ladder; no collections; no power operator
+story_beat: projecting a rooftop array's total lifetime output before the year's energy budget is finalized
+output: one function submitted to the grader, an optional summit function, and a PDF on Canvas with acceptance tests, pseudocode, a hand trace, and a reflection
+*/}
+
+<LanguageVersions />
+
+WRO's field office put solar panels on its south-facing roof several years ago, 240 individual panels in all, and the budget office now wants one number before it signs off on next year's energy plan: the total energy the array will generate over its whole working life. The array keeps producing power for years, giving up a little output each year, until the array's output sinks below the level the manufacturer's warranty still stands behind. Your job as a junior engineer on the office's software team is to write the function that adds up the array's lifetime output, year by year, and to judge AURA's shortcut before you build anything on it.
+
+## How This Assignment Works
+
+You work **test first**: you read the problem, decide what correct behavior looks like by writing your own test cases, plan the code in pseudocode, and only then write the code. The problem is solvable in Python or Rust, whichever you prefer. The program's `main`, its console input and output, and the local test runner are already written; you write the one function named below, and the automated grader calls it directly with values it chooses, reading only what you `return`. The order is fixed: design your tests, write your pseudocode, then write your function. After that comes an optional extra-credit stretch, a short paper trace, and a two-sentence reflection.
+
+## What to Submit
+
+You submit in two places. Mechanics are in [Running and Submitting Your Code](/practicalities/starter-repo-and-check/); each section below also repeats what it asks for.
+
+- **A single PDF on Canvas** holding everything that is not code: your **acceptance tests**, your **pseudocode**, your **paper trace**, and your **reflection**.
+- **Your code on Gradescope**: the function `lifetime_generation_kwh`, plus the extra-credit `years_to_clearance` if you attempt the summit.
+
+## The Problem
+
+The array's data sheet gives a steeper degradation curve than most rooftop solar. Across the industry, the median crystalline-silicon panel loses only about 0.5 percent of its output per year (NREL, Jordan and Kurtz, *Compendium of Photovoltaic Degradation Rates*, 2016), but the office bought an older discount panel line for this roof, and its output falls off noticeably faster than that.
+
+The array's output in its first year of operation is a known starting value. Every year after that, the output falls by a fixed percentage of the year before it, so a smaller number is what shrinks the year after that, and the shrinking compounds. The array keeps counting toward the office's budget only for as long as its output stays at or above the level the manufacturer's warranty still covers; the moment a year's projected output would fall below that floor, the array's useful life for budgeting purposes is over, and that year's output is left out.
+
+Write `lifetime_generation_kwh(start_output_kwh, degradation_percent, floor_kwh)`, returning the total energy the array generates over its life, in kilowatt-hours, as a float. There is no exponentiation operator on the language ladder, and the number of years that qualify depends on all three inputs, not on a fixed count, so you cannot raise a single factor to a fixed power and you cannot write the growth out by hand for a general case.
+
+The function returns a float. How you track the array's output year to year, and what intermediate values you give names to along the way, is entirely your decision.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="array_lifetime.py"
+def lifetime_generation_kwh(start_output_kwh, degradation_percent, floor_kwh):
+    ...
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="array_lifetime.rs"
+fn lifetime_generation_kwh(start_output_kwh: f64, degradation_percent: f64, floor_kwh: f64) -> f64 {
+    todo!()
+}
+```
+</TabItem>
+</Tabs>
+
+We give you **one** worked example to show the format. An array starting at `20000.0` kilowatt-hours in its first year, degrading `10.0` percent each year, with a warranty floor of `12000.0` kilowatt-hours, produces `20000.0` in year one, `18000.0` in year two, `16200.0` in year three, `14580.0` in year four, and `13122.0` in year five, all of them at or above the floor; year six would produce `11809.8`, below the floor, so the array's life for budgeting purposes ends after year five:
+
+| Call | Returns |
+|---|---|
+| `lifetime_generation_kwh(20000.0, 10.0, 12000.0)` | `81902.0` |
+
+**Assumptions and edge cases.** `start_output_kwh` is a float, greater than `0.0`. `degradation_percent` is a float, strictly greater than `0.0` and strictly less than `100.0`: the array always gives up a little output each year, never none and never all of it at once. `floor_kwh` is a float, greater than `0.0`, and it can sit below, exactly at, or above `start_output_kwh`. Handle a `floor_kwh` above `start_output_kwh`, where the very first year already fails to clear the floor and nothing is added to the total, and a `floor_kwh` exactly equal to `start_output_kwh`, where the first year clears it but the second does not.
+
+<Aside type="danger" title="AURA has a shortcut for the lifetime total. Decide whether to trust it.">
+AURA, the office's assistant, offers this: "Once you know how many years qualify, the fastest route to the lifetime total is to multiply that count by the very first year's output. The array gives up only a little each year, so the years are near enough to each other that the first year stands in for all of them, and tracking every single year's own value is bookkeeping you do not need."
+
+Office rule: no AURA analysis is published unverified. Decide whether AURA's shortcut is right before you build anything on it, and let your own test cases settle the question.
+</Aside>
+
+## Step 1: Write Your Acceptance Tests
+
+Before writing any code, decide what correct behavior looks like. Write a set of test cases for `lifetime_generation_kwh` as a plain table of rows: the three inputs (`start_output_kwh`, `degradation_percent`, `floor_kwh`) and the total you expect back. Now that the testing lecture has been covered you may pin each case down with an `assert` if you prefer, but a plain table of rows is all this step asks for. For each row, work out the expected total by hand, year by year, from the degradation rule.
+
+Your table must include, and label, at least these cases:
+
+- The worked example above, as a starting check.
+- The boundary case where `floor_kwh` is above `start_output_kwh`, so no year ever qualifies and the total is `0.0`.
+- The boundary case where `floor_kwh` is exactly equal to `start_output_kwh`, so exactly one year qualifies.
+- At least one more case whose expected total you compute fully by hand, year by year.
+
+**Submit your test table in your PDF on Canvas.**
+
+## Step 2: Write Your Pseudocode
+
+Now plan the code, still before writing it. In plain steps (not Python or Rust), describe how `lifetime_generation_kwh` turns its three inputs into the total it returns, as a readable plan another student could implement. Name the intermediate values you intend to create, so a reader could follow your plan and write the code from it.
+
+**Submit your pseudocode in your PDF on Canvas.**
+
+## Step 3: Write Your Code
+
+Implement `lifetime_generation_kwh` from the signature above, in Python or Rust, following your own pseudocode. The automated grader calls the function directly with values it chooses and checks what you `return`, so nothing is graded on how you get there, only on the answer being right. Because the result is a floating-point value, the grader accepts any answer within a small tolerance, so you never compare floats yourself.
+
+<WhatDiffers>
+<Fragment slot="differs">
+The grader reads the returned value, not printed text, and the value is the same float in both languages. If you print a whole-valued total to debug it, the display differs: Python shows `20000.0`, its trailing zero included, while Rust's f64 shows `20000`. The number itself is identical.
+</Fragment>
+</WhatDiffers>
+
+**Submit your function to Gradescope.**
+
+## Summit Problem (extra credit)
+
+This one is a real stretch, and it earns extra credit. It is also your practice for the graded stretch problem in the recitation room, where a harder problem is waiting.
+
+WRO's radiological safety desk tracks a different kind of falling number: the activity of a shipment of low-level radioactive material staged at a regional holding site, reported in terabecquerels. Radioactive material loses a fixed percentage of whatever activity remains each year, the same kind of compounding falloff as the array's output above, and the shipment cannot be reclassified for standard handling until its activity settles at or below the site's clearance level.
+
+Write `years_to_clearance(initial_activity_tbq, decay_percent, clearance_tbq)`, returning the whole number of years that must pass before the shipment's activity falls to or below `clearance_tbq`. `initial_activity_tbq` and `clearance_tbq` are floats, greater than `0.0`; `decay_percent` is a float, strictly greater than `0.0` and strictly less than `100.0`. Handle an `initial_activity_tbq` already at or below `clearance_tbq`, where no years need to pass at all.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="clearance.py"
+def years_to_clearance(initial_activity_tbq, decay_percent, clearance_tbq):
+    ...
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="clearance.rs"
+fn years_to_clearance(initial_activity_tbq: f64, decay_percent: f64, clearance_tbq: f64) -> i32 {
+    todo!()
+}
+```
+</TabItem>
+</Tabs>
+
+As one worked example, a shipment starting at `1000.0` terabecquerels, decaying `20.0` percent each year, reaches `800.0` after one year, `640.0` after two, `512.0` after three, `409.6` after four, `327.68` after five, and `262.144` after six, the first year at or below a clearance level of `300.0`:
+
+| Call | Returns |
+|---|---|
+| `years_to_clearance(1000.0, 20.0, 300.0)` | `6` |
+
+**Submit `years_to_clearance` to Gradescope** to earn the extra credit.
+
+## Paper Practice
+
+Trace this program by hand, on paper. It uses the running-product accumulator from the [Loop Patterns](/lectures/loop-patterns/) lecture. Build a variable table with a row for each pass of the `while` loop, tracking `n` at the start of the pass and `value` after it. Write the exact value the program prints.
+
+```python title="trace_me.py"
+value = 512.0
+factor = 0.75
+n = 1
+while n <= 3:
+    value = value * factor
+    n = n + 1
+print(value)
+```
+
+<Reveal label="Reveal the completed trace">
+Each pass multiplies `value` by the fixed `factor`, and then advances `n`.
+
+| Pass | `n` at start of pass | `value` after |
+|---|---|---|
+| 1 | `1` | `384.0` |
+| 2 | `2` | `288.0` |
+| 3 | `3` | `216.0` |
+
+After the third pass, `n` becomes `4`, and the condition `n <= 3` is false, so the loop ends. The program prints `216.0`. The same program written in Rust prints its whole-valued `f64` without the trailing zero, `216`.
+</Reveal>
+
+Photograph your trace and include it in your PDF on Canvas. This part is graded on completion (the attached photograph), not on whether every cell is right, so attempt it by hand first, then open the reveal to check yourself.
+
+## Reflection
+
+Include a short reflection in your PDF on Canvas. In two sentences: first, state plainly whether you used an AI tool on this assignment and, if you did, what you used it for (if you did not use AI at all, say so explicitly); second, name any other help you used (a peer, the official docs, the lecture notes) and one thing you still could not do without that help.
+
+Then add one more sentence: which intermediate values did you choose to name inside `lifetime_generation_kwh`, and why those? This is graded on completion, not on what you say, and it is not shared with anyone but the instructor.
+
+## Rubric
+
+<RubricTable src="canvas/assignments/solar-array-lifetime-rubrics.tsv" caption="Solar Array Lifetime Rubric" />

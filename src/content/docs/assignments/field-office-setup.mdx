@@ -1,0 +1,176 @@
+---
+title: "Field Office Setup"
+description: "Set up your toolchain, run your first program in Python and Rust, meet the starter files and the check harness, and submit your completed checkout to Gradescope."
+sidebar:
+  order: 1
+draft: false
+---
+
+import { Tabs, TabItem, Steps, Aside } from '@astrojs/starlight/components';
+import Reveal from '/src/components/Reveal.astro';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+import RubricTable from '/src/components/RubricTable.astro';
+
+{/* ai-summary
+type: assignment
+slug: field-office-setup
+order: 1
+family: none (week-1 onboarding)
+paired_recitation: R1
+prereq_lectures: how-programs-run
+prereq_activities:
+prereq_assignment: none
+new_scope: the toolchain, the starter files, the check harness and the __main__ idiom, and Gradescope submission
+target_construct: none (toolchain only, no new construct this week)
+persistent_requirements: dual-language; submit to Gradescope from the starter folder
+story_beat: the new hire checks out a workstation at the WRO field office before touching office code
+output: a working toolchain, a first hello run in both languages, and a submitted checkout
+*/}
+
+<LanguageVersions />
+
+You have just joined the software team at the Willamette Resource Office (WRO). Before anyone touches the office's code, new hires check out their workstation: power it on, confirm the tools respond, and run one trial program end to end, so that nothing in real work is the first time a tool gets used. This assignment is that checkout. You will write almost no code; the point is that every tool works and you know how your later work will be run and graded.
+
+<Aside type="note" title="This one is a walkthrough">
+Unlike every later assignment, this page walks you through each step. Later assignments hand you a specification and let you decide how to reach it; this one makes sure the tools are ready first.
+</Aside>
+
+## How This Assignment Works
+
+Follow the steps below in order. You will set up your toolchain, run a first program in both Python and Rust, look at the parts of a starter folder that the automated grader uses, run the local check harness, and submit to Gradescope. Two how-to guides carry the details this page points to: [Running and Submitting Your Code](/practicalities/starter-repo-and-check/) and [Finding Documentation and Helpers](/practicalities/finding-docs-and-helpers/).
+
+## What to Submit
+
+This assignment submits in two places, the same two places every later assignment uses:
+
+- **Your packed submission to Gradescope**, so the grader runs the same check you ran locally.
+- **A single PDF on Canvas** holding your **paper practice** and your **reflection**. Every later assignment uses this same two-place split, so this is where you get used to it.
+
+## The Checkout
+
+<Steps>
+
+1. **Set up your tools.** Make sure you can run Python 3 and the Rust compiler, and open a terminal and an editor. The [Running and Submitting Your Code](/practicalities/starter-repo-and-check/) how-to lists exactly what to install and how to check each tool responds. Both languages are also already installed on the OSU ENGR servers, which you reach with `ssh`: [Connecting to the ENGR Servers](/practicalities/connecting-to-the-engr-servers/) walks you through getting in, and every step after this one works the same way there.
+
+2. **Get the week-1 starter files.** Download the checkout's zip file from Canvas and unzip it somewhere you can find again. Everything you need is inside: the instructions, the two starter files, and the check harness.
+
+3. **Run your first program in both languages.** The starter contains a `hello.py` and a `hello.rs`. Run each one. In Python you run the source directly; in Rust you compile first, then run the executable the compiler builds.
+
+   <Tabs syncKey="lang">
+   <TabItem label="Python">
+   ```python title="hello.py"
+   print("Hello from the field office.")
+   ```
+   </TabItem>
+   <TabItem label="Rust">
+   ```rust title="hello.rs"
+   fn main() {
+       println!("Hello from the field office.");
+   }
+   ```
+   </TabItem>
+   </Tabs>
+
+   ```bash title="Run the Python program"
+   python3 hello.py
+   ```
+
+   ```bash title="Compile and run the Rust program"
+   rustc hello.rs
+   ./hello
+   ```
+
+   Both print the same line:
+
+   ```text frame="terminal" title="Output"
+   Hello from the field office.
+   ```
+
+4. **Look at how your code will be run.** In every assignment after this one, you write named pieces of code and a provided program runs them; you do not write the program that starts everything. That provided program has a fixed shape. In Rust you have already met it: `fn main() { ... }` is the single place a program begins. Python marks its starting point differently, with a line that reads "if this file is the one being run, start at `main`":
+
+   <Tabs syncKey="lang">
+   <TabItem label="Python">
+   ```python title="run.py (provided, do not edit)"
+   def main():
+       print("Hello from the field office.")
+
+   if __name__ == "__main__":
+       main()
+   ```
+   </TabItem>
+   <TabItem label="Rust">
+   ```rust title="run.rs (provided, do not edit)"
+   fn main() {
+       println!("Hello from the field office.");
+   }
+   ```
+   </TabItem>
+   </Tabs>
+
+   Run `python3 run.py` and it prints the same `Hello from the field office.` line. You do not need to understand `def main()` or the `if __name__ == "__main__"` line yet; you will meet both when the course reaches functions in week 3. For now, know only that this is the provided wrapper the grader supplies, that it is marked "do not edit," and that your later work fills in named pieces it calls. [Running and Submitting Your Code](/practicalities/starter-repo-and-check/) explains it in full.
+
+5. **Run the check harness.** The starter includes a `check` command that runs the visible tests on your machine and prints exactly what the grader will print. Run it now on the unchanged starter with `./check`, or `python3 check` on Windows; this week's checkout is already complete, so it should report one passing test for each language you have set up. Every later assignment starts red instead, and getting it green before you submit is the habit they all rely on.
+
+6. **Submit to Gradescope.** Package your work with the provided `pack` command and upload the result to the Gradescope assignment (the link is on Canvas). You may submit as many times as you like; the last submission before the deadline counts. Confirm Gradescope shows the same passing check you saw locally.
+
+</Steps>
+
+## Paper Practice
+
+Do this one on paper, by hand, with nothing running. Every assignment this term ends with an exercise like it, because the exams are on paper and your hands need the reps.
+
+Below is the same three-line program in each language. Its middle line tries to add a whole number to a piece of text, which neither language allows. **Write down, for each language separately, exactly which lines appear on the screen and in what order**, then write one sentence saying why the two answers are not the same.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="startup.py"
+print("Field office online.")
+print(3 + "sensors")
+print("Ready.")
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="startup.rs"
+fn main() {
+    println!("Field office online.");
+    println!("{}", 3 + "sensors");
+    println!("Ready.");
+}
+```
+</TabItem>
+</Tabs>
+
+<Reveal label="Reveal what each language really does">
+**Python prints its first line, then stops.** The interpreter reads and runs one line at a time, so line 1 has already displayed its text before line 2 is even looked at. Line 2 then fails as it runs, and `Ready.` never happens:
+
+```text frame="terminal" title="Output"
+Field office online.
+Traceback (most recent call last):
+  File "startup.py", line 2, in <module>
+    print(3 + "sensors")
+          ~~^~~~~~~~~~~
+TypeError: unsupported operand type(s) for +: 'int' and 'str'
+```
+
+**Rust prints nothing at all.** The compiler reads the whole file before building anything, finds the same faulty addition, and refuses to produce a program. There is no `startup` executable to run, so not even the perfectly good first line gets a chance:
+
+```text frame="terminal" title="Output"
+error[E0277]: cannot add `&str` to `{integer}`
+ --> startup.rs:3:22
+  |
+3 |     println!("{}", 3 + "sensors");
+  |                      ^ no implementation for `{integer} + &str`
+```
+
+The one sentence: the mistake is identical in both files, and the difference is entirely about *when* each language looks for it. Python finds it at the moment execution reaches that line, after earlier lines have already produced real output; Rust finds it before the program starts, so nothing runs and nothing prints.
+</Reveal>
+
+Photograph your written answer and include it in your PDF on Canvas. This is graded on completion (the attached page), not on whether you got both answers right, so attempt it yourself first and then open the reveal to check.
+
+## Reflection
+
+Include a short reflection in your PDF on Canvas. In one or two sentences: state plainly whether you used an AI tool to get set up and, if so, for what (if you did not, say so explicitly), and name one tool or step that is still unclear. This is graded on completion and is seen only by the instructor.
+
+## Rubric
+
+<RubricTable src="canvas/assignments/field-office-setup-rubrics.tsv" caption="Field Office Setup Rubric" />

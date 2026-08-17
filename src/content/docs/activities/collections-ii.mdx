@@ -1,0 +1,424 @@
+---
+title: "Collections II: Dictionaries and Maps"
+description: "Predict, fix, and trace short dictionary and hash map programs in Python and Rust to lock in key lookup, updating, membership, missing keys, and frequency counting."
+sidebar:
+  order: 17
+draft: true
+---
+
+import { Tabs, TabItem, Steps } from '@astrojs/starlight/components';
+import Reveal from '/src/components/Reveal.astro';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+import WhatDiffers from '/src/components/WhatDiffers.astro';
+
+{/* ai-summary
+type: activity
+slug: collections-ii
+order: 17
+paired_lecture: collections-ii
+practices: predicts the values a dictionary returns after a run of operations that overwrite a key, copy one key's value into another, and ask for a missing key with a default, where the final values depend on the order of the stores; diagnoses a missing-key crash in a tally loop that reads a first-seen key before it has been inserted, and fixes it with a default lookup or an entry; traces a letter-frequency count over an eleven-letter word, building the count for each letter one pass at a time
+prereq_activities:
+block_types: predict-then-run, live-debugging, paper-tracing
+output: a reconciled set of key lookups, a corrected tally loop, and a completed letter-frequency trace
+*/}
+
+<LanguageVersions />
+
+This activity puts into practice the [Collections II: Dictionaries and Maps](/lectures/collections-ii/) lecture. You will predict what a dictionary returns after a run of stores, fix a counting loop that crashes before it prints a single count, and trace a letter-frequency count by hand over a longer word. By the end, you will be able to read a value back by its key, handle a key that might be missing without crashing, and count how many times each item appears in some data.
+
+## Warm-up
+
+A quick refresher before the sections. A dictionary, called a hash map in Rust, stores each value under a key you choose, and you read a value back by naming its key. Here are two pairs stored and then looked up, in both languages. Rust needs `use std::collections::HashMap;` at the top of the file to bring the type into view.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="ages.py"
+ages = {"alice": 30, "bob": 25}
+print(ages["alice"])
+print(ages["bob"])
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="ages.rs"
+use std::collections::HashMap;
+
+fn main() {
+    let mut ages = HashMap::new();
+    ages.insert("alice", 30);
+    ages.insert("bob", 25);
+    println!("{}", ages["alice"]);
+    println!("{}", ages["bob"]);
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 ages.py
+```
+
+```text frame="terminal" title="Output"
+30
+25
+```
+
+Both programs store the same two pairs and read each value back by its key, so both print `30` then `25`. With that fresh, the sections below store, overwrite, copy, and count.
+
+## Predict the Final Scores
+
+This program stores values under keys that are sometimes new and sometimes already taken, and two of its stores read their value out of the dictionary itself. The final numbers are not obvious. You commit to an answer first, then run the program to check it.
+
+Read the program and write down, on paper or in a comment, the exact value you expect each of the four lines to print. Do not run it yet. Track the dictionary line by line from the first store to the last.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="scores.py"
+scores = {"ann": 10, "ben": 20}
+scores["ann"] = 15
+scores["cara"] = scores["ben"]
+scores["ben"] = scores["ann"]
+print(scores["ann"])
+print(scores["ben"])
+print(scores["cara"])
+print(scores.get("zoe", -1))
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="scores.rs"
+use std::collections::HashMap;
+
+fn main() {
+    let mut scores = HashMap::new();
+    scores.insert("ann", 10);
+    scores.insert("ben", 20);
+    scores.insert("ann", 15);
+    scores.insert("cara", scores["ben"]);
+    scores.insert("ben", scores["ann"]);
+    println!("{}", scores["ann"]);
+    println!("{}", scores["ben"]);
+    println!("{}", scores["cara"]);
+    match scores.get("zoe") {
+        Some(points) => println!("{}", points),
+        None => println!("-1"),
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+<Reveal label="Reveal the real output and reconcile it with your prediction">
+```bash title="Run the Python program"
+python3 scores.py
+```
+
+```text frame="terminal" title="Output"
+15
+15
+20
+-1
+```
+
+```bash title="Compile and run the Rust program"
+rustc scores.rs
+./scores
+```
+
+```text frame="terminal" title="Output"
+15
+15
+20
+-1
+```
+
+Walk the stores in order. `ann` starts at `10`, and `scores["ann"] = 15` overwrites that value rather than adding a second `ann`, so `ann` now holds `15`. The next line copies `ben`'s *current* value, `20`, into `cara`, because `ben` has not changed yet, so `cara` holds `20`. Only then does `scores["ben"] = scores["ann"]` run, and by now `ann` holds `15`, so `ben` becomes `15`. That is the trap: `cara` and `ben` are copies made at different moments, so `cara` keeps the old `20` while `ben` takes the new `15`. If you predicted `cara` at `15` you copied `ben` too late, and if you predicted `ben` at `20` you copied `ann` too early.
+
+The last line asks for a key that was never stored: `scores.get("zoe", -1)` gets the fallback `-1` instead of stopping the program. Rust names that missing-key default in a `match` where Python folds it into `.get`; every value matches across the two languages.
+</Reveal>
+
+---
+
+## Fix the Crashing Tally
+
+Counting how often each item appears is the frequency-count pattern from the lecture: walk the data, and for each item add one to its running count. The program below tries to tally a list of votes that way, but it stops before printing a single count. You find the bug with the systematic method: read the error, form a hypothesis, test it.
+
+The program should report how many `"yes"` and `"no"` votes are in the list. Run it, read the error, then work out which pass goes wrong and how to make the tally complete.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="tally.py"
+votes = ["yes", "no", "yes", "yes", "no"]
+counts = {}
+for vote in votes:
+    counts[vote] = counts[vote] + 1
+print(counts["yes"])
+print(counts["no"])
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="tally.rs"
+use std::collections::HashMap;
+
+fn main() {
+    let votes = ["yes", "no", "yes", "yes", "no"];
+    let mut counts: HashMap<&str, i32> = HashMap::new();
+    for vote in votes {
+        counts.insert(vote, counts[vote] + 1);
+    }
+    println!("{}", counts["yes"]);
+    println!("{}", counts["no"]);
+}
+```
+</TabItem>
+</Tabs>
+
+<Reveal label="Reveal the errors, the diagnosis, and the fix">
+```bash title="Run the buggy Python program"
+python3 tally.py
+```
+
+```text frame="terminal" title="Output"
+Traceback (most recent call last):
+  File "tally.py", line 4, in <module>
+    counts[vote] = counts[vote] + 1
+                   ~~~~~~^^^^^^
+KeyError: 'yes'
+```
+
+```bash title="Compile and run the buggy Rust program"
+rustc tally.rs
+./tally
+```
+
+```text frame="terminal" title="Output"
+thread 'main' panicked at tally.rs:7:35:
+no entry found for key
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+**Symptom.** Neither program prints a tally. Python stops on the very first pass with a `KeyError` naming `'yes'`, and Rust stops with a panic reading `no entry found for key`. Both point at the read on the right-hand side, `counts[vote]`.
+
+**Hypothesis.** The line reads the old count with `counts[vote]` and stores one more. That read assumes `vote` is already a key. On the first pass `counts` is still empty, so the very first vote, `"yes"`, is a key that was never stored, and the read for it stops the program before the store on the left can run. The bug is not a missing key at the end; it is the first-seen key being read before it has ever been counted.
+
+**Fix.** Never read a key you have not stored yet. Python has a one-line way to say that: `.get(vote, 0)` returns `0` for a key it has not stored, so `counts.get(vote, 0) + 1` starts a new key at `1` and bumps an existing one. Rust has no `.get` with a fallback that fits here, so you write the choice out with the `contains_key` check from the lecture: if the key is already there, store its count plus one; if it is not, store `1`. That is the same written-out form the lecture's `banana` count uses, and it is the version to use in this course.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="tally.py (fixed)"
+votes = ["yes", "no", "yes", "yes", "no"]
+counts = {}
+for vote in votes:
+    counts[vote] = counts.get(vote, 0) + 1
+print(counts["yes"])
+print(counts["no"])
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="tally.rs (fixed)"
+use std::collections::HashMap;
+
+fn main() {
+    let votes = ["yes", "no", "yes", "yes", "no"];
+    let mut counts = HashMap::new();
+    for vote in votes {
+        if counts.contains_key(vote) {
+            counts.insert(vote, counts[vote] + 1);
+        } else {
+            counts.insert(vote, 1);
+        }
+    }
+    println!("{}", counts["yes"]);
+    println!("{}", counts["no"]);
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the fixed Python program"
+python3 tally.py
+```
+
+```text frame="terminal" title="Output"
+3
+2
+```
+
+```bash title="Compile and run the fixed Rust program"
+rustc tally.rs
+./tally
+```
+
+```text frame="terminal" title="Output"
+3
+2
+```
+
+<WhatDiffers>
+<Fragment slot="differs">
+Python's square-bracket read raises a `KeyError` on a first-seen key, and `.get(vote, 0)` returns the fallback `0` instead, so one line both starts a new key at zero and bumps an existing one. Rust's square-bracket read panics with `no entry found for key`, and it has no `.get` with a fallback that fits here, so the choice is written out with `contains_key`: one branch bumps a key that is already there, the other starts a new one at `1`. That is the same shape the lecture's `banana` count uses. One more detail: the buggy version needs its value type spelled out as `HashMap<&str, i32>`, because every line that inserts reads the count back out of the map, so there is no plain number anywhere for Rust to infer the type from. The fixed version needs no annotation, because its `else` branch inserts a literal `1`.
+</Fragment>
+</WhatDiffers>
+</Reveal>
+
+---
+
+## Trace a Longer Letter Count
+
+Frequency counting keeps a running count for every distinct item at once: the keys are the items, and each value is that item's count so far. The lecture traced the six letters of `banana`; this program counts the eleven letters of `mississippi`, whose counts climb in an interleaved order you cannot eyeball. You trace the count dictionary by hand before running anything.
+
+Work through the letters of `mississippi` in order, `m`, `i`, `s`, `s`, `i`, `s`, `s`, `i`, `p`, `p`, `i`. Start with an empty dictionary and, for each letter, apply the rule the program uses.
+
+<Steps>
+
+1. If the letter is already a key, add one to its count.
+2. If it is not, start its count at `1`.
+3. Write the whole dictionary after each letter, then read off the final counts for `m`, `i`, `s`, and `p`.
+
+</Steps>
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="counts.py"
+word = "mississippi"
+counts = {}
+for letter in word:
+    if letter in counts:
+        counts[letter] = counts[letter] + 1
+    else:
+        counts[letter] = 1
+print(counts["m"])
+print(counts["i"])
+print(counts["s"])
+print(counts["p"])
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="counts.rs"
+use std::collections::HashMap;
+
+fn main() {
+    let word = "mississippi";
+    let mut counts = HashMap::new();
+    for letter in word.chars() {
+        if counts.contains_key(&letter) {
+            counts.insert(letter, counts[&letter] + 1);
+        } else {
+            counts.insert(letter, 1);
+        }
+    }
+    println!("{}", counts[&'m']);
+    println!("{}", counts[&'i']);
+    println!("{}", counts[&'s']);
+    println!("{}", counts[&'p']);
+}
+```
+</TabItem>
+</Tabs>
+
+<Reveal label="Reveal the completed trace and the real output">
+The dictionary starts empty. Each row shows the letter arriving and the dictionary just after it is handled.
+
+| Letter | Already a key? | Action | Dictionary after |
+|---|---|---|---|
+| `m` | no | start `m` at `1` | `m: 1` |
+| `i` | no | start `i` at `1` | `m: 1, i: 1` |
+| `s` | no | start `s` at `1` | `m: 1, i: 1, s: 1` |
+| `s` | yes | `1` becomes `2` | `m: 1, i: 1, s: 2` |
+| `i` | yes | `1` becomes `2` | `m: 1, i: 2, s: 2` |
+| `s` | yes | `2` becomes `3` | `m: 1, i: 2, s: 3` |
+| `s` | yes | `3` becomes `4` | `m: 1, i: 2, s: 4` |
+| `i` | yes | `2` becomes `3` | `m: 1, i: 3, s: 4` |
+| `p` | no | start `p` at `1` | `m: 1, i: 3, s: 4, p: 1` |
+| `p` | yes | `1` becomes `2` | `m: 1, i: 3, s: 4, p: 2` |
+| `i` | yes | `3` becomes `4` | `m: 1, i: 4, s: 4, p: 2` |
+
+The walk ends with `m` at `1`, `i` at `4`, `s` at `4`, and `p` at `2`, which is exactly how many times each letter appears in `mississippi`. The program looks up those four keys in that order, so it prints `1`, then `4`, then `4`, then `2`. Note that `i` and `s` finish tied at `4` but never climb together: `s` reaches `4` first, on the seventh letter, while `i` does not reach `4` until the very last letter.
+
+```bash title="Run the Python program"
+python3 counts.py
+```
+
+```text frame="terminal" title="Output"
+1
+4
+4
+2
+```
+
+```bash title="Compile and run the Rust program"
+rustc counts.rs
+./counts
+```
+
+```text frame="terminal" title="Output"
+1
+4
+4
+2
+```
+
+The program reads specific keys by name rather than printing the whole dictionary, so the output is the same every run in both languages, even though Rust's hash map keeps no order of its own. Rust writes the key as `&letter` and `&'m'` with a leading `&` because `contains_key` and square-bracket lookup take the key by reference, and a `char` is a plain value; the counting itself is identical to Python's.
+</Reveal>
+
+---
+
+## Write a Parts-Inventory Lookup
+
+Write a short program that builds a small parts-inventory dictionary mapping a part name to how many are in stock, then looks up one part that is in the dictionary and one that is not, printing the found count for the first and a default of `0` for the second.
+
+<Reveal label="Reveal a sample solution">
+This is a sample solution; a program that names its parts differently or looks up a different pair reaches the same idea just as correctly.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="inventory.py"
+inventory = {"bolts": 120, "washers": 300}
+print(inventory.get("bolts", 0))
+print(inventory.get("gaskets", 0))
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="inventory.rs"
+use std::collections::HashMap;
+
+fn main() {
+    let mut inventory = HashMap::new();
+    inventory.insert("bolts", 120);
+    inventory.insert("washers", 300);
+    match inventory.get("bolts") {
+        Some(count) => println!("{}", count),
+        None => println!("0"),
+    }
+    match inventory.get("gaskets") {
+        Some(count) => println!("{}", count),
+        None => println!("0"),
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 inventory.py
+```
+
+```text frame="terminal" title="Output"
+120
+0
+```
+
+```bash title="Compile and run the Rust program"
+rustc inventory.rs
+./inventory
+```
+
+```text frame="terminal" title="Output"
+120
+0
+```
+</Reveal>
+
+---
+
+## Bridge
+
+These three reps feed the key-value-lookup-and-counting family in recitation, where a program files values under names, reads them back by key, guards against a name it was never given, and tallies how often each distinct item shows up. The order-dependent lookups, the first-seen-key fix, and the hand trace you just worked are the guided first rung of that ladder.

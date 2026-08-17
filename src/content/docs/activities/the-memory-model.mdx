@@ -1,0 +1,326 @@
+---
+title: "The Memory Model: Aliasing and Ownership"
+description: "Predict, compare, and hand-trace what a name really holds when several names share one list in Python but b = a moves a vector in Rust."
+sidebar:
+  order: 15
+draft: true
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import Reveal from '/src/components/Reveal.astro';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+import WhatDiffers from '/src/components/WhatDiffers.astro';
+
+{/* ai-summary
+type: activity
+slug: the-memory-model
+order: 15
+paired_lecture: the-memory-model
+practices: predicts that two appends through different names of one shared list are visible through all of its names while separately assigned scalar names stay independent, sketching the names-and-objects picture before checking; names what one program does when it mixes a scalar copy the Rust compiler accepts with a b = a on a vector the Rust compiler rejects as a move with E0382, against Python aliasing the list and copying the number; traces a names-and-object memory diagram by hand across a sequence where a reassignment splits three names across two objects
+prereq_activities:
+block_types: predict-then-run, same-program-two-languages, paper-tracing
+output: a reconciled prediction, a named cross-language difference, and a completed two-object memory diagram for each of the three sections
+*/}
+
+<LanguageVersions />
+
+This activity puts into practice the [The Memory Model: Aliasing and Ownership](/lectures/the-memory-model/) lecture. You will predict what several names see when they share one list, compare how Python and Rust each read a program that mixes a scalar copy with a `b = a` on a list, and hand-draw the names-and-object picture for a sequence that splits three names across two objects. By the end, you will be able to tell aliasing from copying by tracing what each name points at, and to explain why the two languages read the same line so differently.
+
+## Warm-up
+
+A quick refresher before the sections. A small value like a whole number sits where its name is, and a list is a larger object the name refers to. Here are both, with `append` in Python and `push` in Rust adding one element to a list you own outright.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="warmup.py"
+n = 5
+print(n)
+nums = [1, 2, 3]
+nums.append(4)
+print(nums)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="warmup.rs"
+fn main() {
+    let n = 5;
+    println!("{}", n);
+    let mut nums = vec![1, 2, 3];
+    nums.push(4);
+    println!("{:?}", nums);
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 warmup.py
+```
+
+```text frame="terminal" title="Output"
+5
+[1, 2, 3, 4]
+```
+
+Rust prints the same two lines. With one name on each value, nothing surprising happens yet. The sections below add more names and watch what changes.
+
+## Predict What Every Name Sees
+
+A second name for a value is where aliasing hides, and a third name deepens it. You commit to an answer first, then run the program to check it.
+
+Read the program below and write down, on paper or in a comment, the exact value you expect each of the six `print` lines to produce. Do not run it yet. For the list, watch that the two appends come through different names, `c` and then `b`, and ask which names see each one. For the numbers, ask whether `z = z + 10` and `y = y + 100` reach back to `x` or build fresh values. Before opening the reveal, also sketch the names-and-objects picture as it stands just before the prints: each name in a column on the left, each value or object on the right, and an arrow from every name to the thing it refers to.
+
+```python title="predict.py"
+a = [1, 2, 3]
+b = a
+c = b
+c.append(4)
+b.append(5)
+print(a)
+print(b)
+print(c)
+
+x = 1
+y = x
+z = y
+z = z + 10
+y = y + 100
+print(x)
+print(y)
+print(z)
+```
+
+<Reveal label="Reveal the real output and reconcile it with your prediction">
+```bash title="Run the Python program"
+python3 predict.py
+```
+
+```text frame="terminal" title="Output"
+[1, 2, 3, 4, 5]
+[1, 2, 3, 4, 5]
+[1, 2, 3, 4, 5]
+1
+101
+11
+```
+
+All three list prints are the same fully grown `[1, 2, 3, 4, 5]`. Neither `b = a` nor `c = b` copies anything: each just makes another name for the one list object `a` already refers to, so after the first three lines there are three names and exactly one object. `c.append(4)` reaches that shared object and adds `4` in place, and `b.append(5)` reaches the very same object and adds `5`. Because all three names point at that one object, every name sees both appends, including `a`, which never appears in an `append` line at all. If you wrote `[1, 2, 3, 4]` for `c` and `[1, 2, 3, 5]` for `b`, you gave each name its own private list; the surprise this section exists to catch is that there is only ever one list here.
+
+The three numbers behave oppositely. `y = x` and `z = y` copy the value `1` into two independent names, so `z = z + 10` builds a new `11` and points `z` at it, and `y = y + 100` builds a new `101` and points `y` at it, both leaving `x` untouched at `1`. A whole number is small and sits where its name is, so you can never change one in place and a later name can never reach back to an earlier one. The list is shared because it can be changed in place; the numbers are not, because they cannot.
+
+Check your sketch against the whole picture as it stands just before the prints: one shared object on the list side, three private values on the number side.
+
+```text title="The picture just before the prints"
+a -> obj1 [1, 2, 3, 4, 5]
+b -> obj1
+c -> obj1
+
+x -> 1
+y -> 101
+z -> 11
+```
+</Reveal>
+
+---
+
+## The Same b = a, Two Languages
+
+Python and Rust are handed one program that does two things: it copies a small number with `m = n`, then assigns a list to a second name with `b = a`. You predict what Python prints, then decide what Rust does with each half.
+
+Study the two programs below. They are the same six steps: copy a number and read the original, then build a list, alias it, append through the alias, and read both names. Before opening the reveal, predict what Python prints. Then, for Rust, decide the copy and the list assignment separately: is `n` still usable after `let m = n`, and is `a` still usable after `let b = a`?
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="combined.py"
+n = 5
+m = n
+print(n)
+print(m)
+
+a = [1, 2, 3]
+b = a
+b.append(4)
+print(a)
+print(b)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="combined.rs"
+fn main() {
+    let n = 5;
+    let m = n;
+    println!("{}", n);
+    println!("{}", m);
+
+    let a = vec![1, 2, 3];
+    let b = a;
+    println!("{:?}", a);
+    println!("{:?}", b);
+}
+```
+</TabItem>
+</Tabs>
+
+<Reveal label="Reveal the outputs and what differs">
+```bash title="Run the Python program"
+python3 combined.py
+```
+
+```text frame="terminal" title="Output"
+5
+5
+[1, 2, 3, 4]
+[1, 2, 3, 4]
+```
+
+```bash title="Compile the Rust program"
+rustc combined.rs
+```
+
+```text frame="terminal" title="Output"
+error[E0382]: borrow of moved value: `a`
+ --> combined.rs:9:22
+  |
+7 |     let a = vec![1, 2, 3];
+  |         - move occurs because `a` has type `Vec<i32>`, which does not implement the `Copy` trait
+8 |     let b = a;
+  |             - value moved here
+9 |     println!("{:?}", a);
+  |                      ^ value borrowed here after move
+```
+
+<WhatDiffers>
+<Fragment slot="differs">
+Both languages treat the number the same way. `n` is a whole number, a `Copy` type in Rust and an unchangeable-in-place value in Python, so `m = n` leaves `n` fully usable in both, and neither language complains about reading `n` afterward. The list is where they split. Python's `b = a` makes `b` a second name for the same list object, so `b.append(4)` is visible through `a`, and both prints show `[1, 2, 3, 4]`. Rust's `let b = a` instead moves ownership of the vector from `a` to `b`, because a vector is not a `Copy` type, and after the move `a` owns nothing; the later `println!("{:?}", a)` reads `a` after it was moved, so the compiler reports `E0382` and produces no executable. The one program shows both halves at once: the same `let x = y` copies a scalar and leaves the original usable, but moves a vector and forbids the original, while Python aliases the list and copies the number's value, keeping every name usable.
+</Fragment>
+</WhatDiffers>
+
+The Python program runs start to finish with no warning; it copies the number and shares the list. The Rust program never runs, because the vector line is rejected while the compiler reads the file. Notice the error points only at `a`, never at `n`: the copy of the number was fine, and only the move of the vector broke. The compiler even offers `let b = a.clone()` as a fix if you truly want a second independent vector.
+</Reveal>
+
+---
+
+## Draw the Memory Picture
+
+The one habit that makes all of this readable is to draw it: names in a column on the left, objects on the right, and an arrow from each name to the object it refers to. You trace the sequence below by hand and build the completed picture line by line.
+
+Trace the program below on paper. For each line in order, write which names exist and which object each one points at, and update an object's contents when a line changes it. Then predict the three printed lines.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="trace.py"
+p = [1, 2, 3]
+q = p
+r = q
+q.append(4)
+r = [0]
+p.append(5)
+print(p)
+print(q)
+print(r)
+```
+</TabItem>
+</Tabs>
+
+<Reveal label="Reveal the completed trace and the printed output">
+Start with one object, `obj1`, and add a second object, `obj2`, only when a line builds a new list. The reassignment `r = [0]` is that line; every `append` reaches an existing object rather than making one.
+
+```text title="The picture after each line"
+p = [1, 2, 3]
+    p -> obj1 [1, 2, 3]
+
+q = p
+    p -> obj1 [1, 2, 3]
+    q -> obj1                 (q points at the SAME object, not a copy)
+
+r = q
+    p -> obj1 [1, 2, 3]
+    q -> obj1
+    r -> obj1
+
+q.append(4)
+    p -> obj1 [1, 2, 3, 4]
+    q -> obj1
+    r -> obj1
+
+r = [0]
+    p -> obj1 [1, 2, 3, 4]
+    q -> obj1
+    r -> obj2 [0]             (r now points at a NEW object; p and q still share obj1)
+
+p.append(5)
+    p -> obj1 [1, 2, 3, 4, 5]
+    q -> obj1
+    r -> obj2 [0]
+```
+
+```bash title="Run the Python program"
+python3 trace.py
+```
+
+```text frame="terminal" title="Output"
+[1, 2, 3, 4, 5]
+[1, 2, 3, 4, 5]
+[0]
+```
+
+`p` and `q` are two labels on `obj1`, so both appends to that object land in both, and they print the same `[1, 2, 3, 4, 5]`. `r` shared `obj1` only until the line `r = [0]` pointed it at `obj2`; the later `p.append(5)` reaches `obj1`, which `r` no longer refers to, so `r` prints `[0]`, untouched. The whole result turns on that one reassignment: an `append` changes the object an arrow lands on, but an assignment moves the arrow itself.
+</Reveal>
+
+---
+
+## Write a Function That Returns the First Reading
+
+Write a function `first_reading` that takes a list of sensor readings and returns its first element. Then build the list `[7, 8, 9]`, call your function on it, and print what it returns.
+
+<Reveal label="Reveal a sample solution">
+A sample solution follows; another correct function can look different and still be right.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="first_reading.py"
+def first_reading(readings):
+    return readings[0]
+
+readings = [7, 8, 9]
+print(first_reading(readings))
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="first_reading.rs"
+fn first_reading(readings: &Vec<i32>) -> i32 {
+    readings[0]
+}
+
+fn main() {
+    let readings = vec![7, 8, 9];
+    println!("{}", first_reading(&readings));
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 first_reading.py
+```
+
+```text frame="terminal" title="Output"
+7
+```
+
+```bash title="Compile and run the Rust program"
+rustc first_reading.rs && ./first_reading
+```
+
+```text frame="terminal" title="Output"
+7
+```
+
+Python hands the list itself to the function; Rust hands a borrow, `&readings`, so `first_reading` can read the vector without taking ownership of it, exactly the `&` you just met for looking at a value without owning it.
+</Reveal>
+
+---
+
+## Bridge
+
+These three reps feed the recitation family that encodes a sequence, decodes it, and cleans it up while several names share one list, where forgetting that two names point at the same object makes a change surface in a place you never wrote to. The tracing you just did by hand, following each arrow to the one object it lands on, is the guided first rung of that ladder.

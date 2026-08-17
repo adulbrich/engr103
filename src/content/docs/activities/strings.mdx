@@ -1,0 +1,314 @@
+---
+title: "Strings and Characters"
+description: "Predict a slice combined with character-code arithmetic, compare how Python and Rust reach a character and measure length, and debug an off-by-one slice that returns the wrong substring."
+sidebar:
+  order: 13
+draft: true
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import Reveal from '/src/components/Reveal.astro';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+import WhatDiffers from '/src/components/WhatDiffers.astro';
+
+{/* ai-summary
+type: activity
+slug: strings
+order: 13
+paired_lecture: strings
+practices: predicts a half-open slice, a slice-versus-distractor comparison, the difference of two characters' ASCII numbers, and a character built by adding to a code, all in one program before running it; predicts what Python and Rust each do when asked for position 0 and the length of café, meeting Rust's E0277 refusal of integer indexing and its split of length into 5 bytes and 4 characters; diagnoses a function whose length-relative slice ends one character too early and returns a plausible wrong substring with no error
+prereq_activities:
+block_types: predict-then-run, same-program-two-languages, live-debugging
+output: a reconciled prediction that mixes slicing with character-code arithmetic, a reconciled cross-language prediction of indexing and the two lengths of café, and a corrected slice boundary inside a function
+*/}
+
+<LanguageVersions />
+
+This activity puts into practice the [Strings and Characters](/lectures/strings/) lecture. You will predict a short program that folds slicing, comparison, and character-code arithmetic together, predict how Python and Rust each reach a single character and measure a string's length, and hunt down a bug in a function that returns the wrong substring without ever raising an error. By the end, you will be able to read a slice by its half-open range, do arithmetic on a character's ASCII number in both directions, and catch a boundary mistake that a program never complains about.
+
+## Warm-up
+
+A quick refresher before the three problems. A string is a sequence of characters written inside quotation marks, and each character is stored as a whole number by the ASCII mapping: `ord` gives a character's number, `chr` turns a number back into its character. Here are the smallest pieces, in both languages.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="warmup.py"
+word = "cat"
+print(word)
+print(ord('A'))
+print(chr(65))
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="warmup.rs"
+fn main() {
+    let word = "cat";
+    println!("{}", word);
+    println!("{}", 'A' as u32);
+    println!("{}", 65u8 as char);
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 warmup.py
+```
+
+```text frame="terminal" title="Output"
+cat
+65
+A
+```
+
+Rust prints the same three lines: it turns a character into its number with the cast `'A' as u32` in place of `ord`, and a byte-sized number back into a character with `65u8 as char` in place of `chr`. With those pieces fresh, the three problems below reach into a string by position.
+
+---
+
+## Predict the Slice and the Code
+
+The program below folds indexing, slicing, comparison, and character arithmetic into four print lines, and the printed values are not what a quick glance suggests. You commit to an answer first, then run the program to check it.
+
+Read the program and write down, on paper or in a comment, the exact value each line prints. Do not run it yet. Work with the word written out in front of you, character by character.
+
+```python title="predict.py"
+word = "compute"
+piece = word[1:5]
+print(piece)
+print(piece == "comp")
+print(ord(word[3]) - ord(word[0]))
+print(chr(ord(word[2]) + 12))
+```
+
+<Reveal label="Reveal the real output and reconcile it with your prediction">
+```bash title="Run the Python program"
+python3 predict.py
+```
+
+```text frame="terminal" title="Output"
+ompu
+False
+13
+y
+```
+
+Number the characters of `compute`: `c` at 0, `o` at 1, `m` at 2, `p` at 3, `u` at 4, `t` at 5, `e` at 6.
+
+Line 1: the slice `word[1:5]` starts at index 1 and stops just before index 5, so it takes indices 1, 2, 3, and 4, the characters `o`, `m`, `p`, `u`, giving the substring `ompu`. If you predicted `ompu` correctly, the half-open rule is in hand; if you predicted `omput`, you counted index 5 as included.
+
+Line 2: the comparison target `comp` is exactly `word[0:4]`, the tempting slice that starts at zero. But `piece` is `word[1:5]`, which is `ompu`, so `piece == "comp"` is `False`. The line is really a check on whether your slice started where you thought it did: only a slice that began at index 0 would have matched.
+
+Line 3: `word[3]` is `p` and `word[0]` is `c`. Their ASCII numbers are `ord('p')` is 112 and `ord('c')` is 99, so the difference is `112 - 99`, which is `13`. You are doing arithmetic on the codes of two characters you reached by index, and the answer is a plain number, not a character.
+
+Line 4: `word[2]` is `m`, whose ASCII number is `ord('m')` is 109. Adding 12 gives 121, and `chr(121)` is the character `y`. This is the reverse trip: from a character to its number, up by 12, and back to whatever character that lands on. Counting 12 letters on from `m` (`n`, `o`, `p`, and so on) reaches `y`, the same answer the code arithmetic gives.
+</Reveal>
+
+---
+
+## Reaching a Character and Measuring Length, Two Languages
+
+Python and Rust are handed the same word, `café`, and asked for the same two things: the character at position 0 and the length. You predict what each language does with each request before the interpreter or the compiler gets a vote.
+
+The two programs below make the same pair of moves. Before opening the reveal, write down what Python prints, and decide, line by line, what Rust does with each of its two moves.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="measure.py"
+s = "café"
+print(s[0])
+print(len(s))
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="measure.rs"
+fn main() {
+    let s = "café";
+    println!("{}", s[0]);
+    println!("{}", s.len());
+}
+```
+</TabItem>
+</Tabs>
+
+Rust can also walk a string with `.chars()`. Predict the exact three lines this second rendering prints, too:
+
+```rust title="measure2.rs"
+fn main() {
+    let s = "café";
+    println!("{:?}", s.chars().nth(0));
+    println!("{}", s.len());
+    println!("{}", s.chars().count());
+}
+```
+
+<Reveal label="Reveal the outputs and what differs">
+```bash title="Run the Python program"
+python3 measure.py
+```
+
+```text frame="terminal" title="Output"
+c
+4
+```
+
+Python indexes the string directly and hands back the character `c`, then `len(s)` reports 4, the count of characters, treating the `é` as one character like any other. The Rust program in the second tab never produces a program at all, because of the very first indexing line:
+
+```bash title="Compile the Rust program"
+rustc measure.rs
+```
+
+```text frame="terminal" title="Output"
+error[E0277]: the type `str` cannot be indexed by `{integer}`
+ --> measure.rs:3:22
+  |
+3 |     println!("{}", s[0]);
+  |                      ^ string indices are ranges of `usize`
+  |
+  = help: the trait `SliceIndex<str>` is not implemented for `{integer}`
+  = note: you can use `.chars().nth()` or `.bytes().nth()`
+          for more information, see chapter 8 in The Book: <https://doc.rust-lang.org/book/ch08-02-strings.html#indexing-into-strings>
+  = help: the following other types implement trait `SliceIndex<T>`:
+            `usize` implements `SliceIndex<ByteStr>`
+            `usize` implements `SliceIndex<[T]>`
+  = note: required for `str` to implement `Index<{integer}>`
+
+error: aborting due to 1 previous error
+
+For more information about this error, try `rustc --explain E0277`.
+```
+
+The two load-bearing lines are the first, `error[E0277]: the type str cannot be indexed by {integer}`, and the note that tells you what to use instead, `you can use .chars().nth() or .bytes().nth()`. Rust stores a string as UTF-8 bytes, so position 0 is ambiguous between the first byte and the first character; rather than guess, Rust refuses the integer index. Notice that the `s.len()` line never even gets a chance to run: a single compile error means no program at all.
+
+The second rendering compiles, and its three lines are where the byte story surfaces:
+
+```bash title="Compile and run the second Rust program"
+rustc measure2.rs
+./measure2
+```
+
+```text frame="terminal" title="Output"
+Some('c')
+5
+4
+```
+
+`.chars().nth(0)` walks the string as characters and hands back an `Option`, printed with `{:?}` as `Some('c')`. Then the two lengths part ways: `.len()` counts bytes, and the `é` takes two bytes under UTF-8, so the four-character word occupies 5 bytes; `.chars().count()` counts characters and agrees with Python's 4. If you predicted 4 and 4, you counted characters twice; the whole reason Rust makes you name a method is that the two counts stop agreeing the moment a character outgrows one byte.
+
+<WhatDiffers>
+<Fragment slot="differs">
+Python indexes a string directly with `s[0]` and returns the character, and `len(s)` counts characters, so `café` measures 4. Rust rejects integer indexing on a string entirely with error E0277, because its UTF-8 storage makes "position 0" ambiguous between a byte and a character; you reach a character with `s.chars().nth(0)` instead, which returns an `Option` (`Some('c')`) printed with `{:?}`. Length splits too: Rust's `.len()` counts bytes, 5 here because the `é` takes two, while `.chars().count()` counts characters and gives Python's 4.
+</Fragment>
+</WhatDiffers>
+</Reveal>
+
+---
+
+## Find the Silent Bug
+
+The program below never raises an error. It runs, prints a string, and the printed string itself is the only clue that something is wrong. You find the bug with the systematic method: read the symptom, form a hypothesis, test it.
+
+The function `last_three` is meant to return the last three characters of any word, so `last_three("planning")` should give `ing`. Run it, see what it actually prints, then work out why the result is wrong and how one change fixes it.
+
+```python title="lastthree.py"
+def last_three(word):
+    n = len(word)
+    return word[n - 3:n - 1]
+
+print(last_three("planning"))
+```
+
+<Reveal label="Reveal the diagnosis and the fix">
+```bash title="Run the buggy program"
+python3 lastthree.py
+```
+
+```text frame="terminal" title="Output"
+in
+```
+
+**Symptom.** There is no error message; the program runs and returns `in`, but the last three characters of `planning` are `ing`, three characters, not two. The short output is the only signal you get.
+
+**Hypothesis.** Number `planning`: `p` at 0, `l` at 1, `a` at 2, `n` at 3, `n` at 4, `i` at 5, `n` at 6, `g` at 7, so `n` is `len(word)` and equals 8. The last three characters, `i`, `n`, `g`, sit at indices 5, 6, and 7. The function computes the slice `word[n - 3:n - 1]`, which is `word[5:7]`: it takes indices 5 and 6, the characters `i` and `n`, and stops just before index 7, dropping the final `g`. The author wrote the end as `n - 1`, the index of the last character they wanted, forgetting that a half-open slice excludes its end and so needs the end set to one past that, `n`.
+
+**Test.** Change the end of the slice from `n - 1` to `n`, so the slice reaches through the last character:
+
+```python title="lastthree.py (fixed)"
+def last_three(word):
+    n = len(word)
+    return word[n - 3:n]
+
+print(last_three("planning"))
+```
+
+```bash title="Run the fixed program"
+python3 lastthree.py
+```
+
+```text frame="terminal" title="Output"
+ing
+```
+
+The slice `word[5:8]` now takes indices 5, 6, and 7, the characters `i`, `n`, `g`, giving the intended `ing`. The fix is a single character, `n - 1` becomes `n`. The lesson is that a length-relative boundary is doubly easy to get wrong: the half-open rule and the arithmetic on `n` both have to be right, and when they are not, the program hands back a plausible, wrong substring instead of crashing. Counting the characters by hand and knowing the length you expect are what catch it.
+</Reveal>
+
+---
+
+## Write a Vowel Counter
+
+Write a short program that counts how many of the letters `a`, `e`, `i`, `o`, `u` appear in the word `mission`, by walking the word one character at a time and comparing each character, then prints the count.
+
+<Reveal label="Reveal a sample solution">
+This is a sample solution; other programs that walk the characters and compare them can also be correct.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="vowels.py"
+word = "mission"
+count = 0
+for ch in word:
+    if ch in "aeiou":
+        count = count + 1
+print(count)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="vowels.rs"
+fn main() {
+    let word = "mission";
+    let mut count = 0;
+    for ch in word.chars() {
+        if "aeiou".contains(ch) {
+            count = count + 1;
+        }
+    }
+    println!("{}", count);
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 vowels.py
+```
+
+```text frame="terminal" title="Output"
+3
+```
+
+```bash title="Compile and run the Rust program"
+rustc vowels.rs
+./vowels
+```
+
+```text frame="terminal" title="Output"
+3
+```
+
+The word `mission` has an `i` at position 1, an `i` at position 4, and an `o` at position 5; each of those three passes matches the `in`/`contains` test against `aeiou` and adds one to the running count, giving `3`.
+</Reveal>
+
+---
+
+## Bridge
+
+These three reps feed the recitation family that reads a coded sequence, pulls the meaningful pieces out of it by position, and rebuilds a cleaned result: reaching a character by its index, taking a run of characters as a slice, and doing arithmetic on a character's ASCII number are exactly the moves that family runs on a string. The indexing, slicing, and code arithmetic you just practiced by hand are the guided first rung of that ladder.

@@ -1,0 +1,76 @@
+#!/usr/bin/env python3
+"""Package this assignment's work into submission.zip for Gradescope.
+
+Usage, from inside the assignment folder:
+
+    ./pack
+
+On Windows, where ./pack does not run a script directly, use:
+
+    python3 pack
+
+It collects the files you were asked to edit, checks that you actually changed
+something, and writes submission.zip beside them. Upload that one file.
+"""
+
+import json
+import os
+import sys
+import zipfile
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+SPEC_PATH = os.path.join(HERE, "tests", "visible.json")
+OUT = os.path.join(HERE, "submission.zip")
+UNTOUCHED = ("todo!()", "# TODO:", "// TODO:")
+
+
+def die(message):
+    print(f"pack: {message}", file=sys.stderr)
+    sys.exit(2)
+
+
+def main():
+    if not os.path.exists(SPEC_PATH):
+        die("no tests/visible.json here. Run ./pack from the assignment folder.")
+    spec = json.load(open(SPEC_PATH))
+
+    wanted = []
+    py = spec["files"].get("py")
+    if py:
+        wanted.append(os.path.join("py", py))
+    for name in spec["files"].get("rs", []):
+        wanted.append(os.path.join("rs", name))
+    for name in spec.get("optional_files", []):
+        wanted.append(name)
+
+    present = [rel for rel in wanted if os.path.exists(os.path.join(HERE, rel))]
+    if not present:
+        die("none of this assignment's files are here. Are you in the right folder?")
+
+    edited = []
+    for rel in present:
+        text = open(os.path.join(HERE, rel)).read()
+        if not any(marker in text for marker in UNTOUCHED):
+            edited.append(rel)
+
+    if not edited:
+        print("pack: every file still carries its TODO markers, so nothing has")
+        print("      been written yet. Packing anyway, but the grader will see")
+        print("      an unfinished submission.\n")
+
+    if os.path.exists(OUT):
+        os.remove(OUT)
+    with zipfile.ZipFile(OUT, "w", zipfile.ZIP_DEFLATED) as bundle:
+        for rel in present:
+            bundle.write(os.path.join(HERE, rel), rel)
+
+    print(f"Wrote submission.zip with {len(present)} file(s):")
+    for rel in present:
+        mark = " " if rel in edited else " (still has TODO markers)"
+        print(f"  {rel}{mark}")
+    print("\nUpload submission.zip to the Gradescope assignment linked on Canvas.")
+    print("You may submit as often as you like; the last one before the deadline counts.")
+
+
+if __name__ == "__main__":
+    main()

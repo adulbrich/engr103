@@ -1,46 +1,45 @@
 ---
 title: Introduction
-description: "Welcome to ENGR 103: Engineering Computation and Algorithmic Thinking. This course introduces fundamental programming concepts using C++, covering topics like development environment setup, Git, C++ basics, comments, expressions, constants, functions, scope, booleans, if statements, loops, characters, strings, arrays, and references."
+description: How the ENGR 103 lecture notes work, why every concept is taught in both Python and Rust, and the full list of lectures in order.
 sidebar:
   order: 0
-pageActions: false
 ---
 
-Welcome to the lecture notes for ENGR 103: Engineering Computation and Algorithmic Thinking. This course is designed to introduce you to the fundamental concepts of programming and computational thinking using C++. Below is an overview of the topics we will cover throughout the course.
+The lecture notes are the material you read **before** each class. Each note teaches one concept from the ground up: what it is, why it exists, how it works underneath, and how it looks running in real code. Class time then assumes you have done the reading, so the session is spent applying the concept rather than first hearing it. A note is written to stand entirely on its own, so a lecture you missed is never lost: the note is the lecture.
 
-Programming has become an essential skill across all engineering disciplines:
+## Two Languages, One Set of Ideas
 
-- **Mechanical engineers** use programming to simulate mechanical systems, analyze stress patterns in materials, and automate CAD processes that would be tedious to perform manually. When designing a new vehicle component, an engineer might write code to test how it responds to different forces before creating a physical prototype.
-- **Environmental engineers** apply programming to model ecosystem behaviors, analyze large climate datasets, and simulate pollution dispersion patterns. For example, code might be written to predict how contaminants move through groundwater based on soil properties and rainfall patterns.
-- **Chemical engineers** leverage programming to simulate reactions, optimize manufacturing processes, and analyze spectroscopic data. When designing a new pharmaceutical production line, programming helps engineers find the most efficient temperature and pressure conditions.
-- **Electrical engineers** use code to design circuits, process signals, and develop control systems. Programming microcontrollers enables engineers to create smart devices that respond to their environment in predetermined ways.
-- **Nuclear engineers** write programs to model radiation shielding, simulate reactor conditions, or analyze the decay patterns of radioactive materials. This allows testing of safety systems without exposure to actual radiation.
-- **Architectural engineers** apply programming to structural analysis, energy modeling, and parametric design. When designing a skyscraper, engineers might write code to calculate how wind forces affect the building at different heights.
-- **Robotics engineers** program movement paths, process sensor data, and create decision-making algorithms. Without programming, autonomous robots would simply be static mechanical parts.
-- **Biomedical engineers** use code to analyze medical imaging, model physiological systems, and process bioelectric signals from medical devices. A program might help identify patterns in brain activity data that correlate with specific neurological conditions.
-- And many others!
+Every concept in this course is taught twice, once in **Python** and once in **Rust**, side by side. The idea is the same in both; the two languages simply show it from two angles. Python runs your code immediately through an interpreter, which makes it quick to try an idea and see what happens. Rust compiles your code first, and its compiler checks far more before the program ever runs, which turns many mistakes into clear messages you get up front. Seeing one idea in both languages is what separates the concept from the syntax: you learn what a variable, a loop, or a function *is*, not just how one language spells it.
 
-As you progress through this course, you'll develop foundational programming skills that can be applied to these fields and many more. The ability to write code that solves engineering problems is increasingly valuable across all disciplines.
+Because you are learning two languages at once, the course keeps the set of constructs small and grows it one week at a time. The [Language Ladder](/reference/language-ladder/) lists exactly what is available each week, so nothing in a note or an assignment ever depends on something you have not been taught yet.
 
-## Lecture Topics
+Read the notes with a strategy rather than giving both languages equal weight. Pick one language as yours for the term, read its tab in every example closely, and only skim the other language's tab. Always read the "what differs" call-outs in full, though, because they name exactly where the two languages part ways, and that is where the concept separates from the syntax. The 45-minute reading budget each note is written to assumes this strategy, not a close reading of both languages.
 
-- **[Development Environment](/lectures/development-environment)**: Learn how to set up and configure your development environment, including terminals and the ENGR servers.
-- **[Git](/lectures/git)**: Understand the basics of version control using Git, including how to create and manage repositories.
-- **[C++ Basics](/lectures/cpp-basics)**: Get introduced to the basic syntax and structure of C++ programs.
-- **[Comments](/lectures/comments)**: Understand the importance of code documentation and how to write effective comments.
-- **[Expressions](/lectures/expressions), [Operators](/lectures/operators), and [Variables](/lectures/variables)**: Explore how to write expressions, use operators, and declare variables in C++.
-- **[Constants](/lectures/constants)**: Learn about runtime and compile-time constants and their importance in programming.
-- **[Type Casting](/lectures/type-casting)**: Learn how to convert data from one type to another using type casting.
-- **[Shorthand Operators](/lectures/shorthand-operators)**: Learn about shorthand operators and how they can simplify your code.
-- **[Functions](/lectures/functions)**: Learn how to define and use functions to organize and modularize your code.
-- **[Scope](/lectures/scope)**: Understand the concept of scope and how it affects variable accessibility and lifetime.
-- **[Booleans](/lectures/booleans)**: Learn about boolean logic and how to use boolean values in your programs.
-- **[If Statements](/lectures/if-statements)**: Explore conditional logic and how to use if statements to control the flow of your program.
-- **[Loops](/lectures/loops)**: Understand repetition logic and how to use loops to perform repetitive tasks.
-- **[Characters](/lectures/characters)**: Understand the character data type and how to work with individual characters.
-- **[Strings](/lectures/strings)**: Explore the string data type and how to work with text in C++.
-- **[String Functions](/lectures/string-functions)**: Learn about various functions available for manipulating strings.
-- **[Arrays](/lectures/arrays)**: Learn about arrays and how to use them to store and manipulate collections of data.
-- **[References](/lectures/references)**: Understand the concept of references and how to use them in C++.
+## How the Notes Are Organized
 
-We hope you find these lecture notes helpful as you progress through the course. Happy coding!
+There are eighteen lectures across ten weeks, usually two each week: week 3 has only one lecture because of a holiday, and week 6 gives up its Friday session to the midterm. The first half, through the midterm, builds the foundations: how a program runs, how values are stored, expressions, variables, functions, scope, conditionals, errors, and testing, all without iteration. The second half adds the tools that make larger programs possible: loops, strings, collections, and the memory model that explains how data is shared and changed. The full week-by-week map, with which assignment and recitation each lecture feeds, is on the [Schedule](/overview/schedule/).
+
+## The Lectures
+
+The eighteen lectures, in order. Read each one before its class session.
+
+1. [How Programs Run](/lectures/how-programs-run/): what a program is, how an interpreter and a compiler run it, and how to read an error as a message.
+2. [Values, Types, and Expressions](/lectures/values-types-and-expressions/): values and types, static versus dynamic typing, arithmetic, operator precedence, and integer versus float division.
+3. [How Values Are Stored](/lectures/data-representation/): binary, bits and bytes, memory addresses, and what the numbers in `i32` and `f64` mean.
+4. [Variables and State](/lectures/variables-and-state/): naming a value, assignment, and how a variable changes as a program runs.
+5. [Functions](/lectures/functions/): defining and calling functions, parameters, and return values.
+6. [Scope and the Call Stack](/lectures/scope-and-the-call-stack/): where a name is visible, and how calls stack up and return.
+7. [Booleans and Conditionals](/lectures/booleans-and-conditionals/): comparisons, logical operators, and choosing a path with `if` and `else`.
+8. [Decision Structures](/lectures/decision-structures/): `elif` and `else if` chains, `match`, and decisions with more than two outcomes.
+9. [Errors, Input, and Validation](/lectures/errors-input-and-validation/): kinds of errors, reading input, and checking a value before you trust it.
+10. [Testing](/lectures/testing/): writing test cases from a specification, including boundary and error cases.
+11. [Loops](/lectures/loops/): repeating work with `while` and `for`, and stopping at the right time.
+12. [Loop Patterns](/lectures/loop-patterns/): the common shapes of loops, accumulate, count, search, and validate.
+13. [Strings and Characters](/lectures/strings/): text as a sequence of characters, and how to search and build it.
+14. [Collections I: Lists and Vectors](/lectures/collections-i/): storing many values in order, then indexing, growing, and iterating them.
+15. [The Memory Model](/lectures/the-memory-model/): how names point at values, aliasing in Python, and ownership in Rust.
+16. [Sharing and Mutation](/lectures/sharing-and-mutation/): passing collections to functions, and when the caller sees your changes.
+17. [Collections II: Dictionaries and Maps](/lectures/collections-ii/): storing and looking up values by key.
+18. [Computing with Judgment](/lectures/computing-with-judgment/): evaluating code you did not write, and the limits of our tools.
+
+Lectures 17 and 18 are advanced extras: the course learning outcomes are all met by the end of week 9, and these two round out the picture without being required for the outcomes.

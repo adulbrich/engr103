@@ -1,0 +1,125 @@
+---
+title: "Version Control"
+description: "A step-by-step introduction to version control and Git: what it is and why it matters, configuring Git once, cloning a repository, and the everyday cycle of status, add, commit, and push. Written for students new to all of this."
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Imagine you have spent two weeks on a program. It works. You make one last change, and suddenly everything breaks, the deadline is tonight, and you have no working version to hand in. **Version control** exists to make sure that never happens. This guide explains it from the beginning; you do not need any prior experience.
+
+## Why This Is Worth Your Time
+
+Version control is the one tool software teams agree on. Languages, editors, and frameworks vary from company to company; Git does not. Learning it buys you four things.
+
+**You stop losing work.** Every snapshot you take is a point you can return to, so a change that breaks everything costs you one command instead of an evening. You can also see exactly what changed between the working version and the broken one, which is usually the fastest way to find the bug.
+
+**You can work with other people without overwriting them.** Two engineers editing the same project is the normal case in industry, and Git is what makes it survivable: it merges separate work automatically and tells you plainly when two people changed the same lines, instead of silently keeping whichever file was saved last.
+
+**It is on the job description.** Look at almost any software, controls, data, or embedded engineering posting and you will find Git or GitHub named directly, usually alongside "collaborative development" or "code review," both of which are Git workflows. Internship interviewers ask what your workflow looks like. Having an answer separates you from a candidate who has only ever emailed themselves a zip file.
+
+**It is how your work becomes visible.** A public repository is a portfolio you did not have to build: it shows what you have made, how you work, and that you finish things. This course's own catalog outcomes name a code repository alongside a resume for exactly that reason.
+
+The cost is one afternoon. Learn the six commands in this guide and you have the 90% of Git that daily work actually uses.
+
+<Aside type="note" title="Optional in this course, standard everywhere else">
+Nothing in ENGR 103 requires Git. Starter files arrive as a download, and submissions go to Gradescope, which keeps every upload you make, so submitting early and often is the safety net this course relies on. Learn Git anyway: one extra-credit activity this term gives you a reason to practice it, and the next course that expects it will not stop to teach it.
+</Aside>
+
+## What Version Control Is
+
+A **version control system** records **snapshots** of your files as you work. Each snapshot is a saved point you can return to, so you can:
+
+- **recover** an earlier, working version when a change goes wrong,
+- **see exactly what changed** between one snapshot and the next, and
+- **back up** your work somewhere safe, off your own computer.
+
+Think of it as a save system for your whole project, where every save is kept and labelled, not just the latest one.
+
+## Git Is the Standard
+
+There are several version control systems (you may hear of Mercurial or Subversion), but by far the most widely used, in this course and across the software industry, is **Git**. It is what you will learn, and the skill transfers directly to real engineering work.
+
+Git is a **command-line tool**: you use it by typing commands in the terminal (see the [Development Environment](/practicalities/development-environment/) guide if the terminal is new to you). It is already installed on the ENGR servers. To use it on your own computer instead, install it once from the official site, which has instructions for macOS, Linux, and Windows:
+
+- [git-scm.com/downloads](https://git-scm.com/downloads)
+
+## Configure Git Once
+
+The very first time you use Git, tell it who you are. Git stamps your name and email onto every snapshot you save, so your work is attributed to you. Run these two commands one time, replacing the name and email with your own:
+
+```bash title="One-time setup"
+git config --global user.name "Your Name"
+git config --global user.email "you@example.com"
+```
+
+You can check they were set correctly with:
+
+```bash title="Check your settings"
+git config --list
+```
+
+## Get a Repository
+
+A **repository** (or **repo** for short) is simply a folder that Git is watching and keeping snapshots of. In this course, each assignment starts from a repository that already exists online. You make your own copy of it on the computer you are working on by **cloning** it:
+
+```bash title="Copy an online repository to where you work"
+git clone <repository-url>
+```
+
+This creates a new folder named after the repository. Move into it with `cd` and run `ls` to see the files inside. Your copy contains the entire history, so every command below works right there in that folder.
+
+<Aside type="note" title="Git commands run inside a repository">
+Every Git command below only works when your terminal's current folder is inside a cloned repository. If Git says it is "not a git repository", `cd` into the folder you cloned first.
+</Aside>
+
+## The Everyday Cycle
+
+Saving your work with Git is a short, repeating rhythm. The one command you will run most is `git status`, which tells you what has changed since your last snapshot:
+
+```bash title="See what has changed"
+git status
+```
+
+At any moment, each file in your repository is in one of four states:
+
+- **Untracked**: a new file Git is not yet watching.
+- **Modified**: a watched file you have changed since the last snapshot.
+- **Staged**: a file you have marked to go into the next snapshot.
+- **Committed**: a file that is saved and unchanged since the last snapshot.
+
+Saving a snapshot takes three steps. Suppose you have just edited a file called `hello.py`.
+
+**Step 1: stage the change.** Tell Git which changes to include in the next snapshot with `git add`, naming the files:
+
+```bash title="Stage the file"
+git add hello.py
+```
+
+Run `git status` again and you will see `hello.py` listed under "Changes to be committed": it is now **staged**.
+
+**Step 2: commit (save the snapshot).** Create the snapshot with `git commit`, and give it a short message describing what you changed:
+
+```bash title="Save the snapshot with a message"
+git commit -m "Change the greeting message"
+```
+
+Keep messages short and commits frequent: one small, described change at a time. At this point the snapshot is saved, but only on the computer you are working on.
+
+**Step 3: push (send it online).** Send your saved snapshots up to the online repository with `git push`, so they are backed up and, later, submitted:
+
+```bash title="Send your snapshots online"
+git push
+```
+
+Going the other direction, `git pull` brings any changes from the online repository down into your copy. You will use this if you work from more than one place.
+
+<Aside type="tip" title="Push often">
+A snapshot you have committed but not pushed exists in only one place. Push whenever your code reaches a working point: it is how you back up your work and avoid last-minute surprises.
+</Aside>
+
+## Two Commands for Looking Back
+
+- `git log` shows the history of snapshots, newest first, each with who made it, when, and its message. It is how you see the story of a project.
+- `git diff <file>` shows the exact lines you have changed in a file since your last snapshot, with removed lines marked `-` and added lines marked `+`.
+
+Git has many more commands, for undoing snapshots or for working on parallel versions called branches, but **clone, status, add, commit, push, and pull** are the whole cycle you need for this course.

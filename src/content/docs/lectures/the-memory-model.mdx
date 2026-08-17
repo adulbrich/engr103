@@ -1,0 +1,312 @@
+---
+title: "The Memory Model: Aliasing and Ownership"
+description: "Learn what a name really holds, why assigning one name to another shares a list in Python but moves a vector in Rust, how borrowing lets you look without owning, and why this is what makes both languages memory safe."
+sidebar:
+  order: 15
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+import WhatDiffers from '/src/components/WhatDiffers.astro';
+import MemoryStepper from '/src/components/MemoryStepper.svelte';
+
+{/* ai-summary
+type: lecture
+slug: the-memory-model
+order: 15
+covers: names as references; scalars inline vs compound objects in memory; Python aliasing; Rust ownership, moves, E0382; borrowing with &; garbage collection vs compile-time checking; memory safety
+prereq_lectures: collections-i
+followup_lectures: sharing-and-mutation
+glossary_terms: reference, aliasing, ownership, move, borrow, garbage collection, memory safety
+*/}
+
+<LanguageVersions />
+
+Suppose you have a list of numbers you have spent a while building, and before you change it you want to keep the original safe. The obvious move is to make a second copy under a new name, experiment on the copy, and leave the first one alone. So you write `b = a`, change `b`, and then look back at `a`, only to find that `a` changed too. Nothing you did to `a` explains it. The two names were supposed to be independent, the way two variables holding the number 5 are independent, and yet touching one reached the other. This is one of the most common surprises a new programmer meets, and it is not a bug in your code. It is the direct result of what a name actually holds, which turns out to be different for a single number than for a whole list. Understanding that difference is the subject of this lecture, and it is where Python and Rust part company most sharply: given the same situation, one language quietly shares and the other flatly refuses to.
+
+## What a Name Holds
+
+Earlier lectures described a variable as a name that points to a value stored in memory. That description has been enough so far, but it hides a distinction this lecture depends on. A name in your program is a **reference**: it stands for a value without necessarily containing that value inside itself. For some values the difference does not matter, and for others it changes everything, and which case you are in depends on how big the value is and where it lives.
+
+A whole number, a decimal number, or a boolean is small and of a fixed size: a handful of bits, no more, the kind of value the [Scope and the Call Stack](/lectures/scope-and-the-call-stack) lecture kept in a single box on the stack. A value that small can sit directly where the name is, and copying it is just copying those few bits into another box, which a processor does in one quick step. A list is different. A list can hold three elements or three million, and it can grow while the program runs, so it does not fit in a single fixed-size box. Instead the list's elements live together as one larger **object** somewhere else in memory, in the region the scope lecture named the **heap**, the place set aside for values whose size is not known ahead of time. The name does not contain that object; it refers to it, holding only enough information to find it.
+
+That single fact, small values sit where the name is while large values live elsewhere and are referred to, is the seed of everything in this lecture. When you copy a name that holds a small value directly, you copy the value. When you copy a name that only refers to a larger object, what happens next is exactly where the two languages disagree, and it is worth first seeing the easy case, the small value, behave the way you already expect.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="A scalar name behaves like a copy"
+a = 5
+b = a
+b = b + 1
+print(a)
+print(b)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="A scalar name behaves like a copy"
+fn main() {
+    let a = 5;
+    let b = a;
+    println!("{}", a);
+    println!("{}", b);
+}
+```
+</TabItem>
+</Tabs>
+
+<WhatDiffers>
+<Fragment slot="differs">
+Python's `b = b + 1` does not change the number `a` refers to; it builds a brand new number and points `b` at it, so `a` still prints 5 while `b` prints 6. Rust's `let b = a` copies the number outright, because a whole number is a `Copy` type whose bits are duplicated on assignment, leaving `a` and `b` as two independent 5s that both stay usable and both print 5. The two examples show the same fact from two angles: for a small value, the second name is independent of the first.
+</Fragment>
+</WhatDiffers>
+
+Run the Python version and `a` is untouched by anything done to `b`; run the Rust version and both names remain usable, each holding its own 5:
+
+```text frame="terminal" title="Output (Python)"
+5
+6
+```
+
+```text frame="terminal" title="Output (Rust)"
+5
+5
+```
+
+This is exactly why the [Functions](/lectures/functions) lecture could treat passing a scalar as passing a copy: for these small values, a second name really does behave like an independent copy, in both languages. The interesting question, the one that lecture promised to return to, is what happens when the value is not small.
+
+:::note[Every Python name is a reference, even to a number]
+The picture above says a small value sits directly where the name is, and for Rust that is literally true: an `i32` is stored inline, and `let b = a` duplicates its bits. Python is stricter with itself: there, a name *always* refers to an object, and even the number `5` is an object somewhere in memory. What makes a whole number behave like a copy in Python is not that it is copied, but that it cannot be changed in place. `b = b + 1` cannot alter the `5` that `a` still refers to; it can only build a new `6` and point `b` at it. Because you can never modify a number where it sits, the sharing is impossible to observe, and the name behaves exactly as if it held its own copy. The real dividing line in Python is whether a value can be changed in place. A number cannot; a list, as you are about to see, can.
+:::
+
+## Assigning One Name to Another
+
+Now take the same assignment, `b = a`, but let `a` name a list instead of a number. The line looks identical, and in both languages it is written the same way, yet it means two completely different things, and the difference is the heart of this lecture. Here the list is not small and does not sit where the name is; the name refers to an object living elsewhere. Copying the name is therefore not the same as copying the object, and each language resolves that gap in its own way.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="b = a for a list"
+a = [1, 2, 3]
+b = a
+b.append(4)
+print(a)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="let b = a for a vector (will not compile)"
+fn main() {
+    let a = vec![1, 2, 3];
+    let b = a;
+    println!("{:?}", b);
+    println!("{:?}", a); // error: borrow of moved value: `a` (will not compile)
+}
+```
+</TabItem>
+</Tabs>
+
+Run the Python version and a change made through `b` shows up when you read `a`, even though the last two lines never mention `a` at all:
+
+```text frame="terminal" title="Output"
+[1, 2, 3, 4]
+```
+
+Compile the Rust version and there is no program to run. The compiler reports error `E0382` and refuses to build, pointing at the exact place the trouble begins:
+
+```bash title="Compile the Rust program"
+rustc move.rs
+```
+
+```text frame="terminal" title="Output"
+error[E0382]: borrow of moved value: `a`
+ --> move.rs:5:22
+  |
+2 |     let a = vec![1, 2, 3];
+  |         - move occurs because `a` has type `Vec<i32>`, which does not implement the `Copy` trait
+3 |     let b = a;
+  |             - value moved here
+4 |     println!("{:?}", b);
+5 |     println!("{:?}", a); // error: borrow of moved value: `a` (will not compile)
+  |                      ^ value borrowed here after move
+```
+
+<WhatDiffers>
+<Fragment slot="differs">
+For a list, Python's `b = a` does not copy the list. It makes `b` a second name for the very same list object, so appending through `b` is visible through `a`, and printing `a` shows the grown list `[1, 2, 3, 4]`. Rust's `let b = a` instead moves ownership of the vector from `a` to `b`; `a` no longer owns anything, and the compiler rejects any later use of `a`, so the program never builds. One language shares the object silently; the other forbids a second owner outright.
+</Fragment>
+</WhatDiffers>
+
+### Aliasing in Python
+
+When Python runs `b = a` for a list, it does the least work it possibly can. It does not walk the list and duplicate its elements; it simply lets `b` refer to the same object `a` already refers to. Now there are two names and one object, a situation called **aliasing**: two or more names that refer to the same underlying value, so that a change made through any one of them is a change to the single object all of them share. The names are aliases for each other, the way one person can answer to two nicknames.
+
+Because there is exactly one list object, `b.append(4)` does not build a new list; it reaches the shared object and adds `4` to it in place. That object is the same one `a` refers to, so when you then read `a`, you see the element that `b` added. Nothing copied `a`, and nothing wrote to `a` by name; `a` simply refers to an object that changed underneath it. This is the source of the surprise that opened the lecture: `b = a` felt like it made an independent copy, the way it does for a number, but for a list it made a second label for a shared thing.
+
+Walk the three lines one at a time and watch the names and the object separately.
+
+<MemoryStepper
+  client:visible
+  title="Aliasing: b = a shares one list"
+  code={`a = [1, 2, 3]
+b = a
+b.append(4)`}
+  steps={[
+    {
+      line: 1,
+      caption: "a = [1, 2, 3] creates one list object in memory and makes a refer to it.",
+      names: [{ name: "a", points: "obj1" }],
+      objects: [{ id: "obj1", value: "[1, 2, 3]" }],
+    },
+    {
+      line: 2,
+      caption: "b = a copies the reference, not the list. b now refers to the SAME object as a. There is still only one object.",
+      names: [{ name: "a", points: "obj1" }, { name: "b", points: "obj1" }],
+      objects: [{ id: "obj1", value: "[1, 2, 3]" }],
+    },
+    {
+      line: 3,
+      caption: "b.append(4) changes the shared object in place. Because a refers to that same object, a now sees [1, 2, 3, 4] too.",
+      names: [{ name: "a", points: "obj1" }, { name: "b", points: "obj1" }],
+      objects: [{ id: "obj1", value: "[1, 2, 3, 4]" }],
+    },
+  ]}
+/>
+
+:::note[Proving the two names share one object]
+You do not have to take aliasing on faith; Python can show it directly. The `is` operator asks whether two names refer to the very same object, not merely equal values, and after `b = a` it answers `True`: writing `print(a is b)` prints `True`, because there is one object with two names. Had `b = a` copied the list, `a is b` would be `False`, two equal but separate objects. The `is` operator is a way to see the single shared object that the surprise depends on.
+:::
+
+### Ownership in Rust
+
+Rust looks at the same situation, `let b = a` for a vector, and reaches the opposite conclusion. Silent sharing is exactly the hazard Rust is built to prevent, so instead of allowing two names to refer to one object, it enforces a rule at the center of the whole language: every value has exactly one **owner**, the single name responsible for it, and when that name goes away the value is cleaned up. There is never more than one owner at a time.
+
+Given that rule, `let b = a` cannot mean "let `b` also refer to the vector," because that would be two owners. It means something stronger: ownership of the vector **moves** from `a` to `b`. A move transfers responsibility for a value from one name to another and leaves the original name empty; after the move, `b` owns the vector and `a` owns nothing at all. The vector object itself never moved anywhere in memory, and nothing was copied; only the ownership of it passed from one name to the other, exactly as a title to a car can change hands without the car going anywhere. To be precise, Rust's move copies the same small finding-information that a Python assignment copies, the few bits a name needs to locate the object; what changes is that Rust then retires the old name, so "nothing was copied" means no second copy of the vector's data itself was ever made.
+
+From that point on, `a` is not a name you can use. The compiler tracks this while it reads the file, and the moment it sees `a` used after the move, it stops. Read its message from the top down and it tells the whole story: it notes that the move happens "because `a` has type `Vec<i32>`, which does not implement the `Copy` trait," meaning a vector is not one of the small values that copy on assignment; it marks `let b = a` as where the "value moved here"; and it marks the later `println!` as a "value borrowed here after move," the use of `a` that is no longer allowed. No executable is produced, so unlike Python's silent sharing, the problem is caught before the program ever runs.
+
+<MemoryStepper
+  client:visible
+  title="Ownership: let b = a moves the vector"
+  code={`let a = vec![1, 2, 3];
+let b = a;`}
+  steps={[
+    {
+      line: 1,
+      caption: "a is created as the owner of one vector object. Exactly one name is responsible for it.",
+      names: [{ name: "a", points: "obj1", state: "owned" }],
+      objects: [{ id: "obj1", value: "[1, 2, 3]" }],
+    },
+    {
+      line: 2,
+      caption: "let b = a MOVES ownership from a to b. Nothing is copied; only responsibility for the vector changes hands. a now owns nothing.",
+      names: [{ name: "a", points: "obj1", state: "moved" }, { name: "b", points: "obj1", state: "owned" }],
+      objects: [{ id: "obj1", value: "[1, 2, 3]" }],
+    },
+    {
+      line: 2,
+      caption: "Because a was moved out, the compiler rejects any later use of a. Only b, the new owner, may use the vector.",
+      names: [{ name: "a", points: "obj1", state: "moved" }, { name: "b", points: "obj1", state: "owned" }],
+      objects: [{ id: "obj1", value: "[1, 2, 3]" }],
+    },
+  ]}
+/>
+
+This is Rust's answer to the aliasing surprise. Where Python allows two names to share one object and hopes you remember they are linked, Rust forbids the second name from existing as an owner, so the surprise can never happen: there is no hidden second label to change your value out from under you. The cost is the strictness you see above, a line that reads like a plain copy but is not, and a compiler that says no where Python would say nothing.
+
+:::note[When you really do want a copy]
+The move rule does not mean Rust can never duplicate a vector; it means duplication is never silent. When you genuinely want a second, independent vector, you ask for one with `.clone()`: writing `let b = a.clone()` builds a full separate copy of the vector, after which `a` and `b` own two different objects and both stay usable. The compiler even suggests this in the error above, offering `let b = a.clone()` as a fix. The point of the move is not to make copying impossible but to make it visible, so that the expensive step of duplicating a large object only ever happens where you asked for it by name.
+:::
+
+## Borrowing: Looking Without Owning
+
+Moving solves the two-owners problem but seems to leave a gap. If handing a vector to a second name always gives up ownership, how can you let one part of a program look at a value while another part keeps it? You do it constantly with small values, passing a number into a function and still using it afterward, and you need the same ability for a list. Rust's answer is to let a name look at a value without taking ownership of it, an act called a **borrow**: a temporary, non-owning reference to a value that leaves the original owner in charge. You write a borrow with an ampersand, `&a`, which reads as "a borrow of `a`," and it gives you a way to read the vector while `a` keeps owning it.
+
+Python needs no such tool, because it never took ownership away in the first place. In Python, letting a second name look at a list is just aliasing again: the second name shares the object, the original name is unaffected, and both keep working. Rust makes the same idea explicit and bounded: the borrow may look at the value but does not own it, and when the borrow is done the owner still has its value, untouched.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="Looking at a shared list"
+a = [1, 2, 3]
+b = a
+print(b)
+print(a)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="Borrowing a vector with &"
+fn main() {
+    let a = vec![1, 2, 3];
+    let r = &a;
+    println!("{:?}", r);
+    println!("{:?}", a);
+}
+```
+</TabItem>
+</Tabs>
+
+<WhatDiffers>
+<Fragment slot="differs">
+In Python, `b = a` shares the list automatically, and reading through `b` leaves `a` fully usable, because Python never moves ownership at all. In Rust, `let r = &a` explicitly borrows the vector: `r` may read it but does not own it, so `a` keeps ownership and stays usable after the borrow. Python shares by default and hopes you track it; Rust makes borrowing a deliberate, marked step with `&`.
+</Fragment>
+</WhatDiffers>
+
+Both programs read the vector through the second name and then still read it through the original. In Rust, the difference from a move is the single `&`: without it, `let r = a` would move the vector and leave `a` unusable, exactly as before; with it, `let r = &a` borrows, and `a` survives.
+
+<MemoryStepper
+  client:visible
+  title="Borrowing: &a looks without owning"
+  code={`let a = vec![1, 2, 3];
+let r = &a;
+println!("{:?}", a);`}
+  steps={[
+    {
+      line: 1,
+      caption: "a owns one vector object.",
+      names: [{ name: "a", points: "obj1", state: "owned" }],
+      objects: [{ id: "obj1", value: "[1, 2, 3]" }],
+    },
+    {
+      line: 2,
+      caption: "let r = &a borrows the vector. r refers to the same object but does NOT own it; a keeps ownership.",
+      names: [{ name: "a", points: "obj1", state: "owned" }, { name: "r", points: "obj1", state: "borrow" }],
+      objects: [{ id: "obj1", value: "[1, 2, 3]" }],
+    },
+    {
+      line: 3,
+      caption: "Because a never gave up ownership, a is still usable here. The borrow let r look without taking the vector away.",
+      names: [{ name: "a", points: "obj1", state: "owned" }, { name: "r", points: "obj1", state: "borrow" }],
+      objects: [{ id: "obj1", value: "[1, 2, 3]" }],
+    },
+  ]}
+/>
+
+This is only the first look at borrowing. The `&` you met on `for x in &nums` in the [Collections I](/lectures/collections-i) lecture is the very same idea: it walks the vector's elements by borrowing the vector rather than taking it away, which is why `nums` was still usable after the loop. Passing a whole list into a function without giving it up, and letting a function change a list it was handed, both build directly on borrowing, and they are the subject of the next lecture. For now it is enough to read `&a` as "look at `a` without owning it."
+
+## Why This Matters: Memory Safety
+
+Aliasing and ownership can feel like two different sets of rules for the same everyday task, but they exist to close the same danger, and it is a serious one. The [Collections I](/lectures/collections-i) lecture showed that reaching past the end of a list is caught at run time in Python and Rust, while a language without that check lets the same mistake silently read or write memory belonging to another value, the flaw called a buffer overflow. That is one member of a whole family of memory bugs, and the memory model in this lecture is where the rest of the family lives. When a value can live somewhere in memory and be referred to by a name, a name can end up referring to a value that no longer exists, or that two parts of a program are changing at once without either knowing. A name left pointing at a value that has already been cleaned up is called a dangling reference, and using it, a use-after-free, reads or writes memory the program has moved on from. These are not rare curiosities; buffer overflows and dangling references are among the most exploited security flaws in real software, because a value an attacker controls can land in memory the program trusts, and from there take over the machine.
+
+A language is **memory safe** when it makes this whole family of bugs impossible: no program written in it can read or write memory that is not validly part of a value it is allowed to touch. Python and Rust both give you memory safety, and the striking thing is that they reach it by opposite routes. Python manages memory for you as the program runs, using **garbage collection**: the language keeps track of which objects are still referred to by some name and automatically reclaims an object once nothing refers to it any longer, so a name can never be left pointing at a value that has been cleaned up, because the value is not cleaned up while a name still refers to it. Rust does it the other way, before the program runs: its ownership rules, checked entirely at compile time, guarantee that a value lives exactly as long as its owner and that you can never use a name after its value has moved away, which is precisely the `E0382` you saw the compiler produce. One language pays a small, steady cost while running to stay safe; the other pays with the strictness of a compiler that refuses programs the rules cannot prove safe. Not every language takes either route. Some trade that safety away for speed and control, leaving the danger for the programmer to avoid by hand, which is why the buffer overflow and the dangling reference are still live hazards decades after both were first understood.
+
+## Drawing the Picture by Hand
+
+The single most useful habit for reasoning about all of this is to draw it, and the drawing is exactly the one the steppers above show. When a piece of code puzzles you, put names on the left and objects on the right, as two separate columns. A small value you write inside its name's box directly. A larger value, a list or a vector, you draw as an object off to the right, and you draw an arrow from the name to that object rather than writing the object inside the name. Then read the code one line at a time and update the picture: an assignment of one small value copies the number into a new box; an assignment of one list name to another draws a second arrow to the same object in Python, or, in Rust, redirects the arrow to the new owner and crosses out the old name; a borrow adds an arrow that does not own; a change through any arrow changes the one object it points to, which every arrow aimed there will then see.
+
+Drawn this way, the opening surprise stops being mysterious. Two names with two arrows into one object must both see a change to that object, so appending through one shows up through the other. A moved-out name has no arrow left, so using it is meaningless, which is exactly what the compiler tells you. The picture is the same tool a debugger gives you and the same one the stepper animates; learning to sketch it by hand means you can trace a confusing program anywhere, on paper, before you ever run it.
+
+## Takeaways
+
+A name is a reference to a value, and how much that matters depends on the value's size. A small value, a whole number, a decimal, a boolean, is stored where the name is, so copying the name copies the value and a second name is genuinely independent, which is why earlier lectures could treat passing a scalar as passing a copy. A list is too big and too changeable to sit in one fixed box, so its elements live together as an object elsewhere in memory and the name only refers to it, and copying the name is not the same as copying the object.
+
+On that gap the two languages split. Python's `b = a` makes `b` a second name for the same list object, an alias, so a change made through either name is visible through the other, because there is one object and two labels for it. Rust refuses to allow two owners: `let b = a` moves ownership of the vector from `a` to `b` and leaves `a` unusable, a rule the compiler enforces with error `E0382` before the program runs, and duplicating a vector for real requires asking with `.clone()`.
+
+Because moving would otherwise make it impossible to look at a value without giving it up, Rust adds borrowing, `&a`, a reference that reads a value without owning it and leaves the owner in charge, the same `&` that kept a vector usable after a `for` loop.
+
+Underneath both designs sits one purpose: memory safety, making it impossible to read or write memory that is not a valid part of a value you may touch, closing the buffer overflow, the dangling reference, and the use-after-free that a language without those guarantees leaves open. Python reaches safety at run time with garbage collection, reclaiming an object only once no name refers to it; Rust reaches it at compile time with ownership rules that fix exactly how long each value lives.
+
+The next lecture builds on all of this to show how a list is passed into a function and changed there, where sharing and mutation meet and borrowing earns its keep.
+
+## Resources
+
+- [Python: Objects, values, and types](https://docs.python.org/3/reference/datamodel.html#objects-values-and-types)
+- [Python: `is` and identity comparisons](https://docs.python.org/3/reference/expressions.html#is)
+- [The Rust Book: What Is Ownership?](https://doc.rust-lang.org/book/ch04-01-what-is-ownership.html)
+- [The Rust Book: References and Borrowing](https://doc.rust-lang.org/book/ch04-02-references-and-borrowing.html)

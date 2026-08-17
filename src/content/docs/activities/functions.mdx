@@ -1,0 +1,322 @@
+---
+title: "Functions"
+description: "Define small functions in Python and Rust, predict what nested and combined calls print, trace the argument copy across two calls by hand, and diagnose a function that forgets to return its value."
+sidebar:
+  order: 5
+draft: true
+---
+
+import { Tabs, TabItem, Steps } from '@astrojs/starlight/components';
+import Reveal from '/src/components/Reveal.astro';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+import WhatDiffers from '/src/components/WhatDiffers.astro';
+
+{/* ai-summary
+type: activity
+slug: functions
+order: 5
+paired_lecture: functions
+practices: predicts the output of an expression that both nests one call inside another and combines two calls with an operator, reducing each call before the operator runs; traces the argument copy by hand across two calls on the same variable to confirm the caller's variable is untouched both times; diagnoses a function that computes a value but never returns it, reading Python's run-time NoneType TypeError and Rust's compile-time E0308 mismatched-types error
+prereq_activities:
+block_types: predict-then-run, paper-tracing, live-debugging
+output: a reconciled prediction of a nested-and-combined call expression, a completed two-call argument-copy trace, and a corrected function that returns its result
+*/}
+
+<LanguageVersions />
+
+This activity puts into practice the [Functions](/lectures/functions/) lecture. You will predict what a small function prints when one call is nested inside another and then combined with a second call, trace by hand how an argument is copied into a parameter across two separate calls, and diagnose a function that computes a value but forgets to hand it back. By the end, you will be able to reduce a nested call expression to a single value on paper and explain why a function that never returns cannot be used in the arithmetic that expects its result.
+
+## Warm-up
+
+A quick refresher before the sections. A function names a computation so you can reuse it by calling its name. Here is the smallest complete example: a function `area` that returns the area of a square with a given side, defined once and called once.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="warmup.py"
+def area(side):
+    return side * side
+
+print(area(3))
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="warmup.rs"
+fn area(side: i32) -> i32 {
+    return side * side;
+}
+
+fn main() {
+    println!("{}", area(3));
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 warmup.py
+```
+
+```text frame="terminal" title="Output"
+9
+```
+
+Rust prints the same `9`. With a definition and a call fresh, the sections below stack calls inside each other, copy an argument twice, and watch what happens when a function forgets to return.
+
+## Predict the Value
+
+A function call is an expression: it reduces to its return value, and only then can an operator or an enclosing call use it. The lecture combined two calls with a `+`. This section stacks that on top of nesting one call inside another, so a single line has calls at two depths, and the order in which they reduce decides the answer. You predict the output first, then run the program to check it.
+
+Two functions are defined below: `square` multiplies its input by itself, and `inc` adds one. The `print` line uses both, once with `inc` nested inside `square` and once with `square` nested inside `inc`, then adds the two results. Write down, on paper or in a comment, the exact value you expect. Do not run it yet. Reduce the innermost call in each half first, feed its return value to the outer call, and only add the two halves once both are single numbers.
+
+```python title="predict.py"
+def square(n):
+    return n * n
+
+def inc(n):
+    return n + 1
+
+print(square(inc(3)) + inc(square(2)))
+```
+
+<Reveal label="Reveal the real output and reconcile it with your prediction">
+```bash title="Run the Python program"
+python3 predict.py
+```
+
+```text frame="terminal" title="Output"
+21
+```
+
+The line has two halves joined by `+`, and each half is a call wrapped around another call. Neither `square` nor `inc` can run until its own argument is a single value, so the innermost call goes first every time.
+
+Take the left half, `square(inc(3))`. The argument to `square` is not `3`; it is the call `inc(3)`, which must reduce first. `inc(3)` returns `3 + 1`, that is `4`, so the half becomes `square(4)`, which returns `4 * 4`, that is `16`.
+
+Now the right half, `inc(square(2))`. The argument to `inc` is the call `square(2)`, which reduces first to `2 * 2`, that is `4`, so the half becomes `inc(4)`, which returns `4 + 1`, that is `5`.
+
+Only now, with both halves reduced to numbers, does the `+` run: `16 + 5` is `21`. If you predicted `12`, you applied each outer function to the raw number and skipped the inner call, computing `square(3) + inc(2)`, that is `9 + 3`. If you predicted something else, check whether you reduced the inner call before the outer one: the two halves both feed a `4` to their outer call, but `square(4)` and `inc(4)` are `16` and `5`, not the same number, so the order of nesting is exactly what makes the answer come out `21`.
+</Reveal>
+
+---
+
+## Trace the Argument Copy Across Two Calls
+
+When a function runs, its parameter is a brand new variable that starts out holding a copy of the argument's value, not the caller's variable itself. This section makes that copy visible twice over: the function reassigns its parameter, and the same caller variable is passed to it on two separate calls. If the copy rule holds, the caller's variable feeds an identical value into both calls, and it is unchanged at the end.
+
+The parameter `n` is reassigned inside `bump`. The variable `score` is passed to `bump` twice. Trace the program by hand and predict the three printed lines. Fill in a small table with a row for each step and a column for `score` and for `n`, and pay attention to what `score` holds when the second call starts.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="bump.py"
+def bump(n):
+    n = n + 100
+    return n
+
+score = 7
+first = bump(score)
+second = bump(score)
+print(first)
+print(second)
+print(score)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="bump.rs"
+fn bump(mut n: i32) -> i32 {
+    n = n + 100;
+    return n;
+}
+
+fn main() {
+    let score = 7;
+    let first = bump(score);
+    let second = bump(score);
+    println!("{}", first);
+    println!("{}", second);
+    println!("{}", score);
+}
+```
+</TabItem>
+</Tabs>
+
+<Steps>
+1. Start in the outer code: `score` is bound to `7`.
+2. The first call `bump(score)` copies the value of `score`, which is `7`, into the parameter `n`. Work out what `n` becomes, whether `score` changes, and what `first` is bound to.
+3. The second call `bump(score)` copies the value of `score` again into a fresh `n`. Decide what value `score` supplies this time, and what `second` is bound to.
+4. Read off `first`, `second`, and `score` for the three `print` lines.
+</Steps>
+
+<Reveal label="Reveal the completed trace and the real output">
+Here is the completed trace, one row per step:
+
+| Step | `score` | `n` (in `bump`) |
+|---|---|---|
+| `score = 7` | `7` | not created yet |
+| first `bump(score)` copies `7` into `n` | `7` | `7` |
+| `n = n + 100` | `7` | `107` |
+| `return n` gives back `107`; `first` bound to `107` | `7` | gone |
+| second `bump(score)` copies `7` into a new `n` | `7` | `7` |
+| `n = n + 100` | `7` | `107` |
+| `return n` gives back `107`; `second` bound to `107` | `7` | gone |
+
+The parameter `n` starts each call as a copy of `score`. When `n = n + 100` rebinds `n` to `107`, it writes into `n`'s box only; the line never names `score`, so `score` stays `7` through the first call. That is why the second call is the real test: because the first call could not touch `score`, the second call copies the same `7` into its own fresh `n`, so it computes `7 + 100` again and also returns `107`. Both `first` and `second` are `107`, and `score` is still `7` at the end.
+
+```bash title="Run the Python program"
+python3 bump.py
+```
+
+```text frame="terminal" title="Output"
+107
+107
+7
+```
+
+If you predicted `207` for the second line, you let the first call's `n = n + 100` leak back into `score`. It cannot: the parameter is a copy, so the first call left `score` at `7`, and the second call started from `7`, not `107`.
+
+<WhatDiffers>
+<Fragment slot="differs">
+The trace is identical in both languages, but Rust needs one extra word to allow the reassignment. A Rust parameter is immutable by default, like a variable made with plain `let`, so reassigning `n` in the body requires marking it `mut` in the signature, `fn bump(mut n: i32)`. Python parameters can always be reassigned, so `bump(n)` needs no such mark. Either way each call's reassignment lands on that call's own copy, which is why `score` survives both calls unchanged in both languages.
+</Fragment>
+</WhatDiffers>
+</Reveal>
+
+---
+
+## Find the Silent Bug
+
+A function that computes a value is only useful if it hands that value back with `return`. Drop the `return` and the computation still runs, but the result is thrown away, and the two languages punish that in very different places. This section plants a function that computes a total but never returns it, then uses the call in arithmetic. You run the program, read what goes wrong, and name the one-line fix.
+
+The function `total_seconds` is meant to convert minutes to seconds and return the total, and the call adds `30` more seconds to it. Run the program, read what each language reports, then work out the fix.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="total.py"
+def total_seconds(minutes):
+    seconds = minutes * 60
+
+print(total_seconds(3) + 30)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="total.rs (will not compile)"
+fn total_seconds(minutes: i32) -> i32 {
+    let seconds = minutes * 60;
+}
+
+fn main() {
+    println!("{}", total_seconds(3) + 30);
+}
+```
+</TabItem>
+</Tabs>
+
+<Reveal label="Reveal the diagnosis, both error messages, and the fix">
+**Symptom.** The body of `total_seconds` computes `minutes * 60` and stores it in `seconds`, then the function ends without a `return`. The computed total is never handed back, so the call `total_seconds(3)` does not reduce to `180`. What it reduces to, and when the trouble shows up, is where the two languages part ways.
+
+In Python, a function that reaches the end of its body without a `return` hands back the special "nothing" value `None`. So `total_seconds(3)` reduces to `None`, and the line becomes `None + 30`. Python has no rule for adding a number to `None`, and it discovers this only when the call actually runs, so the program fails at that line with a `TypeError`:
+
+```bash title="Run the Python program"
+python3 total.py
+```
+
+```text frame="terminal" title="Output"
+Traceback (most recent call last):
+  File "total.py", line 4, in <module>
+    print(total_seconds(3) + 30)
+          ~~~~~~~~~~~~~~~~~^~~~
+TypeError: unsupported operand type(s) for +: 'NoneType' and 'int'
+```
+
+Rust never gets as far as the call. Its compiler reads the signature, which promises `-> i32`, then reads the body, which ends without returning an `i32` at all, so the function itself does not honor its contract. That is a type mismatch the compiler reports at the function definition, in error `E0308`, before the `+ 30` line is ever considered:
+
+```bash title="Compile the Rust program"
+rustc total.rs
+```
+
+```text frame="terminal" title="Output"
+error[E0308]: mismatched types
+ --> total.rs:1:35
+  |
+1 | fn total_seconds(minutes: i32) -> i32 {
+  |    -------------                  ^^^ expected `i32`, found `()`
+  |    |
+  |    implicitly returns `()` as its body has no tail or `return` expression
+```
+
+The same missing `return` surfaces as two different complaints. Python runs happily until it tries to add `None` to a number; Rust refuses to build at all, because a function whose signature says `-> i32` may not fall off its end returning the empty value `()`.
+
+**Fix.** Return the value the function computed, so the call reduces to a number:
+
+```python title="total.py (fixed)"
+def total_seconds(minutes):
+    seconds = minutes * 60
+    return seconds
+
+print(total_seconds(3) + 30)
+```
+
+```bash title="Run the fixed program"
+python3 total.py
+```
+
+```text frame="terminal" title="Output"
+210
+```
+
+Now `total_seconds(3)` reduces to `180`, the line becomes `180 + 30`, and it prints `210`. In Rust, adding `return seconds;` before the closing brace makes the body hand back an `i32`, matching the signature, so it compiles and prints the same `210`. The lesson is that computing a value is not the same as returning it: until `return` hands the result back, the call has nothing to give the expression around it, and Python turns that into a run-time `TypeError` while Rust refuses to compile with `E0308`.
+</Reveal>
+
+---
+
+## Write a Fahrenheit-to-Celsius Function
+
+Write a function `celsius_from_fahrenheit(f)` that takes a Fahrenheit value and returns the equivalent Celsius value using the formula `(f - 32) * 5 / 9`. Call your function with `212` and print the result.
+
+<Reveal label="Reveal a sample solution">
+This is a sample solution; your own function can look different and still be correct.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="fahrenheit.py"
+def celsius_from_fahrenheit(f):
+    return (f - 32) * 5 / 9
+
+print(celsius_from_fahrenheit(212))
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="fahrenheit.rs"
+fn celsius_from_fahrenheit(f: f64) -> f64 {
+    return (f - 32.0) * 5.0 / 9.0;
+}
+
+fn main() {
+    println!("{}", celsius_from_fahrenheit(212.0));
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 fahrenheit.py
+```
+
+```text frame="terminal" title="Output"
+100.0
+```
+
+```bash title="Compile and run the Rust program"
+rustc fahrenheit.rs && ./fahrenheit
+```
+
+```text frame="terminal" title="Output"
+100
+```
+
+Both compute the same value, but they print it differently: Python's `float` always shows at least one decimal digit, so `100.0` keeps its `.0`, while Rust's `f64` that lands on a whole number prints without a trailing `.0`, so the same value shows as `100`.
+</Reveal>
+
+---
+
+## Bridge
+
+These three reps feed the recitation problem family that computes a single quantity from arithmetic over units and time, where the computation is packaged as a function that a caller supplies with values and reads a result back. Defining a small function, reducing its nested and combined calls to single values, and making sure the function actually returns what it computed are the guided first rung of that ladder.

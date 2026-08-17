@@ -1,0 +1,278 @@
+---
+title: "Sharing and Mutation"
+description: "Predict which of a function's arguments the caller keeps, compare a read-then-grow call in Python and Rust, and fix a Python helper that silently mutates the caller's list."
+sidebar:
+  order: 16
+draft: true
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import Reveal from '/src/components/Reveal.astro';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+import WhatDiffers from '/src/components/WhatDiffers.astro';
+
+{/* ai-summary
+type: activity
+slug: sharing-and-mutation
+order: 16
+paired_lecture: sharing-and-mutation
+practices: predicts the caller's list, scalar, and returned value after one function appends to its list parameter, reassigns its scalar parameter, and returns the new scalar, so the shared object and the private copy must be told apart inside one call; names what differs when a function that reads a collection and then modifies it is passed the same collection in Python versus Rust, and what Rust makes you declare to change it; diagnoses a Python helper that silently mutates the caller's list because a defensive copy was forgotten, and fixes it with list(xs); recognizes defensive copying as the way to keep an original safe
+prereq_activities:
+block_types: predict-then-run, same-program-two-languages, live-debugging
+output: a reconciled three-line prediction, a named cross-language difference on a read-then-modify call, and a corrected defensive copy for each of the three sections
+*/}
+
+<LanguageVersions />
+
+This activity puts into practice the [Sharing and Mutation](/lectures/sharing-and-mutation/) lecture. You will predict which of a function's arguments survive the call unchanged, compare a function that reads a collection and then grows it in Python and Rust, and fix a Python helper that does not keep the promise its author intended. By the end, you will be able to tell from a call whether a function can reach back and modify your collection, and say what Rust forces into the open that Python leaves silent.
+
+## Warm-up
+
+A quick refresher before the sections. A list holds several values as one object, and `append` in Python or `push` in Rust adds a value to that object in place. Here is that smallest piece in both languages.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="warmup.py"
+readings = [10, 20, 30]
+readings.append(40)
+print(readings)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="warmup.rs"
+fn main() {
+    let mut readings = vec![10, 20, 30];
+    readings.push(40);
+    println!("{:?}", readings);
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 warmup.py
+```
+
+```text frame="terminal" title="Output"
+[10, 20, 30, 40]
+```
+
+Rust prints the same `[10, 20, 30, 40]`. Keep in mind the other piece the lecture rests on: in Python two names can refer to one list, so a change through either name is a change both names see. The sections below let that sharing reach in through a function call.
+
+## Predict What the Caller Keeps
+
+One function can touch a list argument and a scalar argument in the very same body. Telling apart, from the caller's seat, what each argument looks like after the call, and separating both from what the function hands back with `return`, is the skill this section drills. You commit to an answer first, then run the program to check it.
+
+Read the program below and write down, on paper or in a comment, exactly what all three `print` lines will show. Do not run it yet. `record` does three things to its parameters: it appends to `samples`, it reassigns `count`, and it returns the new `count`. For each of the three prints, ask what the caller's name refers to once the call is over.
+
+```python title="predict.py"
+def record(samples, count, value):
+    samples.append(value)
+    count = count + 1
+    return count
+
+readings = [10, 20, 30]
+count = 3
+result = record(readings, count, 40)
+print(readings)
+print(count)
+print(result)
+```
+
+<Reveal label="Reveal the real output and reconcile it with your three-line prediction">
+```bash title="Run the Python program"
+python3 predict.py
+```
+
+```text frame="terminal" title="Output"
+[10, 20, 30, 40]
+3
+4
+```
+
+Three arguments went in, and the three lines tell three different stories from the one call. When Python matches an argument to a parameter it copies the argument's value. For `readings` that value is a reference to the one list object, so `samples` points at the very same list; `samples.append(value)` grows that shared object, and `readings` reads back `[10, 20, 30, 40]`. For `count` the value is the number `3` itself, so the parameter `count` holds a separate copy; `count = count + 1` builds a new number `4` and binds it to that private copy alone, and the caller's `count` never moves off `3`. The only way the incremented value reaches the caller is the one you can see at the call site: `record` returns it, and `result` catches it, so `result` is `4`. If you predicted `4` for the second line, you let the list's sharing spill onto a scalar; a small value is a private copy, and the sole path out of the function for it is the `return`, which is why `count` stays `3` while `result` is `4`.
+</Reveal>
+
+---
+
+## Read Then Grow, in Two Languages
+
+A function that first reads every element of a collection and then adds a new one to it is the ordinary shape of real work: summarize what is there, then record the summary. You read both tabs and name what genuinely differs and what stays fixed.
+
+Study the two programs below. Each defines `append_total`, which walks the collection to add up its elements and then pushes that total onto the end, so the function both reads and modifies the same collection in one call. Each then prints the collection afterward. Before opening the reveal, write down what each prints, then name one thing Rust requires here that Python does not.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="append_total.py"
+def append_total(samples):
+    total = 0
+    for s in samples:
+        total = total + s
+    samples.append(total)
+
+readings = [10, 20, 30]
+append_total(readings)
+print(readings)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="append_total.rs"
+fn append_total(samples: &mut Vec<i32>) {
+    let mut total = 0;
+    for s in samples.iter() {
+        total = total + s;
+    }
+    samples.push(total);
+}
+
+fn main() {
+    let mut readings = vec![10, 20, 30];
+    append_total(&mut readings);
+    println!("{:?}", readings);
+}
+```
+</TabItem>
+</Tabs>
+
+<Reveal label="Reveal the outputs and what Rust makes you declare">
+```bash title="Run the Python program"
+python3 append_total.py
+```
+
+```text frame="terminal" title="Output"
+[10, 20, 30, 60]
+```
+
+```bash title="Compile and run the Rust program"
+rustc append_total.rs
+./append_total
+```
+
+```text frame="terminal" title="Output"
+[10, 20, 30, 60]
+```
+
+<WhatDiffers>
+<Fragment slot="differs">
+Both print `[10, 20, 30, 60]`: each function reads the three elements, totals them to `60`, and pushes that total onto the caller's own collection. What differs is what the code has to say out loud. Python shares the list silently: `def append_total(samples)` is spelled the same whether the function only reads or, as here, reads and then writes, and passing `readings` already hands over the shared object. Rust makes you declare the writing. Because the function modifies the collection at all, the parameter must be `&mut Vec<i32>`, not the read-only `&Vec<i32>` you might reach for on seeing the loop; one mutable borrow covers both the reading and the push. That forces `let mut readings` on the owner and `&mut readings` at the call. Hand the vector over by plain value instead and Rust does not share it, it moves it: ownership passes into `append_total`, and `main` can no longer print `readings` afterward, rejected as error `E0382`. The borrow is what lets `main` keep the vector and still see the total appended. What stays fixed is the result: one collection, read and then grown in place, visible to the caller.
+</Fragment>
+</WhatDiffers>
+</Reveal>
+
+---
+
+## Find the Bug the Program Never Reports
+
+This bug never crashes and never prints an error, which is what makes it dangerous. A helper is meant to show what a list *would* look like with one more value, leaving the caller's real list untouched. You find the bug not from a compiler message but from an output that is wrong in a way you have to notice, then you reason back to the cause.
+
+Read the program. `preview_with` is supposed to build and return a preview list with `value` tacked on, without disturbing `readings`. Predict both printed lines, then decide whether the last line really shows the untouched original the author intended.
+
+```python title="preview.py"
+def preview_with(samples, value):
+    samples.append(value)
+    return samples
+
+readings = [10, 20, 30]
+preview = preview_with(readings, 40)
+print(preview)
+print(readings)
+```
+
+<Reveal label="Reveal the diagnosis and the fix">
+```bash title="Run the Python program"
+python3 preview.py
+```
+
+```text frame="terminal" title="Output"
+[10, 20, 30, 40]
+[10, 20, 30, 40]
+```
+
+**Symptom.** No crash, no error text; the program runs to the end. The tell is the second line. `readings` was supposed to be the untouched original `[10, 20, 30]`, but it prints `[10, 20, 30, 40]`, the same as the preview. The function reached back and changed the caller's list.
+
+**Hypothesis.** `preview_with` never made a list of its own. Passing `readings` copies the reference, so `samples` and `readings` name the one shared list; `samples.append(value)` grows that shared object, and returning `samples` hands back a second name for it rather than a fresh list. The author meant to preview a change on a separate list but wrote code that mutates the original in place.
+
+**Test.** Give the function its own list to modify by making a defensive copy of the argument before appending. `list(samples)` builds a new list with the same elements, and so does the slice `samples[:]`; either one leaves `readings` out of reach of the `append`.
+
+```python title="preview.py (fixed)"
+def preview_with(samples, value):
+    samples = list(samples)
+    samples.append(value)
+    return samples
+
+readings = [10, 20, 30]
+preview = preview_with(readings, 40)
+print(preview)
+print(readings)
+```
+
+```bash title="Run the fixed program"
+python3 preview.py
+```
+
+```text frame="terminal" title="Output"
+[10, 20, 30, 40]
+[10, 20, 30]
+```
+
+The reassignment `samples = list(samples)` is the whole fix: it rebinds `samples` to a brand-new list so that from that line on the parameter no longer names the caller's object, and the `append` lands on the copy. The preview still comes out `[10, 20, 30, 40]`, and `readings` is back to the untouched `[10, 20, 30]` the author intended all along. Copying at the call instead, `preview_with(list(readings), 40)`, defends the original just as well; either way the point is to hand the function something of its own whenever it must be kept from your list.
+</Reveal>
+
+---
+
+## Write a Function That Appends a Computed Value
+
+Write a function `append_squared(samples, value)` that appends `value` squared to the list it is given, so the caller's own list grows by the computed number, not `value` itself. Then build the list `[1, 2]`, call `append_squared` with `3`, and print the list.
+
+<Reveal label="Reveal a sample solution">
+More than one correct program reaches the same result; this is a sample solution.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="write_it.py"
+def append_squared(samples, value):
+    samples.append(value * value)
+
+readings = [1, 2]
+append_squared(readings, 3)
+print(readings)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="write_it.rs"
+fn append_squared(samples: &mut Vec<i32>, value: i32) {
+    samples.push(value * value);
+}
+
+fn main() {
+    let mut readings = vec![1, 2];
+    append_squared(&mut readings, 3);
+    println!("{:?}", readings);
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 write_it.py
+```
+
+```text frame="terminal" title="Output"
+[1, 2, 9]
+```
+
+```bash title="Compile and run the Rust program"
+rustc write_it.rs
+./write_it
+```
+
+```text frame="terminal" title="Output"
+[1, 2, 9]
+```
+</Reveal>
+
+---
+
+## Bridge
+
+These three reps feed the recitation family that hands a helper a sequence to encode, decode, or clean up and asks what the caller's original sequence looks like afterward. That is where predicting the caller's list matters: a helper that edits the sequence in place changes your original unless you defend it with a copy, `list(xs)` or `xs[:]` in Python and `xs.clone()` in Rust. The sharing and borrowing you just practiced by hand is the guided first rung of tracing where a sequence really gets modified and where it stays whole.

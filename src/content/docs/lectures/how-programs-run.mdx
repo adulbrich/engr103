@@ -1,0 +1,268 @@
+---
+title: "How Programs Run"
+description: "See what actually happens between typing source code and running a program: what a programming language is, how an interpreter and a compiler each turn your code into something a processor can run, and how to read an error message as information."
+sidebar:
+  order: 1
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+import WhatDiffers from '/src/components/WhatDiffers.astro';
+
+{/* ai-summary
+type: lecture
+slug: how-programs-run
+order: 1
+covers: algorithms and programs; syntax and semantics; source code vs machine code; interpreters (Python) vs compilers (Rust); how to run a program and read its output; Hello World dissected; syntax/run-time/logic errors; the debugging method; modeling vs analysis
+prereq_lectures:
+followup_lectures: values-types-and-expressions
+glossary_terms: algorithm, program, syntax, semantics, source code, machine code, interpreter, compiler, syntax error, run-time error, logic error, debugging
+*/}
+
+<LanguageVersions />
+
+You have almost certainly used a program that crashed, froze, or printed something baffling, and wondered what went wrong down inside it. Part of the answer is that a computer does not read your instructions the way a person reads a sentence. A person fills small gaps with judgment and reads ahead for context; a processor does neither. It carries out exactly what it is given, in order, with no guessing and no benefit of the doubt. Between the words you type and that processor doing something, a specific chain of events has to happen, and the two languages this course uses, Python and Rust, take a genuinely different path through that chain. One begins obeying your instructions almost as soon as you save the file; the other refuses to run a single line until it has inspected your entire file for mistakes. That one difference decides when you find out about a bug, what an error message on your screen actually means, and, ultimately, why learning both languages together teaches you more than either one alone.
+
+## Programs, Algorithms, and Languages
+
+Before worrying about how a program runs, it helps to be precise about what a program is. Underneath every program is an **algorithm**: a finite, ordered sequence of steps that solves a problem or completes a task, with every step unambiguous and nothing left to guess. A recipe is an everyday algorithm, "chop the onion, heat the oil, add the onion, cook until soft," but a recipe still leans on a human cook to fill in what "until soft" means. An algorithm aimed at a computer cannot lean on anything: each step must be exact, because the machine that will follow it has no judgment to contribute. A **program** is that algorithm written down in a language a computer can eventually carry out. Every piece of code you write this term, however short, is an algorithm made concrete, a fixed sequence of steps recorded so it can be followed the same way every single time it runs.
+
+The precision is both the appeal and the difficulty of programming. A cook improvises around a vague instruction; a computer cannot, because it follows what you actually wrote, not what you meant. A program that behaves strangely is almost never the computer being difficult. It is the computer doing exactly as told, and the instructions not saying quite what you thought they said.
+
+Writing those instructions down requires a **programming language**, and a language, spoken or programming, is really two things at once. Its **syntax** is the set of rules for how symbols may be arranged, the grammar of the language: which arrangements are well formed and which are gibberish. Its **semantics** is what a well-formed arrangement *means*, the behavior it stands for. The English string "the the cat sat" breaks syntax; "the cat sat" obeys syntax and carries a clear meaning, its semantics. Programming languages draw the same line, and drawing it sharply matters, because the two kinds of mistake you can make map directly onto it. Break the syntax and the language cannot even tell what you were trying to say. Obey the syntax but get the semantics wrong and the language does precisely what you wrote, which is not what you wanted. Both failures show up later in this lecture, and telling them apart starts here.
+
+## Source Code and Machine Code
+
+The Python or Rust text you type is called **source code**: a form meant for people to read and write, full of words, indentation, and punctuation an interpreter or compiler recognizes. A processor understands none of it. What a processor actually executes is **machine code**: instructions encoded as raw numbers, each one a pattern of the bits and bytes the [How Values Are Stored](/lectures/data-representation/) lecture examines up close, meaning something specific to that particular kind of processor, such as "add these two numbers" or "copy this value from here to there." Machine code has no variable names, no indentation, no words, nothing a person would call readable; it is numbers all the way down.
+
+Two facts follow from that, and both explain why you write source code instead of machine code directly. First, machine code is punishing for a human to write or read: a task that takes one line of Python can take dozens of numeric instructions with nothing to hint at their purpose. Second, machine code is not portable. Different families of processors speak different machine codes, so instructions written for one kind of chip are meaningless to another, while the same Python or Rust source file can run on many. Source code is the readable, portable form; machine code is the form the hardware runs. Getting from one to the other is the job of a **translator** program, and the choice of translator is exactly where Python and Rust diverge.
+
+:::note[What a processor instruction really is]
+A single machine instruction is itself just a number, stored as bits, sitting in memory alongside the data it operates on. When the [How Values Are Stored](/lectures/data-representation/) lecture describes memory as a long row of numbered boxes holding bits, that includes the program's own instructions, not only its data. "Running a program" is the processor reading those instruction-numbers one after another and doing what each one encodes.
+:::
+
+## Interpreters and Compilers
+
+There are two broad kinds of translator, and the whole of this lecture's Python-versus-Rust contrast grows out of which one each language uses.
+
+An **interpreter** is a translator that reads your source code one instruction at a time and carries out each instruction immediately, before it even looks at what comes next. Python is interpreted. When you run a Python file, Python's interpreter starts at the top, reads the first line, translates and performs it on the spot, then reads the second line and does the same, and so on straight down the file. Nothing about line five is examined or run until execution physically reaches line five. The interpreter is a program that is itself already running on your machine; your Python source is the input it consumes, step by step, as it goes.
+
+A **compiler** is a translator that reads your entire source file first, translates the whole thing into machine code, and only afterward runs anything at all. Rust is compiled. Rust's compiler reads your whole file, checks that every instruction is well formed and that every value is used in a way that makes sense together, and, if the whole file passes, produces a separate file of machine code called an **executable**. Running your program then means running that executable, which no longer needs the compiler or even the source code present. If any part of the file fails the compiler's checks, no executable is produced and nothing runs, not even the parts that were perfectly fine.
+
+That difference in *when* translation happens produces every practical difference between the two. Because an interpreter translates as it runs, it can start immediately and give feedback the instant something goes wrong, but it pays a small translation cost on every line, every time, and it will happily run a flawed program right up until it stumbles onto the flaw. Because a compiler translates everything ahead of time, it makes you wait until the entire file is consistent before anything runs at all, but the resulting executable runs fast, with the translation already done, and many mistakes are caught before the program ever starts.
+
+:::note[The line between the two is not absolute]
+Most languages lean firmly one way, but the two categories are ends of a spectrum, not a strict divide. Some languages compile source into an intermediate form (often called bytecode) and then interpret that, which is roughly how the standard Python you use works underneath, and how Java and C# work. The distinction that matters for this course is the one you can observe: Python behaves like an interpreter that runs your code line by line as it goes, and Rust behaves like a compiler that checks everything and builds an executable before running anything.
+:::
+
+## Running Your First Program
+
+The smallest useful thing either language can do is print a single line of text, and running it is where the interpreter-versus-compiler difference stops being abstract. Save the Python version in a file named `hello.py` and the Rust version in a file named `hello.rs`.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="hello.py"
+print("Hello, World!")
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="hello.rs"
+fn main() {
+    println!("Hello, World!");
+}
+```
+</TabItem>
+</Tabs>
+
+To run the Python file, you hand it to the Python interpreter, named `python3`, on the command line, and it prints the result immediately:
+
+```bash title="Run the Python program"
+python3 hello.py
+```
+
+```text frame="terminal" title="Output"
+Hello, World!
+```
+
+The Rust file takes an extra step, because the compiler has to build an executable before there is anything to run. You first invoke the compiler, `rustc`, which reads `hello.rs` and, if it passes every check, produces an executable file named `hello`. You then run that executable:
+
+```bash title="Compile and run the Rust program"
+rustc hello.rs
+./hello
+```
+
+```text frame="terminal" title="Output"
+Hello, World!
+```
+
+The two lines you typed for Rust make the compiler's role visible: `rustc hello.rs` is the translation step, and it prints nothing at all when it succeeds, silence meaning the build worked and produced `hello`. Only `./hello`, running the freshly built executable, prints the text. If you change `hello.rs` later, the old `hello` executable does not update itself; you have to run `rustc` again to rebuild it, because the executable is a separate translated copy, not the source file itself.
+
+Now look at what each line of the two programs actually means, since the Rust version in particular has parts that will reappear in every Rust example you ever write.
+
+The Python program is a single line. `print` is a function built into the language that writes its input to the screen; `"Hello, World!"` is a **string literal**, a fixed piece of text written directly in the code and marked as text by the surrounding quotation marks. There is no surrounding structure, because the interpreter simply runs the file from its first line, and that first line is the whole program.
+
+The Rust program carries more scaffolding, and each piece has a reason. `fn main() { ... }` defines a function named `main`, and `main` is special: it is the single place a Rust program begins running. The compiler needs a defined starting point to build an executable around, and `main` is it, so every runnable Rust program has exactly one. The curly braces `{` and `}` mark where that function's body begins and ends; Rust uses braces to group a block of code, where Python uses indentation for the same purpose. `println!` writes a line of text to the screen, and the exclamation mark is not decoration: it marks `println!` as a **macro** rather than an ordinary function. You do not need the distinction yet; treat `println!` as "print a line" and read the `!` as simply part of its name for now. Finally, the semicolon `;` ends the statement. Rust requires a semicolon at the end of most statements so the compiler knows exactly where one instruction stops and the next begins, a boundary Python marks with the end of the line instead.
+
+<WhatDiffers>
+<Fragment slot="differs">
+A runnable Rust program wraps its code in a `fn main() { ... }` function, the fixed point where execution begins, and marks the boundaries of that code with curly braces and each statement's end with a semicolon. Python needs none of this: a file runs top to bottom from its first line, blocks are marked by indentation rather than braces, and the end of a line ends a statement. Rust prints with `println!` (a macro, hence the `!`) and Python with the `print` function. This same scaffolding appears in every Rust example in this course and every Python one omits it; from here on it is left unremarked.
+</Fragment>
+</WhatDiffers>
+
+## Immediate Feedback Versus Check First
+
+The difference between running a file line by line and translating it whole stops being theoretical the moment a program has more than one line and one of them is wrong. Consider a program that prints a message and then, on the next line, tries to add a whole number to a piece of text, something neither language allows because a number and text are not the kind of values `+` can combine.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="start.py"
+print("Starting up...")
+print(1 + "two")
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="start.rs (will not compile)"
+fn main() {
+    println!("Starting up...");
+    println!("{}", 1 + "two");
+}
+```
+</TabItem>
+</Tabs>
+
+Run the Python file and it prints its first line before failing on the second:
+
+```bash title="Run start.py"
+python3 start.py
+```
+
+```text frame="terminal" title="Output"
+Starting up...
+Traceback (most recent call last):
+  File "start.py", line 2, in <module>
+    print(1 + "two")
+          ~~^~~~~~~
+TypeError: unsupported operand type(s) for +: 'int' and 'str'
+```
+
+Trace why. Python's interpreter reaches line 1 first, translates it, and runs it, so `Starting up...` really is printed. Only then does it move to line 2, and only at that instant does it discover that a number and a piece of text cannot be added. It stops there, partway through the program, having already produced real output. The mistake was present the whole time, but the interpreter had no reason to notice it until execution arrived on that line.
+
+Now compile the Rust file:
+
+```bash title="Compile start.rs"
+rustc start.rs
+```
+
+```text frame="terminal" title="Output"
+error[E0277]: cannot add `&str` to `{integer}`
+ --> start.rs:3:22
+```
+
+There is no executable to run, and `Starting up...` never appears, because the program never started. Rust's compiler read the entire file before running anything, checking that every value is used consistently, found the same faulty addition while doing so, and refused to build an executable at all. The perfectly good first line is not spared; nothing runs when the file as a whole does not pass.
+
+This is the trade-off in one picture. Python gives immediate feedback and lets a mostly correct program get partway before a flaw stops it, which is convenient while experimenting but means a bug can lie hidden until the exact moment its line runs, possibly long after you wrote it. Rust makes you wait until the whole file is consistent, so you cannot run anything until every part at least fits together, and in exchange it hands you many mistakes before the program takes its first step.
+
+## Errors Are Messages, Not Verdicts
+
+An error message can feel like the computer announcing that you failed, but it is nothing of the sort. It is a precise description of what went wrong and, usually, exactly where, written to be read and acted on. Learning to read one calmly is one of the most valuable habits in this course, and it starts with recognizing that programming errors come in three distinct kinds, separated by *when* they surface.
+
+### Syntax Errors
+
+A **syntax error** is a violation of the language's grammar, the same way a sentence with no verb violates the grammar of English. The arrangement of symbols is not something the language can make sense of, so the translator refuses to go any further, and this happens before any of your code runs, because a translator has to understand a line's structure before it can carry the line out. An interpreter catches a syntax error the moment it reaches the malformed line; a compiler catches it while reading the whole file, before building anything.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="A parenthesis left open (will not run)"
+print("Hello, World!"
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="A missing semicolon (will not compile)"
+fn main() {
+    println!("Hello, World!")
+    println!("Goodbye!");
+}
+```
+</TabItem>
+</Tabs>
+
+Running the Python file reports the unclosed parenthesis and stops before printing anything:
+
+```text frame="terminal" title="Python's syntax error"
+SyntaxError: '(' was never closed
+```
+
+Compiling the Rust file reports the missing semicolon, pointing at the exact spot where one statement should have ended before the next began:
+
+```text frame="terminal" title="Rust's syntax error"
+error: expected `;`, found `println`
+```
+
+The two languages complain about different rules, an unclosed parenthesis versus a missing semicolon, because their syntax rules differ, but the shape of the event is identical: the translator could not parse the structure, named the problem, and stopped before running a thing.
+
+### Run-Time Errors
+
+A **run-time error** happens after a program has already started running. The code is grammatically fine, so nothing prevents it from starting, but something goes wrong while a specific instruction is actually being carried out, such as dividing by zero or running out of memory. You have already seen one: `start.py` earlier was grammatically valid, which is why Python printed `Starting up...` before the addition on line 2 failed as it ran. Because a run-time error only appears when its line executes, an interpreter is the natural place to meet one; the program has to reach the faulty operation for the error to occur.
+
+:::note[Rust catches some run-time-looking errors early]
+Rust's habit of checking the whole file first lets it catch, at compile time, some mistakes that would otherwise be run-time errors. Dividing by zero is the classic example: if both numbers are written directly in the code, Rust's compiler can compute that the division is impossible while it checks the file, and refuses to build the program at all, turning a would-be run-time error into a compile-time one. Once a Rust program works with values that are not known until it actually runs, such as a number typed by a person, the same integer division by zero becomes a genuine run-time error there too, exactly as it always is in Python. Floating-point division is the exception: dividing a float by zero does not crash in Rust at all, yielding a special infinity or not-a-number value instead, a difference a later lecture puts to use. This is a recurring theme: the more a compiler can work out ahead of time, the more it can catch before the program starts.
+:::
+
+### Logic Errors
+
+A **logic error** is the quietest and most dangerous of the three. The program is grammatically valid and runs from start to finish with no error message at all, but it computes the wrong answer, because the steps you wrote do not do what you intended. Nothing on the screen warns you; the program looks like it worked. The only way to catch a logic error is to check the output against what you expected it to be.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="Forgetting the parentheses"
+print(2 + 3 * 2)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="Forgetting the parentheses"
+fn main() {
+    println!("{}", 2 + 3 * 2);
+}
+```
+</TabItem>
+</Tabs>
+
+Suppose the intent was to add 2 and 3 first and then double the result, expecting 10. Both languages print `8` instead, because multiplication happens before addition, so `3 * 2` is computed first and added to 2. Nothing is malformed and nothing fails; the program ran perfectly and did exactly what its symbols said, which simply was not what the author meant. A logic error is the semantics-versus-syntax line from the start of this lecture landing on the wrong side: the code is well formed, but it means something other than intended. Of the three kinds, these are the hardest to find, precisely because nothing announces them, and catching them is what testing, a later lecture, exists to do systematically.
+
+## The Systematic Debugging Method
+
+All three kinds of error yield to the same method, and it is worth making a deliberate habit from your very first program rather than falling into random guessing. The method is a short loop: **read the error, form a hypothesis, make one change, test, and repeat.**
+
+Read the whole error message first, not just the last line. It usually names the exact file, the exact line, and the exact problem, and skipping past it to start changing code at random throws away the best information you will get. Form a hypothesis: a specific, testable guess about the cause, drawn from what the message actually said. Make one change, and only one, so that if the problem disappears you know precisely which change fixed it, rather than having altered three things at once and learning nothing. Then run the program again and see whether your hypothesis held. If it did not, the new error is not a failure; it is fresh information, and you run the loop again.
+
+Take the missing-semicolon program from earlier. Rust's message, `error: expected \`;\`, found \`println\``, names the exact spot: it expected a statement to end where it instead found the next `println`. The hypothesis the message hands you is precise, a semicolon is missing at the end of the line before. The one change that tests it is adding that semicolon and nothing else. Recompiling then either succeeds, confirming the hypothesis, or produces a new message to investigate the same way. A logic error runs the identical loop with one twist: since nothing announces it, the first step is not reading an error but noticing that the output is wrong, such as seeing `8` where you expected `10` above. From there the hypothesis (multiplication happened before the addition), the single change (add parentheses around `2 + 3`), and the retest work exactly as they do for a compiler's complaint.
+
+## Modeling and Analysis
+
+Writing a program to solve an engineering problem quietly asks you to do two different things, and knowing which one you are doing at any moment makes both easier. **Modeling** is building a representation of a real situation out of values, expressions, and the sequence of steps your program follows: deciding what quantities matter and how they relate. **Analysis** is running that model and making sense of what comes out: reading the numbers it prints, judging whether they are reasonable, and deciding what they say about the situation you started from.
+
+The two fail in different ways, which is why separating them is useful. A model can be built well and analyzed carelessly, if you run it and misread or ignore what it reports. A model can also be analyzed carefully and still be wrong, if it represents the real situation poorly in the first place, no matter how attentively you read its output afterward. This course asks you to do both all term, and naming them apart now means that when a result looks wrong later, you can ask a sharper question than "why is my program broken": is the mistake in what I modeled, or in how I read the result?
+
+## Two Languages, One Set of Ideas
+
+The [introduction](/lectures/introduction/) already explains why this course teaches every concept in Python and Rust side by side, and how to read the paired examples with one language as your own. What this lecture adds is the first concrete case of that promise: the interpreter-versus-compiler split you just watched is exactly the kind of difference the two languages were chosen to expose. One practical boundary is worth knowing now: every example in the course stays inside a specific, growing subset of each language, published as the [language ladder](/reference/language-ladder), and this lecture uses only literal values and printing, which is all the ladder permits in week one.
+
+## Takeaways
+
+A program is an algorithm, a precise and unambiguous sequence of steps, written in a language whose syntax fixes how its symbols may be arranged and whose semantics fixes what those arrangements mean. A processor cannot run that source code directly; it runs machine code, raw numeric instructions specific to the hardware, so a translator has to bridge the two.
+
+The choice of translator is the root of everything that separates Python from Rust in this course. Python's interpreter reads and runs your code one line at a time, so it starts instantly, gives immediate feedback, and can print correct output before failing partway through on a flaw it only just reached. Rust's compiler reads and checks the whole file first and builds an executable only if everything fits, so a single mistake anywhere keeps the entire program from running, but many mistakes are caught before it starts.
+
+Whichever language reports a problem, its error message is information, not a verdict. A syntax error means the grammar itself is broken and is caught before anything runs; a run-time error means the grammar was fine but a specific operation failed while executing; a logic error means everything ran without complaint yet produced the wrong answer, the code meaning something other than you intended.
+
+The same loop resolves all three kinds of error: read the error, form one hypothesis, make one change, and retest. It is worth using deliberately from your very first program, instead of falling into random guessing.
+
+Underneath all of it sits a distinction worth carrying forward: building a model of a situation is a different act from analyzing what that model produces, and telling them apart will help you find a mistake faster all term. The next lecture looks closely at the data a program works on: what a value and a type are, and how operators combine values into expressions you can work out by hand before ever running them.
+
+## Resources
+
+- [Python: The Python interpreter](https://docs.python.org/3/tutorial/interpreter.html)
+- [Python: Errors and Exceptions](https://docs.python.org/3/tutorial/errors.html)
+- [The Rust Book: Hello, World!](https://doc.rust-lang.org/book/ch01-02-hello-world.html)
+- [The Rust Book: Compiling and running are separate steps](https://doc.rust-lang.org/book/ch01-02-hello-world.html#compiling-and-running-are-separate-steps)
+- [Rust compiler error index](https://doc.rust-lang.org/error_codes/error-index.html)

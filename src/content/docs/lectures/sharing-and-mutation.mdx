@@ -1,0 +1,377 @@
+---
+title: "Sharing and Mutation"
+description: "See what really happens when you hand a whole collection to a function: Python shares the one object so the function can change your list, Rust makes you spell out read-only or mutable access with & and &mut, and defensive copying keeps an original safe."
+sidebar:
+  order: 16
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+import WhatDiffers from '/src/components/WhatDiffers.astro';
+import MemoryStepper from '/src/components/MemoryStepper.svelte';
+
+{/* ai-summary
+type: lecture
+slug: sharing-and-mutation
+order: 16
+covers: passing a collection to a function; Python shares one object so mutation shows through; scalar vs collection arguments; Rust move on pass; shared reference &; mutable reference &mut; declaring intent in a signature; defensive copying with list(xs) and clone; borrow rules lightly
+prereq_lectures: the-memory-model
+followup_lectures: collections-ii
+glossary_terms: mutable reference, shared reference, defensive copy, clone
+*/}
+
+<LanguageVersions />
+
+You have a list of numbers, and you write a small function to add one more reading to it. You call the function, hand it your list, and move on. Later you print the list and there it is: the new reading really was added, even though the line that printed the list never mentioned the function again. That is convenient, and it is exactly what you wanted. Now imagine the opposite surprise. A function you called to *inspect* your list quietly reorders it, or trims it, and you only notice pages later when a different calculation comes out wrong. Both outcomes come from a single fact: when you pass a whole collection to a function, the function may be working on your very own list, not a copy of it. Whether that is a feature or a trap depends entirely on whether you meant to share it, and on whether your language makes you say so. The [Functions](/lectures/functions) lecture promised that the copy-the-argument rule was only the whole story for small values; this lecture is where the other half arrives.
+
+## Passing a Collection to a Function
+
+The [Functions](/lectures/functions) lecture traced a function call as four steps and settled on one that mattered most: each argument's value is copied into its matching parameter, so the parameter is a private box and the function cannot reach back and change what the caller passed. That was true, and it stays true, but it was scoped on purpose to small values: integers, floats, booleans. A collection is not a small value. The [memory model](/lectures/the-memory-model) lecture showed that a list's elements live together as one object elsewhere in memory, and the name only refers to that object. So the question this lecture answers is what actually gets copied into the parameter when the argument is a name that refers to a large object, and the answer is where Python and Rust part company again.
+
+Start with the same task in both languages: a function that takes a collection and adds one number to it. In Python you write it the obvious way and it works. In Rust the obvious way, handing the vector straight in, does not compile, for a reason you already met.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="mutate_list.py"
+def add_reading(samples, value):
+    samples.append(value)
+
+readings = [10, 20, 30]
+add_reading(readings, 40)
+print(readings)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="by_value.rs (will not compile)"
+fn add_reading(mut samples: Vec<i32>, value: i32) {
+    samples.push(value);
+}
+
+fn main() {
+    let readings = vec![10, 20, 30];
+    add_reading(readings, 40);
+    println!("{:?}", readings); // error: borrow of moved value: `readings` (will not compile)
+}
+```
+</TabItem>
+</Tabs>
+
+Run the Python version and the change made inside the function is visible on the caller's list, even though the last line only prints `readings`:
+
+```text frame="terminal" title="Output"
+[10, 20, 30, 40]
+```
+
+Trace why. When Python matches the argument to the parameter, it copies the argument's value into it, exactly the copy-the-value rule the [Functions](/lectures/functions) lecture settled on. What has changed since then is what that value is. The [memory model](/lectures/the-memory-model) lecture showed that the value `readings` holds is not the three numbers themselves but a reference, a way to find the one list object; copying that value copies the reference, so `samples` starts out holding the very same reference and pointing at the very same object. Now `readings` and `samples` are two names for the same list object, the aliasing from the [memory model](/lectures/the-memory-model) lecture, arriving this time through a function call rather than a plain `b = a`. Because there is one object with two names, `samples.append(value)` does not build a new list; it reaches the shared object and adds `40` to it in place. When the function returns and you read `readings`, you are reading that same object, now grown to `[10, 20, 30, 40]`.
+
+Compile the Rust version and there is no program to run. Passing `readings` by value hands ownership of the vector into the function, the **move** from the [memory model](/lectures/the-memory-model) lecture: the function's parameter becomes the new owner, and `readings` back in `main` owns nothing, so the later `println!` is rejected before anything runs.
+
+```bash title="Compile the Rust program"
+rustc by_value.rs
+```
+
+```text frame="terminal" title="Output"
+error[E0382]: borrow of moved value: `readings`
+ --> by_value.rs:8:22
+  |
+6 |     let readings = vec![10, 20, 30];
+  |         -------- move occurs because `readings` has type `Vec<i32>`, which does not implement the `Copy` trait
+7 |     add_reading(readings, 40);
+  |                 -------- value moved here
+8 |     println!("{:?}", readings); // error: borrow of moved value: `readings` (will not compile)
+  |                      ^^^^^^^^ value borrowed here after move
+```
+
+<WhatDiffers>
+<Fragment slot="differs">
+Python copies the reference into the parameter, so `readings` and `samples` name one shared list, and `append` through the parameter is visible on the caller's list. Rust's `add_reading(readings, 40)` instead moves ownership of the vector into the function; the caller keeps nothing, and using `readings` afterward is rejected with error `E0382` before the program runs. Python shares the object silently; Rust, by default, gives it away entirely.
+</Fragment>
+</WhatDiffers>
+
+Notice what Rust has forced into the open. In Python, whether `add_reading` shares your list or leaves it alone is invisible at the call site; you passed `readings` and you have to read the function's body to learn that it appends. In Rust the plain-value call means "take my vector for good," which is rarely what you want, so Rust makes you choose something else on purpose. That choice is the subject of the next section.
+
+:::note[A scalar argument still does not change the caller]
+The [Functions](/lectures/functions) rule has not been repealed; it applies whenever the argument is a small value. A function that takes a number and reassigns its parameter changes only its private copy:
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="scalar_arg.py"
+def bump(n):
+    n = n + 1
+    print(n)
+
+count = 5
+bump(count)
+print(count)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="scalar_arg.rs"
+fn bump(mut n: i32) {
+    n = n + 1;
+    println!("{}", n);
+}
+
+fn main() {
+    let count = 5;
+    bump(count);
+    println!("{}", count);
+}
+```
+</TabItem>
+</Tabs>
+
+```text frame="terminal" title="Output"
+6
+5
+```
+
+Both versions print `6` from inside the function and then `5`, not `6`, from the caller. The difference from the list is not that one is passed differently on a whim. A number is small enough to sit where the name is, so `count` and `n` hold two independent copies of `5`, and `n = n + 1` changes `n` alone; the `mut` in front of Rust's parameter plays the same role `let mut` always has, marking the private copy as changeable. A list is one object that both names refer to, so a change to that object is a change both names see. Same call machinery, different outcome, decided entirely by whether the value is a separate copy or one shared object.
+:::
+
+## Borrowing a Collection
+
+Moving the whole vector into a function is almost never what you mean. You want the function to *use* your collection, to read it or change it, and you want to keep it afterward. The [memory model](/lectures/the-memory-model) lecture gave Rust the tool for exactly this: a **borrow**, written with `&`, lets a name look at a value without taking ownership. Passing a borrow into a function is the same idea aimed at a parameter. Python needs no new tool here, because it never took ownership in the first place; passing a list is already sharing. What changes between the two languages is not the mechanism so much as who has to say what they intend, and Rust splits borrowing into two clearly different promises depending on whether the function may change what it borrows.
+
+### Shared References
+
+A **shared reference**, written `&Vec<i32>`, lets a function read a collection without owning it and without changing it. The function borrows the vector, reads through the borrow, and leaves the caller's ownership untouched. Here is a function that adds up a vector's elements, taking a shared reference so the caller keeps its vector afterward.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="read_only.py"
+def total(samples):
+    running = 0
+    for s in samples:
+        running = running + s
+    return running
+
+readings = [10, 20, 30]
+print(total(readings))
+print(readings)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="read_only.rs"
+fn total(samples: &Vec<i32>) -> i32 {
+    let mut running = 0;
+    for s in samples {
+        running = running + s;
+    }
+    return running;
+}
+
+fn main() {
+    let readings = vec![10, 20, 30];
+    println!("{}", total(&readings));
+    println!("{:?}", readings);
+}
+```
+</TabItem>
+</Tabs>
+
+Both versions read the collection and then still use it: the sum prints, and `readings` is unchanged because reading never changes anything.
+
+```text frame="terminal" title="Output"
+60
+[10, 20, 30]
+```
+
+In the Rust version, the `&` is what makes this possible. Written as `total(readings)` with a plain value, the vector would move into `total` and `main` could not print it afterward. Written as `total(&readings)`, the function borrows the vector, reads it, and hands nothing over, so `readings` survives the call.
+
+The promise in `&Vec<i32>` is not just a convenience; the compiler holds the function to it. A function that borrowed the vector to read it is not allowed to change it, and if it tries, the program does not build.
+
+:::caution[The read-only promise is enforced]
+Give `total` a shared reference and then try to push through it, and Rust refuses to compile the function at all. The fragment below is just the function, so a real file would need a `main` around it; the error that matters is the one on the `push`:
+
+```rust title="read_only_push.rs (a fragment; will not compile)"
+fn add_reading(samples: &Vec<i32>, value: i32) {
+    samples.push(value); // error: cannot borrow `*samples` as mutable (will not compile)
+}
+```
+
+```text frame="terminal" title="Output"
+error[E0596]: cannot borrow `*samples` as mutable, as it is behind a `&` reference
+ --> read_only_push.rs:2:5
+  |
+2 |     samples.push(value); // error: cannot borrow `*samples` as mutable (will not compile)
+  |     ^^^^^^^ `samples` is a `&` reference, so the data it refers to cannot be borrowed as mutable
+```
+
+This is the difference from Python at its sharpest. A Python function is free to reorder, trim, or append to any list it is handed; nothing in the way you called it can stop that, and nothing in its name warns you. A Rust function that took `&Vec<i32>` cannot change the collection even if its author makes a mistake, because the `&` said read-only and the compiler makes that true.
+:::
+
+### Mutable References
+
+When a function really should change the caller's collection, Rust has a second kind of borrow that says so out loud. A **mutable reference**, written `&mut Vec<i32>`, borrows a collection *and* is allowed to change it, and it announces both facts in the type. This is the read-only reference's louder sibling: same non-owning borrow, but with permission to modify what it points at. Here is the earlier `add_reading`, rewritten to borrow mutably instead of taking the whole vector.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="mutate_list.py"
+def add_reading(samples, value):
+    samples.append(value)
+
+readings = [10, 20, 30]
+add_reading(readings, 40)
+print(readings)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="borrow_mut.rs"
+fn add_reading(samples: &mut Vec<i32>, value: i32) {
+    samples.push(value);
+}
+
+fn main() {
+    let mut readings = vec![10, 20, 30];
+    add_reading(&mut readings, 40);
+    println!("{:?}", readings);
+}
+```
+</TabItem>
+</Tabs>
+
+Both now change the caller's collection, and both print the grown one:
+
+```text frame="terminal" title="Output"
+[10, 20, 30, 40]
+```
+
+Making this work in Rust takes agreement in three places, and each one is a small promise the compiler checks. The owner must be declared `let mut readings`, because you cannot lend out permission to change a value you never had permission to change yourself; a plain `let` binding is fixed, so no mutable borrow of it is allowed. The function's parameter must be typed `&mut Vec<i32>`, which is where the function declares that it intends to modify what it is given. And the call site must pass `&mut readings`, not just `readings`, so that the sharing is visible at the exact spot where it happens: a reader skimming `main` sees `&mut` and knows, without opening the function, that this call may change `readings`. Leave off any one of the three and the program does not build. Python asks for none of this, which is why the Python `add_reading` is spelled the same whether it reads or writes, and why you cannot tell which it does without reading its body.
+
+Walk the mutable borrow one step at a time and watch the single shared object grow while ownership stays home.
+
+<MemoryStepper
+  client:visible
+  title="Borrowing to mutate: the function grows the caller's vector"
+  code={`let mut readings = vec![10, 20, 30];
+add_reading(&mut readings, 40);`}
+  steps={[
+    {
+      line: 1,
+      caption: "main creates one vector and readings is its owner. Nothing has been shared yet.",
+      names: [{ name: "readings", points: "obj1", state: "owned" }],
+      objects: [{ id: "obj1", value: "[10, 20, 30]" }],
+    },
+    {
+      line: 2,
+      caption: "The call passes &mut readings. The parameter samples borrows the SAME vector mutably; readings keeps ownership. Two names now point at one object.",
+      names: [{ name: "readings", points: "obj1", state: "owned" }, { name: "samples", points: "obj1", state: "borrow" }],
+      objects: [{ id: "obj1", value: "[10, 20, 30]" }],
+    },
+    {
+      line: 2,
+      caption: "Inside the function, samples.push(40) changes the one shared vector in place. Because readings owns that same object, it now holds [10, 20, 30, 40] too.",
+      names: [{ name: "readings", points: "obj1", state: "owned" }, { name: "samples", points: "obj1", state: "borrow" }],
+      objects: [{ id: "obj1", value: "[10, 20, 30, 40]" }],
+    },
+    {
+      line: 2,
+      caption: "The borrow ends when the function returns. samples is gone; readings still owns the vector, now grown to [10, 20, 30, 40].",
+      names: [{ name: "readings", points: "obj1", state: "owned" }],
+      objects: [{ id: "obj1", value: "[10, 20, 30, 40]" }],
+    },
+  ]}
+/>
+
+<WhatDiffers>
+<Fragment slot="differs">
+The Python signature `def add_reading(samples, value)` is identical whether the function reads the list or rewrites it; the sharing is real but silent, and only the body reveals what happens to your list. Rust puts the answer in the signature: `&Vec<i32>` promises read-only, `&mut Vec<i32>` announces the function may change the collection, and the caller must write `&mut readings` at the call site, over an owner declared `let mut`. In Python you learn a function's effect on your list by reading it; in Rust you read it off the type, and the compiler guarantees the type told the truth.
+</Fragment>
+</WhatDiffers>
+
+This visible intent is the heart of the whole lecture. Both languages let a function change a collection you hand it, and both let a function merely read one. The difference is that Python leaves the distinction to discipline, a careful name, a docstring, a habit of not surprising your caller, while Rust makes the distinction part of the type the compiler already checks. Neither is free. Python's silence is what makes its collections so pleasant to pass around, and also what lets a distant function change your data without any signpost. Rust's `&` and `&mut` are extra words at every borrow, and also a guarantee you never have to take on faith.
+
+:::note[Why the rules forbid one loud edit during quiet reads]
+Rust's insistence on marking mutation is backed by one more rule, kept light here: while a mutable borrow of a value is active, no other borrow of that same value may coexist. You cannot hold a plain reference into a vector and change the vector through another reference at the same time.
+
+```rust title="borrow_rules.rs (will not compile)"
+fn main() {
+    let mut readings = vec![10, 20, 30];
+    let first = &readings[0];
+    readings.push(40); // error: cannot borrow `readings` as mutable (will not compile)
+    println!("{} {:?}", first, readings);
+}
+```
+
+```text frame="terminal" title="Output"
+error[E0502]: cannot borrow `readings` as mutable because it is also borrowed as immutable
+ --> borrow_rules.rs:4:5
+```
+
+The reason is concrete: pushing to a vector can force it to move its elements to a larger patch of memory, which would leave `first` pointing at the old, abandoned spot, the dangling reference from the [memory model](/lectures/the-memory-model) lecture. Rust forbids the combination so that bug cannot happen. This is the whole borrow checker in miniature, and it exists to prevent exactly the shared-mutable-state accidents Python leaves to your care.
+:::
+
+## Defensive Copying
+
+Sharing is the right default surprisingly often, but not always. Sometimes you want a function to work over your collection and you want your original left exactly as it was, no matter what the function does. The tool for that is deliberate: hand the function a **defensive copy**, a fresh, separate collection made just so the function can change it without touching your original. The word defensive is the point. You are not copying because the program needs two lists; you are copying to defend the first one from whatever the function might do to what it is given.
+
+In Python, where passing a list shares it, you make the copy explicit at the call. `list(readings)` builds a new list with the same elements, and so does the slice `readings[:]`; either one gives the function its own list to modify.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="defensive_copy.py"
+def add_reading(samples, value):
+    samples.append(value)
+
+readings = [10, 20, 30]
+add_reading(list(readings), 40)
+print(readings)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="defensive_copy.rs"
+fn add_reading(samples: &mut Vec<i32>, value: i32) {
+    samples.push(value);
+}
+
+fn main() {
+    let readings = vec![10, 20, 30];
+    let mut copy = readings.clone();
+    add_reading(&mut copy, 40);
+    println!("{:?}", readings);
+    println!("{:?}", copy);
+}
+```
+</TabItem>
+</Tabs>
+
+Run the Python program and the original is untouched, because the function appended to a separate list that nobody kept:
+
+```text frame="terminal" title="Output (Python)"
+[10, 20, 30]
+```
+
+Rust makes the copy with `.clone()`, the same method the [memory model](/lectures/the-memory-model) lecture used to duplicate a vector on purpose. `readings.clone()` builds a full, owned copy; the mutable borrow then changes only that copy, and the original prints exactly as it started:
+
+```text frame="terminal" title="Output (Rust)"
+[10, 20, 30]
+[10, 20, 30, 40]
+```
+
+<WhatDiffers>
+<Fragment slot="differs">
+Python defends an original with `list(readings)` or the slice `readings[:]`, either of which makes a new shallow copy to pass in place of the shared list. Rust defends it with `readings.clone()`, an owned copy the function may borrow and change. Both leave the original intact; the difference is that Python must add the copy specifically to escape its default sharing, while Rust's default already refuses silent sharing, so a copy is only one of the ways to give a function something of its own.
+</Fragment>
+</WhatDiffers>
+
+A defensive copy is a real cost, and naming it keeps the choice honest. Copying a three-element list is nothing, but these same collections can hold millions of elements, and duplicating one means allocating fresh memory and copying every element into it, actual work the program does every time the copy is made. That is why neither language copies for you: sharing is cheap and instant, and a copy is something you ask for only when the safety is worth the price. The reason `list(xs)` and `.clone()` are both called a *shallow* copy matters here too. They copy the outer collection and its elements, but if those elements were themselves references to other objects, the copy would share those inner objects rather than duplicate them. For the lists of plain numbers in this lecture the distinction does not bite, but it is why the word shallow is there, and why a copy is not always as complete a defense as it looks.
+
+## Takeaways
+
+Passing a collection to a function is the [memory model](/lectures/the-memory-model) applied to a call. In Python, matching an argument to a parameter copies the reference, so the parameter and the caller's name point at one shared object, and a function that appends to or otherwise changes its list parameter changes the caller's list too, exactly the aliasing from before, now reaching in through a function. A scalar argument still behaves as [Functions](/lectures/functions) described, because a small value is a separate copy rather than one shared object.
+
+Rust starts from the opposite default: passing a vector by value moves it into the function and the caller loses it, rejected as error `E0382` if used again. So Rust asks you to borrow instead, and to say how. A shared reference, `&Vec<i32>`, lets a function read a collection and keep the caller's ownership intact, and the compiler forbids that function from changing what it borrowed. A mutable reference, `&mut Vec<i32>`, lets a function change the caller's collection, and it takes agreement in three places: a `let mut` owner, a `&mut` parameter type, and a `&mut` at the call site, each a promise the compiler checks.
+
+That is the deep difference this lecture is built around: in Python you cannot tell from a call or a signature whether a function will change your list, so the safety rests on your discipline; in Rust the signature declares read-only or mutable access and the compiler guarantees the declaration is honored, with a light borrow rule that stops a loud edit from happening during a quiet read.
+
+When you want a function kept away from your original entirely, you pass a defensive copy, `list(xs)` or `xs[:]` in Python and `xs.clone()` in Rust, mutating the copy and leaving the original whole, at the real and deliberate cost of duplicating the collection.
+
+The next lecture returns to collections themselves and the richer things you can build once you can pass them around safely.
+
+## Resources
+
+- [Python tutorial: More on Lists](https://docs.python.org/3/tutorial/datastructures.html#more-on-lists)
+- [Python FAQ: How do I write a function with output parameters (call by reference)?](https://docs.python.org/3/faq/programming.html#how-do-i-write-a-function-with-output-parameters-call-by-reference)
+- [The Rust Book: References and Borrowing](https://doc.rust-lang.org/book/ch04-02-references-and-borrowing.html)
+- [The Rust Book: The Slice Type](https://doc.rust-lang.org/book/ch04-03-slices.html)

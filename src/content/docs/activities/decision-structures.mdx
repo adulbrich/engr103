@@ -1,0 +1,400 @@
+---
+title: "Decision Structures"
+description: "Predict which branch of an else-if chain runs, trace a two-condition interlock into a decision table, and fix a silent bug in a priority chain, in Python and Rust."
+sidebar:
+  order: 8
+draft: true
+---
+
+import { Tabs, TabItem, Steps } from '@astrojs/starlight/components';
+import Reveal from '/src/components/Reveal.astro';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+import WhatDiffers from '/src/components/WhatDiffers.astro';
+
+{/* ai-summary
+type: activity
+slug: decision-structures
+order: 8
+paired_lecture: decision-structures
+practices: predicts which single branch of a long range else-if chain runs when an input lands exactly on a later branch's threshold that an earlier broad condition steals, using first-match-wins; traces a two-condition interlock into a decision table and confirms an else-if chain matches it row by row; diagnoses a silent boundary bug where a strict comparison was written where an inclusive one was meant, from a plausible wrong answer with no error
+prereq_activities:
+block_types: predict-then-run, paper-tracing, live-debugging
+output: a reconciled single-line prediction, a completed decision table confirmed against its chain, and a corrected boundary comparison for each of the three sections
+*/}
+
+<LanguageVersions />
+
+This activity puts into practice the [Decision Structures](/lectures/decision-structures/) lecture. You will predict the output of an else-if chain whose conditions overlap on a boundary value, trace a two-condition interlock into a decision table before checking it against code, and hunt down a silent bug that prints a plausible wrong answer. By the end, you will be able to reason about which single branch of a chain wins, build a decision table to order that chain correctly, and catch an off-by-one comparison that never raises an error.
+
+## Warm-up
+
+A quick refresher before the harder sections. A comparison is an expression that reduces to a boolean, and a chain's conditions are just such expressions. Here are two comparisons, a bare boolean, and the plain `if`/`else` that a chain extends, in both languages.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="warmup.py"
+print(5 < 10)
+print(10 >= 10)
+ready = True
+print(ready)
+if ready:
+    print("go")
+else:
+    print("wait")
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="warmup.rs"
+fn main() {
+    println!("{}", 5 < 10);
+    println!("{}", 10 >= 10);
+    let ready = true;
+    println!("{}", ready);
+    if ready {
+        println!("go");
+    } else {
+        println!("wait");
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 warmup.py
+```
+
+```text frame="terminal" title="Output"
+True
+True
+True
+go
+```
+
+Rust prints the same values, except each boolean is spelled `true` rather than `True`. With comparisons and a plain `if`/`else` fresh, the sections below extend that single decision into a chain.
+
+## Predict Which Branch Runs
+
+The program below classifies a vibration reading, in millimetres per second, from a machine sensor. You commit to a prediction first, then run the program to check it.
+
+Read the program and write down, on paper or in a comment, the exact output you expect: which line or lines print, and in what order. Do not run it yet.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="vibration.py"
+velocity = 7
+if velocity > 2:
+    print("reduced")
+elif velocity >= 5:
+    print("watch")
+elif velocity >= 7:
+    print("maintenance")
+elif velocity >= 11:
+    print("shutdown")
+else:
+    print("normal")
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="vibration.rs"
+fn main() {
+    let velocity = 7;
+    if velocity > 2 {
+        println!("reduced");
+    } else if velocity >= 5 {
+        println!("watch");
+    } else if velocity >= 7 {
+        println!("maintenance");
+    } else if velocity >= 11 {
+        println!("shutdown");
+    } else {
+        println!("normal");
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+<Reveal label="Reveal the real output and reconcile it with your prediction">
+```bash title="Run the Python program"
+python3 vibration.py
+```
+
+```text frame="terminal" title="Output"
+reduced
+```
+
+```bash title="Compile and run the Rust program"
+rustc vibration.rs
+./vibration
+```
+
+```text frame="terminal" title="Output"
+reduced
+```
+
+Only `reduced` prints, on a single line. A reading of `7` makes three of the conditions true at once, `velocity > 2`, `velocity >= 5`, and `velocity >= 7`, but an else-if chain checks top to bottom and stops at the first true condition, so overlapping conditions do not each get a turn. If you predicted `maintenance`, you were pulled in by the exact match: `velocity >= 7` is `true` for `7`, and the word `maintenance` sits right next to the reading, so it looks like the branch built for this value. It is not. The chain never reaches it. The very first condition, `velocity > 2`, is already `true` for `7`, so its block runs and the first-match-wins rule ends the decision immediately, skipping `velocity >= 5`, `velocity >= 7`, and `velocity >= 11` without evaluating a single one of them. The exact match on the boundary is a distraction, not a tiebreaker: reaching that branch would require every earlier condition to be false first, and a reading of `7` fails that the instant it clears `> 2`. Because `velocity > 2` is so broad, the `watch`, `maintenance`, and `shutdown` branches are in fact unreachable for *every* reading above `2`; the chain as written can only ever print `reduced` or `normal`. The lesson is that a boundary value belongs to the first condition it satisfies reading downward, not to the branch whose threshold it equals.
+</Reveal>
+
+---
+
+## Trace an Interlock Into a Table
+
+When a decision depends on two conditions, staring at the code makes it easy to miss a combination. A decision table lists every combination first, which both fixes the outcomes and reveals which condition has to be checked before the other. You build the table, then confirm the chain matches it.
+
+A press motor should run only when the safety guard is closed and the start button is pressed. If the guard is open, the machine must refuse and print `close guard`, no matter what the button says, because safety overrides everything. If the guard is closed but the button is not pressed, it prints `ready`. Fill in the outcome for all four combinations of the two booleans.
+
+<Steps>
+
+1. Copy this table and write the outcome (`close guard`, `ready`, or `run`) in each blank row.
+
+   | `is_guard_closed` | `is_start_pressed` | Outcome |
+   |---|---|---|
+   | false | false | ? |
+   | false | true | ? |
+   | true | false | ? |
+   | true | true | ? |
+
+2. Look at which rows share an outcome. That collapse tells you which condition to check first in the chain.
+
+3. Read the chain below and confirm it produces your table's outcome for every row.
+
+</Steps>
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="press.py"
+is_guard_closed = True
+is_start_pressed = True
+if not is_guard_closed:
+    print("close guard")
+elif is_start_pressed:
+    print("run")
+else:
+    print("ready")
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="press.rs"
+fn main() {
+    let is_guard_closed = true;
+    let is_start_pressed = true;
+    if !is_guard_closed {
+        println!("close guard");
+    } else if is_start_pressed {
+        println!("run");
+    } else {
+        println!("ready");
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+<Reveal label="Reveal the completed table and confirm the chain">
+The completed table:
+
+| `is_guard_closed` | `is_start_pressed` | Outcome |
+|---|---|---|
+| false | false | close guard |
+| false | true | close guard |
+| true | false | ready |
+| true | true | run |
+
+The top two rows collapse to `close guard`: when the guard is open, the button reading does not matter. That collapse is why the chain checks `not is_guard_closed` first, so an open guard wins before the button is ever considered. Confirm the chain row by row: for the top two rows `not is_guard_closed` is `true`, so both print `close guard`; for the third row the guard is closed and `is_start_pressed` is `false`, so the chain falls to the `else` and prints `ready`; for the last row `is_start_pressed` is `true`, so it prints `run`. The code with `is_guard_closed` and `is_start_pressed` both `true` matches that last row.
+
+```bash title="Run the Python program"
+python3 press.py
+```
+
+```text frame="terminal" title="Output"
+run
+```
+
+```bash title="Compile and run the Rust program"
+rustc press.rs
+./press
+```
+
+```text frame="terminal" title="Output"
+run
+```
+
+<WhatDiffers>
+<Fragment slot="differs">
+Python negates with the word `not` and Rust with the `!` symbol, so `not is_guard_closed` becomes `!is_guard_closed`. The chain, the table it matches, and the printed `run` are identical across both languages.
+</Fragment>
+</WhatDiffers>
+</Reveal>
+
+---
+
+## Find the Silent Bug
+
+Not every bug crashes. The program below runs, prints a tier, and lies: the tier is simply wrong. The chain sorts an emergency call by its response time, in whole minutes, into a priority tier. The intended rule is: under `4` minutes is `immediate`, up to and including `8` minutes is `urgent`, up to and including `15` minutes is `routine`, and anything longer is `deferred`. A call that took exactly `8` minutes should therefore be `urgent`. It is not. You find the bug with the systematic method: read the symptom, form a hypothesis, test it.
+
+Run the program with `minutes` at exactly `8`, see what it actually prints, then work out why `8` misses the tier it belongs to and how one change fixes it.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="dispatch.py"
+minutes = 8
+if minutes < 4:
+    print("immediate")
+elif minutes < 8:
+    print("urgent")
+elif minutes <= 15:
+    print("routine")
+else:
+    print("deferred")
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="dispatch.rs"
+fn main() {
+    let minutes = 8;
+    if minutes < 4 {
+        println!("immediate");
+    } else if minutes < 8 {
+        println!("urgent");
+    } else if minutes <= 15 {
+        println!("routine");
+    } else {
+        println!("deferred");
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+<Reveal label="Reveal the diagnosis and the fix">
+```bash title="Run the buggy Python program"
+python3 dispatch.py
+```
+
+```text frame="terminal" title="Output"
+routine
+```
+
+**Symptom.** There is no error message; the program runs and prints `routine`, but a response time of exactly `8` minutes was meant to be `urgent`. The wrong tier is the only signal you get.
+
+**Hypothesis.** Walk the chain with `minutes` at `8`. The first condition `minutes < 4` is `false`. The second, `minutes < 8`, is the branch that prints `urgent`, but `8 < 8` is `false`, so `8` skips it and falls through to `minutes <= 15`, which is `true`, printing `routine`. The urgent branch uses a strict `<`, which excludes its own upper bound: `< 8` covers `4` through `7` but not `8` itself, opening a one-value gap that the `routine` branch swallows. The rule says `8` is urgent, so the comparison is one notch too strict.
+
+**Test.** Change the strict `<` to an inclusive `<=`, so the boundary minute `8` counts as urgent:
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="dispatch.py (fixed)"
+minutes = 8
+if minutes < 4:
+    print("immediate")
+elif minutes <= 8:
+    print("urgent")
+elif minutes <= 15:
+    print("routine")
+else:
+    print("deferred")
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="dispatch.rs (fixed)"
+fn main() {
+    let minutes = 8;
+    if minutes < 4 {
+        println!("immediate");
+    } else if minutes <= 8 {
+        println!("urgent");
+    } else if minutes <= 15 {
+        println!("routine");
+    } else {
+        println!("deferred");
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the fixed Python program"
+python3 dispatch.py
+```
+
+```text frame="terminal" title="Output"
+urgent
+```
+
+Now `minutes <= 8` is `true` for `8`, so the boundary minute lands in the tier it belongs to. The fix is a single character. Note which boundary was wrong: the `routine` branch already uses an inclusive `<= 15`, so `15` is safe; only the `urgent` branch mixed up its operator. The lesson is that a boundary mistake produces a plausible tier, not a crash, so the way to catch it is to feed the chain the exact value sitting on each boundary, the `8` and the `15` here, and check that each one lands where you intended.
+</Reveal>
+
+---
+
+## Write a Pressure Tier Function
+
+Write a function `tier(pressure)` that returns an integer tier code using an else-if chain: `0` when `pressure` is below `90`, `1` when it is from `90` up to and including `110`, and `2` when it is above `110`. Print `tier(85)`, `tier(100)`, and `tier(120)`.
+
+<Reveal label="Reveal a sample solution">
+More than one correct chain can produce this result; here is a sample solution.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="tier.py"
+def tier(pressure):
+    if pressure < 90:
+        return 0
+    elif pressure <= 110:
+        return 1
+    else:
+        return 2
+
+print(tier(85))
+print(tier(100))
+print(tier(120))
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="tier.rs"
+fn tier(pressure: i32) -> i32 {
+    if pressure < 90 {
+        return 0;
+    } else if pressure <= 110 {
+        return 1;
+    } else {
+        return 2;
+    }
+}
+
+fn main() {
+    println!("{}", tier(85));
+    println!("{}", tier(100));
+    println!("{}", tier(120));
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 tier.py
+```
+
+```text frame="terminal" title="Output"
+0
+1
+2
+```
+
+```bash title="Compile and run the Rust program"
+rustc tier.rs
+./tier
+```
+
+```text frame="terminal" title="Output"
+0
+1
+2
+```
+</Reveal>
+
+---
+
+## Bridge
+
+These three reps feed the decision-tables-and-interlocks family in recitation, where several conditions combine into one decision that must produce exactly one right outcome, and a stolen case, a missed combination, or a boundary written with the wrong comparison quietly yields the wrong result. The chain-tracing and table-building you just practiced by hand are the guided first rung of that ladder.

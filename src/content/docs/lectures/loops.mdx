@@ -1,630 +1,331 @@
 ---
 title: "Loops"
-description: "Learn about loops in C++ and how to use them for repetition logic. This guide covers while loops, do-while loops, for loops, nested loops, and the use of break and continue statements to control the flow of your programs."
+description: "Learn how while and for loops repeat a block of code, how a loop reaches its end, and how break, continue, and nested loops give you finer control over the repetition."
 sidebar:
-  order: 15
+  order: 11
 ---
 
-import Latex from '../../../components/Latex.astro'
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+import WhatDiffers from '/src/components/WhatDiffers.astro';
+import Latex from '/src/components/Latex.astro';
 
-You've already learned how to express sequential logic in C++ (a series of operations written as a sequence of lines of code that execute from top to bottom) and conditional logic (using `if`, `else if`, and `else` statements). Now it's time to explore another key type of logic in C++: repetition logic.
+{/* ai-summary
+type: lecture
+slug: loops
+order: 11
+covers: while loops and their re-check mechanism; termination and infinite loops; for loops over range and Rust ranges; half-open vs inclusive ranges; the loop variable; break; continue; nested loops
+prereq_lectures: testing
+followup_lectures: loop-patterns
+glossary_terms: loop, while loop, loop variable, infinite loop, for loop, break, continue, nested loop
+*/}
 
-**Repetition logic** allows an operation or set of operations to be performed repeatedly as long as a specified condition is met. For example, you might write a program that prints “Hello” ten times, a program that asks the user for 100 numbers and calculates their sum, or a terminal-based chess game that continues until there is a win or a draw. These scenarios all involve executing a set of operations repeatedly until a specific condition is satisfied or no longer valid.
+<LanguageVersions />
 
-In C++, repetition logic is implemented using loops. A **loop** is a block of code that executes repeatedly as long as a specified boolean expression evaluates to true. C++ provides three types of loops: `while` loops, `do`-`while` loops, and `for` loops. While any of these loops can theoretically handle any repetition logic problem, each type is often better suited to particular scenarios.
+Suppose you need to print the numbers 1 through 100, or add up every measurement in a day's readings, or keep asking a question until the answer is the one you need. You could write the same line a hundred times, but that is slow to type, easy to get wrong, and impossible to adjust: change the count to 1000 and you are back at the keyboard for hours. Functions already gave you one kind of reuse, writing a block of steps once and calling it from many places, but a function still runs its body once per call. What you are missing is a way to run one block of steps over and over within a single run of the program, repeating it as many times as the work demands without writing it out more than once. That is what a loop does.
 
-## While Loops
+## The idea of a loop
 
-The simplest type of loop in C++ is the `while` loop. It functions similarly to an `if` statement but with one key difference: after the body of a `while` loop finishes executing, the control flow returns to the loop's condition. If the condition is still `true`, the body will execute again, and this process repeats. When the condition evaluates to `false`, the body is skipped, and the program continues beyond the loop.
+A **loop** is a block of code that runs repeatedly. Instead of the straight line every program has followed so far, where each statement runs once and control moves on, a loop sends control back to the start of its block and runs it again, and again, until some condition tells it to stop. The two loops in this lecture, `while` and `for`, differ only in how they decide when to stop; the repetition itself is the same idea in both.
 
-The syntax for a `while` loop is nearly identical to an `if` statement, except that `while` is used instead of `if`. However, unlike an `if` statement, a `while` loop cannot include `else if` or `else` branches. The general syntax is:
+## The while loop
 
-```cpp title="While Loop Syntax"
-while (<condition>) {
-    <loop body>
+The most basic loop is the **while loop**. It pairs a condition with a block of code, called the loop body, and it runs the body over and over for as long as the condition stays true. The condition is an ordinary boolean expression, the same kind you wrote for an `if` statement: it reduces to `true` or `false`. The difference from an `if` is what happens after the body runs. An `if` checks its condition once, runs its block at most one time, and moves on. A `while` loop checks its condition, runs its body, and then goes back and checks the condition again, repeating that cycle until the check finally comes out `false`.
+
+The mechanism is worth stating one step at a time, because every loop in this lecture rests on it. When execution reaches a `while` loop, the program evaluates the condition. If it is `false` right away, the body is skipped entirely and the program continues past the loop, exactly as it would skip an `if` whose condition was false. If the condition is `true`, the program runs the body once, top to bottom. Then, instead of moving on, control returns to the condition and evaluates it again. If it is still `true`, the body runs another time; if it is now `false`, the loop ends and the program continues with whatever comes after it. The value the condition depends on is usually a variable the body changes, so that each pass moves the loop one step closer to stopping. That variable is the **loop variable**: the value the condition tests and the body updates on every pass.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="countup.py"
+count = 1
+while count <= 3:
+    print(count)
+    count = count + 1
+print("done")
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="countup.rs"
+fn main() {
+    let mut count = 1;
+    while count <= 3 {
+        println!("{}", count);
+        count = count + 1;
+    }
+    println!("done");
+}
+```
+</TabItem>
+</Tabs>
+
+Trace it pass by pass, watching `count`. It starts at `1`. The loop evaluates `count <= 3`: `1 <= 3` is `true`, so the body runs, printing `1`, then setting `count` to `2`. Control returns to the condition: `2 <= 3` is `true`, so the body runs again, printing `2` and setting `count` to `3`. Back to the condition: `3 <= 3` is `true`, so the body prints `3` and sets `count` to `4`. Control returns to the condition one more time, and now `4 <= 3` is `false`. This last check is the one learners skip, and it is the whole point: the loop does not stop because the body decided to, it stops because the condition was re-evaluated and came out false. The body does not run a fourth time; the loop ends, and the program moves on to print `done`.
+
+```text frame="terminal" title="Output"
+1
+2
+3
+done
+```
+
+<WhatDiffers>
+<Fragment slot="differs">
+Rust declares the loop variable with `let mut`, not plain `let`, and that is not optional here: the body reassigns `count` on every pass, and Rust forbids reassigning any variable that was not marked mutable with `mut`, as the Variables lecture described. Python has no such rule; a variable is free to be reassigned at any time, so `count = count + 1` just works.
+</Fragment>
+</WhatDiffers>
+
+Forget the `mut` in Rust and the compiler refuses the program rather than letting a broken loop run.
+
+```rust title="countup_bad.rs, a counter without mut (will not compile)"
+fn main() {
+    let count = 1;             // missing mut
+    while count <= 3 {
+        println!("{}", count);
+        count = count + 1;     // error: cannot assign twice to immutable variable `count`
+    }
 }
 ```
 
-Here, `<condition>` is a boolean expression that determines whether the loop should continue executing. The `<loop body>` contains one or more statements to be executed repeatedly.
+```bash title="Compile the broken version"
+rustc countup_bad.rs
+```
 
-When a program encounters a `while` loop, it evaluates the condition. If the condition is `false`, the loop body is *skipped*, and the program proceeds with the next statement after the loop. If the condition is `true`, the loop executes its body. After executing the body, the condition is evaluated again. This process repeats until the condition becomes `false`.
+```text frame="terminal" title="Output"
+error[E0384]: cannot assign twice to immutable variable `count`
+ --> countup_bad.rs:5:9
+```
 
-The condition in a `while` loop often depends on variables whose values change during the loop's execution. Without such changes, a condition that evaluates to `true` will remain `true`, resulting in an infinite loop. An **infinite loop** occurs when the condition never becomes `false`, causing the program to run endlessly. Infinite loops are almost always a bug since most programs are expected to terminate at some point.
+Because a loop that never changes its loop variable is almost always a mistake, Rust turning a forgotten `mut` into a compile error is the compiler catching a bug before the program ever runs. It is the same checks-before-running difference you have seen throughout the course, now landing on the one line a loop most depends on.
 
-:::tip
-If your program gets stuck in an infinite loop, you can usually terminate it by pressing `Ctrl + C` in the terminal.
+## Termination and infinite loops
+
+A loop is only useful if it eventually stops, and stopping is not automatic. Look again at what ended the count-up loop: the body kept increasing `count` until the condition `count <= 3` became false. The responsibility for reaching that false was entirely in the body. If the body had never changed `count`, the condition `1 <= 3` would have stayed true on every single check, and the loop would have run forever. A loop whose condition never becomes false is an **infinite loop**: it repeats endlessly and never lets the program move past it. Almost every infinite loop is a bug, because almost every program is meant to finish.
+
+The rule that prevents one is simple to state and easy to forget: the body must, on every path through it, make progress toward the condition becoming false. A countdown makes the requirement concrete. The loop below starts at `3` and shrinks its loop variable by one each pass, so the condition `n > 0` is guaranteed to fail after a fixed number of steps.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="countdown.py"
+n = 3
+while n > 0:
+    print(n)
+    n = n - 1
+print("liftoff")
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="countdown.rs"
+fn main() {
+    let mut n = 3;
+    while n > 0 {
+        println!("{}", n);
+        n = n - 1;
+    }
+    println!("liftoff");
+}
+```
+</TabItem>
+</Tabs>
+
+With `n` starting at `3`, the condition `3 > 0` is true and the body prints `3` then sets `n` to `2`; `2 > 0` is true, so it prints `2` and sets `n` to `1`; `1 > 0` is true, so it prints `1` and sets `n` to `0`; then `0 > 0` is false, the loop ends, and `liftoff` prints. Each pass moves `n` strictly closer to the boundary, so the loop is guaranteed to stop.
+
+```text frame="terminal" title="Output"
+3
+2
+1
+liftoff
+```
+
+Now imagine deleting the line `n = n - 1` from either version. The body would print `n` and then do nothing to change it, so `n` would stay `3`, the condition `3 > 0` would be true on every check, and the program would print `3` forever without ever reaching `liftoff`. That is an infinite loop, and it is worth understanding exactly why it happens rather than only how to avoid it: nothing is broken in the language, the loop is doing precisely what it was told, repeating its body while a condition that never changes stays true. The fix is always the same in shape, make the body change the value the condition depends on, in the direction that will eventually make it false.
+
+:::caution[Stopping a runaway loop]
+If you ever run a program that is stuck in an infinite loop, printing forever or simply hanging, you can stop it from the terminal by pressing `Ctrl` and `C` together. That sends the running program a signal to quit, handing control back to you so you can find and fix the loop. It is a normal part of writing loops to trip an infinite one occasionally; knowing how to interrupt it means a mistake costs you a keystroke, not a frozen machine.
 :::
 
-Suppose you want to write a program that asks the user for numbers until they choose to stop. After each entry, the program asks: `“Would you like to enter another number? Type ‘y' for yes or ‘n' for no.”` The program keeps a running sum of the numbers entered and displays the total at the end. Here's how you could implement this using a while loop:
+:::note[The deliberate forever loop]
+A `while` loop in both languages checks its condition before the first pass, so a body can run zero times if the condition starts out false. That is sometimes the wrong shape: you may want the body to run once and only then decide whether to go around again, which is what asking a person for input looks like.
 
-```cpp
-// input_numbers.cpp
-#include <iostream>
-
-/*
- * Function: prompt_for_number
- * Description: Prompts the user to enter a number.
- * Returns (double): The number provided by the user.
- */
-double prompt_for_number() 
-{
-    std::cout << "Enter a number: ";
-    double user_number;
-    std::cin >> user_number;
-    return user_number;
-}
-
-/*
- * Function: prompt_for_go_again
- * Description: Prompts the user to decide whether to continue.
- * Returns (char): 'y' if the user wants to continue, 'n' otherwise.
- */
-char prompt_for_go_again() 
-{
-    std::cout << "Would you like to enter another number? Type 'y' for yes or 'n' for no: ";
-    char response;
-    std::cin >> response;
-    return response;
-}
-
-int main() 
-{
-    char go_again_response = 'y';
-    double running_sum = 0.0;
-
-    while (go_again_response == 'y') {
-        double number = prompt_for_number();
-        running_sum += number;
-
-        go_again_response = prompt_for_go_again(); // Update loop condition (Line A)
-    }
-
-    std::cout << "The sum of the numbers you entered is: " << running_sum << std::endl;
-}
-```
-
-Here's an explanation of the program:
-
-1. **Loop Condition**: The condition `go_again_response == 'y'` ensures the loop continues as long as the user wants to input more numbers. This condition is a boolean expression, similar to those used in `if` statements.
-2. **Updating the Condition**: The variable `go_again_response` is updated within the loop body at Line A to reflect the user's input. This is essential to allow the loop condition to eventually become `false`, preventing an infinite loop. Without this update, the program would keep running indefinitely, and any code after the loop would be unreachable (dead code).
-3. **Initialization**: The variable `go_again_response` is initialized to `'y'` before the loop starts. **This ensures the loop executes at least once, even before any user input is provided.** This “artificial initialization” effectively tricks the loop into running initially. In the next section, you'll learn about a different type of loop that avoids this kind of setup.
-
-## Do-While Loops
-
-Sometimes, you need a loop that always executes at least once. This was the case in the previous example: the user must always enter at least one number, so it's imperative that the loop executes at least once.
-
-There are two common strategies for ensuring a while loop runs at least once:
-
-1. **Artificial Initialization**: Initialize the condition variable to a value that guarantees the loop condition is `true` on the first evaluation. In the previous example, `go_again_response` was initialized to `'y'` before the loop started.
-2. **Duplicate the Loop Body**: Replicate the loop's logic outside the loop to ensure the body runs once before checking the condition.
-
-Both strategies have drawbacks. The first approach often involves extra variables to “trick” the loop into executing. The second violates the DRY (Don't Repeat Yourself) principle, as it duplicates code unnecessarily. While you could extract the duplicated code into a function, this still results in an unnecessary function call.
-
-Thankfully, C++ provides the `do-while` loop, a construct specifically designed for cases where a loop must run at least once. The key difference between `while` and `do-while` loops lies in their execution order:
-
-1. While Loop: The **condition** is evaluated first. If the condition is `true`, the loop body is executed. This repeats until the condition becomes `false`.
-2. Do-While Loop: The **loop body** is executed first. After the body executes, the condition is evaluated. If the condition is `true`, the body executes again. This continues until the condition becomes `false`.
-
-This distinction is reflected in their syntax. A `while` loop places the condition before the loop body, while a `do-while` loop places the body before the condition:
-
-```cpp title="Do-While Loop Syntax"
-do {
-    <loop body>
-} while (<condition>);
-```
-
-A semicolon is required after the closing parenthesis of a `do-while` loop's condition.
-
-Let's revisit the previous example, where the program asked the user to input numbers until they chose to stop. Using a `do-while` loop, we can simplify the code:
-
-```cpp
-// input_numbers.cpp
-#include <iostream>
-
-/*
- * Function: prompt_for_number
- * Description: Prompts the user to enter a number.
- * Returns (double): The number entered by the user.
- */
-double prompt_for_number() 
-{
-    std::cout << "Enter a number: ";
-    double user_number;
-    std::cin >> user_number;
-    return user_number;
-}
-
-/*
- * Function: prompt_for_go_again
- * Description: Prompts the user to decide whether to continue.
- * Returns (char): 'y' to continue, 'n' to stop.
- */
-char prompt_for_go_again() 
-{
-    std::cout << "Would you like to enter another number? Type 'y' for yes or 'n' for no: ";
-    char response;
-    std::cin >> response;
-    return response;
-}
-
-int main() 
-{
-    char go_again_response;
-    double running_sum = 0.0;
-
-    do {
-        double number = prompt_for_number();
-        running_sum += number;
-
-        go_again_response = prompt_for_go_again(); // Update loop condition
-    } while (go_again_response == 'y');
-
-    std::cout << "The sum of the numbers you entered is: " << running_sum << std::endl;
-}
-```
-
-The `do-while` loop eliminates the need to initialize `go_again_response` to `'y'` before the loop. Since the loop body executes before the condition is evaluated, the user's response is always captured before the condition is checked. Note that `go_again_response` is still declared outside the loop, otherwise it won't be accessible from the condition.
-
-The structure is more intuitive because the logic aligns with the problem's requirements--a body that executes before the condition is checked. 
-
-We can streamline the code by taking advantage of the fact that assignment operations are expressions. Instead of updating `go_again_response` inside the loop body, we can include the assignment directly in the condition:
-
-```cpp title="Do-While Loop with Assignment in Condition"
-do {
-    double number = prompt_for_number();
-    running_sum += number;
-} while ((go_again_response = prompt_for_go_again()) == 'y');
-```
-
-This approach removes the need to update `go_again_response` explicitly in the loop body. However, it wouldn't work in a `while` loop because the condition is evaluated before the body executes, disrupting the order of prompts.
-
-If the condition variable (`go_again_response`) is only used within the condition and not elsewhere in the program, it can be removed entirely:
-
-```cpp title="Do-While Loop without Condition Variable"
-do {
-    double number = prompt_for_number();
-    running_sum += number;
-} while (prompt_for_go_again() == 'y');
-```
-
-This works because the function `prompt_for_go_again()` directly provides the value needed for the condition. However, if the variable is required elsewhere, this simplification is not viable.
-
-`do-while` loops are ideal when you need a loop that always executes at least once. For scenarios where the loop may not execute at all, depending on the initial condition, a `while` loop is more appropriate.
-
-## For Loops
-
-While `while` and `do-while` loops are excellent for repetition logic of the form “repeat these operations as long as this condition is satisfied,” they are not ideal for **count-based repetition**. Count-based repetition follows the pattern “repeat these operations exactly N times,” where N is a value that can be easily determined before the loop starts.
-
-A common solution to count-based repetition involves creating a counter variable (typically of type int) that increments during each iteration of the loop body. The loop condition is built around this counter, ensuring that once the counter reaches a certain value, the loop terminates.
-
-Suppose you want to write a program that prints “Hello, World!” exactly 100 times. This is a classic count-based repetition problem. Using a while loop, the solution might look like this:
-
-```cpp title="Count-Based While Loop Example"
-#include <iostream>
-
-int main() 
-{
-    int counter = 0;
-    while (counter < 100) {
-        std::cout << "Hello, World!" << std::endl;
-        counter++;
-    }
-}
-```
-
-Here's what happens during execution:
-
-- On the first iteration, counter is `0`, and the condition `0 < 100` is `true`. The program prints `“Hello, World!”` and increments counter to `1`.
-- On the second iteration, counter is `1`, and `1 < 100` is `true`. The program prints `“Hello, World!”` again and increments counter to `2`.
-- This process repeats until counter reaches `100`, at which point the condition `counter < 100` evaluates to `false`, and the loop terminates.
-
-In this example, the loop executes exactly 100 times, as intended. Indeed, the total number of values within `0`, `1`, `2`, ..., `99` is 100.
-
-While the `while` loop works for count-based repetition, it has two key drawbacks:
-
-1. **Risk of Errors**: In a large loop body, the counter variable's increment operation (`counter++`) can be overlooked, duplicated, or omitted entirely. This could result in:
-    - A loop that executes too few times.
-    - An infinite loop if the counter is never incremented.
-2. **Readability**: If the counter increment is buried deep in a complex loop body, it can be difficult to quickly determine how many times the loop will execute.
-
-Count-based loops are extremely common, so these issues have influenced the design of virtually all high-level imperative programming languages.
-
-C++ provides a `for` loop, a specialized construct for count-based repetition. A `for` loop is designed to consolidate all the logic related to the counter variable into a single location--at the beginning of the loop. This design reduces the risk of errors and improves readability, regardless of the complexity of the loop body.
-
-A `for` loop in C++ is similar to a `while` loop but uses a specialized syntax optimized for count-based repetition. Its structure is as follows:
-
-```cpp title="For Loop Syntax"
-for (<initialization statement>; <condition>; <post-operation>) {
-    <loop body>
-}
-```
-
-This syntax can seem confusing at first, so here's a detailed breakdown:
-
-1. The `<initialization statement>` is executed only once, right before the loop starts. It typically initializes a counter variable, which can also be declared within this statement. For example, rewriting the count-based `while` loop from earlier as a `for` loop might use the initialization statement `int counter = 0`.
-2. The `<condition>` determines whether the loop will execute. If the condition evaluates to `true`, the loop body runs; if `false`, the loop terminates. The condition is evaluated before the loop body runs for the first time, making a `for` loop more like a `while` loop than a `do-while` loop. If the condition is initially `false`, the loop will not execute at all. In our earlier example, the condition would be `counter < 100`.
-3. The `<post-operation>` executes immediately after each iteration of the loop body and before re-evaluating the condition. This is often used to increment/decrement the counter variable. For example, the post-operation might be `counter++`. Importantly, when using a for loop, ensure the counter increment occurs in the post-operation and not in the loop body to avoid duplication or errors.
-
-Here's how the count-based `while` loop example can be rewritten as a `for` loop:
-
-```cpp title="Count-Based For Loop Example"
-#include <iostream>
-
-int main() 
-{
-    for (int counter = 0; counter < 100; counter++) {
-        std::cout << "Hello, World!" << std::endl;
-    }
-}
-```
-
-One major difference is variable scope. In the `for` loop example above, the counter variable `counter` is declared within the initialization statement, meaning its scope is *limited to the loop itself*. Once the loop finishes, counter is no longer accessible.
-
-For example, the following code will fail to compile because counter is out of scope after the loop:
-
-```cpp title="For Loop Scope Example"
-#include <iostream>
-
-int main() 
-{
-    for (int counter = 0; counter < 100; counter++) {
-        std::cout << "Hello, World!" << std::endl;
-    }
-    std::cout << "The loop terminated when the counter reached: " << counter << std::endl;
-}
-```
-
-To resolve this, declare the counter variable outside the loop if you need to use it afterward:
-
-```cpp title="For Loop with External Counter"
-#include <iostream>
-
-int main() 
-{
-    int counter;
-    for (counter = 0; counter < 100; counter++) {
-        std::cout << "Hello, World!" << std::endl;
-    }
-    std::cout << "The loop terminated when the counter reached: " << counter << std::endl;
-}
-```
-
-When executed, this program prints `“Hello, World!”` 100 times, followed by: `The loop terminated when the counter reached: 100`.
-
-:::caution[Shadowing in `for` Loops?]
-In C++, variables declared in the initialization statement of a `for` loop cannot be shadowed in the loop body. Attempting to declare a variable with the same name as the loop counter within the loop body will result in a compilation error. For example, the following code will not compile:
-
- ```cpp
- // for_shadowing.cpp
-#include <iostream>
-
-int main()
-{
-    for (int counter = 0; counter < 100; counter++)
-    {
-            long counter = 1;
-            std::cout << counter << std::endl;
-    }
-}
-```
-
-```plaintext frame="terminal" title="Compilation Error: Shadowing in For Loop"
-for_shadowing.cpp:7:18: error: redefinition of 'counter' with a different type: 'long' vs 'int'
-    7 |             long counter = 1;
-      |                  ^
-for_shadowing.cpp:5:14: note: previous definition is here
-    5 |     for (int counter = 0; counter < 100; counter++)
-      |              ^
-1 error generated.
-```
-
-You can only shadow it by introducing an additional nested block `{}`, but this is confusing and should be avoided. Use distinct names instead.
+Both languages reach that shape the same way, with a loop whose condition is never false and a `break` inside the body to escape. Python writes it `while True:`, and Rust has a dedicated `loop { ... }` keyword for it. The `break` is described later in this lecture. Both forms turn into an accidental infinite loop the moment that escape is unreachable, so write the `break` before you write the body around it.
 :::
 
-The counter variable can be used within the loop body to modify the operations performed in each iteration. For example, suppose you want to print all integers from 0 to 99, separated by commas. Here's how you could do it:
+## Counting with a for loop
 
-```cpp
-// print_integers.cpp
-#include <iostream>
+A great many loops do the same structural thing: set a counter to a starting value, run the body, step the counter, and stop once it passes a limit. The count-up loop earlier was exactly this pattern, spread across three separate places, the initial `count = 1`, the condition `count <= 3`, and the update `count = count + 1`. Scattering the counting logic like that is easy to get wrong: forget the update and you have an infinite loop, put it in the wrong spot and the count is off. The **for loop** exists for precisely this case. It walks a loop variable through a known sequence of values, one value per pass, and handles the starting point, the stepping, and the stopping for you, so there is no separate counter to initialize or forget to advance.
 
-int main() 
-{
-    for (int counter = 0; counter < 100; counter++) {
-        if (counter > 0) {
-            std::cout << ", ";
+In Python, the sequence comes from `range`. Writing `range(5)` produces the whole numbers starting at `0` and stopping *before* `5`, that is `0, 1, 2, 3, 4`, five values in all. The `for` loop takes its loop variable through those values in order: on the first pass the variable is `0`, on the next `1`, and so on, and after the pass where it is `4` there are no values left, so the loop ends. In Rust, the sequence is written directly as a range, `0..5`, which means the same thing: the numbers from `0` up to but not including `5`.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="repeat.py"
+for i in range(5):
+    print(i)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="repeat.rs"
+fn main() {
+    for i in 0..5 {
+        println!("{}", i);
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+Trace the values the loop variable `i` takes. It begins at `0`, so the body prints `0`. The loop moves `i` to the next value in the sequence, `1`, and prints it. Then `2`, then `3`, then `4`, each printed as the body runs. After printing `4`, the loop asks the sequence for the next value, but `5` is excluded, so there is none: the loop ends. The body ran exactly five times, once for each value in `range(5)` or `0..5`, and at no point did you write an update or a stopping condition by hand.
+
+```text frame="terminal" title="Output"
+0
+1
+2
+3
+4
+```
+
+The detail that trips up nearly every beginner is that the top of the range is excluded, not included. A range like this is called **half-open**: it includes its starting value but stops just short of its ending value. This is why `range(5)` and `0..5` both give five values ending at `4`, not at `5`. The payoff is that the count is right there in the range: `range(5)` runs the body five times, `range(100)` runs it a hundred. A range also does not have to start at `0`; `range(1, 4)` in Python and `1..4` in Rust both give `1, 2, 3`, starting where you say and still stopping one short of the end. When you truly want the ending value included, Rust offers a second form written with an equals sign, `0..=5`, which runs from `0` through `5` and does include the `5`, six values in all. Python has no `=` spelling; to include an endpoint you raise the stop value yourself, writing `range(0, 6)` to cover `0` through `5`.
+
+<WhatDiffers>
+<Fragment slot="differs">
+Python draws the sequence from the `range` function: `range(5)` gives `0` through `4`, and `range(1, 4)` gives `1` through `3`. Rust writes the sequence as a range literal instead: `0..5` and `1..4` mean the same half-open spans. Both languages exclude the top value by default, so `range(5)` and `0..5` each run the body five times. Only Rust has an inclusive form, `0..=5`, that keeps the top value; Python has no `..=` and instead raises the stop number, as in `range(0, 6)`, to cover the same span.
+</Fragment>
+</WhatDiffers>
+
+:::note[Why counting from zero is the default]
+It can feel unnatural to count from `0` to `4` when you mean five things, but the half-open range from zero is a deliberate convention, not an accident. It makes the size of the range obvious at a glance, since `range(n)` and `0..n` always produce exactly `n` values, and it makes two ranges join cleanly, since `0..5` followed by `5..10` covers `0` through `9` with no value repeated and none skipped at the seam. When you reach strings and lists in a later lecture, you will find their positions are numbered from `0` as well, and a `for` loop over `range(n)` or `0..n` will line up with those positions exactly. Learning to think in half-open ranges now pays off directly then.
+:::
+
+## break
+
+A `for` or `while` loop normally runs until its sequence is exhausted or its condition turns false. Sometimes you need to leave earlier, the instant something inside the body tells you to, before the loop would end on its own. The **break** statement does exactly that: when it runs, the loop stops immediately, skipping any remaining passes, and the program continues with whatever comes after the loop. A `break` almost always sits inside an `if`, so that it fires only when a particular case occurs rather than on every pass.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="findfirst.py"
+for i in range(10):
+    if i == 3:
+        print("stopping")
+        break
+    print(i)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="findfirst.rs"
+fn main() {
+    for i in 0..10 {
+        if i == 3 {
+            println!("stopping");
+            break;
         }
-        std::cout << counter;
+        println!("{}", i);
     }
 }
 ```
+</TabItem>
+</Tabs>
 
-This program prints the numbers 0 to 99 in a single line, separated by commas. The `if` statement ensures that commas are only printed before the second number onward, avoiding a leading comma.
+The range here runs from `0` to `9`, so without the `break` the body would run ten times. Trace what actually happens. On the first pass `i` is `0`; the `if` condition `i == 3` is false, so the `break` is skipped and the body prints `0`. The same happens for `i` at `1` and `2`, printing each. On the pass where `i` is `3`, the `if` condition is now true, so the body prints `stopping` and then runs `break`. The loop stops at once: the `print(i)` on the last line never runs for `3`, and the loop never advances to `4` through `9`. Execution jumps straight to after the loop, which here is the end of the program.
 
-The `<initialization statement>` and `<post-operation>` in a for loop can be any valid C++ statements, not just those involving a counter variable. However, the most common pattern for simple count-based loops includes:
-
-- Initialization: Setting the counter to 0 or N.
-- Condition: Comparing the counter to the target value using a less-than operator `<` or greater-than operator `>`.
-- Post-Operation: Incrementing or decrementing the counter by 1 (`counter++` or `counter--`).
-
-This pattern is widely used because of its simplicity, but variations exist depending on the problem. These will be explored in future discussions.
-
-### Counter Name
-
-Since the primary purpose of a `for` loop is to handle count-based problems, almost every `for` loop declares or initializes a counter variable in its initialization statement. Because this use case is so common, it has become standard practice to name the counter variable `i`.
-
-In previous examples, we used the name `counter` to explicitly indicate its role. However, over time, `i` has become the most widely recognized name for counter variables. It's so universally understood among programmers that its meaning is immediately clear. While it's generally discouraged to use single-letter or heavily abbreviated variable names, this is a **well-established exception**.
-
-The use of `i` as a counter variable originates from mathematical notation, where `i` is often used to index elements of a vector or rows of a matrix. In programming, `for` loops are frequently used for similar tasks, such as iterating over elements in strings, arrays, or other data structures. We'll explore these applications in future lectures.
-
-Similarly, in nested loops (see below), it is common to use `i`, `j`, and `k`  as counter variables for the outer, middle, and inner loops, respectively.
-
-### Header Tricks
-
-As we've mentioned, the initialization statement and post-operation in a `for` loop header can be any valid C++ statement. In most examples, we follow a common pattern for simple count-based loops:
-
-1. Initialize the counter variable to 0.
-2. Use a less-than operator to compare the counter against the target number of iterations.
-3. Increment the counter by 1 in the post-operation.
-
-```cpp title="Common For Loop Pattern"
-for (int i = 0; i < n; i++) {
-    ...
-}
+```text frame="terminal" title="Output"
+0
+1
+2
+stopping
 ```
 
-In this code, `n` specifies how many times the loop should execute.
+The loop was set up to run ten times but ran its body only four, because `break` overrode the range. That is the whole value of it: a loop can describe the most passes you might need, and `break` cuts the repetition short the moment the work is actually done.
 
-While the above pattern is common, it can be unintuitive in some scenarios. Consider a situation where you need to print all integers from 7 to 54, inclusive. This involves printing 48 numbers, but figuring that out isn't immediately obvious--you might need to calculate it manually. Once you determine that `n = 48`, you could set up the loop header as follows:
+## continue
 
-```cpp title="For Loop with Offset"
-for (int i = 0; i < 48; i++) {
-    if (i > 0) {
-        std::cout << ", ";
-    }
-    std::cout << (i + 7);
-}
+Where `break` abandons the whole loop, **continue** abandons only the current pass. When `continue` runs, the rest of the body is skipped for this one pass, but the loop itself does not end: control jumps straight to the next value or the next condition check, and the loop carries on. It is the tool for "skip this one and keep going," as opposed to `break`'s "stop altogether."
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="skip.py"
+for i in range(5):
+    if i == 2:
+        continue
+    print(i)
 ```
-
-While the above solution works, it's not entirely intuitive. The loop's purpose is to print numbers from 7 to 54, yet the counter runs from 0 to 47. In such cases, breaking the common pattern often makes the code cleaner. By directly iterating the counter over the desired range, the logic becomes clearer:
-
-```cpp title="For Loop over Desired Range"
-for (int i = 7; i <= 54; i++) {
-    if (i > 7) {
-        std::cout << ", ";
-    }
-    std::cout << i;
-}
-```
-
-This approach removes the need for offsetting and directly iterates over the values to be printed, making the code more straightforward and easier to understand.
-
-The flexibility of `for` loops allows for creative variations. For instance, suppose you want to print numbers backward from 54 to 7, skipping every other number (e.g., 54, 52, 50, ..., 8). This requires adjusting the loop header and the comma placement logic:
-
-```cpp title="For Loop with Decrementing Counter"
-for (int i = 54; i >= 7; i -= 2) {
-    if (i < 54) {
-        std::cout << ", ";
-    }
-    std::cout << i;
-}
-```
-
-Here, the counter starts at 54, decrements by 2 after each iteration, and stops when it's less than 7. The `if` statement ensures commas are placed appropriately.
-
-## Break and Continue
-
-In C++, two special keywords, `break` and `continue`, are designed for use within loops. While they can technically be used on their own, they are most effective when placed inside an `if` statement *nested* within the loop. Here's what each does:
-
-- `break`: Immediately exits the entire loop, skipping any remaining iterations and continuing execution with the code that follows the loop.
-- `continue`: Immediately ends the current iteration of the loop, skipping the remaining code in the loop body and jumping to the next iteration.
-
-If the loop condition becomes `false` during the current iteration, `continue` might behave similarly to `break`, as it also ends the loop. However, if the loop condition or post-operation has side effects, `break` and `continue` will behave differently.
-
-Both statements can simplify handling special cases within loops but should be used sparingly. The primary purpose of choosing among the three types of loops (`for`, `while`, `do-while`) is to clearly define the loop's logic in the header. Overusing `break` and `continue` can obscure the intended behavior of a loop, **making the code harder to read and maintain**.
-
-This `for` loop allows the user to make up to 10 guesses for a “magic number” (777). If the user guesses correctly, the break statement exits the loop early:
-
-```cpp
-// guess_number_for.cpp
-for (int i = 10; i > 0; i--) {
-    std::cout << "You have " << i << " guesses left." << std::endl;
-    std::cout << "Guess the magic number: ";
-    int guess;
-    std::cin >> guess;
-
-    if (guess == 777) {
-        std::cout << "You got it!" << std::endl;
-        // Exit the loop immediately since the user guessed correctly.
-        break;
-    }
-}
-```
-
-If `break` was used outside the `if` statement, it would execute unconditionally, causing the loop to terminate after a single iteration. This would defeat the purpose of the loop, making subsequent code within the loop unreachable (dead code).
-
-In the next example, this `while` loop asks the user for 10 positive integers and calculates their sum. If the user enters a non-positive integer, the continue statement skips the current iteration, prompting the user again without adding the invalid input to the sum or incrementing the counter.
-
-```cpp
-// while_continue_integers.cpp
-int num_positive_values_entered = 0;
-int sum_of_positive_values = 0;
-
-while (num_positive_values_entered < 10) {
-    std::cout << "Enter a positive integer: ";
-    int value;
-    std::cin >> value;
-
-    if (value <= 0) {
-        std::cout << "I said to enter a POSITIVE integer!" << std::endl;
-        // Skip to the next iteration to prompt the user again.
-        continue;
-    }
-
-    // Add the valid input to the sum and increment the counter.
-    sum_of_positive_values += value;
-    num_positive_values_entered++;
-}
-```
-
-## Nested Loops
-
-Loops in C++ can be nested, meaning one loop can exist inside another. The outer loop is called the nesting loop, and the inner loop is referred to as the nested loop. Nested loops can add complexity but are useful for solving multidimensional problems or handling repeated tasks within other repeated tasks.
-
-By convention:
-
-- The outermost loop often uses `i` as the counter variable name.
-- The next level of nesting typically uses `j`.
-- If a third nested loop exists (which is rare and often discouraged), `k` is used.
-
-Although these conventions are widely recognized, deeply nested loops can become hard to read. In such cases, consider breaking some loops into separate functions and using meaningful parameter names to improve clarity.
-
-If a `break` or `continue` statement is used inside a nested loop, it only applies to the **innermost** loop containing the statement. For example:
-
-- If a `break` is executed in a `for` loop nested inside a `while` loop, only the `for` loop will terminate.
-- The outer `while` loop will continue running, potentially restarting the `for` loop in the next iteration.
-
-How many times do you think the following program will print `“Hello”`?
-
-```cpp title="Nested Loops Example 1"
-// nested_loop_1.cpp
-for (int i = 0; i < 10; i++) {
-    for (int j = 0; j < 5; j++) {
-        std::cout << "Hello" << std::endl;
-    }
-}
-```
-
-- The outer loop (`i`) runs 10 iterations.
-- For each iteration of the outer loop, the inner loop (`j`) runs 5 iterations.
-- During each iteration of the inner loop, `“Hello”` is printed. 
-
-Hence, `“Hello”` is printed <Latex formula="5 \times 10 = 50"/>.
-
-Here's a slightly harder example. How many times will the following program print `“Hello”`, and how many times will it print `“Goodbye”`?
-
-```cpp title="Nested Loops Example 2"
-// nested_loop_2.cpp
-for (int i = 0; i < 10; i++) {
-    for (int j = 0; j < 5; j++) {
-        std::cout << "Hello" << std::endl;
-    }
-    std::cout << "Goodbye" << std::endl;
-}
-```
-
-- The outer loop (`i`) runs 10 iterations.
-- The inner loop (`j`) runs 5 iterations for each iteration of the outer loop.
-- After the inner loop finishes, “Goodbye” is printed once.
-
-Hence, `“Hello”` is printed <Latex formula="5 \times 10 = 50"/> times and `“Goodbye”` is printed once per outer loop iteration, for a total of 10 times.
-
-Here's an even harder example, still using nested for loops:
-
-```cpp title="Variable-Length Inner Loop"
-// nested_loop_variable.cpp
-for (int i = 1; i <= 9; i++) {
-    for (int j = 0; j < i; j++) {
-        std::cout << "Hello" << std::endl;
-    }
-}
-```
-
-- The outer loop (`i`) runs 9 iterations, with `i` taking values from 1 to 9.
-- The inner loop (`j`) runs `i` iterations for each iteration of the outer loop. For example:
-  - When `i = 1`, the inner loop runs 1 iteration.
-  - When `i = 2`, the inner loop runs 2 iterations.
-  - ...
-  - When `i = 9`, the inner loop runs 9 iterations.
-
-Hence, the number of `“Hello”`s printed is the sum of the integers from 1 to 9: <Latex formula="1 + 2 + 3 + \dots + 9 = 45"/>
-
-:::tip[Arithmetic Sequence]
-The sum of an [arithmetic progression](https://en.wikipedia.org/wiki/Arithmetic_progression), i.e. a sequence of numbers such that the difference from any succeeding term to its preceding term remains constant throughout the sequence, like <Latex formula="1, 2, \dots, 9"/>, can be calculated using the formula:
-
-<Latex formula="\frac{\text{First Number} + \text{Last Number}}{2} \times \text{Total Numbers}" inline={false}/>
-
-For <Latex formula="1 + 2 + \dots + 9"/>:
-
-- <Latex formula="\text{First Number} = 1"/>
-- <Latex formula="\text{Last Number} = 9"/>
-- <Latex formula="\text{Total Numbers} = 9"/>
-
-Hence, their sum is equal to:
-
-<Latex formula="\frac{1 + 9}{2} \times 9 = 45"  inline={false}/>
-:::
-
-Let's do one more nested for loop example. What does the following program do? Note that `\t` is a “tab” character, so printing it will print a tab indentation to the terminal. 
-
-```cpp title="Nested Loops Example 3"
-// nested_loop_3.cpp
-for (int i = 1; i <= 10; i++) {
-    for (int j = 1; j <= 10; j++) {
-        std::cout << (i * j) << "\t";
-    }
-    std::cout << "\n";
-}
-```
-
-- Outer loop (`i`): Runs 10 times, iterating from 1 to 10.
-- Inner loop (`j`): Runs 10 times for each iteration of the outer loop, also iterating from 1 to 10.
-- During each iteration of the inner loop, the product of `i` and `j` is printed, followed by a tab `\t` for alignment.
-- At the end of each outer loop iteration, a newline `\n` moves to the next row. 
-
-:::note[`std::endl` vs. `\n`]
-In C++, `std::endl` is a special stream manipulator that outputs a newline character `\n` and flushes the output buffer. This means that `std::endl` is *slightly* slower than `\n` because it forces the output to be written to the terminal immediately.
-:::
-
-This nested loop prints a <Latex formula="10 \times 10"/> multiplication table:
-
-```plaintext frame="terminal" title="Multiplication Table Output"
-1       2       3       4       5       6       7       8       9       10
-2       4       6       8       10      12      14      16      18      20
-3       6       9       12      15      18      21      24      27      30
-4       8       12      16      20      24      28      32      36      40
-5       10      15      20      25      30      35      40      45      50
-6       12      18      24      30      36      42      48      54      60
-7       14      21      28      35      42      49      56      63      70
-8       16      24      32      40      48      56      64      72      80
-9       18      27      36      45      54      63      72      81      90
-10      20      30      40      50      60      70      80      90      100
-```
-
-Finally, let's do a crude, academic example that pulls a lot of concepts together, including nested loops, `break` and `continue` statements, and scope rules. How many times will the following code print “Hello”?
-
-```cpp title="Nested Loops Example 4"
-// nested_loop_4.cpp
-int i = 0; 
-while (true) {
-    if (i >= 10) {
-        break; 
-    }
-    for (int i = 0; i < 5; i++) {
-        if (i < 2) {
-            continue; 
+</TabItem>
+<TabItem label="Rust">
+```rust title="skip.rs"
+fn main() {
+    for i in 0..5 {
+        if i == 2 {
+            continue;
         }
-        if (i >= 4) {
-            break; 
-        }
-        std::cout << "Hello" << std::endl;
+        println!("{}", i);
     }
-    i++;
 }
 ```
+</TabItem>
+</Tabs>
 
-This one is tricky. Let's break it down:
+The loop steps `i` through `0, 1, 2, 3, 4`, the full half-open range, and the `continue` changes only one of those passes. When `i` is `0` the `if` is false, so `continue` is skipped and the body prints `0`; the same for `1`. When `i` is `2` the `if` is true, so `continue` runs: the rest of the body, the `print`, is skipped for this pass only, and the loop moves on to the next value. When `i` is `3` and then `4` the `if` is false again, so both print. The result is every value except `2`. Notice that the loop did not stop at `2` the way `break` would have; it skipped just that pass and kept running, which is the entire difference between the two.
 
-1. The `while` loop should run indefinitely because the condition `true` is always true. However:
-    - Runs until `i >= 10` because of the `break` statement.
-    - Starts with `i = 0` and increments `i` at the end of each iteration.
-    - The while loop executes a total of 10 full iterations (the 11th iteration terminates early due to break).
-2. The `for` loop initializes a separate counter variable (`int i`), which shadows the `while` loop's `i`.
-    - Runs up to `5` iterations for each `while` loop iteration.
-    - Behavior within the for loop:
-      - `continue` skips the first two iterations (`i < 2`).
-      - `break` exits the loop on the 5th iteration (`i >= 4`).
-      - Only the 3rd and 4th iterations of the for loop print `"Hello"`.
+```text frame="terminal" title="Output"
+0
+1
+3
+4
+```
 
-The `int i` in the `for` loop is a separate variable from the `i` in the while loop. The while loop's `i` is unaffected by the `for` loop's operations. Once the `for` loop ends, the while loop's `i` is incremented.
+## Nested loops
 
-To summarize, the `while` loop executes `10` full iterations, and during each iteration, the `for` loop prints "Hello" `2` times (on the 3rd and 4th iterations). Hence, `"Hello"` is printed <Latex formula="10 \times 2 = 20"/> times.
+A loop body is just a block of code, and a loop is a statement, so nothing stops you from putting one loop inside another. This is a **nested loop**: an outer loop whose body contains an inner loop. The mechanism follows directly from what a loop already does, with no new rule. Each pass of the outer loop runs its body once, and if that body is an inner loop, then running it once means running the inner loop all the way through, start to finish, before the outer loop can move to its next pass. The inner loop restarts from the beginning every single time the outer loop comes around again.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="grid.py"
+for i in range(1, 4):
+    for j in range(1, 4):
+        print(i * j)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="grid.rs"
+fn main() {
+    for i in 1..4 {
+        for j in 1..4 {
+            println!("{}", i * j);
+        }
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+The outer loop walks `i` through `1, 2, 3`, and for each of those the inner loop walks `j` through `1, 2, 3`. Trace it carefully. The outer loop sets `i` to `1` and runs its body, which is the entire inner loop: `j` becomes `1` and prints `1 * 1`, which is `1`, then `j` becomes `2` and prints `1 * 2`, which is `2`, then `j` becomes `3` and prints `3`. The inner loop is now finished, so the outer loop moves on and sets `i` to `2`, and the inner loop starts over from `j` equal to `1`, printing `2`, then `4`, then `6`. The outer loop sets `i` to `3` one last time, and the inner loop runs once more, printing `3`, then `6`, then `9`.
+
+```text frame="terminal" title="Output"
+1
+2
+3
+2
+4
+6
+3
+6
+9
+```
+
+Count the passes and the important property of nesting appears. The outer loop runs three times, and each of those runs the inner loop three times, so the inner body runs <Latex formula="3 \times 3 = 9" /> times in total, which is exactly the nine numbers printed. The counts multiply, they do not add: an outer loop of `n` passes wrapped around an inner loop of `m` passes runs the innermost body <Latex formula="n \times m" /> times. This is why nested loops are powerful for grid-shaped or table-shaped work, where every value of one thing has to be paired with every value of another, and also why they demand care, since a modest-looking pair of loops over a few hundred values each quietly runs its inner body tens of thousands of times.
+
+## Takeaways
+
+A loop runs a block of code repeatedly, sending control back to the start of the block instead of moving on after a single pass. One written-out body can then do work that would otherwise take endless retyping.
+
+The `while` loop is the mechanism in its plainest form: it evaluates a condition, runs its body if the condition is true, then returns to evaluate the condition again, repeating until a check finally comes out false. That final false check is what ends the loop, so the body carries the responsibility of changing the loop variable the condition depends on. A body that never makes progress leaves the condition forever true and produces an infinite loop, the classic loop bug, which you interrupt with `Ctrl` and `C` and fix by making the body move toward the condition's boundary.
+
+The `for` loop packages the most common counting pattern, walking a loop variable through a known sequence: `range(n)` in Python and `0..n` in Rust. Both are half-open, so they run exactly `n` times and stop one short of the top. Rust adds an inclusive `0..=n` form that keeps the endpoint, while Python raises the stop value instead.
+
+Inside any loop, `break` stops the whole loop immediately and `continue` skips only the current pass and moves to the next, giving you finer control than the condition or range alone. Nesting one loop inside another runs the inner loop in full for every pass of the outer, so the pass counts multiply.
+
+With these constructs in hand, the next lecture turns from the machinery of loops to the handful of reusable patterns, accumulating a total, counting matches, searching for a value, that the same few loop shapes are used to build over and over.
+
+## Resources
+
+- [Python reference: The `while` statement](https://docs.python.org/3/reference/compound_stmts.html#the-while-statement)
+- [Python tutorial: `for` statements](https://docs.python.org/3/tutorial/controlflow.html#for-statements)
+- [Python: the `range` type](https://docs.python.org/3/library/stdtypes.html#range)
+- [The Rust Book: Control Flow](https://doc.rust-lang.org/book/ch03-05-control-flow.html)
+- [Rust reference: Range expressions](https://doc.rust-lang.org/reference/expressions/range-expr.html)

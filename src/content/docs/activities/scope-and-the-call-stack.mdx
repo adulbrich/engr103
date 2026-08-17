@@ -1,0 +1,392 @@
+---
+title: "Scope and the Call Stack"
+description: "Trace a three-function call chain by hand, predict which rate each print sees when a function's local shares its name with an outer variable, and diagnose the scope trap each language springs on a discount function."
+sidebar:
+  order: 6
+draft: true
+---
+
+import { Tabs, TabItem, Steps } from '@astrojs/starlight/components';
+import Reveal from '/src/components/Reveal.astro';
+import LanguageVersions from '/src/components/LanguageVersions.astro';
+import WhatDiffers from '/src/components/WhatDiffers.astro';
+
+{/* ai-summary
+type: activity
+slug: scope-and-the-call-stack
+order: 6
+paired_lecture: scope-and-the-call-stack
+practices: traces the call stack of a three-function chain by hand, tracking each frame's variables as three frames stack up and pop back down and a return value flows up through the chain; predicts what each print shows when a function's local variable shares its name with an outer variable, through Python's shadowed module-level name and Rust's separate per-function locals; diagnoses the scope trap each language springs, a Python UnboundLocalError from reading a global-looking name it then assigns and a Rust E0425 from using a value after its block ended
+prereq_activities:
+block_types: paper-tracing, predict-then-run, live-debugging
+output: a completed three-frame call-stack trace, a reconciled prediction of shadowed prints, and a corrected scope trap for each language across the three sections
+*/}
+
+<LanguageVersions />
+
+This activity puts into practice the [Scope and the Call Stack](/lectures/scope-and-the-call-stack/) lecture. You will trace by hand how a call stack pushes and pops a frame for each function call in a three-function chain, predict what each print shows when a function's local variable shares its name with a variable outside it, and diagnose the different scope trap each language springs on the same discount function. By the end, you will be able to say which frame any variable lives in, how long it lasts, and why reaching for a name outside its scope fails in each language.
+
+## Warm-up
+
+A quick refresher before the sections. A variable created inside a function is a local variable: it lives in that function's own storage and is visible only inside the function's body. A function can also take a parameter and hand a value back with `return`. Here is one of each, in both languages.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="warmup.py"
+def greet():
+    name = "duck"
+    print(name)
+
+greet()
+
+def area(side):
+    return side * side
+
+print(area(3))
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="warmup.rs"
+fn greet() {
+    let name = "duck";
+    println!("{}", name);
+}
+
+fn area(side: i32) -> i32 {
+    return side * side;
+}
+
+fn main() {
+    greet();
+    println!("{}", area(3));
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 warmup.py
+```
+
+```text frame="terminal" title="Output"
+duck
+9
+```
+
+Rust prints the same two lines. With a local variable, a parameter, and a return value fresh, the sections below follow those variables into and out of the stack frames that hold them.
+
+## Trace a Three-Function Call Chain
+
+When one function calls another, both are partway through running at once, each with its own variables. Add a third link to the chain and three frames stack up before any of them returns, so tracing by hand is the only way to keep straight which frame holds each variable and when it appears and disappears.
+
+The program below converts seconds to days through a chain of three functions: `to_days` calls `to_hours`, which calls `to_minutes`. Trace `to_days(216000)` on paper. At each step, write down which frames are on the stack, from the bottom up, and the value of every variable in each frame. Watch the return value flow back up the chain, one frame at a time. Do not run it yet.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="trace.py"
+def to_minutes(seconds):
+    result = seconds / 60
+    return result
+
+def to_hours(seconds):
+    result = to_minutes(seconds) / 60
+    return result
+
+def to_days(seconds):
+    result = to_hours(seconds) / 24
+    return result
+
+print(to_days(216000))
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="trace.rs"
+fn to_minutes(seconds: f64) -> f64 {
+    let result = seconds / 60.0;
+    return result;
+}
+
+fn to_hours(seconds: f64) -> f64 {
+    let result = to_minutes(seconds) / 60.0;
+    return result;
+}
+
+fn to_days(seconds: f64) -> f64 {
+    let result = to_hours(seconds) / 24.0;
+    return result;
+}
+
+fn main() {
+    println!("{}", to_days(216000.0));
+}
+```
+</TabItem>
+</Tabs>
+
+<Reveal label="Reveal the completed call-stack trace">
+<Steps>
+
+1. The program calls `to_days(216000)`. The argument `216000` is copied into `to_days`'s parameter `seconds`, and `to_days`'s frame is pushed. Stack, bottom to top: `to_days` with `seconds = 216000`.
+
+2. Computing `to_hours(seconds) / 24` begins by calling `to_hours(216000)`. `216000` is copied into `to_hours`'s own parameter `seconds`, and a second frame is pushed on top. `to_days`'s frame waits beneath, unchanged. Stack: `to_days` with `seconds = 216000`; `to_hours` with `seconds = 216000`.
+
+3. Computing `to_minutes(seconds) / 60` begins by calling `to_minutes(216000)`. `216000` is copied into `to_minutes`'s own parameter `seconds`, and a third frame is pushed on top. Now three frames are on the stack at once. Stack: `to_days` with `seconds = 216000`; `to_hours` with `seconds = 216000`; `to_minutes` with `seconds = 216000`.
+
+4. Inside `to_minutes`, `result = seconds / 60` computes `3600.0` and stores it in a box in `to_minutes`'s own frame. Stack: `to_days` with `seconds = 216000`; `to_hours` with `seconds = 216000`; `to_minutes` with `seconds = 216000`, `result = 3600.0`.
+
+5. `return result` hands `3600.0` back. `to_minutes`'s frame is popped, taking its `seconds` and `result` with it, and control returns to `to_hours`. Stack: `to_days` with `seconds = 216000`; `to_hours` with `seconds = 216000`.
+
+6. Back in `to_hours`, `to_minutes(seconds)` was `3600.0`, so `3600.0 / 60` is `60.0`, stored in `to_hours`'s own `result`. Stack: `to_days` with `seconds = 216000`; `to_hours` with `seconds = 216000`, `result = 60.0`.
+
+7. `return result` hands `60.0` back. `to_hours`'s frame is popped in turn, and control returns to `to_days`. Stack: `to_days` with `seconds = 216000`.
+
+8. Back in `to_days`, `to_hours(seconds)` was `60.0`, so `60.0 / 24` is `2.5`, stored in `to_days`'s own `result`. Stack: `to_days` with `seconds = 216000`, `result = 2.5`.
+
+9. `to_days` returns `2.5`; its frame is popped, and `print` shows the value. The stack is empty again.
+
+</Steps>
+
+Run it to confirm the value the trace lands on:
+
+```bash title="Run the Python program"
+python3 trace.py
+```
+
+```text frame="terminal" title="Output"
+2.5
+```
+
+Rust prints the same `2.5`. Three `seconds` boxes, one in each frame, sat on the stack at the same time in step 3, all holding `216000`, yet they were separate boxes in separate frames: popping `to_minutes` at step 5 and `to_hours` at step 7 discarded each copy without disturbing the ones below. The answer reached `to_days` only through the value each call returned, never by one frame reaching into another.
+</Reveal>
+
+---
+
+## Predict What Each Print Shows
+
+The two programs below use the name `rate` in two places: once at the top level and once inside a function. Real programs reuse good names like this constantly, and the prediction is which `rate` each print sees. You commit to all three printed lines first.
+
+Write down every line each program prints, in order, before opening the reveal.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="rate.py"
+rate = 10
+
+def total_cost(hours):
+    rate = 12
+    print(rate)
+    return hours * rate
+
+print(total_cost(3))
+print(rate)
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="rate.rs"
+fn total_cost(hours: i32) -> i32 {
+    let rate = 12;
+    println!("{}", rate);
+    return hours * rate;
+}
+
+fn main() {
+    let rate = 10;
+    println!("{}", total_cost(3));
+    println!("{}", rate);
+}
+```
+</TabItem>
+</Tabs>
+
+<Reveal label="Reveal the real output and which rate each print saw">
+```bash title="Run the Python program"
+python3 rate.py
+```
+
+```text frame="terminal" title="Output"
+12
+36
+10
+```
+
+```bash title="Compile and run the Rust program"
+rustc rate.rs
+./rate
+```
+
+```text frame="terminal" title="Output"
+12
+36
+10
+```
+
+Both programs print `12`, then `36`, then `10`. The call `total_cost(3)` runs first, and inside the function the name `rate` refers to the function's own variable holding `12`: that is what the first printed line shows and what `hours * rate` uses, so the call returns `3 * 12`, the `36` on the second line. The final print runs back at the top level, where `rate` still holds `10`: the assignment inside the function never touched it.
+
+If you predicted `10` for the first line, you had the function reading the outer `rate` past its own; if you predicted `12` for the last line, you had the function's assignment overwriting the outer variable. Neither happens: the function's `rate` is a separate box in the function's own frame, created when the call starts and discarded when it returns.
+
+<WhatDiffers>
+<Fragment slot="differs">
+The printed lines are identical, but the reason differs. In Python, the module-level `rate` would normally be visible inside the function; it is the assignment `rate = 12` that makes `rate` a local variable of `total_cost` and shadows the outer one for the whole body. Delete that assignment and the function's prints would see `10`. In Rust, `main`'s `rate` is a local variable of `main`, so `total_cost` could never have seen it in the first place: its `let rate = 12;` hides nothing, because it is the only `rate` that function has. Same output, two different scope stories.
+</Fragment>
+</WhatDiffers>
+</Reveal>
+
+---
+
+## Diagnose the Scope Trap
+
+The same discount function, written naturally in each language, springs a different scope trap. Python and Rust catch the mistake at different times and with different messages, so you diagnose each with the systematic method: read the error, form a hypothesis, test the fix.
+
+Each program below is meant to subtract a discount from a starting total of `100` and print the result. Neither does. Run the version for your language, read the error it produces, and work out the one change that fixes it.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="debug.py"
+total = 100
+
+def apply_discount(amount):
+    total = total - amount
+    return total
+
+print(apply_discount(30))
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="debug.rs (will not compile)"
+fn apply_discount(amount: i32) -> i32 {
+    {
+        let total = 100 - amount;
+    }
+    return total;
+}
+
+fn main() {
+    println!("{}", apply_discount(30));
+}
+```
+</TabItem>
+</Tabs>
+
+<Reveal label="Reveal the diagnosis, the exact errors, and the fix">
+```bash title="Run the buggy Python program"
+python3 debug.py
+```
+
+```text frame="terminal" title="Output"
+Traceback (most recent call last):
+  File "debug.py", line 7, in <module>
+    print(apply_discount(30))
+          ~~~~~~~~~~~~~~^^^^
+  File "debug.py", line 4, in apply_discount
+    total = total - amount
+            ^^^^^
+UnboundLocalError: cannot access local variable 'total' where it is not associated with a value
+```
+
+```bash title="Compile the buggy Rust program"
+rustc debug.rs
+```
+
+```text frame="terminal" title="Output"
+error[E0425]: cannot find value `total` in this scope
+ --> debug.rs:5:12
+```
+
+**Symptom.** Both programs name `total` where its scope does not reach, but the two languages trip on it for different reasons. Python runs until it enters `apply_discount`, then raises an `UnboundLocalError` on the line that reads `total`. Rust never runs at all: the compiler rejects `return total` before building an executable, reporting `E0425`.
+
+**Hypothesis, Python.** Assigning `total` anywhere in `apply_discount` makes `total` a local variable for the whole function, even on the lines above the assignment. So `total - amount` on the right side reads that local, which has not been given a value yet, and Python stops. The module-level `total = 100` is a separate global box that the function's own local `total` hides for the entire body, so the function never sees the `100`.
+
+**Hypothesis, Rust.** `total` is declared with `let` inside a bare `{ }` block. Its box is dropped the moment the block's closing brace passes, so by the time `return total` runs, one line later, the name points at a box that no longer exists. The value was computed correctly inside the block and then thrown away when the block ended.
+
+**Test.** Give each function the value through the one channel that survives, a parameter and a return, rather than reaching for a name outside its scope. In Python, pass the starting total in and return the difference. In Rust, lift the `let` out of the block so `total` lives for the rest of the function:
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="debug.py (fixed)"
+total = 100
+
+def apply_discount(current, amount):
+    return current - amount
+
+print(apply_discount(total, 30))
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="debug.rs (fixed)"
+fn apply_discount(amount: i32) -> i32 {
+    let total = 100 - amount;
+    return total;
+}
+
+fn main() {
+    println!("{}", apply_discount(30));
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the fixed Python program"
+python3 debug.py
+```
+
+```text frame="terminal" title="Output"
+70
+```
+
+Rust compiles and prints the same `70`. Notice that the two fixes are not the same shape: Python's function gained a parameter, while Rust's kept its signature and just lifted the `let` out of the bare block. Each is the idiomatic repair for the trap its language sprang, since Python's problem was reaching for a name outside the function, which a parameter brings in honestly, and Rust's problem was a value dying with its block, which moving the declaration up fixes without touching the signature. In Python, adding `global total` inside the function would also silence the error, but it would reintroduce exactly the shared-global antipattern the lecture warned against; passing the value in as a parameter keeps the function's dependency visible in its own signature instead.
+</Reveal>
+
+---
+
+## Write a Function That Calls Another Function
+
+Write `double(n)`, which returns `n` times `2`, and `quadruple(n)`, which returns four times `n` by calling `double` twice, once on `n` and once on the result. Do not compute `n * 4` directly in `quadruple`: it must call `double` inside itself. Print `quadruple(5)`.
+
+<Reveal label="Reveal a sample solution">
+More than one correct solution exists; this is a sample.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+```python title="quadruple.py"
+def double(n):
+    return n * 2
+
+def quadruple(n):
+    return double(double(n))
+
+print(quadruple(5))
+```
+</TabItem>
+<TabItem label="Rust">
+```rust title="quadruple.rs"
+fn double(n: i32) -> i32 {
+    return n * 2;
+}
+
+fn quadruple(n: i32) -> i32 {
+    return double(double(n));
+}
+
+fn main() {
+    println!("{}", quadruple(5));
+}
+```
+</TabItem>
+</Tabs>
+
+```bash title="Run the Python program"
+python3 quadruple.py
+```
+
+```text frame="terminal" title="Output"
+20
+```
+
+Rust prints the same `20`. `quadruple`'s frame calls `double` twice in turn: each call pushes and pops its own frame before `quadruple` uses the returned value, first doubling `5` to `10`, then doubling `10` to `20`.
+</Reveal>
+
+---
+
+## Bridge
+
+These three reps feed the recitation family where a value is converted through a chain of small functions to reach a result in different units of measure or time, with each function keeping its own parameters and local variables. Tracing which frame holds each variable, and reading a result only through the value a function returns rather than reaching for a name outside its scope, is exactly the discipline that family rewards, and the guided first rung of it is what you just practiced by hand.

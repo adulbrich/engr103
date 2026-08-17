@@ -1,0 +1,33 @@
+{
+  "title": "Assignment 6: Sensor Drift Check, visible tests",
+  "mode": "function",
+  "tolerance": 1e-06,
+  "files": {
+    "py": "classify_reading.py",
+    "rs": [
+      "classify_reading.rs"
+    ]
+  },
+  "entry": [
+    {
+      "name": "reading_status",
+      "params": [
+        "f64",
+        "f64",
+        "f64"
+      ],
+      "ret": "i32"
+    }
+  ],
+  "cases": [
+    {
+      "call": "reading_status",
+      "args": [
+        42.0,
+        40.0,
+        3.0
+      ],
+      "expect": 0
+    }
+  ]
+}

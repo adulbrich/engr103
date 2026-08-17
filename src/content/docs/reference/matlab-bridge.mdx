@@ -1,0 +1,56 @@
+---
+title: MATLAB Bridge
+description: The course subset mapped construct by construct onto MATLAB, for students heading into MATLAB-based major courses.
+sidebar:
+  order: 5
+---
+
+This page maps the course subset onto MATLAB, for students heading into MATLAB-based major courses. It covers only the constructs on the [language ladder](/reference/language-ladder), in ladder order, so what you learned here has a direct MATLAB form. The middle column shows the Python form of each construct; the Rust form maps the same way. Cells hold short fragments, not full programs. Read `## What will surprise you` at the end: MATLAB's model differs from the course subset in a few habits worth naming.
+
+## Construct map
+
+| Concept | Course subset (Python or Rust) | MATLAB |
+|---|---|---|
+| Print a value | `print(x)` | `disp(x)` |
+| Print with a placeholder | `print(f"x = {x}")` | `fprintf("x = %d\n", x)` |
+| Integer literal | `x = 5` | `x = 5;` |
+| Float literal | `y = 2.5` | `y = 2.5;` |
+| Boolean literal | `b = True` | `b = true;` |
+| String literal | `s = "hi"` | `s = "hi";` |
+| Arithmetic and precedence | `a + b * c` | `a + b * c` |
+| True division | `7 / 2` is `3.5` | `7 / 2` is `3.5` |
+| Floor division | `7 // 2` is `3` | `floor(7 / 2)` is `3` |
+| Variable and assignment | `x = 5` | `x = 5;` |
+| Reassign | `x = 6` | `x = 6;` |
+| Constant (naming convention) | `MAX = 10` | `MAX = 10;` |
+| Formatted string | `f"x = {x}"` | `sprintf("x = %d", x)` |
+| Function definition | `def add(a, b): return a + b` | `function s = add(a, b)`<br />`  s = a + b;`<br />`end` |
+| Call a function | `s = add(2, 3)` | `s = add(2, 3);` |
+| Comparisons | `a == b`, `a < b`, `a != b` | `a == b`, `a < b`, `a ~= b` |
+| Boolean operators | `a and b`, `a or b`, `not a` | `a && b`, `a \|\| b`, `~a` |
+| `if` / `elif` / `else` | `if c:` / `elif d:` / `else:` | `if c`<br />`elseif d`<br />`else`<br />`end` |
+| `while` loop | `while c:` | `while c`<br />`  % body`<br />`end` |
+| Counted `for` loop | `for i in range(1, n + 1):` | `for i = 1:n`<br />`  % body`<br />`end` |
+| List literal | `xs = [1, 2, 3]` | `xs = [1, 2, 3];` |
+| Index an element | `xs[0]` | `xs(1)` |
+| Length | `len(xs)` | `length(xs)` |
+| Iterate over elements | `for x in xs:` | `for x = xs`<br />`  % body`<br />`end` |
+| Append to the end | `xs.append(4)` | `xs(end + 1) = 4;` |
+| String as a sequence | `s[0]` | `s = 'hi'; s(1)` is `'h'` |
+| Slice | `s[1:3]` | `s(2:3)` |
+| Search within a string | `"lo" in s` | `contains(s, "lo")` |
+| Build up a string | `s = s + "!"` | `s = s + "!";` |
+| String length | `len(s)` | `strlength(s)` |
+| Read a line of input | `s = input("Name: ")` | `s = input("Name: ", 's');` |
+| Parse text to a number | `n = int(s)` | `n = str2double(s);` |
+| Guard risky code | `try:` / `except:` | `try`<br />`catch`<br />`end` |
+| Compare floats with a tolerance | `abs(a - b) < 1e-9` | `abs(a - b) < 1e-9` |
+
+## What will surprise you
+
+- **It is 1-indexed.** The first element is `xs(1)`, not `xs(0)`, and the last is `xs(end)`. Indexing uses parentheses, the same syntax as a function call, so `xs(1)` and `add(1)` look alike.
+- **It is matrix-first.** Every value is a matrix; a plain number is just a 1-by-1 one. `*`, `/`, and `^` mean matrix operations, so to work element by element you write `.*`, `./`, and `.^`. This is the habit the course subset does not have.
+- **It is weakly typed.** There are no type annotations. A variable is whatever you last assigned to it, and numbers are double by default, so the `i32` versus `f64` distinction from the course subset disappears.
+- **Blocks close with `end`.** Indentation is cosmetic. Every `if`, `while`, `for`, and `function` is terminated by an explicit `end`, not by a change in indentation as in Python or by braces as in Rust.
+- **`=` versus `==`.** A single `=` assigns; a double `==` compares. Using `=` where you meant `==` is a syntax error inside a condition, but it is a habit worth watching. Note also that "not equal" is `~=`, not `!=`.
+- **Scripts versus functions.** A script file runs top to bottom and shares the workspace; a function file defines reusable functions with their own local scope. A trailing semicolon suppresses the automatic printing of a result, so leave it off only when you want to see the value.
