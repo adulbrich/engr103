@@ -1167,7 +1167,9 @@ Alignment checks built into the table:
   to Canvas downloads and autograding moves from GitHub Classroom to Gradescope
   (its Docker-based autograder is language agnostic, and community Rust/Cargo
   autograder examples exist). The local `check`/`pack` tooling is new
-  infrastructure for the assignment tier (`ARCHITECTURE.md`); recitations,
+  infrastructure for the assignment tier: it lives once in `starters/_lib/`,
+  is copied into each starter by `scripts/build-starters.sh`, and is graded by
+  the image in `engr103-assessments/autograders/gradescope/`. Recitations,
   being paper handouts, need none.
 
 ## 12. Risks and open questions
